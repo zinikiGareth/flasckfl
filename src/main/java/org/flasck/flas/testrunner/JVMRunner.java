@@ -108,7 +108,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 				throw (Throwable)result;
 			if (cxt.getError() != null)
 				throw cxt.getError();
-			pw.pass("JVM", desc);
+			if (desc != null)
+				pw.pass("JVM", desc);
 		} catch (WrappedException ex) {
 			Throwable e2 = WrappedException.unwrapThrowable(ex);
 			if (e2 instanceof AssertFailed) {

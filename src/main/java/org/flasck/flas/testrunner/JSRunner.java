@@ -124,13 +124,13 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 					if (!"undefined".equals(isdf))
 						isdf = page.executeScript("typeof(" + fn + ")");
 					if ("function".equals(isdf)) {
-						ret = page.executeScript(fn + "(new window.UTRunner(window.JavaLogger))");
+						ret = page.executeScript((!isTest?"new ":"") + fn + "(new window.UTRunner(window.JavaLogger))");
 						ran = true;
 					}
 				}
 				if (ret != null && !"undefined".equals(ret))
 					rets.add(ret);
-				if (isTest && ran)
+				if (isTest && desc != null && ran)
 					pw.pass("JS", desc);
 				cdl.countDown();
 			} catch (Throwable t) {

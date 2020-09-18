@@ -26,19 +26,21 @@ public class JSNew implements JSExpr {
 
 	@Override
 	public String asVar() {
-		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
+		StringBuilder sb = new StringBuilder();
+		sb.append("new ");
+		sb.append(clz.jsName());
+		sb.append("(_cxt");
+		for (JSExpr e : args) {
+			sb.append(", ");
+			sb.append(e.asVar());
+		}
+		sb.append(")");
+		return sb.toString();
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("new ");
-		w.print(clz.jsName());
-		w.print("(_cxt");
-		for (JSExpr e : args) {
-			w.print(", ");
-			w.print(e.asVar());
-		}
-		w.print(")");
+		w.print(asVar());
 	}
 
 	@Override

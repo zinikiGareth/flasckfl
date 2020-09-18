@@ -89,7 +89,7 @@ public class JSEnvironment implements JSStorage {
 	
 	@Override
 	public JSClassCreator newSystemTest(SystemTest st) {
-		JSFile inpkg = getPackage(st.name().packageName().jsName());
+		JSFile inpkg = getPackage(st.name().packageName().jsName() + "._st");
 		JSClass ret = new JSClass(this, st.name());
 		inpkg.addClass(ret);
 		return ret;

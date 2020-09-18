@@ -1,0 +1,6 @@
+JVM running system test test.golden._st_minimal
+JVM PASS that m was initialized
+JVM test.golden._st_minimal all stages passed
+JS running system test test.golden._st_minimal
+JS PASS that m was initialized
+JS test.golden._st_minimal all stages passed

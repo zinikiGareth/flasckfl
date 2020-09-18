@@ -94,4 +94,9 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	public int hashCode() {
 		return pkg.hashCode() ^ cardName.hashCode();
 	}
+	
+	@Override
+	public String toString() {
+		return "Card[" + uniqueName() + "]";
+	}
 }

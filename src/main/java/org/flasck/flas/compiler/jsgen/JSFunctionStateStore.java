@@ -14,7 +14,7 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSFunctionStateStore implements JSFunctionState {
-	public final Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
+	public final Map<UnitDataDeclaration, JSExpr> mocks;
 	public final Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
 	private final Map<NameOfThing, JSExpr> containers = new HashMap<>();
 	private Map<String, JSExpr> templateObj;
@@ -23,7 +23,12 @@ public class JSFunctionStateStore implements JSFunctionState {
 	private JSExpr ocmsgs;
 
 	public JSFunctionStateStore(JSMethodCreator meth) {
+		this(meth, new TreeMap<>());
+	}
+
+	public JSFunctionStateStore(JSMethodCreator meth, Map<UnitDataDeclaration, JSExpr> mocks) {
 		this.meth = meth;
+		this.mocks = mocks;
 	}
 
 	@Override

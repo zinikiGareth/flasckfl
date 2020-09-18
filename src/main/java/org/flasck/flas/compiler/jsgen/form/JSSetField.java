@@ -33,7 +33,7 @@ public class JSSetField implements IVForm {
 		w.print(".");
 		w.print(field);
 		w.print(" = ");
-		value.write(w);
+		w.print(value.asVar());
 		w.println(";");
 	}
 

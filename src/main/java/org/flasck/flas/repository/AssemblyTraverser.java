@@ -81,7 +81,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		try {
 			visitAssembly(a);
 			for (String s : jse.packages()) {
-				if (s.contains("_ut_"))
+				if (s.contains("_ut_") || s.contains("_st_"))
 					continue;
 				visitPackage(s);
 				File f = jse.fileFor(s);

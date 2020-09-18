@@ -118,9 +118,13 @@ public abstract class CommonTestRunner<T> {
 		T state = createSystemTest(pw, st);
 		if (state == null)
 			return;
+		if (st.configure != null)
+			runSystemTestStage(pw, state, st, st.configure);
 		for (SystemTestStage e : st.stages) {
 			runSystemTestStage(pw, state, st, e);
 		}
+		if (st.cleanup != null)
+			runSystemTestStage(pw, state, st, st.cleanup);
 		cleanupSystemTest(pw, state, st);
 	}
 

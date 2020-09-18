@@ -224,8 +224,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		}
 		if (interceptor != null)
 			interceptor.addIncludes(args);
-		args.add("--dumprepo");
-		args.add("repo.txt");
+//		args.add("--dumprepo");
+//		args.add("repo.txt");
 
 		args.add("--testname");
 		args.add(s.replace("/", "-").replace("src-golden-", ""));
@@ -233,11 +233,11 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			args.addAll(FileUtils.readFileAsLines(packages));
 		} else
 			args.add("test.golden");
-		try {
+//		try {
 		Main.standardCompiler(args.toArray(new String[args.size()]));
-		} finally {
-		FileUtils.cat(new File(s, "repo.txt"));
-		}
+//		} finally {
+//		FileUtils.cat(new File(s, "repo.txt"));
+//		}
 		if (checkExpectedErrors(te, expectedErrors, actualErrors)) {
 			te.checkTestResults();
 			te.checkFlimStore();

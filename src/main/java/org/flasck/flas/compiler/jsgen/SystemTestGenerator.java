@@ -1,7 +1,16 @@
 package org.flasck.flas.compiler.jsgen;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
@@ -9,17 +18,25 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class SystemTestGenerator extends LeafAdapter {
 	private final NestedVisitor sv;
 	private final JSStorage jse;
-	private JSClassCreator ctr;
+	private JSClassCreator clz;
 	private JSFunctionState state;
 	private JSExpr runner;
+	private JSMethodCreator meth;
+	private JSBlockCreator block;
+	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
+	private final List<JSExpr> explodingMocks = new ArrayList<>();
+	private final Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
 
 	public SystemTestGenerator(NestedVisitor sv, JSStorage jse, SystemTest st) {
 		this.sv = sv;
@@ -32,24 +49,29 @@ public class SystemTestGenerator extends LeafAdapter {
 		NameOfThing name = st.name();
 		String pkg = name.packageName().jsName();
 		jse.ensurePackageExists(pkg, name.container().jsName());
-		ctr = jse.newSystemTest(st);
-		ctr.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");
-		JSMethodCreator ctor = ctr.constructor();
+		clz = jse.newSystemTest(st);
+		clz.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");
+		JSMethodCreator ctor = clz.constructor();
 		this.runner = ctor.argument(J.TESTHELPER, "runner");
 		ctor.setField(false, "_runner", runner);
 		ctor.initContext(false);
 		ctor.clear();
-		ctor.returnThis();
+		ctor.returnVoid();
+	}
+
+	@Override
+	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
+		UDDGeneratorJS.handleUDD(sv, meth, state, this.block, globalMocks, explodingMocks, udd);
 	}
 
 	@Override
 	public void visitSystemTestStage(SystemTestStage s) {
-		JSMethodCreator meth = ctr.createMethod(s.name.baseName(), true);
-		state = new JSFunctionStateStore(meth);
-//		meth.argument(J.FLEVALCONTEXT, "_cxt");
+		this.meth = clz.createMethod(s.name.baseName(), true);
+		state = new JSFunctionStateStore(meth, this.mocks);
 		meth.returnsType("void");
 		this.runner = meth.field("_runner");
 		meth.initContext(true);
+		this.block = meth;
 	}
 	
 	@Override
@@ -59,6 +81,19 @@ public class SystemTestGenerator extends LeafAdapter {
 
 	@Override
 	public void leaveSystemTestStage(SystemTestStage s) {
+		if (s.name.baseName().equals("configure")) {
+			Map<UnitDataDeclaration, JSExpr> asfields = new TreeMap<>(mocks);
+			mocks.clear();
+			for (Entry<UnitDataDeclaration, JSExpr> e : asfields.entrySet()) {
+				String mn = "_mock_" + e.getKey().name.baseName();
+				clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), mn);
+				this.meth.setField(false, mn, e.getValue());
+				mocks.put(e.getKey(), this.meth.field(mn));
+			}
+		} else if (s.name.baseName().equals("finally")) {
+			// TODO: this suggests we should probably always create these ...
+//			throw new NotImplementedException("we should check all the mocks");
+		}
 		state.meth().returnVoid();
 		state = null;
 	}

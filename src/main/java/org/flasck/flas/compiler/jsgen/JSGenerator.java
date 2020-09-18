@@ -82,8 +82,6 @@ import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
-import org.flasck.flas.tc3.NamedType;
-import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.jvm.J;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -854,53 +852,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
-		if (meth == null) {
-			globalMocks.add(udd);
-			return;
-		}
-		NamedType objty = udd.ofType.defn();
-		if (objty instanceof PolyInstance)
-			objty = ((PolyInstance)objty).struct();
-		if (objty instanceof ContractDecl) {
-			ContractDecl cd = (ContractDecl) objty;
-			JSExpr mock;
-			if (cd.type == ContractType.HANDLER) {
-				if (udd.expr != null) {
-					new UDDGeneratorJS(sv, meth, state, this.block);
-					return;
-				}
-				mock = meth.mockHandler((SolidName) objty.name());
-			} else
-				mock = meth.mockContract((SolidName) objty.name());
-			state.addMock(udd, mock);
-			explodingMocks.add(mock);
-		} else if (objty instanceof AgentDefinition) {
-			JSExpr obj = meth.createAgent((CardName) objty.name());
-			state.addMock(udd, obj);
-		} else if (objty instanceof CardDefinition) {
-			JSExpr obj = meth.createCard((CardName) objty.name());
-			state.addMock(udd, obj);
-		} else if (objty instanceof ServiceDefinition) {
-			JSExpr obj = meth.createService((CardName) objty.name());
-			state.addMock(udd, obj);
-		} else if (objty instanceof StructDefn || objty instanceof UnionTypeDefn) {
-			new UDDGeneratorJS(sv, meth, state, this.block);
-		} else if (objty instanceof ObjectDefn) {
-			new UDDGeneratorJS(sv, meth, state, this.block);
-		} else if (objty instanceof HandlerImplements) {
-			new UDDGeneratorJS(sv, meth, state, this.block);
-		} else {
-			/* It seems to me that this requires us to traverse the whole of 
-			 * the inner expression.  I'm not quite sure what is the best way to handle that.
-			 * Another option on the traverser? A signal back to the traverser (how?) that
-			 * says "traverse this"?  Creating a subtraverser here?
-			 * 
-			 * Reviewing this today, I don't see why you wouldn't want to traverse it all the time
-			 * But probably have individual visit/leave combos for uddExpr and each uddField
-			 * All ended by leaveUDD
-			 */
-			throw new RuntimeException("not handled: " + objty + " of " + objty.getClass());
-		}
+		UDDGeneratorJS.handleUDD(sv, meth, state, this.block, globalMocks, explodingMocks, udd);
 	}
 	
 	@Override
