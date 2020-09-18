@@ -158,3 +158,4 @@ src/golden/structs/constructors/fromHash/simple
 src/golden/agents/handlerWithArgs
 src/golden/systemtests/errors
 src/golden/systemtests/trivial
+src/golden/systemtests/useroot

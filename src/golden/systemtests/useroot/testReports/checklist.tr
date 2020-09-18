@@ -1,0 +1,6 @@
+JVM running system test test.golden._st_.checklist
+JVM PASS we can use a file from an imported (root) package
+JVM test.golden._st_.checklist all stages passed
+JS running system test test.golden._st_.checklist
+JS PASS we can use a file from an imported (root) package
+JS test.golden._st_.checklist all stages passed

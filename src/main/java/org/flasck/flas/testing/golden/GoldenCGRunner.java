@@ -222,6 +222,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 				args.add("src/golden/" + ff + "/jvmout");
 			}
 		}
+		if (interceptor != null)
+			interceptor.addIncludes(args);
 		args.add("--testname");
 		args.add(s.replace("/", "-").replace("src-golden-", ""));
 		if (packages.exists()) {
