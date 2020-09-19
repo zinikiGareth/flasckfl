@@ -7,28 +7,28 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class TestResultWriter {
-	private final boolean writeEverthing;
+	private final boolean writeEverything;
 	private final PrintWriter pw;
 	private boolean doClose;
 
-	public TestResultWriter(boolean writeEverthing, PrintStream out) {
-		this.writeEverthing = writeEverthing;
+	public TestResultWriter(boolean writeEverything, PrintStream out) {
+		this.writeEverything = writeEverything;
 		this.pw = new PrintWriter(out);
 	}
 	
 	public TestResultWriter(boolean writeEverything, StringWriter sw) {
-		writeEverthing = writeEverything;
+		this.writeEverything = writeEverything;
 		this.pw = new PrintWriter(sw);
 	}
 
-	public TestResultWriter(boolean writeEverthing, File out) throws FileNotFoundException {
-		this.writeEverthing = writeEverthing;
+	public TestResultWriter(boolean writeEverything, File out) throws FileNotFoundException {
+		this.writeEverything = writeEverything;
 		this.pw = new PrintWriter(out);
 		this.doClose = true;
 	}
 
 	public void pass(String which, String description) {
-		if (writeEverthing) {
+		if (writeEverything) {
 			pw.println(which + " PASS " + description);
 			pw.flush();
 		}

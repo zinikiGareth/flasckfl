@@ -21,6 +21,7 @@ import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.graphs.DirectedAcyclicGraph;
@@ -37,6 +38,7 @@ public class JSEnvironment implements JSStorage {
 	// The idea is that there is one file per package
 	private final Map<String, JSFile> files = new TreeMap<String, JSFile>();
 	private final File root;
+	private final List<StructDefn> structs = new ArrayList<>();
 	private final List<ContractDecl> contracts = new ArrayList<>();
 	private final List<ObjectDefn> objects = new ArrayList<>();
 	private final List<HandlerImplements> handlers = new ArrayList<>();
@@ -128,6 +130,11 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
+	public void struct(StructDefn s) {
+		structs.add(s);
+	}
+
+	@Override
 	public void contract(ContractDecl cd) {
 		contracts.add(cd);
 	}
@@ -156,6 +163,8 @@ public class JSEnvironment implements JSStorage {
 			for (ObjectDefn od : objects)
 				ifn.cxtMethod("registerObject", new JSString(od.name().uniqueName()), ifn.literal(od.name().uniqueName()));
 			for (HandlerImplements hi : handlers)
+				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().jsName()));
+			for (StructDefn hi : structs)
 				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().jsName()));
 			p.getValue().addFunction(ifn);
 		}

@@ -52,6 +52,7 @@ public class StructGenerationJS {
 		JSVar jsa = new JSVar("_cxt");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).struct(sd);
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);
@@ -99,6 +100,7 @@ public class StructGenerationJS {
 		JSVar jsa = new JSVar("_cxt");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).struct(sd);
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);

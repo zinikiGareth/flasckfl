@@ -11,6 +11,7 @@ import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.st.SystemTest;
 
 public interface JSStorage {
@@ -27,6 +28,7 @@ public interface JSStorage {
 	Iterable<File> files();
 	File fileFor(String s);
 
+	void struct(StructDefn s);
 	void contract(ContractDecl cd);
 	void object(ObjectDefn cd);
 	void handler(HandlerImplements hi);

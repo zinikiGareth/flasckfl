@@ -427,6 +427,11 @@ FLContext.prototype.full = function(obj) {
 	} else if (Array.isArray(obj)) {
 		for (var i=0;i<obj.length;i++)
 			obj[i] = this.full(obj[i]);
+	} else if (obj.state instanceof FieldsContainer) {
+		var ks = Object.keys(obj.state.dict);
+		for (var i=0;i<ks.length;i++) {
+			obj.state.dict[ks[i]] = this.full(obj.state.dict[ks[i]]);
+		}
 	}
 	return obj;
 }
@@ -1448,6 +1453,7 @@ FLBuiltin.assoc = function(_cxt, hash, member) {
 FLBuiltin.assoc.nfargs = function() { return 2; }
 
 FLBuiltin.parseUri = function(_cxt, s) {
+	s = _cxt.full(s);
 	if (s instanceof FLError)
 		return s;
 	else if (typeof(s) !== 'string')
@@ -1461,6 +1467,28 @@ FLBuiltin.parseUri = function(_cxt, s) {
 	}
 }
 FLBuiltin.parseUri.nfargs = function() { return 1; }
+
+
+
+const Interval = function(d, us) {
+    this.days = d;
+    this.us = us;
+}
+
+Interval.prototype._towire = function(wf) {
+    wf.days = days;
+    wf.us = us;
+}
+
+FLBuiltin.seconds = function(_cxt, n) {
+    n = _cxt.full(n);
+	if (n instanceof FLError)
+		return n;
+	else if (typeof(n) !== 'number')
+        return new FLError("not a number");
+	return new Interval(Math.floor(n / 86400), (n % 86400) * 1000 * 1000 * 1000);
+}
+FLBuiltin.seconds.nfargs = function() { return 1; }
 
 
 

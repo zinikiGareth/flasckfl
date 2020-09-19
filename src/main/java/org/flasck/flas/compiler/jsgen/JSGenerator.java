@@ -239,6 +239,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			return;
 		String pkg = ((SolidName)obj.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, obj.name().container().jsName());
+		jse.struct(obj);
 		JSClassCreator ctr = jse.newClass(pkg, obj.name());
 		ctr.inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 		ctr.implementsJava(J.AREYOUA);
