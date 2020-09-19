@@ -95,7 +95,9 @@ public class FlimVisitor extends LeafAdapter {
 	public void visitStructField(StructField sf) {
 		if (sfw != null) {
 			sfw.println("field " + sf.name);
-			showType(sfw.indent(), sf.type());
+			IndentWriter fiw = sfw.indent();
+			fiw.println("init " + (sf.init != null));
+			showType(fiw, sf.type());
 		}
 	}
 	

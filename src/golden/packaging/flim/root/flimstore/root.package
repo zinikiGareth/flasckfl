@@ -1,10 +1,12 @@
 	struct null InRoot
 		poly A
 		field x
+			init false
 			instance
 				named List
 				poly A
 		field head
+			init false
 			poly A
 	function null first
 		var A

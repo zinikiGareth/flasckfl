@@ -2,6 +2,7 @@ This is a package of definitions to go in the store
 
 	struct Hello
 		Number n
+		String msg <- "hello"
 		
 	union Something
 		Hello

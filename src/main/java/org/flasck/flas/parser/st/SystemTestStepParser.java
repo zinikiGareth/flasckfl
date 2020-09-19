@@ -32,9 +32,9 @@ public class SystemTestStepParser extends TestStepParser {
 //		case "shove": {
 //			return handleShove(toks);
 //		}
-//		case "contract": {
-//			return handleSendToContract(toks);
-//		}
+		case "contract": {
+			return handleSendToContract(toks);
+		}
 		case "data": {
 			return handleDataDecl(toks);
 		}

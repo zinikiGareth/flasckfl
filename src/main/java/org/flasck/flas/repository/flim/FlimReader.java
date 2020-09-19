@@ -55,6 +55,9 @@ public class FlimReader {
 				}
 			}
 		}
+		if (errors.hasErrors())
+			return;
+		
 		for (FlimTop ft : importers) {
 			ft.resolve();
 		}

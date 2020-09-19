@@ -18,13 +18,12 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.JavaInfo.Access;
-import org.zinutils.bytecode.JavaType;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class SystemTestGenerator extends LeafAdapter {
 	private final NestedVisitor sv;
@@ -62,6 +61,11 @@ public class SystemTestGenerator extends LeafAdapter {
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		UDDGeneratorJS.handleUDD(sv, meth, state, this.block, globalMocks, explodingMocks, udd);
+	}
+	
+	@Override
+	public void visitUnitTestSend(UnitTestSend uts) {
+		new DoSendGeneratorJS(state, sv, this.block, this.runner);
 	}
 
 	@Override

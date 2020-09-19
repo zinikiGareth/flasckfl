@@ -20,6 +20,10 @@ public abstract class FlimTypeReader implements TDAParsing {
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		KeywordToken kw = KeywordToken.from(toks);
+		return tryWith(toks, kw);
+	}
+
+	protected TDAParsing tryWith(Tokenizable toks, KeywordToken kw) {
 		switch (kw.text) {
 		case "apply": {
 			return new FlimApplyReader(errors, this);

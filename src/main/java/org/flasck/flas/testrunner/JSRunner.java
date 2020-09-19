@@ -168,7 +168,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 		});
 		boolean await = false;
 		try {
-			await = cdl.await(1, TimeUnit.SECONDS);
+			await = cdl.await(100, TimeUnit.SECONDS);
 		} catch (Exception ex) {
 		}
 		if (!await) {

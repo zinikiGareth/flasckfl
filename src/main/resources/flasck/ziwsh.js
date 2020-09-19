@@ -407,6 +407,8 @@ ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
         ;
     else if (typeof o === "string")
         ux.string(o);
+    else if (o instanceof URL)
+        ux.url(o);
     else if (typeof o === "number")
         ux.number(o);
     else if (typeof o === "boolean")
@@ -563,6 +565,10 @@ const CollectingTraverser = function(cx, collector) {
 
 CollectingTraverser.prototype.string = function(s) {
     this.collect(s);
+}
+
+CollectingTraverser.prototype.url = function(u) {
+    this.collect(u);
 }
 
 CollectingTraverser.prototype.number = function(n) {

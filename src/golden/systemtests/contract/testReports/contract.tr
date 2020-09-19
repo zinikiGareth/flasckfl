@@ -1,0 +1,10 @@
+JVM running system test test.golden._st_contract
+JVM PASS that m was initialized
+JVM PASS we can multiply by 10
+JVM PASS we can multiply again because we run stages in order
+JVM test.golden._st_contract all stages passed
+JS running system test test.golden._st_contract
+JS PASS that m was initialized
+JS PASS we can multiply by 10
+JS PASS we can multiply again because we run stages in order
+JS test.golden._st_contract all stages passed

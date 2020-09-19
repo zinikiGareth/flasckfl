@@ -1447,6 +1447,21 @@ FLBuiltin.assoc = function(_cxt, hash, member) {
 }
 FLBuiltin.assoc.nfargs = function() { return 2; }
 
+FLBuiltin.parseUri = function(_cxt, s) {
+	if (s instanceof FLError)
+		return s;
+	else if (typeof(s) !== 'string')
+		return new FLError("not a string");
+	try {
+		_cxt.log("s = ", s);
+		return new URL(s);
+	} catch (e) {
+		_cxt.log("error in parsing", s);
+		return new FLError(e);
+	}
+}
+FLBuiltin.parseUri.nfargs = function() { return 1; }
+
 
 
 const FLEvent = function() {

@@ -1,0 +1,10 @@
+	contract HitMe
+		hit
+
+	card Multiplier
+		state
+			Number value <- 42
+			
+		implements HitMe
+			hit
+				value <- value * 10

@@ -1,6 +1,10 @@
 	struct test.from Hello
 		field n
+			init false
 			named Number
+		field msg
+			init true
+			named String
 	union test.from Something
 		member
 			named test.from.Hello
