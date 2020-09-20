@@ -123,15 +123,15 @@ public class TypeChecker extends LeafAdapter {
 
 	@Override
 	public void leaveUnitTestEvent(UnitTestEvent e) {
-		resolveTargetZone(e.card.defn(), e.targetZone, "event", false);
+		resolveTargetZone(e.card.defn(), e.targetZone, "event", "send event to", false);
 	}
 
 	@Override
 	public void leaveUnitTestMatch(UnitTestMatch m) {
-		resolveTargetZone(m.card.defn(), m.targetZone, "match", true);
+		resolveTargetZone(m.card.defn(), m.targetZone, "match", "match text in", true);
 	}
 
-	private void resolveTargetZone(RepositoryEntry re, TargetZone tz, String type, boolean allowContainer) {
+	private void resolveTargetZone(RepositoryEntry re, TargetZone tz, String type, String msg, boolean allowContainer) {
 		if (tz.isWholeCard()) {
 			// it's aimed at the whole card
 			tz.bindTypes(new ArrayList<>());
@@ -140,7 +140,7 @@ public class TypeChecker extends LeafAdapter {
 		UnitDataDeclaration udd = (UnitDataDeclaration) re;
 		EventHolder card = (EventHolder) udd.ofType.defn();
 		if (card.templates().isEmpty()) {
-			errors.message(tz.location, "cannot send " + type + " to card with no templates");
+			errors.message(tz.location, "cannot " + msg + " card with no templates");
 			return;
 		}
 		// TODO: I think all (or most) of this should be extracted to

@@ -57,7 +57,6 @@ import org.flasck.flas.compiler.jsgen.form.JSMockCard;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSMockHandler;
 import org.flasck.flas.compiler.jsgen.form.JSMockService;
-import org.flasck.flas.compiler.jsgen.form.JSNameOf;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
 import org.flasck.flas.compiler.jsgen.form.JSNewDiv;
 import org.flasck.flas.compiler.jsgen.form.JSNewState;
@@ -131,11 +130,6 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSString string(String string) {
 		return new JSString(string);
-	}
-
-	@Override
-	public JSExpr nameOf(JSExpr expr) {
-		return new JSNameOf(expr);
 	}
 
 	@Override

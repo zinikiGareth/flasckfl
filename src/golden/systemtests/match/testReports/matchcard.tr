@@ -1,0 +1,12 @@
+JVM running system test test.golden._st_matchcard
+JVM PASS we can use match
+JVM FAIL check that match can also fail
+  expected: goodbye
+  actual:   hello
+JVM test.golden._st_matchcard all stages passed
+JS running system test test.golden._st_matchcard
+JS PASS we can use match
+JS FAIL check that match can also fail
+  expected: goodbye
+  actual:   hello
+JS test.golden._st_matchcard all stages passed

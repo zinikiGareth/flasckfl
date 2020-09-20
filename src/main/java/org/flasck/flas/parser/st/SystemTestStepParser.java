@@ -52,9 +52,9 @@ public class SystemTestStepParser extends TestStepParser {
 //		case "expect": {
 //			return handleExpect(toks);
 //		}
-//		case "match": {
-//			return handleMatch(toks);
-//		}
+		case "match": {
+			return handleMatch(toks);
+		}
 		default: {
 			toks.reset(mark);
 			errors.message(toks, "unrecognized system test step " + kw.text);

@@ -42,7 +42,7 @@ public class DoUTEventGeneratorJS extends LeafAdapter implements ResultAware {
 		if (args.size() != 2)
 			throw new RuntimeException("expected card & event");
 		// TODO: this needs to be an array of [type, name] elements to traverse the tree
-		block.assertable(runner, "event", block.nameOf(args.get(0)), makeSelector(block, e.targetZone), args.get(1));
+		block.assertable(runner, "event", args.get(0), makeSelector(block, e.targetZone), args.get(1));
 		sv.result(null);
 	}
 

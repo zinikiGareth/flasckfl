@@ -1,6 +1,7 @@
 package org.flasck.flas.testrunner;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +111,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 				throw cxt.getError();
 			if (desc != null)
 				pw.pass("JVM", desc);
-		} catch (WrappedException ex) {
+		} catch (WrappedException | InvocationTargetException ex) {
 			Throwable e2 = WrappedException.unwrapThrowable(ex);
 			if (e2 instanceof AssertFailed) {
 				AssertFailed af = (AssertFailed) e2;

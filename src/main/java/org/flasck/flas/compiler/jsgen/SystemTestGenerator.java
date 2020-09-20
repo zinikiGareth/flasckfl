@@ -18,6 +18,7 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -83,6 +84,11 @@ public class SystemTestGenerator extends LeafAdapter {
 		new CaptureAssertionClauseVisitorJS(state, sv, state.meth(), this.runner);
 	}
 
+	@Override
+	public void visitUnitTestMatch(UnitTestMatch m) {
+		new DoUTMatchGeneratorJS(state, sv, this.block, this.runner);
+	}
+	
 	@Override
 	public void leaveSystemTestStage(SystemTestStage s) {
 		if (s.name.baseName().equals("configure")) {

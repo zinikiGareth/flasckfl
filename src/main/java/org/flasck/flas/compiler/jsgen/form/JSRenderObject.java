@@ -27,7 +27,7 @@ public class JSRenderObject implements IVForm {
 		w.print("render");
 		w.print("(_cxt");
 		w.print(", ");
-		w.print(new JSNameOf(obj).asVar());
+		w.print(obj.asVar());
 		w.print(", ");
 		w.print(on.jsName()+".prototype._updateTemplate" + which);
 		w.print(", ");

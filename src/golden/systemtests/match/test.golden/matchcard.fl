@@ -1,0 +1,3 @@
+	card MatchCard
+		template simple
+			entry <- "hello"

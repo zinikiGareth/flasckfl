@@ -52,7 +52,7 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	this.updateCard(_cxt, target);
 }
 UTRunner.prototype.render = function(_cxt, target, fn, template) {
-	var sendTo = _cxt.env.mocks[target];
+	var sendTo = this.findMockFor(target);
 	if (!sendTo)
 		throw Error("there is no mock " + target);
 	sendTo.rt = {};
@@ -73,8 +73,18 @@ UTRunner.prototype.render = function(_cxt, target, fn, template) {
 	}
 	sendTo.redraw(_cxt);
 }
+UTRunner.prototype.findMockFor = function(obj) {
+	if (obj instanceof MockFLObject || obj instanceof MockCard)
+		return obj;
+	var ks = Object.keys(this.mocks);
+	for (var i=0;i<ks.length;i++) {
+		if (this.mocks[ks[i]].obj == obj)
+			return this.mocks[ks[i]];
+	}
+	throw new Error("no mock for " + obj);
+}
 UTRunner.prototype.event = function(_cxt, target, zone, event) {
-	var sendTo = _cxt.env.mocks[target];
+	var sendTo = this.findMockFor(target);
 	if (!sendTo)
 		throw Error("there is no mock " + target);
 	var div = null;
@@ -130,7 +140,7 @@ UTRunner.prototype.getZoneDiv = function(_cxt, target, zone) {
 	return this.findDiv(_cxt, target._currentRenderTree(), zone, 0);
 }
 UTRunner.prototype.matchText = function(_cxt, target, zone, contains, expected) {
-	var matchOn = _cxt.env.mocks[target];
+	var matchOn = this.findMockFor(target);
 	if (!matchOn)
 		throw Error("there is no mock " + target);
 	var div = this.getZoneDiv(_cxt, matchOn, zone);
@@ -146,7 +156,7 @@ UTRunner.prototype.matchText = function(_cxt, target, zone, contains, expected) 
 	}
 }
 UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected) {
-	var matchOn = _cxt.env.mocks[target];
+	var matchOn = this.findMockFor(target);
 	if (!matchOn)
 		throw Error("there is no mock " + target);
 	var div = this.getZoneDiv(_cxt, matchOn, zone);
