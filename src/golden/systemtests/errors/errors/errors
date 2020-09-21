@@ -1,3 +1,15 @@
+ajax.st:      2.4:    ajax _ 
+                          ajax command requires an operator
+ajax.st:      3.11:   ajax create _ 
+                          ajax create requires a variable to name the mock
+ajax.st:      4.12:   ajax create  _ 42
+                          ajax create requires a variable to name the mock
+ajax.st:      5.18:   ajax create server _ 
+                          ajax create requires a base url
+ajax.st:      6.29:   ajax create server "qq qq/33" _ 
+                          invalid ajax uri: qq qq/33
+ajax.st:      9.5:    ajax  _ create server "http://foo"
+                          cannot have ajax create in a test stage
 garbage.st:   3.0:     _ c = 14
                           syntax error
 testitems.st  3.4:    test _ 

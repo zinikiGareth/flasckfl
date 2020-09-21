@@ -6,7 +6,6 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.commonBase.names.VarName;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class TestStepNamer implements UnitDataNamer {
 	protected final NameOfThing name;
@@ -31,8 +30,8 @@ public class TestStepNamer implements UnitDataNamer {
 	}
 
 	@Override
-	public VarName nameVar(InputPosition loc, String name) {
-		throw new NotImplementedException("not expected to do this"); // but it would be easy ...
+	public VarName nameVar(InputPosition loc, String text) {
+		return new VarName(loc, name, text);
 	}
 
 	@Override

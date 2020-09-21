@@ -31,8 +31,8 @@ import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TestStepParser implements TDAParsing {
 	protected final ErrorReporter errors;
-	private final UnitTestStepConsumer builder;
-	private final UnitDataNamer namer;
+	protected final UnitTestStepConsumer builder;
+	protected final UnitDataNamer namer;
 	private final UnitTestDefinitionConsumer topLevel;
 
 	public TestStepParser(ErrorReporter errors, UnitDataNamer namer, UnitTestStepConsumer builder, UnitTestDefinitionConsumer topLevel) {
