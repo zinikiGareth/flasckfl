@@ -89,6 +89,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
+import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -2027,7 +2028,26 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitAjaxCreate(AjaxCreate ac) {
 		visitor.visitAjaxCreate(ac);
+		for (AjaxSubscribe as : ac.expectations) {
+			if (as instanceof AjaxSubscribe) {
+				visitAjaxExpectSubscribe((AjaxSubscribe)as);
+			} else
+				throw new NotImplementedException();
+		}
 		leaveAjaxCreate(ac);
+	}
+
+	@Override
+	public void visitAjaxExpectSubscribe(AjaxSubscribe as) {
+		visitor.visitAjaxExpectSubscribe(as);
+		for (Expr e : as.responses)
+			visitExpr(e, 0);
+		leaveAjaxExpectSubscribe(as);
+	}
+
+	@Override
+	public void leaveAjaxExpectSubscribe(AjaxSubscribe as) {
+		visitor.leaveAjaxExpectSubscribe(as);
 	}
 
 	@Override

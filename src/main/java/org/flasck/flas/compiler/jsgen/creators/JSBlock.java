@@ -26,6 +26,7 @@ import org.flasck.flas.compiler.jsgen.form.JSArray;
 import org.flasck.flas.compiler.jsgen.form.JSArrayElt;
 import org.flasck.flas.compiler.jsgen.form.JSAssertion;
 import org.flasck.flas.compiler.jsgen.form.JSBind;
+import org.flasck.flas.compiler.jsgen.form.JSCallMethod;
 import org.flasck.flas.compiler.jsgen.form.JSCallStatic;
 import org.flasck.flas.compiler.jsgen.form.JSClosure;
 import org.flasck.flas.compiler.jsgen.form.JSContractByVar;
@@ -168,8 +169,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 	
 	@Override
-	public JSExpr member(String var) {
-		return new JSMember(var);
+	public JSExpr member(NameOfThing type, String var) {
+		return new JSMember(type, var);
 	}
 	
 	@Override
@@ -216,6 +217,19 @@ public class JSBlock implements JSBlockCreator {
 		JSLocal stmt = new JSLocal(creating, new JSCallStatic(meth, nargs));
 		stmts.add(stmt);
 		return stmt;
+	}
+
+	@Override
+	public JSExpr callMethod(String returnType, JSExpr obj, String method, JSExpr... args) {
+		JSCallMethod m = new JSCallMethod(returnType, obj, method, args);
+		if ("void".equals(returnType)) {
+			stmts.add(m);
+			return null;
+		} else {
+			JSLocal stmt = new JSLocal(creating, m);
+			stmts.add(stmt);
+			return stmt;
+		}
 	}
 
 	@Override

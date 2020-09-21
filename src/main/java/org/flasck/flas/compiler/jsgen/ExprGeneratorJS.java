@@ -206,7 +206,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			RequiresContract rc = (RequiresContract)defn;
 			sv.result(block.contractByVar(state.container(rc.getParent().name()), rc.referAsVar));
 		} else if (defn instanceof ObjectContract) {
-			sv.result(block.member(((ObjectContract)defn).varName().var));
+			ObjectContract oc = (ObjectContract)defn;
+			sv.result(block.member(oc.implementsType().defn().name(), oc.varName().var));
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(false, ((TupleMember)defn).name(), myName, 0);
 		} else if (defn instanceof UnitDataDeclaration) {

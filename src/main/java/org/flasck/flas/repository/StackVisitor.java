@@ -66,6 +66,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
+import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -765,6 +766,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveAjaxCreate(AjaxCreate ac) {
 		top.leaveAjaxCreate(ac);
+	}
+
+	public void visitAjaxExpectSubscribe(AjaxSubscribe as) {
+		top.visitAjaxExpectSubscribe(as);
+	}
+
+	public void leaveAjaxExpectSubscribe(AjaxSubscribe as) {
+		top.leaveAjaxExpectSubscribe(as);
 	}
 
 	public void traversalDone() {

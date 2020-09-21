@@ -471,5 +471,15 @@ MockHandler.prototype.assertSatisfied = MockContract.prototype.assertSatisfied;
 const MockAjax = function() {
 
 }
+MockAjax.prototype.expectSubscribe = function(path) {
+	return new MockAjaxSubscriber();
+}
+
+const MockAjaxSubscriber = function() {
+
+}
+MockAjaxSubscriber.prototype.response = function(val) {
+
+}
 
 

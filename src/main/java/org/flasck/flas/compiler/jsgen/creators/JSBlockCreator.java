@@ -36,6 +36,7 @@ public interface JSBlockCreator {
 	JSExpr arrayElt(JSExpr tc, int i);
 	JSExpr makeTuple(JSExpr... args);
 	JSExpr callStatic(NameOfThing clz, int nargs);
+	JSExpr callMethod(String returnType, JSExpr obj, String method, JSExpr... args);
 	JSExpr cxtMethod(String meth, JSExpr... args);
 	JSExpr pushFunction(String meth, FunctionName name, int argcount);
 	JSExpr pushConstructor(NameOfThing name, String clz);
@@ -70,7 +71,7 @@ public interface JSBlockCreator {
 	JSExpr boundVar(String var);
 	JSExpr tupleMember(FunctionName name);
 	JSExpr lambda(HandlerLambda defn);
-	JSExpr member(String var);
+	JSExpr member(NameOfThing type, String var);
 
 	// HSIE logic statements
 	void bindVar(Slot slot, JSExpr jsExpr, String var);
