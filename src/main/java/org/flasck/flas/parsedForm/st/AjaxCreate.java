@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 
 public class AjaxCreate implements Locatable, UnitTestStep {
@@ -19,6 +20,11 @@ public class AjaxCreate implements Locatable, UnitTestStep {
 
 	public InputPosition location() {
 		return loc;
+	}
+
+	public void subscribe(ErrorReporter errors, AjaxSubscribe sub) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -10,7 +10,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parser.IgnoreNestedParser;
-import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.ConsumeDefinitions;
@@ -104,7 +103,7 @@ public class SystemTestStepParser extends TestStepParser {
 			StringLiteral baseUrl = new StringLiteral(loc, sl);
 			AjaxCreate ac = new AjaxCreate(op.location, vn, baseUrl);
 			((SystemTestStage)builder).ajax(errors, ac);
-			return new NoNestingParser(errors);
+			return new AjaxCreateActionsParser(errors, ac);
 		}
 		default: {
 			errors.message(toks, "unrecognized ajax operator: " + op.text);
