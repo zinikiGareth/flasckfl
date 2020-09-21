@@ -23,8 +23,5 @@ public class AjaxCreate implements Locatable, UnitTestStep {
 	}
 
 	public void subscribe(ErrorReporter errors, AjaxSubscribe sub) {
-		// TODO Auto-generated method stub
-		
 	}
-
 }

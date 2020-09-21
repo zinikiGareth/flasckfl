@@ -9,7 +9,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parser.IgnoreNestedParser;
-import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
@@ -60,7 +59,7 @@ public class AjaxCreateActionsParser implements TDAParsing {
 			StringLiteral pathUrl = new StringLiteral(loc, sl);
 			AjaxSubscribe sub = new AjaxSubscribe(kw.location, pathUrl);
 			ac.subscribe(errors, sub);
-			return new NoNestingParser(errors);
+			return new AjaxSubscribeOptionsParser(errors, sub);
 		}
 		default: {
 			errors.message(kw.location, "unrecognized ajax action " + kw.text);
