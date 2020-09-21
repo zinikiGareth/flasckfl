@@ -65,6 +65,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -756,6 +757,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveSystemTestStage(SystemTestStage s) {
 		top.leaveSystemTestStage(s);
+	}
+
+	public void visitAjaxCreate(AjaxCreate ac) {
+		top.visitAjaxCreate(ac);
+	}
+
+	public void leaveAjaxCreate(AjaxCreate ac) {
+		top.leaveAjaxCreate(ac);
 	}
 
 	public void traversalDone() {

@@ -16,7 +16,9 @@ public class SystemTestStage extends TestStepHolder {
 	public void ajax(ErrorReporter errors, AjaxCreate ac) {
 		if (!"configure".equals(name.baseName())) {
 			errors.message(ac.location(), "cannot have ajax create in a test stage");
+			return;
 		}
+		this.steps.add(ac);
 	}
 	
 	@Override

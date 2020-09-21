@@ -55,6 +55,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -706,6 +707,18 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void leaveSystemTestStage(SystemTestStage s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void visitAjaxCreate(AjaxCreate ac) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void leaveAjaxCreate(AjaxCreate ac) {
 		// TODO Auto-generated method stub
 		
 	}

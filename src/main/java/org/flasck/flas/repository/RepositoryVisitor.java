@@ -55,6 +55,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -234,4 +235,6 @@ public interface RepositoryVisitor {
 	void leaveSystemTest(SystemTest st);
 	void visitSystemTestStage(SystemTestStage s);
 	void leaveSystemTestStage(SystemTestStage s);
+	void visitAjaxCreate(AjaxCreate ac);
+	void leaveAjaxCreate(AjaxCreate ac);
 }

@@ -88,6 +88,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.Assembly;
+import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -1781,6 +1782,8 @@ public class Traverser implements RepositoryVisitor {
 			visitUnitTestMatch((UnitTestMatch)s);
 		else if (s instanceof UnitTestNewDiv)
 			visitUnitTestNewDiv((UnitTestNewDiv)s);
+		else if (s instanceof AjaxCreate)
+			visitAjaxCreate((AjaxCreate)s);
 		else
 			throw new NotImplementedException("cannot handle " + s.getClass());
 	}
@@ -2019,6 +2022,17 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void leaveSystemTest(SystemTest st) {
 		visitor.leaveSystemTest(st);
+	}
+
+	@Override
+	public void visitAjaxCreate(AjaxCreate ac) {
+		visitor.visitAjaxCreate(ac);
+		leaveAjaxCreate(ac);
+	}
+
+	@Override
+	public void leaveAjaxCreate(AjaxCreate ac) {
+		visitor.leaveAjaxCreate(ac);
 	}
 
 	@Override

@@ -206,6 +206,9 @@ UTRunner.prototype.mockCard = function(_cxt, name, card) {
 	this.cards.push(ret);
 	return ret;
 }
+UTRunner.prototype.newAjax = function() {
+	return new MockAjax();
+}
 UTRunner.prototype._updateDisplay = function(_cxt, rt) {
 	this.updateAllCards(_cxt);
 }
@@ -464,5 +467,9 @@ MockHandler.prototype._areYouA = MockContract.prototype._areYouA;
 MockHandler.prototype.expect = MockContract.prototype.expect;
 MockHandler.prototype.serviceMethod = MockContract.prototype.serviceMethod;
 MockHandler.prototype.assertSatisfied = MockContract.prototype.assertSatisfied;
+
+const MockAjax = function() {
+
+}
 
 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -554,6 +555,11 @@ public class JSBlock implements JSBlockCreator {
 		JSLocal ret = new JSLocal(this.creating, new JSMockService(name));
 		stmts.add(ret);
 		return ret;
+	}
+
+	@Override
+	public JSExpr createAjax(JSExpr runner, StringLiteral url) {
+		return new JSAjax(runner, url);
 	}
 
 	@Override

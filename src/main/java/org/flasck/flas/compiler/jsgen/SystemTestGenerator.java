@@ -15,6 +15,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -89,6 +90,11 @@ public class SystemTestGenerator extends LeafAdapter {
 		new DoUTMatchGeneratorJS(state, sv, this.block, this.runner);
 	}
 	
+	@Override
+	public void visitAjaxCreate(AjaxCreate ac) {
+		new AjaxCreator(clz, state, sv, this.block, this.runner, ac);
+	}
+
 	@Override
 	public void leaveSystemTestStage(SystemTestStage s) {
 		if (s.name.baseName().equals("configure")) {
