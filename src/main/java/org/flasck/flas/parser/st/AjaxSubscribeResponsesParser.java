@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
@@ -44,11 +42,13 @@ public class AjaxSubscribeResponsesParser implements TDAParsing {
 			errors.message(es.get(1).location(), "only one response allowed per line");
 			return new IgnoreNestedParser();
 		}
-		// TODO: This may in fact be too draconian
-		// Arrays, numbers, etc are all fine
-		// And function expressions that compute values should be fine, too ...
-		// Possibly if we want this check, we want it to be more general and in the typechecker ...
+		// TODO: This is way too draconian
+		// Headline: we should allow AjaxMessage or JSON values
+		// Hashes, arrays, numbers, etc are all fine
+		// And we want to allow expressions.
+		// Even if we put this in the typechecker, what really would we check?
 		Expr expr = es.get(0);
+		/*
 		if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			if (ae.fn instanceof UnresolvedOperator) {
@@ -61,6 +61,9 @@ public class AjaxSubscribeResponsesParser implements TDAParsing {
 		}
 		errors.message(expr.location(), "response must be hash literal");
 		return new IgnoreNestedParser();
+		*/
+		sub.response(expr);
+		return new NoNestingParser(errors);
 	}
 
 	@Override

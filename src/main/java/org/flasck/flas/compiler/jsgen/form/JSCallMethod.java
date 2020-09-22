@@ -22,10 +22,9 @@ public class JSCallMethod implements JSExpr {
 		w.print(obj.asVar());
 		w.print(".");
 		w.print(method);
-		String sep = "(";
+		w.print("(_cxt");
 		for (JSExpr e : args) {
-			w.print(sep);
-			sep = ", ";
+			w.print(", ");
 			w.print(e.asVar());
 		}
 		w.print(")");
@@ -41,8 +40,9 @@ public class JSCallMethod implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		IExpr ai = jvm.argAsIs(obj);
-		IExpr[] ais = new IExpr[args.length];
+		IExpr[] ais = new IExpr[args.length+1];
 		int ap = 0;
+		ais[ap++] = jvm.cxt();
 		for (JSExpr a : args) {
 			ais[ap++] = jvm.arg(a);
 		}

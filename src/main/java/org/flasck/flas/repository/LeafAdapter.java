@@ -56,6 +56,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
+import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
@@ -722,6 +723,10 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void leaveAjaxExpectSubscribe(AjaxSubscribe as) {
+	}
+
+	@Override
+	public void visitAjaxPump(AjaxPump ac) {
 	}
 
 	@Override

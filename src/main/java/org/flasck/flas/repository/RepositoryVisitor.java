@@ -56,6 +56,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
+import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
@@ -240,4 +241,5 @@ public interface RepositoryVisitor {
 	void leaveAjaxCreate(AjaxCreate ac);
 	void visitAjaxExpectSubscribe(AjaxSubscribe as);
 	void leaveAjaxExpectSubscribe(AjaxSubscribe as);
+	void visitAjaxPump(AjaxPump ac);
 }

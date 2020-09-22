@@ -449,7 +449,6 @@ ObjectMarshaller.prototype.handleStruct = function(ux, o) {
         throw new Error("No _type defined in " + fc);
     }
     const fm = ux.beginFields(fc.get("_type"));
-    this.logger.log(fm.constructor.name);
     ux.circle(o, fm.collectingAs());
     const ks = Object.keys(fc.dict);
     for (var k=0;k<ks.length;k++) {

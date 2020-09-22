@@ -8,8 +8,10 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
+import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.ConsumeDefinitions;
@@ -102,11 +104,26 @@ public class SystemTestStepParser extends TestStepParser {
 			VarName vn = namer.nameVar(tok.location, tok.text);
 			StringLiteral baseUrl = new StringLiteral(loc, sl);
 			AjaxCreate ac = new AjaxCreate(op.location, vn, baseUrl);
-			((SystemTestStage)builder).ajax(errors, ac);
+			((SystemTestStage)builder).ajaxCreate(errors, ac);
 			return new AjaxCreateActionsParser(errors, ac);
 		}
+		case "pump": {
+			ValidIdentifierToken tok = VarNameToken.from(toks);
+			if (tok == null) {
+				errors.message(toks, "no mock specified");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMoreContent()) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
+			VarName vn = namer.nameVar(tok.location, tok.text);
+			AjaxPump pump = new AjaxPump(op.location, vn);
+			((SystemTestStage)builder).ajaxPump(errors, pump);
+			return new NoNestingParser(errors);
+		}
 		default: {
-			errors.message(toks, "unrecognized ajax operator: " + op.text);
+			errors.message(op.location, "unrecognized ajax operator: " + op.text);
 			return new IgnoreNestedParser();
 		}
 		}

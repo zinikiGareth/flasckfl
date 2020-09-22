@@ -247,6 +247,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator ctor = ctr.constructor();
 		JSVar cx = ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.superArg(cx);
+		ctor.superArg(ctor.string(obj.name.uniqueName()));
 		ctor.stateField(true);
 		ctor.storeField(true, this.evalRet, "_type", ctor.string(obj.name.uniqueName()));
 		ctor.returnVoid();

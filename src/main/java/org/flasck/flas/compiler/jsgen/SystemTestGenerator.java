@@ -16,6 +16,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
+import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -93,6 +94,12 @@ public class SystemTestGenerator extends LeafAdapter {
 	@Override
 	public void visitAjaxCreate(AjaxCreate ac) {
 		new AjaxCreator(clz, state, sv, this.block, this.runner, ac);
+	}
+
+	@Override
+	public void visitAjaxPump(AjaxPump ap) {
+		JSExpr member = block.member(new PackageName(J.AJAXMOCK), ap.var.baseName());
+		block.callMethod("void", member, "pump");
 	}
 
 	@Override
