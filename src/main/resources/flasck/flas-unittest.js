@@ -529,7 +529,7 @@ MockAjaxSubscriber.prototype.matchAndSend = function(_cxt, baseUri, sub) {
 		// should this in fact push a send?
 		_cxt.env.queueMessages(_cxt, {
 			dispatch: function(cx) {
-				ret = sub.handler.message(cx, msg, new LoggingIdempotentHandler());
+				var ret = sub.handler.message(cx, msg, new LoggingIdempotentHandler());
 				if (sub.handler._card && sub.handler._card._updateDisplay)
 					cx.env.queueMessages(cx, [new UpdateDisplay(cx, sub.handler._card)]);
 				return ret;
