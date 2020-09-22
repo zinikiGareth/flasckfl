@@ -203,11 +203,12 @@ public class Main {
 				FLASAssembler asm = new FLASAssembler(fos, "flascklib");
 				if (!config.includeFrom.isEmpty()) {
 					File incdir = new File("includes/js");
-					FileUtils.cleanDirectory(incdir);
-					FileUtils.assertDirectory(incdir);
+					File ct = new File(config.root, incdir.getPath());
+					FileUtils.cleanDirectory(ct);
+					FileUtils.assertDirectory(ct);
 					for (File f : config.includeFrom) {
 						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
-							FileUtils.copy(i, new File(config.root, incdir.getPath()));
+							FileUtils.copy(i, ct);
 							asm.includeJS(new File(incdir, i.getName()));
 						}
 					}

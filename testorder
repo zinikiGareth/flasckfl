@@ -163,4 +163,3 @@ src/golden/systemtests/minimal
 src/golden/systemtests/contract
 src/golden/systemtests/match
 src/golden/systemtests/ajax/create
-src/golden/systemtests/ajax/onepump
