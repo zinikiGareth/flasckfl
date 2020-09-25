@@ -178,7 +178,24 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private void processContainerType(InputPosition pos, TemplateBindingOption option, Type etype) {
+		// REFACTOR !!!!!!!
 		if (etype instanceof ObjectDefn) {
+			ObjectDefn od = (ObjectDefn) etype;
+			if (od.name().uniqueName().equals("Crobag")) {
+				// Copied and hacked from below
+				System.out.println("need to handle crobags in a similar fashion to lists");
+				etype = repository.get("org.zinapps.samples.earthquakes.Earthquake");
+				Map<NamedType, Template> mapping = new HashMap<>();
+				Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, etype);
+				if (which == null) {
+					errors.message(pos, "there is no compatible template for " + etype.signature());
+				} else {
+					referencedTemplates.add(which.name().baseName());
+					mapping.put((StructDefn) etype, which);
+				}
+				option.attachMapping(mapping);
+				return;
+			}
 			if (option.sendsTo == null || option.sendsTo.template() == null) {
 				errors.message(pos, "must use templates to render object " + etype.signature());
 				return;
@@ -199,6 +216,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			errors.message(option.sendsTo.location(), "cannot specify sendsTo operator for a single item when target is a container");
 			return;
 		}
+		// GP 2020-09-25: since Lists are a union, surely these two cases are back to front?
 		if (option.sendsTo == null && etype instanceof UnionTypeDefn) {
 			Map<NamedType, Template> mapping = new HashMap<>();
 			distributeUnion(pos, etype, mapping);

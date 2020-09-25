@@ -2,6 +2,8 @@ package org.flasck.flas.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -24,6 +26,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tc3.Apply;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Tuple;
@@ -31,32 +34,9 @@ import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
 	public static final InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
+	private static Map<String, PolyHandle> handles = new TreeMap<>();
 
-	// Type References used here ...
-	public static final TypeReference polyATR = new TypeReference(pos, "A");
-	public static final TypeReference anyTR = new TypeReference(pos, "Any");
-	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
-	public static final TypeReference stringTR = new TypeReference(pos, "String");
-	public static final TypeReference uriTR = new TypeReference(pos, "Uri");
-	public static final TypeReference numberTR = new TypeReference(pos, "Number");
-	public static final TypeReference intervalTR = new TypeReference(pos, "Interval");
-	public static final TypeReference instantTR = new TypeReference(pos, "Instant");
-	public static final TypeReference typeTR = new TypeReference(pos, "Type");
-	public static final TypeReference falseTR = new TypeReference(pos, "False");
-	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
-	public static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
-	public static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR);
-	public static final TypeReference listATR = new TypeReference(pos, "List", polyATR);
-	public static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
-	public static final TypeReference hashTR = new TypeReference(pos, "Hash");
-	public static final TypeReference randomTR = new TypeReference(pos, "Random");
-	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
-	public static final TypeReference sendTR = new TypeReference(pos, "Send");
-	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
-	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
-	
 	// "Primitive" types
-	public static final PolyType polyA = new PolyType(pos, new SolidName(null, "A")); 
 	public static final Primitive any = new Primitive(pos, "Any");
 	// TODO: I think we want subclasses of Any called "Entity", "Deal", "Offer", etc
 	// Not quite sure what etc. includes because I don't think "Primitive" and "Struct" hold any value
@@ -84,10 +64,15 @@ public class LoadBuiltins {
 
 	// Lists
 	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
-	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, polyA);
-	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), polyA);
+	public static final StructDefn cons = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Cons"), false, new ArrayList<>());
+	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new ArrayList<>());
 	public static final PolyInstance listAny = new PolyInstance(pos, list, Arrays.asList(any));
-	public static final StructDefn assignItem = new StructDefn(pos, FieldsType.STRUCT, null, "AssignItem", false, polyA);
+	public static final StructDefn assignItem = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "AssignItem"), false, new ArrayList<>());
+	static {
+		cons.polys().add(polyA(cons, "A"));
+		list.polys().add(polyA(list, "A"));
+		assignItem.polys().add(polyA(assignItem, "A"));
+	}
 
 	// Hashes (associative arrays)
 	public static final StructDefn hash = new StructDefn(pos, FieldsType.STRUCT, null, "Hash", false);
@@ -101,7 +86,11 @@ public class LoadBuiltins {
 	static ObjectMethod randomUsed;
 	
 	// Crobags
-	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new ObjectName(null, "Crobag"), false, Arrays.asList(polyA));
+	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new ObjectName(null, "Crobag"), false, new ArrayList<>());
+	static {
+		crobag.polys().add(polyA(crobag, "A"));
+	}
+	private static ObjectCtor crobagNew;
 	
 	// Messages
 	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);
@@ -111,6 +100,29 @@ public class LoadBuiltins {
 	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
 	public static final Type listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 
+	// Type References
+	public static final TypeReference anyTR = new TypeReference(pos, "Any");
+	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
+	public static final TypeReference stringTR = new TypeReference(pos, "String");
+	public static final TypeReference uriTR = new TypeReference(pos, "Uri");
+	public static final TypeReference numberTR = new TypeReference(pos, "Number");
+	public static final TypeReference intervalTR = new TypeReference(pos, "Interval");
+	public static final TypeReference instantTR = new TypeReference(pos, "Instant");
+	public static final TypeReference typeTR = new TypeReference(pos, "Type");
+	public static final TypeReference falseTR = new TypeReference(pos, "False");
+	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
+	public static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
+	public static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR(cons, "A"));
+	public static final TypeReference listATR = new TypeReference(pos, "List", polyATR(list, "A"));
+	public static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
+	public static final TypeReference hashTR = new TypeReference(pos, "Hash");
+	public static final TypeReference randomTR = new TypeReference(pos, "Random");
+	public static final TypeReference crobagTR = new TypeReference(pos, "Crobag");
+	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
+	public static final TypeReference sendTR = new TypeReference(pos, "Send");
+	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
+	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
+	
 	// Events
 	public static final StructDefn clickEvent = new StructDefn(pos, FieldsType.STRUCT, null, "ClickEvent", false);
 	public static final StructField source = new StructField(pos, pos, clickEvent, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
@@ -162,7 +174,6 @@ public class LoadBuiltins {
 
 	static {
 		// bind TRs
-		polyATR.bind(polyA);
 		anyTR.bind(any);
 		contractTR.bind(contract);
 		stringTR.bind(string);
@@ -179,6 +190,7 @@ public class LoadBuiltins {
 		trueTR.bind(trueT);
 		nilTR.bind(nil);
 		randomTR.bind(random);
+		crobagTR.bind(crobag);
 		debugTR.bind(debug);
 		sendTR.bind(send);
 		assignTR.bind(assign);
@@ -186,10 +198,10 @@ public class LoadBuiltins {
 	
 		// add fields to structs
 		error.addField(new StructField(pos, error, true, stringTR, "message"));
-		StructField head = new StructField(pos, cons, true, polyATR, "head");
+		StructField head = new StructField(pos, cons, true, polyATR(cons, "A"), "head");
 		head.fullName(new VarName(pos, cons.name(), "head"));
 		cons.addField(head);
-		StructField aihead = new StructField(pos, assignItem, true, polyATR, "head");
+		StructField aihead = new StructField(pos, assignItem, true, polyATR(assignItem, "A"), "head");
 		aihead.fullName(new VarName(pos, assignItem.name(), "head"));
 		assignItem.addField(aihead);
 		StructField tail = new StructField(pos, cons, true, listATR, "tail");
@@ -255,6 +267,15 @@ public class LoadBuiltins {
 				random.addMethod(randomUsed);
 			}
 		}
+		{
+			{
+				FunctionName ctorNew = FunctionName.objectCtor(pos, crobag.name(), "new");
+				crobagNew = new ObjectCtor(pos, crobag, ctorNew, new ArrayList<>());
+				crobagNew.dontGenerate();
+				crobagNew.bindType(crobag);
+				crobag.addConstructor(crobagNew);
+			}
+		}
 		
 		// specify function types
 		{
@@ -276,17 +297,17 @@ public class LoadBuiltins {
 		and.bindType(new Apply(bool, bool, bool));
 		or.bindType(new Apply(bool, bool, bool));
 		length.bindType(new Apply(list, number));
-		replace.bindType(new Apply(list, number, polyA, list));
-		nth.bindType(new Apply(number, list, polyA));
+		replace.bindType(new Apply(list, number, polyA(list, "A"), list));
+		nth.bindType(new Apply(number, list, polyA(list, "A")));
 		assoc.bindType(new Apply(hash, string, any));
 		hashPair.bindType(new Apply(string, any, hashPairType));
 		item.bindType(new Apply(number, list, assignItem));
 		take.bindType(new Apply(number, list, list));
 		drop.bindType(new Apply(number, list, list));
-		append.bindType(new Apply(list, polyA, list));
+		append.bindType(new Apply(list, polyA(list, "A"), list));
 		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));
-		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(polyA)))), new PolyInstance(pos, list, Arrays.asList(polyA))));
+		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(polyA(list, "A"))))), new PolyInstance(pos, list, Arrays.asList(polyA(list, "A")))));
 		makeTuple.bindType(tuple);
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
 		dispatch.bindType(new Apply(listMessages, listMessages));
@@ -328,6 +349,9 @@ public class LoadBuiltins {
 		repository.newObjectMethod(errors, randomUnseeded);
 		repository.newObjectAccessor(errors, randomNext);
 		repository.newObjectMethod(errors, randomUsed);
+
+		repository.newObject(errors, crobag);
+		repository.newObjectMethod(errors, crobagNew);
 
 		repository.newStruct(errors, debug);
 		repository.newStruct(errors, send);
@@ -371,5 +395,40 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, seconds);
 		repository.functionDefn(errors, parseUri);
 		repository.functionDefn(errors, parseJson);
+	}
+	
+	static class PolyHandle {
+		final NamedType ty;
+		final String var;
+		final TypeReference tr;
+		final PolyType pt;
+		
+		public PolyHandle(NamedType ty, String var, TypeReference tr, PolyType pt) {
+			super();
+			this.ty = ty;
+			this.var = var;
+			this.tr = tr;
+			this.pt = pt;
+		}
+	}
+	
+	private static TypeReference polyATR(NamedType ty, String var) {
+		return handle(ty, var, new SolidName(ty.name(), var)).tr;
+	}
+	
+	private static PolyType polyA(NamedType ty, String var) {
+		return handle(ty, var, new SolidName(ty.name(), var)).pt;
+	}
+
+	private static PolyHandle handle(NamedType ty, String var, SolidName n) {
+		PolyHandle h = handles.get(n.uniqueName());
+		if (h == null) {
+			TypeReference tr = new TypeReference(pos, "A");
+			PolyType pt = new PolyType(pos, new SolidName(ty.name(), "A"));
+			tr.bind(pt);
+			h = new PolyHandle(ty, var, tr, pt);
+			handles.put(n.uniqueName(), h);
+		}
+		return h;
 	}
 }

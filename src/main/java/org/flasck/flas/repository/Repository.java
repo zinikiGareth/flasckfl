@@ -164,6 +164,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void newUnion(ErrorReporter errors, UnionTypeDefn ud) {
 		addEntry(errors, ud.name(), ud);
+		for (PolyType p : ud.polys())
+			addEntry(errors, p.name(), p);
 	}
 
 	@Override
