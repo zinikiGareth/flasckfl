@@ -1,6 +1,6 @@
 A fairly minimal setup has a configuration, stage and cleanup
 
-	configure
+	configure // create the card under test
 		data Multiplier m
 		
 	test that m was initialized
