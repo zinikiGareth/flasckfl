@@ -73,6 +73,7 @@ import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeHelpers;
+import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
@@ -579,10 +580,14 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitTypeReference(TypeReference ref, boolean expectPolys) {
 		String tn = ref.name();
-		final RepositoryEntry defn = find(ref.location(), scope, tn);
+		RepositoryEntry defn = find(ref.location(), scope, tn);
 		if (defn == null) {
-			errors.message(ref.location(), "cannot resolve '" + tn + "'");
-			return;
+			if (expectPolys && PolyTypeToken.validate(tn) && inside instanceof FunctionDefinition) {
+				defn = ((FunctionDefinition)inside).allocatePoly(ref.location(), tn);
+			} else {
+				errors.message(ref.location(), "cannot resolve '" + tn + "'");
+				return;
+			}
 		} else if (!(defn instanceof NamedType)) {
 			errors.message(ref.location(), defn.name().uniqueName() + " is not a type");
 			return;
