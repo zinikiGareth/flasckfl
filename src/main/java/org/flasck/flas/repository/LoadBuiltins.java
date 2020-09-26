@@ -38,6 +38,11 @@ public class LoadBuiltins {
 
 	// "Primitive" types
 	public static final Primitive any = new Primitive(pos, "Any");
+	public static final TypeReference anyTR = new TypeReference(pos, "Any");
+	static {
+		anyTR.bind(any);
+	}
+	
 	// TODO: I think we want subclasses of Any called "Entity", "Deal", "Offer", etc
 	// Not quite sure what etc. includes because I don't think "Primitive" and "Struct" hold any value
 	// Entity is obviously useful because we use it in Data Contracts
@@ -64,14 +69,48 @@ public class LoadBuiltins {
 
 	// Lists
 	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
+	public static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
 	public static final StructDefn cons = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Cons"), false, new ArrayList<>());
+	public static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR(cons, "A"));
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new ArrayList<>());
+	public static final TypeReference listATR = new TypeReference(pos, "List", polyATR(list, "A"));
 	public static final PolyInstance listAny = new PolyInstance(pos, list, Arrays.asList(any));
+	public static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
+	static {
+		{
+			PolyType cta = polyA(cons, "A");
+			cons.polys().add(cta);
+			TypeReference atr = polyATR(cons, "A");
+			StructField head = new StructField(pos, cons, true, atr, "head");
+			head.fullName(new VarName(pos, cons.name(), "head"));
+			cons.addField(head);
+			PolyInstance pil = new PolyInstance(pos, list, Arrays.asList(cta));
+			TypeReference piltr = new TypeReference(pos, "List", atr);
+			piltr.bind(pil);
+			StructField tail = new StructField(pos, cons, true, piltr, "tail");
+			tail.fullName(new VarName(pos, cons.name(), "tail"));
+			cons.addField(tail);
+		}
+
+		{
+			PolyType lta = polyA(list, "A");
+			list.polys().add(lta);
+			list.addCase(nilTR);
+			TypeReference consATR = new TypeReference(pos, "Cons", polyATR(list, "A"));
+			consATR.bind(new PolyInstance(pos, cons, Arrays.asList(lta)));
+			list.addCase(consATR);
+		}
+
+		listATR.bind(list);
+		listAnyTR.bind(listAny);
+	}
+
 	public static final StructDefn assignItem = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "AssignItem"), false, new ArrayList<>());
 	static {
-		cons.polys().add(polyA(cons, "A"));
-		list.polys().add(polyA(list, "A"));
 		assignItem.polys().add(polyA(assignItem, "A"));
+		StructField aihead = new StructField(pos, assignItem, true, polyATR(assignItem, "A"), "head");
+		aihead.fullName(new VarName(pos, assignItem.name(), "head"));
+		assignItem.addField(aihead);
 	}
 
 	// Hashes (associative arrays)
@@ -101,7 +140,6 @@ public class LoadBuiltins {
 	public static final Type listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 
 	// Type References
-	public static final TypeReference anyTR = new TypeReference(pos, "Any");
 	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
 	public static final TypeReference stringTR = new TypeReference(pos, "String");
 	public static final TypeReference uriTR = new TypeReference(pos, "Uri");
@@ -111,10 +149,6 @@ public class LoadBuiltins {
 	public static final TypeReference typeTR = new TypeReference(pos, "Type");
 	public static final TypeReference falseTR = new TypeReference(pos, "False");
 	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
-	public static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
-	public static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR(cons, "A"));
-	public static final TypeReference listATR = new TypeReference(pos, "List", polyATR(list, "A"));
-	public static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
 	public static final TypeReference hashTR = new TypeReference(pos, "Hash");
 	public static final TypeReference randomTR = new TypeReference(pos, "Random");
 	public static final TypeReference crobagTR = new TypeReference(pos, "Crobag");
@@ -174,7 +208,6 @@ public class LoadBuiltins {
 
 	static {
 		// bind TRs
-		anyTR.bind(any);
 		contractTR.bind(contract);
 		stringTR.bind(string);
 		uriTR.bind(uri);
@@ -182,9 +215,6 @@ public class LoadBuiltins {
 		intervalTR.bind(interval);
 		instantTR.bind(instant);
 		typeTR.bind(type);
-		consATR.bind(cons);
-		listATR.bind(list);
-		listAnyTR.bind(listAny);
 		hashTR.bind(hash);
 		falseTR.bind(falseT);
 		trueTR.bind(trueT);
@@ -198,15 +228,6 @@ public class LoadBuiltins {
 	
 		// add fields to structs
 		error.addField(new StructField(pos, error, true, stringTR, "message"));
-		StructField head = new StructField(pos, cons, true, polyATR(cons, "A"), "head");
-		head.fullName(new VarName(pos, cons.name(), "head"));
-		cons.addField(head);
-		StructField aihead = new StructField(pos, assignItem, true, polyATR(assignItem, "A"), "head");
-		aihead.fullName(new VarName(pos, assignItem.name(), "head"));
-		assignItem.addField(aihead);
-		StructField tail = new StructField(pos, cons, true, listATR, "tail");
-		tail.fullName(new VarName(pos, cons.name(), "tail"));
-		cons.addField(tail);
 		debug.addField(new StructField(pos, debug, true, stringTR, "message"));
 		send.addField(new StructField(pos, send, false, contractTR, "sendto"));
 		send.addField(new StructField(pos, send, false, stringTR, "meth"));
@@ -225,8 +246,6 @@ public class LoadBuiltins {
 		// add cases to unions
 		bool.addCase(falseTR);
 		bool.addCase(trueTR);
-		list.addCase(nilTR);
-		list.addCase(consATR);
 		message.addCase(debugTR);
 		message.addCase(assignTR);
 		message.addCase(sendTR);
