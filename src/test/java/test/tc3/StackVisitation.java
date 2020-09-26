@@ -492,7 +492,7 @@ public class StackVisitation {
 	public void leaveMemberExpressionCanFindAFieldInAStructDefn() {
 		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv, fnCxt, false);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(LoadBuiltins.polyA);
+			oneOf(nv).result(LoadBuiltins.cons.polys().get(0));
 		}});
 		UnresolvedVar from = new UnresolvedVar(pos, "l");
 		UnresolvedVar fld = new UnresolvedVar(pos, "head");

@@ -9,6 +9,7 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.ShouldBeError;
 
 public class Apply implements Type, SignatureNeedsParensType {
+	public final static InputPosition unknown = new InputPosition("unknown", 1, 0, "unknown");
 	public final List<Type> tys;
 
 	public Apply(Type... types) {
@@ -106,7 +107,6 @@ public class Apply implements Type, SignatureNeedsParensType {
 		// TODO: there are incorrect assertions here ...
 		//  because UTs are infintely subtle (other may be a UT)
 		//  because of currying
-		InputPosition loc = new InputPosition("unknown", 1, 0, "unknown");
 		if (other instanceof UnifiableType)
 			return other.incorporates(pos, this);
 		if (!(other instanceof Apply))
@@ -119,11 +119,11 @@ public class Apply implements Type, SignatureNeedsParensType {
 			Type oi = otys.get(i);
 			if (oi instanceof UnifiableType) {
 				UnifiableType ut = (UnifiableType) oi;
-				ut.incorporatedBy(loc, fi);
+				ut.incorporatedBy(unknown, fi);
 			} else if (fi instanceof UnifiableType) {
 				UnifiableType ut = (UnifiableType) fi;
-				ut.isPassed(loc, oi);
-			} else if (!fi.incorporates(loc, oi)) {
+				ut.isPassed(unknown, oi);
+			} else if (!fi.incorporates(unknown, oi)) {
 				return false;
 			}			
 		}

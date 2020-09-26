@@ -212,7 +212,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			errors.message(pos, msg);
 			return;
 		}
-		if (option.sendsTo != null && !TypeHelpers.isList(etype)) {
+		if (option.sendsTo != null && !TypeHelpers.isListLike(etype)) {
 			errors.message(option.sendsTo.location(), "cannot specify sendsTo operator for a single item when target is a container");
 			return;
 		}

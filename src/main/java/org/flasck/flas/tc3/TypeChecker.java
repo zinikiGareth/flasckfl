@@ -250,21 +250,24 @@ public class TypeChecker extends LeafAdapter {
 	public static PosType instantiateFreshPolys(Expr tmp, CurrentTCState state, Map<String, UnifiableType> uts,	PosType post, boolean nested) {
 		InputPosition pos = post.pos;
 		Type type = post.type;
+		logger.info("instantiating fresh polys in " + type + " with a current map of " + uts);
 		if (type instanceof PolyType) {
 			PolyType pt = (PolyType) type;
-			if (uts.containsKey(pt.shortName()))
-				return new PosType(pos, uts.get(pt.shortName()));
+			if (state.hasPoly(pt))
+				return logit(new PosType(pos, state.getPoly(pt)));
+			else if (uts.containsKey(pt.shortName()))
+				return logit(new PosType(pos, uts.get(pt.shortName())));
 			else {
 				UnifiableType ret = state.createUT(null, "instantiating " + tmp + "." + pt.shortName());
 				uts.put(pt.shortName(), ret);
-				return new PosType(pos, ret);
+				return logit(new PosType(pos, ret));
 			}
 		} else if (type instanceof Apply) {
 			Apply a = (Apply) type;
 			List<Type> types = new ArrayList<>();
 			for (Type t : a.tys)
 				types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t), true).type);
-			return new PosType(pos, new Apply(types));
+			return logit(new PosType(pos, new Apply(types)));
 		} else if (type instanceof PolyHolder && ((PolyHolder) type).hasPolys()) {
 			PolyHolder sd = (PolyHolder) type;
 			List<Type> polys = new ArrayList<>();
@@ -276,9 +279,9 @@ public class TypeChecker extends LeafAdapter {
 				for (StructField sf : ((FieldsDefn) type).fields)
 					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn()), true).type);
 				if (types.isEmpty())
-					return new PosType(pos, pi);
+					return logit(new PosType(pos, pi));
 				else
-					return new PosType(pos, new Apply(types, pi));
+					return logit(new PosType(pos, new Apply(types, pi)));
 			} else {
 				return new PosType(pos, pi);
 			}
@@ -293,13 +296,18 @@ public class TypeChecker extends LeafAdapter {
 				for (StructField sf : ((FieldsDefn) type).fields)
 					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn()), true).type);
 				if (types.isEmpty())
-					return new PosType(pos, pi);
+					return logit(new PosType(pos, pi));
 				else
-					return new PosType(pos, new Apply(types, pi));
+					return logit(new PosType(pos, new Apply(types, pi)));
 			} else {
-				return new PosType(pos, pi);
+				return logit(new PosType(pos, pi));
 			}
 		} else
-			return post;
+			return logit(post);
+	}
+
+	private static PosType logit(PosType ret) {
+		logger.info("instantiated type is " + ret);
+		return ret;
 	}
 }

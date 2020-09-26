@@ -27,7 +27,7 @@ public class PolyType implements RepositoryEntry, Locatable, NamedType, Comparab
 		if (!(obj instanceof PolyType))
 			return false;
 		PolyType other = (PolyType) obj;
-		return shortName.equals(other.shortName);
+		return fullName.uniqueName().equals(other.fullName.uniqueName());
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class PolyType implements RepositoryEntry, Locatable, NamedType, Comparab
 
 	@Override
 	public String toString() {
-		return shortName;
+		return fullName.uniqueName();
 	}
 
 	@Override

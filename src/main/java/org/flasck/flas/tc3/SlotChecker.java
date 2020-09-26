@@ -51,6 +51,7 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 		ty.canBeType(var == null ? null : var.loc, ofType);
 		if (var != null)
 			state.bindVarToUT(name.uniqueName(), var.uniqueName(), ty);
+		state.recordPolys(ofType);
 	}
 
 	@Override

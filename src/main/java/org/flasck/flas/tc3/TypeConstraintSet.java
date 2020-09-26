@@ -761,12 +761,15 @@ public class TypeConstraintSet implements UnifiableType {
 				logger.info("could not unify " + this.id);
 				TreeSet<String> tyes = new TreeSet<String>();
 				TreeSet<InputPosition> locs = new TreeSet<>();
+				boolean alreadyError = false;
 				for (PosType ty : resolved) {
+					alreadyError |= containsError(ty.type);
 					tyes.add(ty.type.signature());
-					if (ty.pos != null)
+					if (ty.pos != null && ty.pos != LoadBuiltins.pos && ty.pos != Apply.unknown)
 						locs.add(ty.pos);
 				}
-				errors.message(pos, locs, "cannot unify " + tyes);
+				if (!alreadyError)
+					errors.message(pos, locs, "cannot unify " + tyes);
 				resolvedTo = new ErrorType();
 			}
 		}
@@ -781,6 +784,19 @@ public class TypeConstraintSet implements UnifiableType {
 		
 		logger.debug("resolved to " + resolvedTo);
 		return resolvedTo;
+	}
+
+	private boolean containsError(Type type) {
+		if (type instanceof ErrorType)
+			return true;
+		else if (type instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) type;
+			for (Type t : pi.polys())
+				if (containsError(t))
+					return true;
+			return false;
+		} else
+			return false;
 	}
 
 	@Override

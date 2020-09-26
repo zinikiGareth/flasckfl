@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -31,6 +32,10 @@ public class TypeHelpers {
 		if (pi.struct().equals(LoadBuiltins.cons))
 			return true;
 		return false;
+	}
+
+	public static boolean isListLike(Type type) {
+		return isList(type) || (type instanceof ObjectDefn && ((ObjectDefn)type).name().uniqueName().equals("Crobag"));
 	}
 
 	public static boolean isListString(Type type) {

@@ -41,6 +41,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	private final static Logger uniflogger = LoggerFactory.getLogger("TCUnification");
 	private final RepositoryReader repository;
 	private final MapMap<String, String, UnifiableType> constraints = new MapMap<>();
+	private final Map<String, UnifiableType> polys = new TreeMap<>();
 	private final Map<VarPattern, UnifiableType> patts = new TreeMap<>(VarPattern.comparator);
 	private final Map<IntroduceVar, UnifiableType> introductions = new TreeMap<>(IntroduceVar.comparator);
 	int polyCount = 0;
@@ -125,6 +126,36 @@ public class FunctionGroupTCState implements CurrentTCState {
 		}
 	}
 	
+	@Override
+	public void recordPolys(Type ofType) {
+		if (ofType instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) ofType;
+			for (int i=0;i<pi.polys().size();i++) {
+				Type t = pi.polys().get(i);
+				if (t instanceof PolyType) {
+					UnifiableType ut = createUT(pi.location(), "poly var " + t.signature());
+					rememberPoly((PolyType) t, ut);
+				} else
+					recordPolys(t);
+			}
+		}
+	}
+
+	@Override
+	public void rememberPoly(PolyType pt, UnifiableType pv) {
+		polys.put(pt.signature(), pv);
+	}
+
+	@Override
+	public boolean hasPoly(PolyType pt) {
+		return polys.containsKey(pt.signature());
+	}
+
+	@Override
+	public Type getPoly(PolyType pt) {
+		return polys.get(pt.signature());
+	}
+
 	@Override
 	public UnifiableType requireVarConstraints(InputPosition pos, String fnCxt, String var) {
 		if (!constraints.contains(fnCxt, var))

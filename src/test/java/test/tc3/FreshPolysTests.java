@@ -34,10 +34,12 @@ public class FreshPolysTests {
 	@Test
 	public void weCanIntroduceANewPolyInstanceForAPolyVar() {
 		UnifiableType ut = context.mock(UnifiableType.class);
+		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
 		context.checking(new Expectations() {{
+			allowing(state).hasPoly(pa);
 			oneOf(state).createUT(null, "instantiating map.A"); will(returnValue(ut));
 		}});
-		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, new PolyType(pos, new SolidName(null, "A"))), false).type;
+		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, pa), false).type;
 		assertEquals(ut, t);
 	}
 
@@ -45,10 +47,12 @@ public class FreshPolysTests {
 	@Test
 	public void weCanReplaceAPolyVarInsideAnApply() {
 		UnifiableType ut = context.mock(UnifiableType.class);
+		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
 		context.checking(new Expectations() {{
+			allowing(state).hasPoly(pa);
 			oneOf(state).createUT(null, "instantiating map.A"); will(returnValue(ut));
 		}});
-		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, new SolidName(null, "A")), LoadBuiltins.number)), false).type;
+		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, new Apply(pa, LoadBuiltins.number)), false).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), Matchers.is(LoadBuiltins.number)));
 	}
 
@@ -56,10 +60,12 @@ public class FreshPolysTests {
 	@Test
 	public void weReplaceASinglePolyVarWithTheSameUTEachTime() {
 		UnifiableType ut = context.mock(UnifiableType.class);
+		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
 		context.checking(new Expectations() {{
+			allowing(state).hasPoly(pa);
 			oneOf(state).createUT(null, "instantiating map.A"); will(returnValue(ut));
 		}});
-		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, new SolidName(null, "A")), new PolyType(pos, new SolidName(null, "A")))), false).type;
+		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, new Apply(pa, pa)), false).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), Matchers.is(ut)));
 	}
 
@@ -68,11 +74,15 @@ public class FreshPolysTests {
 	public void weReplaceDifferentPolyVarsWithSeparateUTs() {
 		UnifiableType ut1 = context.mock(UnifiableType.class, "ut1");
 		UnifiableType ut2 = context.mock(UnifiableType.class, "ut2");
+		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
+		PolyType pb = new PolyType(pos, new SolidName(null, "B"));
 		context.checking(new Expectations() {{
+			allowing(state).hasPoly(pa);
+			allowing(state).hasPoly(pb);
 			oneOf(state).createUT(null, "instantiating map.A"); will(returnValue(ut1));
 			oneOf(state).createUT(null, "instantiating map.B"); will(returnValue(ut2));
 		}});
-		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, new SolidName(null, "A")), new PolyType(pos, new SolidName(null, "B")), new PolyType(pos, new SolidName(null, "A")), new PolyType(pos, new SolidName(null, "B")))), false).type;
+		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, new Apply(pa, pb, pa, pb)), false).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut1), Matchers.is(ut2), Matchers.is(ut1), Matchers.is(ut2)));
 	}
 
@@ -81,6 +91,7 @@ public class FreshPolysTests {
 	public void weCanReplaceAPolyVarInsideAnStructDefn() {
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
+			allowing(state).hasPoly(LoadBuiltins.cons.polys().get(0));
 			oneOf(state).createUT(null, "instantiating map.A"); will(returnValue(ut));
 		}});
 		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, LoadBuiltins.cons), false).type;

@@ -25,35 +25,38 @@ public class PatternAnalyzer extends LeafAdapter {
 	private int nslot;
 	private HSIOptions slot;
 	private FunctionIntro current;
-	private ErrorReporter errors;
-	private RepositoryReader repository;
+	private final ErrorReporter errors;
+	private final RepositoryReader repository;
+	private String ind;
 	
 	public PatternAnalyzer(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
+		this.ind = "";
 		sv.push(this);
 	}
 
-	public PatternAnalyzer(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, HSITree tree, FunctionIntro current) {
+	public PatternAnalyzer(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, HSITree tree, FunctionIntro current, String ind) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
 		this.hsiTree = tree;
 		this.current = current;
+		this.ind = ind;
 		sv.push(this);
 	}
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		logger.info("analyzing " + fn.name().uniqueName() + " with " + fn.argCount() + " total patterns");
+		logger.info(ind + "analyzing " + fn.name().uniqueName() + " with " + fn.argCount() + " total patterns");
 		hsiTree = new HSIArgsTree(fn.argCount());
 	}
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
 		int quant = meth.argCount() + (meth.handler != null ? 1 : 0);
-		logger.info("analyzing " + meth.name().uniqueName() + " with " + quant + " total patterns");
+		logger.info(ind + "analyzing " + meth.name().uniqueName() + " with " + quant + " total patterns");
 		hsiTree = new HSIArgsTree(quant);
 		nslot = 0;
 		current = null;
@@ -62,7 +65,7 @@ public class PatternAnalyzer extends LeafAdapter {
 
 	@Override
 	public void visitObjectCtor(ObjectCtor meth) {
-		logger.info("analyzing " + meth.name().uniqueName() + " with " + meth.argCount() + " total patterns");
+		logger.info(ind + "analyzing " + meth.name().uniqueName() + " with " + meth.argCount() + " total patterns");
 		hsiTree = new HSIArgsTree(meth.argCount());
 		nslot = 0;
 		current = null;
@@ -74,7 +77,8 @@ public class PatternAnalyzer extends LeafAdapter {
 		nslot = 0;
 		current = fi;
 		hsiTree.consider(fi);
-		logger.info("Considering intro " + fi.name().uniqueName());
+		logger.info(ind + "considering intro " + fi.name().uniqueName());
+		ind += "  ";
 	}
 	
 	@Override
@@ -84,14 +88,14 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void visitVarPattern(VarPattern p, boolean isNested) {
-		logger.info("var " + p.var);
+		logger.info(ind + "var " + p.var);
 		this.slot.addVar(p, current);
 		this.slot.includes(this.current);
 	}
 	
 	@Override
 	public void visitTypedPattern(TypedPattern p, boolean isNested) {
-		logger.info((isNested?"nested ":"") + "typed  var " + p.var);
+		logger.info(ind + (isNested?"nested ":"") + "typed var " + p.type + " " + p.var.uniqueName());
 		if (!isNested)
 			this.slot.addTyped(p, current);
 		else
@@ -101,10 +105,10 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
-		logger.info("Nesting constructor match for " + p.actual());
+		logger.info(ind + "nesting constructor match for " + p.actual());
 		HSITree nested = slot.requireCM(p.actual());
 		nested.consider(current);
-		new PatternAnalyzer(errors, repository, sv, nested, current);
+		new PatternAnalyzer(errors, repository, sv, nested, current, ind + "  ");
 	}
 	
 	@Override
@@ -115,7 +119,7 @@ public class PatternAnalyzer extends LeafAdapter {
 
 	@Override
 	public void leaveConstructorMatch(ConstructorMatch p) {
-		logger.info("Done matching constructor " + p.actual());
+		logger.info(ind.substring(2) + "done matching constructor " + p.actual());
 		sv.result(hsiTree);
 	}
 
@@ -139,23 +143,24 @@ public class PatternAnalyzer extends LeafAdapter {
 	@Override
 	public void leaveFunctionIntro(FunctionIntro fi) {
 		fi.bindTree(hsiTree);
+		ind = ind.substring(2);
 	}
 	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
-		logger.info("analyzed " + fn.name().uniqueName());
+		logger.info(ind + "analyzed " + fn.name().uniqueName());
 		fn.bindHsi(hsiTree);
 	}
 
 	@Override
 	public void leaveObjectMethod(ObjectMethod meth) {
-		logger.info("analyzed " + meth.name().uniqueName());
+		logger.info(ind + "analyzed " + meth.name().uniqueName());
 		meth.bindHsi(hsiTree);
 	}
 
 	@Override
 	public void leaveObjectCtor(ObjectCtor meth) {
-		logger.info("analyzed " + meth.name().uniqueName());
+		logger.info(ind + "analyzed " + meth.name().uniqueName());
 		meth.bindHsi(hsiTree);
 	}
 }

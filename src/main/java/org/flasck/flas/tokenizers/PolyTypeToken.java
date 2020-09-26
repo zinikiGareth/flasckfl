@@ -42,12 +42,12 @@ public class PolyTypeToken {
 			return null;
 	}
 	
-	private static boolean validate(String tx) {
-		if (tx.length() > 2)
+	public static boolean validate(String tn) {
+		if (tn.length() > 2)
 			return false;
-		if (!Character.isUpperCase(tx.charAt(0)))
+		if (!Character.isUpperCase(tn.charAt(0)))
 			return false;
-		if (tx.length() == 2 && !Character.isUpperCase(tx.charAt(1)) && !Character.isDigit(tx.charAt(1)))
+		if (tn.length() == 2 && !Character.isUpperCase(tn.charAt(1)) && !Character.isDigit(tn.charAt(1)))
 			return false;
 		return true;
 	}

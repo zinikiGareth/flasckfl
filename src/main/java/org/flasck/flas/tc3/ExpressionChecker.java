@@ -114,6 +114,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			FunctionDefinition fn = (FunctionDefinition) defn;
 			if (fn.hasType())
 				announce(pos, fn.type());
+			else if (state.getMember(fn.name()) == null)
+				announce(pos, new ErrorType());
 			else
 				announce(pos, state.getMember(fn.name()));
 		} else if (defn instanceof TupleMember) {

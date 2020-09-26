@@ -3,12 +3,15 @@ package org.flasck.flas.parsedForm;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.UnboundTypeException;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
@@ -26,6 +29,8 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	private final int nargs;
 	private final StateHolder holder;
 	private final List<FunctionIntro> intros = new ArrayList<>();
+	// A map of declared poly types found in the patterns
+	private final Map<String, PolyType> namedPolys = new TreeMap<>();
 	private Type type;
 	private HSITree hsiTree;
 	private NestedVarReader nestedVars;
@@ -197,5 +202,13 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	
 	public void isObjAccessor(boolean b) {
 		this.isObjAccessor = b;
+	}
+
+	public PolyType allocatePoly(InputPosition pos, String tn) {
+		if (namedPolys.containsKey(tn))
+			return namedPolys.get(tn);
+		PolyType pt = new PolyType(pos, new SolidName(name, tn));
+		namedPolys .put(tn, pt);
+		return pt;
 	}
 }

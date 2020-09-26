@@ -54,6 +54,7 @@ public class ArgumentChecking {
 		context.checking(new Expectations() {{
 			oneOf(ut).canBeType(pos, LoadBuiltins.string);
 			oneOf(state).bindVarToUT(fnCxt, "f.x", ut);
+			oneOf(state).recordPolys(LoadBuiltins.string);
 		}});
 		tc.matchType(LoadBuiltins.string, new VarName(pos, fn, "x"), null);
 	}

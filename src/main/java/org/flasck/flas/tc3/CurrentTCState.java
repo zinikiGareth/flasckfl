@@ -27,4 +27,8 @@ public interface CurrentTCState extends Consolidator {
 	void bindIntroducedVarTypes(ErrorReporter errors);
 	void bindIntroducedVarToUT(IntroduceVar v, UnifiableType ut);
 	void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes, Map<TypeBinder, PosType> resultTypes);
+	void rememberPoly(PolyType pt, UnifiableType pv);
+	boolean hasPoly(PolyType pt);
+	Type getPoly(PolyType pt);
+	void recordPolys(Type ofType);
 }

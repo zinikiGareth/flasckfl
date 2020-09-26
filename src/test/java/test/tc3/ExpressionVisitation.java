@@ -198,7 +198,7 @@ public class ExpressionVisitation {
 		UnifiableType ut = context.mock(UnifiableType.class);
 		FunctionName nameF = FunctionName.function(pos, null, "f");
 		context.checking(new Expectations() {{
-			oneOf(state).getMember(nameF); will(returnValue(ut));
+			allowing(state).getMember(nameF); will(returnValue(ut));
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(ut))));
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, fnCxt, false);

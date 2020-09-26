@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -113,8 +114,9 @@ public class HSIPatternOptions implements HSIOptions {
 		NamedType td = (NamedType) tp.type.defn();
 		if (td == null)
 			throw new RuntimeException("No definition in " + tp.type);
-		while (td instanceof PolyInstance)
+		if (td instanceof PolyInstance) {
 			td = ((PolyInstance)td).struct();
+		}
 		if (!types.containsKey(td))
 			types.put(td, new TV(tp));
 		types.get(td).intros.add(fi);
