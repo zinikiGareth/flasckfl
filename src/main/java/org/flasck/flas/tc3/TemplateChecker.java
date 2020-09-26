@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.repository.LeafAdapter;
@@ -178,122 +179,120 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private void processContainerType(InputPosition pos, TemplateBindingOption option, Type etype) {
-		// REFACTOR !!!!!!!
-		if (etype instanceof ObjectDefn) {
-			ObjectDefn od = (ObjectDefn) etype;
-			if (od.name().uniqueName().equals("Crobag")) {
-				// Copied and hacked from below
-				System.out.println("need to handle crobags in a similar fashion to lists");
-				etype = repository.get("org.zinapps.samples.earthquakes.Earthquake");
-				Map<NamedType, Template> mapping = new HashMap<>();
-				Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, etype);
-				if (which == null) {
-					errors.message(pos, "there is no compatible template for " + etype.signature());
-				} else {
-					referencedTemplates.add(which.name().baseName());
-					mapping.put((StructDefn) etype, which);
-				}
-				option.attachMapping(mapping);
-				return;
-			}
-			if (option.sendsTo == null || option.sendsTo.template() == null) {
-				errors.message(pos, "must use templates to render object " + etype.signature());
-				return;
-			}
-			NameOfThing tdb = option.sendsTo.template().name();
-			NameOfThing obj = ((ObjectDefn)etype).name();
-			if (!obj.equals(tdb.container())) {
-				errors.message(pos, "cannot use template '" + tdb.uniqueName() + "' to render object of type '" + obj.uniqueName());
-				return;
-			}
-		}
 		if (TypeHelpers.isPrimitive(etype)) {
 			String msg = "cannot render primitive object in container " + option.assignsTo.text;
 			errors.message(pos, msg);
-			return;
-		}
-		if (option.sendsTo != null && !TypeHelpers.isListLike(etype)) {
+		} else if (TypeHelpers.isListLike(etype)) {
+			handleListCases(pos, option, etype);
+		} else if (etype instanceof ObjectDefn) {
+			handleObjectCases(pos, option, (ObjectDefn)etype);
+		} else if (option.sendsTo != null) {
 			errors.message(option.sendsTo.location(), "cannot specify sendsTo operator for a single item when target is a container");
 			return;
-		}
-		// GP 2020-09-25: since Lists are a union, surely these two cases are back to front?
-		if (option.sendsTo == null && etype instanceof UnionTypeDefn) {
-			Map<NamedType, Template> mapping = new HashMap<>();
-			distributeUnion(pos, etype, mapping);
-			option.attachMapping(mapping);
-		} else if (option.sendsTo == null && TypeHelpers.isList(etype)) {
-			/* In this case, we have specified a list of items we want rendered into a container, 
-			 * but we haven't specified how we want it done.  In that case, the items must be of a type
-			 * that we can identify and must either be STRUCT or UNION.
-			 * We can then go through each one and find the appropriate template to use, checking that it is compatible,
-			 * marking it as used, and recording the fact that we want to do this for this template (or something)
-			 */
-			etype = TypeHelpers.extractListPoly(etype);
-			if (etype instanceof PolyInstance)
-				etype = ((PolyInstance)etype).struct();
-			Map<NamedType, Template> mapping = new HashMap<>();
-			if (etype instanceof StructDefn) {
-				Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, etype);
-				if (which == null) {
-					errors.message(pos, "there is no compatible template for " + etype.signature());
-				} else {
-					referencedTemplates.add(which.name().baseName());
-					mapping.put((StructDefn) etype, which);
-				}
-			} else if (etype instanceof UnionTypeDefn) {
-				distributeUnion(pos, etype, mapping);
-			} else if (etype instanceof UnifiableType) {
-				errors.message(pos, "the compiler is not clever enough to do the analysis required to figure out which template to send elements to; please specify a template or make your types clearer");
-			} else {
-				// TODO: note that this could also be a PolyInstance of one of these ...
-				throw new HaventConsideredThisException("must be struct or union, not " + etype);
-			}
-			option.attachMapping(mapping);
-		} else if (option.sendsTo != null) { // need to test that we have compatible chains
-			if (TypeHelpers.isList(etype)) {
-				etype = TypeHelpers.extractListPoly(etype);
-			}
-			// I think by this point the fact that we are here means this must all have resolved
-			Template t = option.sendsTo.template();
-			NestingChain chain = t.nestingChain();
-			Iterator<Link> it = chain.iterator();
-			pos = option.sendsTo.location();
-			{
-				Link first = it.next();
-				Type lp = null;
-				if (TypeHelpers.isList(first.type()))
-					lp = TypeHelpers.extractListPoly(first.type());
-				// first.actualType must match what we have in mind
-				if (!first.type().incorporates(pos, etype) && !(lp != null && lp.incorporates(pos, etype))) {
-					errors.message(pos, "template '" + t.name().uniqueName() + "' requires " + first.type().signature() + " not " + etype.signature());
-					return;
-				}
-			}
-			// we must have all its remaining context types in our context
-			List<Integer> posns = new ArrayList<>();
-			checkContextVars:
-			while (it.hasNext()) {
-				Link contextVar = it.next();
-				if (currentTemplate.nestingChain() != null) {
-					int mp = 0;
-					for (Link mine : currentTemplate.nestingChain()) {
-						if (mine.type().incorporates(pos, contextVar.type())) {
-							posns.add(mp);
-							continue checkContextVars;
-						}
-						mp++;
-					}
-				}
-				String cv = contextVar.name().var;
-				if (cv != null)
-					errors.message(pos, "cannot provide required context var " + cv + " required by " + option.sendsTo.name.uniqueName());
-				else
-					errors.message(pos, "cannot provide a template context var of type " + contextVar.type().signature() + " required by " + option.sendsTo.name.uniqueName());
-			}
-			option.sendsTo.bindPosns(posns);
+//		} else if (etype instanceof StructDefn) {
+//			handleStructCases(pos, option, (StructDefn)etype);
+		} else if (etype instanceof UnionTypeDefn) {
+			handleUnionCases(pos, option, (UnionTypeDefn)etype);
 		} else {
 			errors.message(pos, "cannot identify a suitable template to format value into container " + option.assignsTo.text);
 		}
+	}
+
+	private void handleListCases(InputPosition pos, TemplateBindingOption option, Type etype) {
+		etype = TypeHelpers.extractListPoly(etype);
+		if (option.sendsTo != null) {
+			handleSendsToCase(pos, option, etype, option.sendsTo);
+			return;
+		}
+		/* In this case, we have specified a list of items we want rendered into a container, 
+		 * but we haven't specified how we want it done.  In that case, the items must be of a type
+		 * that we can identify and must either be STRUCT or UNION.
+		 * We can then go through each one and find the appropriate template to use, checking that it is compatible,
+		 * marking it as used, and recording the fact that we want to do this for this template (or something)
+		 */
+		if (etype instanceof PolyInstance)
+			etype = ((PolyInstance)etype).struct();
+		Map<NamedType, Template> mapping = new HashMap<>();
+		if (etype instanceof StructDefn) {
+			Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, etype);
+			if (which == null) {
+				errors.message(pos, "there is no compatible template for " + etype.signature());
+			} else {
+				referencedTemplates.add(which.name().baseName());
+				mapping.put((StructDefn) etype, which);
+			}
+		} else if (etype instanceof UnionTypeDefn) {
+			distributeUnion(pos, etype, mapping);
+		} else if (etype instanceof UnifiableType) {
+			errors.message(pos, "the compiler is not clever enough to do the analysis required to figure out which template to send elements to; please specify a template or make your types clearer");
+		} else {
+			// TODO: note that this could also be a PolyInstance of one of these ...
+			throw new HaventConsideredThisException("must be struct or union, not " + etype);
+		}
+		option.attachMapping(mapping);
+	}
+
+	private void handleObjectCases(InputPosition pos, TemplateBindingOption option, ObjectDefn etype) {
+		if (option.sendsTo == null || option.sendsTo.template() == null) {
+			errors.message(pos, "must use templates to render object " + etype.signature());
+			return;
+		}
+		NameOfThing tdb = option.sendsTo.template().name();
+		NameOfThing obj = ((ObjectDefn)etype).name();
+		if (!obj.equals(tdb.container())) {
+			errors.message(pos, "cannot use template '" + tdb.uniqueName() + "' to render object of type '" + obj.uniqueName());
+			return;
+		}
+	}
+
+	private void handleUnionCases(InputPosition pos, TemplateBindingOption option, UnionTypeDefn etype) {
+		if (option.sendsTo == null) {
+			Map<NamedType, Template> mapping = new HashMap<>();
+			distributeUnion(pos, etype, mapping);
+			option.attachMapping(mapping);
+		} else
+			handleSendsToCase(pos, option, etype, option.sendsTo);
+	}
+
+	private void handleSendsToCase(InputPosition pos, TemplateBindingOption option, Type etype, TemplateReference sendsTo) {
+		// I think by this point the fact that we are here means this must all have resolved
+		Template t = option.sendsTo.template();
+		NestingChain chain = t.nestingChain();
+		Iterator<Link> it = chain.iterator();
+		pos = option.sendsTo.location();
+		{
+			Link first = it.next();
+			Type lp = null;
+			if (TypeHelpers.isList(first.type()))
+				lp = TypeHelpers.extractListPoly(first.type());
+			// first.actualType must match what we have in mind
+			if (!first.type().incorporates(pos, etype) && !(lp != null && lp.incorporates(pos, etype))) {
+				errors.message(pos, "template '" + t.name().uniqueName() + "' requires " + first.type().signature() + " not " + etype.signature());
+				return;
+			}
+		}
+		// we must have all its remaining context types in our context
+		List<Integer> posns = new ArrayList<>();
+		checkContextVars:
+		while (it.hasNext()) {
+			Link contextVar = it.next();
+			if (currentTemplate.nestingChain() != null) {
+				int mp = 0;
+				for (Link mine : currentTemplate.nestingChain()) {
+					if (mine.type().incorporates(pos, contextVar.type())) {
+						posns.add(mp);
+						continue checkContextVars;
+					}
+					mp++;
+				}
+			}
+			String cv = contextVar.name().var;
+			if (cv != null)
+				errors.message(pos, "cannot provide required context var " + cv + " required by " + option.sendsTo.name.uniqueName());
+			else
+				errors.message(pos, "cannot provide a template context var of type " + contextVar.type().signature() + " required by " + option.sendsTo.name.uniqueName());
+		}
+		option.sendsTo.bindPosns(posns);
 	}
 
 	private void distributeUnion(InputPosition pos, Type etype, Map<NamedType, Template> mapping) {
