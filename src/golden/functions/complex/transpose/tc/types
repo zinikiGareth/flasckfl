@@ -2,6 +2,6 @@ test.golden.map :: (A->B)->List[A]->List[B]
 test.golden.recurse :: A->List[Any]->List[List[A]]
 test.golden.safeHead :: A->List[A]->A
 test.golden.safeTail :: List[A]->List[A]
-test.golden.transpose :: A->List[List[A]]->List[List[A]]
+test.golden.transpose :: A->List[List[B]]->List[List[A]]
 test.golden.trim2 :: List[A]->List[Nil]
 test.golden.trimEnd :: List[List[A]]->List[Any]

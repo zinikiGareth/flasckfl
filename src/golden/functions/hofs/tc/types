@@ -1,5 +1,5 @@
-test.golden.cross :: List[List[A]]->List[List[A]]
-test.golden.cross1 :: List[List[A]]->A->List[Cons[A]]
+test.golden.cross :: List[List[A]]->List[List[Any]]
+test.golden.cross1 :: List[List[A]]->B->List[Cons[B]]
 test.golden.doit :: (Number->A)->A
 test.golden.genlist :: Number->List[Number]
 test.golden.hof :: (Number->List[Any])->Number
