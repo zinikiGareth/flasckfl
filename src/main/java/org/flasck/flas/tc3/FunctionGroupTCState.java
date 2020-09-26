@@ -133,7 +133,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			for (int i=0;i<pi.polys().size();i++) {
 				Type t = pi.polys().get(i);
 				if (t instanceof PolyType) {
-					UnifiableType ut = createUT(pi.location(), "poly var " + t.signature());
+					UnifiableType ut = createUT(pi.location(), "poly var " + ((PolyType)t).name().uniqueName());
 					rememberPoly((PolyType) t, ut);
 				} else
 					recordPolys(t);
@@ -143,17 +143,17 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 	@Override
 	public void rememberPoly(PolyType pt, UnifiableType pv) {
-		polys.put(pt.signature(), pv);
+		polys.put(pt.name().uniqueName(), pv);
 	}
 
 	@Override
 	public boolean hasPoly(PolyType pt) {
-		return polys.containsKey(pt.signature());
+		return polys.containsKey(pt.name().uniqueName());
 	}
 
 	@Override
 	public Type getPoly(PolyType pt) {
-		return polys.get(pt.signature());
+		return polys.get(pt.name().uniqueName());
 	}
 
 	@Override
