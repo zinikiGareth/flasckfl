@@ -2,8 +2,6 @@ package org.flasck.flas.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -26,7 +24,6 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tc3.Apply;
-import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Tuple;
@@ -34,143 +31,337 @@ import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
 	public static final InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
-	private static Map<String, PolyHandle> handles = new TreeMap<>();
 
-	// "Primitive" types
+	/* "Primitive" types */
+
+	//   -> string
+	public static final TypeReference stringTR = new TypeReference(pos, "String");
+	public static final Primitive string = new Primitive(pos, "String");
+	static {
+		stringTR.bind(string);
+	}
+
+	//   -> error
+	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
+	static {
+		error.addField(new StructField(pos, error, true, stringTR, "message"));
+	}
+
+	//   -> any
 	public static final Primitive any = new Primitive(pos, "Any");
 	public static final TypeReference anyTR = new TypeReference(pos, "Any");
 	static {
 		anyTR.bind(any);
 	}
 	
-	// TODO: I think we want subclasses of Any called "Entity", "Deal", "Offer", etc
-	// Not quite sure what etc. includes because I don't think "Primitive" and "Struct" hold any value
-	// Entity is obviously useful because we use it in Data Contracts
-	// Deal & Offer feel like they would come up in conversations about Commerce
-	// Countables, Currency and ValueStore need to go here too
-	public static final Primitive contract = new Primitive(pos, "Contract"); // Should this be in 3 parts? (CONTRACT, SERVICE, HANDLER?)
-	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
-	public static final Primitive number = new Primitive(pos, "Number");
-	public static final Primitive string = new Primitive(pos, "String");
-	public static final Primitive uri = new Primitive(pos, "Uri");
-	public static final Primitive interval = new Primitive(pos, "Interval");
-	public static final Primitive instant = new Primitive(pos, "Instant");
-	public static final Type idempotentHandler = contract; // This may or may not be correct ...
-	public static final StructDefn id = new StructDefn(pos, FieldsType.STRUCT, null, "Id", false);
+	/* TODO: I think we want subclasses of Any called "Entity", "Deal", "Offer", etc
+	 * Not quite sure what etc. includes because I don't think "Primitive" and "Struct" hold any value
+	 * Entity is obviously useful because we use it in Data Contracts
+	 * Deal & Offer feel like they would come up in conversations about Commerce
+	 * Countables, Currency and ValueStore need to go here too
+	 */
 
-	// This is another really weird thing ... it has arguments really, so needs to be parameterized a variable amount
-	// Probably needs its own class to handle it properly
+	//   -> number
+	public static final TypeReference numberTR = new TypeReference(pos, "Number");
+	public static final Primitive number = new Primitive(pos, "Number");
+	static {
+		numberTR.bind(number);
+	}
+
+	//   -> uri
+	public static final TypeReference uriTR = new TypeReference(pos, "Uri");
+	public static final Primitive uri = new Primitive(pos, "Uri");
+	static {
+		uriTR.bind(uri);
+	}
+
+	//   -> id
+	public static final Primitive id = new Primitive(pos, "Id");
+	static {
+	}
+	
+	/* Primitives related to time & date */
+	
+	//   -> Instant (a specific moment in the history of the universe)
+	public static final TypeReference instantTR = new TypeReference(pos, "Instant");
+	public static final Primitive instant = new Primitive(pos, "Instant");
+	static {
+		instantTR.bind(instant);
+	}
+
+	//   -> Interval (the time elapsed between two instants)
+	public static final TypeReference intervalTR = new TypeReference(pos, "Interval");
+	public static final Primitive interval = new Primitive(pos, "Interval");
+	static {
+		intervalTR.bind(interval);
+	}
+
+	/* Weird things that need to exist and therefore feel "Primitive" */
+	
+	//   -> contract
+	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
+	public static final Primitive contract = new Primitive(pos, "Contract"); // Should this be in 3 parts? (CONTRACT, SERVICE, HANDLER?)
+	public static final Primitive idempotentHandler = contract; // This may or may not be correct ...
+	static {
+		contractTR.bind(contract);
+	}
+
+	//   -> tuple
 	public static final Tuple tuple = new Tuple(pos, "Tuple");
 
-	// Booleans
-	public static final StructDefn falseT = new StructDefn(pos, FieldsType.STRUCT, null, "False", false);
-	public static final StructDefn trueT = new StructDefn(pos, FieldsType.STRUCT, null, "True", false);
+	
+	/* Booleans */
+
+	//   -> Bool (the union)
 	public static final UnionTypeDefn bool = new UnionTypeDefn(pos, false, new SolidName(null, "Boolean"));
 
-	// Lists
-	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
-	public static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
-	public static final StructDefn cons = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Cons"), false, new ArrayList<>());
-	public static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR(cons, "A"));
+	//   -> False
+	public static final TypeReference falseTR = new TypeReference(pos, "False");
+	public static final StructDefn falseT = new StructDefn(pos, FieldsType.STRUCT, null, "False", false);
+	static {
+		falseTR.bind(falseT);
+		bool.addCase(falseTR);
+	}
+
+	//   -> True
+	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
+	public static final StructDefn trueT = new StructDefn(pos, FieldsType.STRUCT, null, "True", false);
+	static {
+		trueTR.bind(trueT);
+		bool.addCase(trueTR);
+	}
+
+	/* Lists */
+	
+	//   -> List (the union)
+	private static TypeReference listATR_A = new TypeReference(pos, "A");
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new ArrayList<>());
-	public static final TypeReference listATR = new TypeReference(pos, "List", polyATR(list, "A"));
+	private static PolyType listA_A = new PolyType(pos, new SolidName(list.name(), "A"));
+	static {
+		listATR_A.bind(listA_A);
+		list.polys().add(listA_A);
+	}
+
+	//   -> Nil
+	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
+	public static final TypeReference nilTR = new TypeReference(pos, "Nil");
+	static {
+		nilTR.bind(nil);
+		list.addCase(nilTR);
+	}
+	
+	//   -> Cons
+	private static TypeReference consATR_A = new TypeReference(pos, "A");
+	public static final StructDefn cons = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Cons"), false, new ArrayList<>());
+	public static final TypeReference consATR = new TypeReference(pos, "Cons", consATR_A);
+	static {
+		consATR.bind(cons);
+		PolyType cta = new PolyType(pos, new SolidName(cons.name(), "A"));
+		cons.polys().add(cta);
+		consATR_A.bind(cta);
+		StructField head = new StructField(pos, cons, true, consATR_A, "head");
+		head.fullName(new VarName(pos, cons.name(), "head"));
+		cons.addField(head);
+		PolyInstance pil = new PolyInstance(pos, list, Arrays.asList(cta));
+		TypeReference piltr = new TypeReference(pos, "List", consATR_A);
+		piltr.bind(pil);
+		StructField tail = new StructField(pos, cons, true, piltr, "tail");
+		tail.fullName(new VarName(pos, cons.name(), "tail"));
+		cons.addField(tail);
+		TypeReference lc = new TypeReference(pos, "Cons", listATR_A);
+		lc.bind(cons);
+		list.addCase(lc);
+	}
+
+	//   -> List TR
+	public static final TypeReference listATR = new TypeReference(pos, "List", listATR_A);
+	static {
+		listATR.bind(list);
+	}
+	
+	//   -> List[Any]
 	public static final PolyInstance listAny = new PolyInstance(pos, list, Arrays.asList(any));
 	public static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
 	static {
-		{
-			PolyType cta = polyA(cons, "A");
-			cons.polys().add(cta);
-			TypeReference atr = polyATR(cons, "A");
-			StructField head = new StructField(pos, cons, true, atr, "head");
-			head.fullName(new VarName(pos, cons.name(), "head"));
-			cons.addField(head);
-			PolyInstance pil = new PolyInstance(pos, list, Arrays.asList(cta));
-			TypeReference piltr = new TypeReference(pos, "List", atr);
-			piltr.bind(pil);
-			StructField tail = new StructField(pos, cons, true, piltr, "tail");
-			tail.fullName(new VarName(pos, cons.name(), "tail"));
-			cons.addField(tail);
-		}
-
-		{
-			PolyType lta = polyA(list, "A");
-			list.polys().add(lta);
-			list.addCase(nilTR);
-			TypeReference consATR = new TypeReference(pos, "Cons", polyATR(list, "A"));
-			consATR.bind(new PolyInstance(pos, cons, Arrays.asList(lta)));
-			list.addCase(consATR);
-		}
-
-		listATR.bind(list);
 		listAnyTR.bind(listAny);
 	}
 
+	//   -> AssignItem (is similar to Cons but can be used in assignments in methods)
 	public static final StructDefn assignItem = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "AssignItem"), false, new ArrayList<>());
 	static {
-		assignItem.polys().add(polyA(assignItem, "A"));
-		StructField aihead = new StructField(pos, assignItem, true, polyATR(assignItem, "A"), "head");
+		TypeReference aitr = new TypeReference(pos, "A");
+		PolyType aip = new PolyType(pos, new SolidName(assignItem.name(), "A"));
+		aitr.bind(aip);
+		assignItem.polys().add(aip);
+		StructField aihead = new StructField(pos, assignItem, true, aitr, "head");
 		aihead.fullName(new VarName(pos, assignItem.name(), "head"));
 		assignItem.addField(aihead);
 	}
 
-	// Hashes (associative arrays)
+	/*  Hashes (associative arrays) */
+
+	//   -> Hash
+	public static final TypeReference hashTR = new TypeReference(pos, "Hash");
 	public static final StructDefn hash = new StructDefn(pos, FieldsType.STRUCT, null, "Hash", false);
-	public static final StructDefn hashPairType = new StructDefn(pos, FieldsType.STRUCT, null, "_HashPair", false); // This can only be accessed internally; it is the result of the : operator
-	
-	// Random
-	public static final ObjectDefn random = new ObjectDefn(pos, pos, new ObjectName(null, "Random"), false, new ArrayList<>());
-	private static ObjectCtor randomSeed;
-	private static ObjectCtor randomUnseeded;
-	static ObjectAccessor randomNext;
-	static ObjectMethod randomUsed;
-	
-	// Crobags
-	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new ObjectName(null, "Crobag"), false, new ArrayList<>());
 	static {
-		crobag.polys().add(polyA(crobag, "A"));
+		hashTR.bind(hash);
 	}
-	private static ObjectCtor crobagNew;
 	
-	// Messages
-	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);
-	public static final StructDefn send = new StructDefn(pos, FieldsType.STRUCT, null, "Send", false);
-	public static final StructDefn assign = new StructDefn(pos, FieldsType.STRUCT, null, "Assign", false);
-	public static final StructDefn assignCons = new StructDefn(pos, FieldsType.STRUCT, null, "AssignCons", false);
+	//   -> HashPair (each element of a hash is a hash pair, but this is internal, the result of the : operator)
+	public static final StructDefn hashPairType = new StructDefn(pos, FieldsType.STRUCT, null, "_HashPair", false);
+
+
+	/*  Messages */
+	
+	//   -> Message (the union)
 	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
+
+	//   -> Debug
+	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
+	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);
+	static {
+		debugTR.bind(debug);
+		debug.addField(new StructField(pos, debug, true, stringTR, "message"));
+		message.addCase(debugTR);
+	}
+	
+	//   -> Send
+	public static final TypeReference sendTR = new TypeReference(pos, "Send");
+	public static final StructDefn send = new StructDefn(pos, FieldsType.STRUCT, null, "Send", false);
+	static {
+		sendTR.bind(send);
+		send.addField(new StructField(pos, send, false, contractTR, "sendto"));
+		send.addField(new StructField(pos, send, false, stringTR, "meth"));
+		send.addField(new StructField(pos, send, false, listAnyTR, "args"));
+		message.addCase(sendTR);
+	}
+	
+	//   -> Assign
+	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
+	public static final StructDefn assign = new StructDefn(pos, FieldsType.STRUCT, null, "Assign", false);
+	static {
+		assignTR.bind(assign);
+		assign.addField(new StructField(pos, assign, false, anyTR, "on"));
+		assign.addField(new StructField(pos, assign, false, stringTR, "fld"));
+		assign.addField(new StructField(pos, assign, false, anyTR, "value"));
+		message.addCase(assignTR);
+	}
+	
+	//   -> AssignCons (this and assignitem seem somewhat duplicative)
+	public static final StructDefn assignCons = new StructDefn(pos, FieldsType.STRUCT, null, "AssignCons", false);
+	static {
+		assignCons.addField(new StructField(pos, assignCons, false, anyTR, "on"));
+		assignCons.addField(new StructField(pos, assignCons, false, anyTR, "value"));
+		// why is this not added to message?
+	}
+	
+	//   -> List[Message]
 	public static final Type listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 
-	// Type References
-	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
-	public static final TypeReference stringTR = new TypeReference(pos, "String");
-	public static final TypeReference uriTR = new TypeReference(pos, "Uri");
-	public static final TypeReference numberTR = new TypeReference(pos, "Number");
-	public static final TypeReference intervalTR = new TypeReference(pos, "Interval");
-	public static final TypeReference instantTR = new TypeReference(pos, "Instant");
-	public static final TypeReference typeTR = new TypeReference(pos, "Type");
-	public static final TypeReference falseTR = new TypeReference(pos, "False");
-	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
-	public static final TypeReference hashTR = new TypeReference(pos, "Hash");
-	public static final TypeReference randomTR = new TypeReference(pos, "Random");
-	public static final TypeReference crobagTR = new TypeReference(pos, "Crobag");
-	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
-	public static final TypeReference sendTR = new TypeReference(pos, "Send");
-	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
-	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
-	
-	// Events
-	public static final StructDefn clickEvent = new StructDefn(pos, FieldsType.STRUCT, null, "ClickEvent", false);
-	public static final StructField source = new StructField(pos, pos, clickEvent, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
+
+	/* Events */
+
+	//   -> Event (the union)
 	public static final UnionTypeDefn event = new UnionTypeDefn(pos, false, new SolidName(null, "Event"));
 	
+	//   -> ClickEvent
+	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
+	public static final StructDefn clickEvent = new StructDefn(pos, FieldsType.STRUCT, null, "ClickEvent", false);
+	public static final StructField source = new StructField(pos, pos, clickEvent, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
+	static {
+		clickEventTR.bind(clickEvent);
+		clickEvent.addField(source);
+		source.fullName(new VarName(pos, clickEvent.name(), "source"));
+		event.addCase(clickEventTR);
+	}
+
+
+	/* Objects */
+
+	// Random
+
+	public static final TypeReference randomTR = new TypeReference(pos, "Random");
+	public static final ObjectDefn random = new ObjectDefn(pos, pos, new ObjectName(null, "Random"), false, new ArrayList<>());
+	static {
+		randomTR.bind(random);
+	}
+	
+	//   -> ctor Random.seed
+	private static ObjectCtor randomSeed;
+	static {
+		FunctionName ctorSeed = FunctionName.objectCtor(pos, random.name(), "seed");
+		randomSeed = new ObjectCtor(pos, random, ctorSeed, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, ctorSeed, "seed"))));
+		randomSeed.dontGenerate();
+		randomSeed.bindType(new Apply(number, random));
+		random.addConstructor(randomSeed);
+	}
+
+	//   -> ctor Random.unseeded
+	private static ObjectCtor randomUnseeded;
+	static {
+		FunctionName ctorUnseeded = FunctionName.objectCtor(pos, random.name(), "unseeded");
+		randomUnseeded = new ObjectCtor(pos, random, ctorUnseeded, new ArrayList<>());
+		randomUnseeded.dontGenerate();
+		randomUnseeded.bindType(random);
+		random.addConstructor(randomUnseeded);
+	}
+
+	//   -> method Ranndom.next
+	private static ObjectAccessor randomNext;
+	static {
+		FunctionName afn = FunctionName.function(pos, random.name(), "next");
+		FunctionDefinition acor = new FunctionDefinition(afn, 1, random);
+		acor.bindType(new Apply(number, new PolyInstance(pos, list, Arrays.asList(number))));
+		randomNext = new ObjectAccessor(random, acor);
+		randomNext.dontGenerate();
+		random.addAccessor(randomNext);
+	}
+
+	//   -> method Ranndom.used
+	private static ObjectMethod randomUsed;
+	static {
+		FunctionName used = FunctionName.objectMethod(pos, random.name(), "used");
+		randomUsed = new ObjectMethod(pos, used, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, used, "quant"))), null, random);
+		randomUsed.dontGenerate();
+		randomUsed.bindType(new Apply(number, listMessages));
+		random.addMethod(randomUsed);
+	}
+	
+	// Crobag[A]
+	public static final TypeReference crobagTR = new TypeReference(pos, "Crobag");
+	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new ObjectName(null, "Crobag"), false, new ArrayList<>());
+	static {
+//		TypeReference ctr = new TypeReference(pos, "A");
+		PolyType cp = new PolyType(pos, new SolidName(crobag.name(), "A"));
+//		ctr.bind(cp);
+		crobagTR.bind(crobag);
+		crobag.polys().add(cp);
+	}
+
+	//   -> ctor Crobag.new
+	private static ObjectCtor crobagNew;
+	static {
+		FunctionName ctorNew = FunctionName.objectCtor(pos, crobag.name(), "new");
+		crobagNew = new ObjectCtor(pos, crobag, ctorNew, new ArrayList<>());
+		crobagNew.dontGenerate();
+		crobagNew.bindType(crobag);
+		crobag.addConstructor(crobagNew);
+	}
+	
 	// The type "operator"
+	public static final TypeReference typeTR = new TypeReference(pos, "Type");
 	private static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
 
-	// The function that probes state in UDDs
-	public static UnresolvedVar probeState = new UnresolvedVar(pos, "_probe_state");
-	public static UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
+	static {
+		typeTR.bind(type);
+		// is this ok as a string or should it be something else?
+		type.addField(new StructField(pos, type, false, stringTR, "type"));
+	}
 
+	
+	/* Functions */
+	
 	// Builtin operators
-	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, null).dontGenerate();
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, null).dontGenerate();
 	public static final FunctionDefinition isGE = new FunctionDefinition(FunctionName.function(pos, null, ">="), 2, null).dontGenerate();
 	public static final FunctionDefinition isGT = new FunctionDefinition(FunctionName.function(pos, null, ">"), 2, null).dontGenerate();
@@ -185,6 +376,15 @@ public class LoadBuiltins {
 	public static final FunctionDefinition not = new FunctionDefinition(FunctionName.function(pos, null, "!"), 1, null).dontGenerate();
 	public static final FunctionDefinition and = new FunctionDefinition(FunctionName.function(pos, null, "&&"), 2, null).dontGenerate();
 	public static final FunctionDefinition or = new FunctionDefinition(FunctionName.function(pos, null, "||"), 2, null).dontGenerate();
+	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null).dontGenerate();
+
+	// syntax support
+	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null).dontGenerate();
+	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null).dontGenerate();
+	public static final FunctionDefinition hashPair = new FunctionDefinition(FunctionName.function(pos, null, ":"), 2, null).dontGenerate();
+
+	// internal functions
+	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, null).dontGenerate();
 	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1, null).dontGenerate();
 	public static final FunctionDefinition replace = new FunctionDefinition(FunctionName.function(pos, null, "replace"), 3, null).dontGenerate();
 	public static final FunctionDefinition nth = new FunctionDefinition(FunctionName.function(pos, null, "nth"), 2, null).dontGenerate();
@@ -192,13 +392,9 @@ public class LoadBuiltins {
 	public static final FunctionDefinition take = new FunctionDefinition(FunctionName.function(pos, null, "take"), 2, null).dontGenerate();
 	public static final FunctionDefinition drop = new FunctionDefinition(FunctionName.function(pos, null, "drop"), 2, null).dontGenerate();
 	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, null).dontGenerate();
-	public static final FunctionDefinition hashPair = new FunctionDefinition(FunctionName.function(pos, null, ":"), 2, null).dontGenerate();
 	public static final FunctionDefinition assoc = new FunctionDefinition(FunctionName.function(pos, null, "assoc"), 2, null).dontGenerate();
 	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, null).dontGenerate();
-	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null).dontGenerate();
 	public static final FunctionDefinition concatLists = new FunctionDefinition(FunctionName.function(pos, null, "concatLists"), 1, null).dontGenerate();
-	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null).dontGenerate();
-	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null).dontGenerate();
 	public static final FunctionDefinition dispatch = new FunctionDefinition(FunctionName.function(pos, null, "dispatch"), 1, null).dontGenerate();
 	public static final FunctionDefinition show = new FunctionDefinition(FunctionName.function(pos, null, "show"), 1, null).dontGenerate();
 	public static final FunctionDefinition expr = new FunctionDefinition(FunctionName.function(pos, null, "expr"), 1, null).dontGenerate();
@@ -206,99 +402,17 @@ public class LoadBuiltins {
 	public static final FunctionDefinition parseUri = new FunctionDefinition(FunctionName.function(pos, null, "parseUri"), 1, null).dontGenerate();
 	public static final FunctionDefinition parseJson = new FunctionDefinition(FunctionName.function(pos, null, "parseJson"), 1, null).dontGenerate();
 
-	static {
-		// bind TRs
-		contractTR.bind(contract);
-		stringTR.bind(string);
-		uriTR.bind(uri);
-		numberTR.bind(number);
-		intervalTR.bind(interval);
-		instantTR.bind(instant);
-		typeTR.bind(type);
-		hashTR.bind(hash);
-		falseTR.bind(falseT);
-		trueTR.bind(trueT);
-		nilTR.bind(nil);
-		randomTR.bind(random);
-		crobagTR.bind(crobag);
-		debugTR.bind(debug);
-		sendTR.bind(send);
-		assignTR.bind(assign);
-		clickEventTR.bind(clickEvent);
-	
-		// add fields to structs
-		error.addField(new StructField(pos, error, true, stringTR, "message"));
-		debug.addField(new StructField(pos, debug, true, stringTR, "message"));
-		send.addField(new StructField(pos, send, false, contractTR, "sendto"));
-		send.addField(new StructField(pos, send, false, stringTR, "meth"));
-		send.addField(new StructField(pos, send, false, listAnyTR, "args"));
-		assign.addField(new StructField(pos, assign, false, anyTR, "on"));
-		assign.addField(new StructField(pos, assign, false, stringTR, "fld"));
-		assign.addField(new StructField(pos, assign, false, anyTR, "value"));
-		assignCons.addField(new StructField(pos, assignCons, false, anyTR, "on"));
-		assignCons.addField(new StructField(pos, assignCons, false, anyTR, "value"));
-		source.fullName(new VarName(pos, clickEvent.name(), "source"));
-		clickEvent.addField(source);
-		
-		// is this ok as a string or should it be something else?
-		type.addField(new StructField(pos, type, false, stringTR, "type"));
+	// Secret builtin functions for testing
+	public static final UnresolvedVar probeState = new UnresolvedVar(pos, "_probe_state");
+	public static final UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
 
-		// add cases to unions
-		bool.addCase(falseTR);
-		bool.addCase(trueTR);
-		message.addCase(debugTR);
-		message.addCase(assignTR);
-		message.addCase(sendTR);
-		event.addCase(clickEventTR);
-		
+	static {
 		probeState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_probe_state"), 2, null));
 		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, null));
 
-		// add methods to objects
-		{
-			{
-				FunctionName ctorSeed = FunctionName.objectCtor(pos, random.name(), "seed");
-				randomSeed = new ObjectCtor(pos, random, ctorSeed, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, ctorSeed, "seed"))));
-				randomSeed.dontGenerate();
-				randomSeed.bindType(new Apply(number, random));
-				random.addConstructor(randomSeed);
-			}
-			{
-				FunctionName ctorUnseeded = FunctionName.objectCtor(pos, random.name(), "unseeded");
-				randomUnseeded = new ObjectCtor(pos, random, ctorUnseeded, new ArrayList<>());
-				randomUnseeded.dontGenerate();
-				randomUnseeded.bindType(random);
-				random.addConstructor(randomUnseeded);
-			}
-			{
-				FunctionName afn = FunctionName.function(pos, random.name(), "next");
-				FunctionDefinition acor = new FunctionDefinition(afn, 1, random);
-				acor.bindType(new Apply(number, new PolyInstance(pos, list, Arrays.asList(number))));
-				randomNext = new ObjectAccessor(random, acor);
-				randomNext.dontGenerate();
-				random.addAccessor(randomNext);
-			}
-			{
-				FunctionName used = FunctionName.objectMethod(pos, random.name(), "used");
-				randomUsed = new ObjectMethod(pos, used, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, used, "quant"))), null, random);
-				randomUsed.dontGenerate();
-				randomUsed.bindType(new Apply(number, listMessages));
-				random.addMethod(randomUsed);
-			}
-		}
-		{
-			{
-				FunctionName ctorNew = FunctionName.objectCtor(pos, crobag.name(), "new");
-				crobagNew = new ObjectCtor(pos, crobag, ctorNew, new ArrayList<>());
-				crobagNew.dontGenerate();
-				crobagNew.bindType(crobag);
-				crobag.addConstructor(crobagNew);
-			}
-		}
-		
 		// specify function types
 		{
-			Type pa = new PolyType(pos, new SolidName(null, "A"));
+			Type pa = new PolyType(pos, new SolidName(isEqual.name(), "A"));
 			isEqual.bindType(new Apply(pa, pa, bool));
 		}
 		isGE.bindType(new Apply(number, number, bool));
@@ -316,17 +430,17 @@ public class LoadBuiltins {
 		and.bindType(new Apply(bool, bool, bool));
 		or.bindType(new Apply(bool, bool, bool));
 		length.bindType(new Apply(list, number));
-		replace.bindType(new Apply(list, number, polyA(list, "A"), list));
-		nth.bindType(new Apply(number, list, polyA(list, "A")));
+		replace.bindType(new Apply(list, number, listA_A, list));
+		nth.bindType(new Apply(number, list, listA_A));
 		assoc.bindType(new Apply(hash, string, any));
 		hashPair.bindType(new Apply(string, any, hashPairType));
 		item.bindType(new Apply(number, list, assignItem));
 		take.bindType(new Apply(number, list, list));
 		drop.bindType(new Apply(number, list, list));
-		append.bindType(new Apply(list, polyA(list, "A"), list));
+		append.bindType(new Apply(list, listA_A, list));
 		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));
-		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(polyA(list, "A"))))), new PolyInstance(pos, list, Arrays.asList(polyA(list, "A")))));
+		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(listA_A)))), new PolyInstance(pos, list, Arrays.asList(listA_A))));
 		makeTuple.bindType(tuple);
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
 		dispatch.bindType(new Apply(listMessages, listMessages));
@@ -361,7 +475,7 @@ public class LoadBuiltins {
 		repository.newStruct(errors, hash);
 		repository.addEntry(errors, new SolidName(null, "{}"), hash);
 		
-		repository.newStruct(errors, id);	
+		repository.addEntry(errors, id.name(), id);	
 
 		repository.newObject(errors, random);
 		repository.newObjectMethod(errors, randomSeed);
@@ -414,40 +528,5 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, seconds);
 		repository.functionDefn(errors, parseUri);
 		repository.functionDefn(errors, parseJson);
-	}
-	
-	static class PolyHandle {
-		final NamedType ty;
-		final String var;
-		final TypeReference tr;
-		final PolyType pt;
-		
-		public PolyHandle(NamedType ty, String var, TypeReference tr, PolyType pt) {
-			super();
-			this.ty = ty;
-			this.var = var;
-			this.tr = tr;
-			this.pt = pt;
-		}
-	}
-	
-	private static TypeReference polyATR(NamedType ty, String var) {
-		return handle(ty, var, new SolidName(ty.name(), var)).tr;
-	}
-	
-	private static PolyType polyA(NamedType ty, String var) {
-		return handle(ty, var, new SolidName(ty.name(), var)).pt;
-	}
-
-	private static PolyHandle handle(NamedType ty, String var, SolidName n) {
-		PolyHandle h = handles.get(n.uniqueName());
-		if (h == null) {
-			TypeReference tr = new TypeReference(pos, "A");
-			PolyType pt = new PolyType(pos, new SolidName(ty.name(), "A"));
-			tr.bind(pt);
-			h = new PolyHandle(ty, var, tr, pt);
-			handles.put(n.uniqueName(), h);
-		}
-		return h;
 	}
 }

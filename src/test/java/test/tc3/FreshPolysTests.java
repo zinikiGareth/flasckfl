@@ -92,6 +92,7 @@ public class FreshPolysTests {
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			allowing(state).hasPoly(LoadBuiltins.cons.polys().get(0));
+			allowing(state).hasPoly(LoadBuiltins.list.polys().get(0));
 			oneOf(state).createUT(null, "instantiating map.A"); will(returnValue(ut));
 		}});
 		Type t = TypeChecker.instantiateFreshPolys(new UnresolvedVar(pos, "map"), state, new TreeMap<>(), new PosType(pos, LoadBuiltins.cons), false).type;
