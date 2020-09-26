@@ -36,7 +36,7 @@ public class TDASystemTestParser implements TDAParsing {
 		}
 		switch (tok.text) {
 		case "configure": {
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "configure does not have a description");
 				return new IgnoreNestedParser();
 			}
@@ -57,7 +57,7 @@ public class TDASystemTestParser implements TDAParsing {
 			return new SystemTestStepParser(errors, new TestStepNamer(stn), stage, topLevel);
 		}
 		case "finally": {
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "finally does not have a description");
 				return new IgnoreNestedParser();
 			}
