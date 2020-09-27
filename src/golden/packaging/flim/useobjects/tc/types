@@ -1,1 +1,1 @@
-test.golden.current :: test.objects.Accumulator->Number
+test.golden.current :: test.objects.Accumulator[String]->Number

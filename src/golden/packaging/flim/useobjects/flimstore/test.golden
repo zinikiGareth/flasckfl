@@ -1,5 +1,7 @@
 	function test.golden current
 		apply
-			named test.objects.Accumulator
+			instance
+				named test.objects.Accumulator
+				named String
 			named Number
 	usespackage test.objects

@@ -1,0 +1,5 @@
+	object NeedEntities
+		state
+			Crobag[String] wrong
+			
+		ctor create

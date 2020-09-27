@@ -17,7 +17,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder, StateHolder, EventHolder {
+public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder, StateHolder, EventHolder, PolyHolder {
 	private StateDefinition state;
 	public final List<Template> templates = new ArrayList<>();
 	public final List<ObjectContract> contracts = new ArrayList<>();

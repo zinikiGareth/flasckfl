@@ -49,14 +49,18 @@ public class ShoveChecker extends LeafAdapter implements ResultAware {
 			ec.visitUnresolvedVar(v, 0);
 		} else if (curr instanceof ErrorType) {
 			// ignore cascades ...
-		} else if (curr instanceof StateHolder) {
-			StateDefinition state = ((StateHolder)curr).state();
-			curr = state.findField(v.var).type();
-		} else if (curr instanceof StructDefn) {
-			StructDefn sd = (StructDefn) curr;
-			curr = sd.findField(v.var).type();
-		} else
-			throw new NotImplementedException("cannot shove member " + v.var + " into " + curr);
+		} else {
+			if (curr instanceof PolyInstance)
+				curr = ((PolyInstance)curr).struct();
+			if (curr instanceof StateHolder) {
+				StateDefinition state = ((StateHolder)curr).state();
+				curr = state.findField(v.var).type();
+			} else if (curr instanceof StructDefn) {
+				StructDefn sd = (StructDefn) curr;
+				curr = sd.findField(v.var).type();
+			} else
+				throw new NotImplementedException("cannot shove member " + v.var + " into " + curr);
+		}
 	}
 	
 	@Override

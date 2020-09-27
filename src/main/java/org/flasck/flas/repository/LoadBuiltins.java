@@ -169,7 +169,7 @@ public class LoadBuiltins {
 		tail.fullName(new VarName(pos, cons.name(), "tail"));
 		cons.addField(tail);
 		TypeReference lc = new TypeReference(pos, "Cons", listATR_A);
-		lc.bind(cons);
+		lc.bind(new PolyInstance(pos, cons, Arrays.asList(listA_A)));
 		list.addCase(lc);
 	}
 

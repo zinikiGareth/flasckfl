@@ -1,0 +1,9 @@
+	entity Thing
+		String name
+
+	object Container
+		state
+			Crobag[Thing] things
+			
+		ctor make
+			things <- Crobag.new

@@ -288,11 +288,15 @@ public class Traverser implements RepositoryVisitor {
 		} else if (e instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements) e;
 			visitHandlerImplements(hi);
-		} else if (e instanceof StructDefn)
-			visitStructDefn((StructDefn)e);
-		else if (e instanceof UnionTypeDefn)
-			visitUnionTypeDefn((UnionTypeDefn)e);
-		else if (e instanceof UnitTestPackage)
+		} else if (e instanceof StructDefn) {
+			StructDefn s = (StructDefn)e;
+			if (s.generate)
+				visitStructDefn(s);
+		} else if (e instanceof UnionTypeDefn) {
+			UnionTypeDefn u = (UnionTypeDefn)e;
+			if (u.generate)
+				visitUnionTypeDefn(u);
+		} else if (e instanceof UnitTestPackage)
 			visitUnitTestPackage((UnitTestPackage)e);
 		else if (e instanceof SystemTest)
 			visitSystemTest((SystemTest)e);

@@ -1,1 +1,1 @@
-	current (test.objects.Accumulator t) = t.value 0
+	current (test.objects.Accumulator[String] t) = t.value 0

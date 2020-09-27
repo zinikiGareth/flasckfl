@@ -7,6 +7,7 @@ const CommonEnv = function(logger, broker) {
     this.objects = {};
     this.objects['Random'] = Random;
     this.objects['FLBuiltin'] = FLBuiltin;
+    this.objects['Crobag'] = Crobag;
     this.logger = logger;
     this.broker = broker;
 	this.nextDivId = 1;
@@ -1107,6 +1108,25 @@ AssignItem.prototype._field_head.nfargs = function() { return 0; }
 
 AssignItem.prototype.set = function(obj) {
 	this.list[this.n] = obj;
+}
+
+
+
+const Crobag = function(_cxt, _card) {
+    FLObject.call(this, _cxt);
+    this._card = _card;
+    this.state = _cxt.fields();
+}
+
+Crobag._ctor_new = function(_cxt, _card) {
+    const ret = new Crobag(_cxt, _card);
+    return new ResponseWithMessages(_cxt, ret, []);
+}
+Crobag._ctor_new.nfargs = function() { return 1; }
+
+Crobag.prototype._methods = function() {
+    return {
+    };
 }
 
 

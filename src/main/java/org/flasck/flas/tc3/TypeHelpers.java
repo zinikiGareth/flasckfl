@@ -3,7 +3,9 @@ package org.flasck.flas.tc3;
 import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -97,6 +99,14 @@ public class TypeHelpers {
 		}
 
 		return false;
+	}
+
+	public static boolean isEntity(NamedType arg) {
+		if (arg instanceof StructDefn) {
+			StructDefn s = (StructDefn) arg;
+			return s.type == FieldsType.ENTITY;
+		} else
+			return false;
 	}
 
 }

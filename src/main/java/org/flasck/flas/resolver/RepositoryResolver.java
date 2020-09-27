@@ -611,7 +611,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 						visitTypeReference(tr, expectPolys);
 						if (mark.hasMoreNow())
 							return;
-						bound.add(tr.defn());
+						NamedType arg = tr.defn();
+						if (tn.equals("Crobag") && !TypeHelpers.isEntity(arg)) {
+							errors.message(tr.location(), "a Crobag can only contain entities");
+							return;
+						}
+						bound.add(arg);
 					}
 					// it needs to bind to a polyinstance
 					ref.bind(new PolyInstance(ref.location(), (NamedType) defn, bound));
@@ -904,6 +909,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		} else if (currShoveExpr.defn() instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) currShoveExpr.defn();
 			NamedType ty = udd.ofType.defn();
+			if (ty instanceof PolyInstance)
+				ty = ((PolyInstance)ty).struct();
 			if (ty instanceof StateHolder) {
 				StateHolder st = (StateHolder) ty;
 				if (st.state() == null) {
