@@ -7,3 +7,9 @@
 			
 		ctor make
 			places <- Crobag.new
+
+		method project
+			<- places.window '' 10 -> Handler
+			
+		handler CrobagWindow Handler
+			next key pl

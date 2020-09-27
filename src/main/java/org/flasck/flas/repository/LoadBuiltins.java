@@ -9,6 +9,9 @@ import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -23,6 +26,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
@@ -61,7 +65,10 @@ public class LoadBuiltins {
 	 * Countables, Currency and ValueStore need to go here too
 	 */
 	public static final Primitive entity = any;
-	public static final TypeReference entityTR = anyTR;
+	public static final TypeReference entityTR = new TypeReference(pos, "Entity");
+	static {
+		entityTR.bind(entity);
+	}
 
 	//   -> number
 	public static final TypeReference numberTR = new TypeReference(pos, "Number");
@@ -333,11 +340,17 @@ public class LoadBuiltins {
 	public static final TypeReference crobagTR = new TypeReference(pos, "Crobag");
 	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new ObjectName(null, "Crobag"), false, new ArrayList<>());
 	static {
-//		TypeReference ctr = new TypeReference(pos, "A");
 		PolyType cp = new PolyType(pos, new SolidName(crobag.name(), "A"));
-//		ctr.bind(cp);
 		crobagTR.bind(crobag);
 		crobag.polys().add(cp);
+	}
+	
+	// CrobagWindow  (the handler for the window method)
+	public static final ContractDecl crobagWindowHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "CrobagWindow"), false);
+	static {
+		FunctionName next = FunctionName.contractMethod(pos, crobagWindowHandler.name(), "next");
+		ContractMethodDecl nextcmd = new ContractMethodDecl(pos, pos, pos, false, next, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, next, "from")), new TypedPattern(pos, numberTR, new VarName(pos, next, "size"))), null);
+		crobagWindowHandler.addMethod(nextcmd);
 	}
 
 	//   -> ctor Crobag.new
@@ -359,6 +372,18 @@ public class LoadBuiltins {
 		crobagAdd.bindType(new Apply(string, entity, listMessages));
 		crobag.addMethod(crobagAdd);
 	}
+
+	//   -> method Crobag.window
+	private static ObjectMethod crobagWindow;
+	static {
+		FunctionName window = FunctionName.objectMethod(pos, crobag.name(), "window");
+		crobagWindow = new ObjectMethod(pos, window, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, window, "from")), new TypedPattern(pos, numberTR, new VarName(pos, window, "size"))), new VarPattern(pos, new VarName(pos, window, "handler")), crobag);
+		crobagWindow.dontGenerate();
+		crobagWindow.bindType(new Apply(string, number, crobagWindowHandler, listMessages));
+		crobag.addMethod(crobagWindow);
+	}
+	
+	
 
 	// The type "operator"
 	public static final TypeReference typeTR = new TypeReference(pos, "Type");
@@ -466,6 +491,7 @@ public class LoadBuiltins {
 	
 	public static void applyTo(ErrorReporter errors, Repository repository) {
 		repository.addEntry(errors, any.name(), any);
+		repository.addEntry(errors, new SolidName(null, "Entity"), entity);
 		repository.addEntry(errors, contract.name(), contract);
 		repository.newStruct(errors, error);
 		repository.addEntry(errors, number.name(), number);
@@ -498,7 +524,10 @@ public class LoadBuiltins {
 		repository.newObject(errors, crobag);
 		repository.newObjectMethod(errors, crobagNew);
 		repository.newObjectMethod(errors, crobagAdd);
+		repository.newObjectMethod(errors, crobagWindow);
 
+		repository.newContract(errors, crobagWindowHandler);
+		
 		repository.newStruct(errors, debug);
 		repository.newStruct(errors, send);
 		repository.newStruct(errors, assign);

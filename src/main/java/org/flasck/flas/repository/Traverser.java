@@ -779,11 +779,9 @@ public class Traverser implements RepositoryVisitor {
 			return;
 		currFnHasState = meth.hasState();
 		visitor.visitObjectMethod(meth);
-		if (!meth.args().isEmpty() || meth.hasMessages()) {
-			if (functionOrder == null && meth.hasImplements() && meth.getImplements() instanceof HandlerImplements)
-				traverseHandlerLambdas((HandlerImplements)meth.getImplements());
-			traverseFnOrMethod(meth);
-		}
+		if (functionOrder == null && meth.hasImplements() && meth.getImplements() instanceof HandlerImplements)
+			traverseHandlerLambdas((HandlerImplements)meth.getImplements());
+		traverseFnOrMethod(meth);
 		leaveObjectMethod(meth);
 	}
 

@@ -57,7 +57,7 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 					topLevel.argument(errors, handler);
 					break;
 				} else {
-					errors.message(toks, "invalid argument name");
+					errors.message(tok.location, "invalid argument name");
 					return new IgnoreNestedParser();
 				}
 			}
