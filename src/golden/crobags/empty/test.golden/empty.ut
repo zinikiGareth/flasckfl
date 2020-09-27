@@ -1,0 +1,2 @@
+	test we can fill a crobag
+		data Holder h <- Holder.make

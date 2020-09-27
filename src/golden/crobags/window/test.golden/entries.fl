@@ -1,0 +1,12 @@
+	entity Item
+		String place
+
+	object Holder
+		state
+			Crobag[Item] places
+			
+		ctor make
+			places <- Crobag.new
+			
+		method hold (String key) (String val)
+			<- places.add key (Item val)

@@ -1124,8 +1124,14 @@ Crobag._ctor_new = function(_cxt, _card) {
 }
 Crobag._ctor_new.nfargs = function() { return 1; }
 
+Crobag.prototype.add = function(_cxt, key, val) {
+    return [];
+}
+Crobag.prototype.add.nfargs = function() { return 1; }
+
 Crobag.prototype._methods = function() {
     return {
+        "add": Crobag.prototype.add
     };
 }
 

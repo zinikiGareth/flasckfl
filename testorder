@@ -165,3 +165,5 @@ src/golden/systemtests/match
 src/golden/systemtests/ajax/create
 src/golden/crobags/errors
 src/golden/crobags/creation
+src/golden/crobags/empty
+src/golden/crobags/window

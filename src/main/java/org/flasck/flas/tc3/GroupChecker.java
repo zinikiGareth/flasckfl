@@ -89,6 +89,8 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 			logger.info("  nothing deduced for " + fn);
 			return null;
 		}
+		if (pt.type instanceof ErrorType)
+			return pt;
 		logger.debug("  deduced type of " + fn + " is: " + pt.type);
 		int ac = fn.argCount();
 		logger.debug("    argCount including everything = " + ac);

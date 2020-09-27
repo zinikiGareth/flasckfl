@@ -1,0 +1,7 @@
+	test we can fill a crobag
+		data Holder h <- Holder.make
+		invoke h.hold 'hello' 'world'
+		invoke h.hold 'there' 'Paris'
+		invoke h.hold 'first' 'Manchester'
+		invoke h.hold 'yonder' 'Alonso'
+		

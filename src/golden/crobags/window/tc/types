@@ -1,0 +1,2 @@
+test.golden.Holder._ctor_make :: test.golden.Holder
+test.golden.Holder.hold :: String->String->List[Message]

@@ -60,6 +60,8 @@ public class LoadBuiltins {
 	 * Deal & Offer feel like they would come up in conversations about Commerce
 	 * Countables, Currency and ValueStore need to go here too
 	 */
+	public static final Primitive entity = any;
+	public static final TypeReference entityTR = anyTR;
 
 	//   -> number
 	public static final TypeReference numberTR = new TypeReference(pos, "Number");
@@ -348,6 +350,16 @@ public class LoadBuiltins {
 		crobag.addConstructor(crobagNew);
 	}
 	
+	//   -> method Crobag.add
+	private static ObjectMethod crobagAdd;
+	static {
+		FunctionName add = FunctionName.objectMethod(pos, crobag.name(), "add");
+		crobagAdd = new ObjectMethod(pos, add, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, add, "key")), new TypedPattern(pos, entityTR, new VarName(pos, add, "value"))), null, crobag);
+		crobagAdd.dontGenerate();
+		crobagAdd.bindType(new Apply(string, entity, listMessages));
+		crobag.addMethod(crobagAdd);
+	}
+
 	// The type "operator"
 	public static final TypeReference typeTR = new TypeReference(pos, "Type");
 	private static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
@@ -485,6 +497,7 @@ public class LoadBuiltins {
 
 		repository.newObject(errors, crobag);
 		repository.newObjectMethod(errors, crobagNew);
+		repository.newObjectMethod(errors, crobagAdd);
 
 		repository.newStruct(errors, debug);
 		repository.newStruct(errors, send);

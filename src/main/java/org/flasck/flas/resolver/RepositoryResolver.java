@@ -613,7 +613,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 							return;
 						NamedType arg = tr.defn();
 						if (tn.equals("Crobag") && !TypeHelpers.isEntity(arg)) {
-							errors.message(tr.location(), "a Crobag can only contain entities");
+							if (arg != null)
+								errors.message(tr.location(), "a Crobag can only contain entities, not " + arg.signature());
 							return;
 						}
 						bound.add(arg);
