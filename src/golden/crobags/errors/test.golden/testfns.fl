@@ -1,0 +1,3 @@
+	entity Fred
+	
+	f (Crobag[Fred] bag) = bag.size
