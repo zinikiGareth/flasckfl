@@ -4,6 +4,8 @@
 	object Holder
 		state
 			Crobag[Item] places
+			Boolean error <- False
+			Boolean completed <- False
 			
 		ctor make
 			places <- Crobag.new
@@ -13,3 +15,7 @@
 			
 		handler CrobagWindow Handler
 			next key pl
+				error <- True
+				
+			done
+				completed <- True

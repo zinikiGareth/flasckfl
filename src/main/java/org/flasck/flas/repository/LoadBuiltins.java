@@ -335,6 +335,29 @@ public class LoadBuiltins {
 		randomUsed.bindType(new Apply(number, listMessages));
 		random.addMethod(randomUsed);
 	}
+
+	// SlideWindow (how we know to move forwards & backwards
+	public static final ContractDecl crobagSlideWindow = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "SlideWindow"), false);
+	// TODO: previous
+	// TODO: next
+	
+	// CrobagWindow  (the handler for the window method)
+	public static final ContractDecl crobagWindowHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "CrobagWindow"), false);
+
+    //   -> handler method 'next'	
+	static {
+		FunctionName next = FunctionName.contractMethod(pos, crobagWindowHandler.name(), "next");
+		ContractMethodDecl nextcmd = new ContractMethodDecl(pos, pos, pos, false, next, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, next, "from")), new TypedPattern(pos, numberTR, new VarName(pos, next, "size"))), null);
+		crobagWindowHandler.addMethod(nextcmd);
+	}
+
+    //   -> handler method 'done'	
+	static {
+		FunctionName done = FunctionName.contractMethod(pos, crobagWindowHandler.name(), "done");
+		ContractMethodDecl donecmd = new ContractMethodDecl(pos, pos, pos, false, done, new ArrayList<>(), new TypedPattern(pos, new TypeReference(pos, "SlideWindow"), new VarName(pos, done, "slide")));
+		crobagWindowHandler.addMethod(donecmd);
+	}
+
 	
 	// Crobag[A]
 	public static final TypeReference crobagTR = new TypeReference(pos, "Crobag");
@@ -345,14 +368,6 @@ public class LoadBuiltins {
 		crobag.polys().add(cp);
 	}
 	
-	// CrobagWindow  (the handler for the window method)
-	public static final ContractDecl crobagWindowHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "CrobagWindow"), false);
-	static {
-		FunctionName next = FunctionName.contractMethod(pos, crobagWindowHandler.name(), "next");
-		ContractMethodDecl nextcmd = new ContractMethodDecl(pos, pos, pos, false, next, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, next, "from")), new TypedPattern(pos, numberTR, new VarName(pos, next, "size"))), null);
-		crobagWindowHandler.addMethod(nextcmd);
-	}
-
 	//   -> ctor Crobag.new
 	private static ObjectCtor crobagNew;
 	static {
@@ -527,6 +542,7 @@ public class LoadBuiltins {
 		repository.newObjectMethod(errors, crobagWindow);
 
 		repository.newContract(errors, crobagWindowHandler);
+		repository.newContract(errors, crobagSlideWindow);
 		
 		repository.newStruct(errors, debug);
 		repository.newStruct(errors, send);

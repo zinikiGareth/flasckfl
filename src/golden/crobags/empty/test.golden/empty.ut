@@ -1,3 +1,7 @@
 	test we can fill a crobag
 		data Holder h <- Holder.make
 		invoke h.project
+		assert (h.error)
+			False
+		assert (h.completed)
+			True
