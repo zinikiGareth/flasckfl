@@ -1,11 +1,15 @@
 	test we can generate a Debug command
 		data Methods m <- Methods.make
 		assert (dispatch (m.kdebug))
-			[Debug "hello"]
+			[]
+		assert (m.n)
+			420
 
 	test we can call an indirect method
 		data Methods m <- Methods.make
 		assert (dispatch (m.fdebug))
-			[Debug "hello"]
+			[]
+		assert (m.n)
+			420
 
 // todo: check a method invocation with args is correctly converted

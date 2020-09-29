@@ -1,2 +1,4 @@
+test.golden.Holder.Handler.next :: String->Number->List[Message]
 test.golden.Holder._ctor_make :: test.golden.Holder
 test.golden.Holder.hold :: String->String->List[Message]
+test.golden.Holder.project :: List[Message]

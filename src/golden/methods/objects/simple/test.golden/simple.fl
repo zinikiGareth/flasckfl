@@ -1,8 +1,11 @@
 	object Methods
+		state
+			Number n <- 0
+			
 		ctor make
 		
 		method kdebug
-			<- Debug "hello"
+			n <- 420
 
 		method fdebug
 			<- kdebug

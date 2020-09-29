@@ -45,6 +45,7 @@ CommonEnv.prototype.dispatchMessages = function(_cxt) {
 }
 
 CommonEnv.prototype.handleMessages = function(_cxt, msg) {
+    var msg = _cxt.full(msg);
     var ret = [];
     this.handleMessagesWith(_cxt, msg, ret);
     return ret;
@@ -59,14 +60,15 @@ CommonEnv.prototype.handleMessagesWith = function(_cxt, msg, ret) {
         return [];
     } else if (msg instanceof Array) {
         for (var i=0;i<msg.length;i++) {
-            this.handleMessagesWith(_cxt, msg[i], ret);
+            this.handleMessages(_cxt, msg[i]);
         }
 	} else if (msg) {
         var ic = this.newContext();
         ic.updateCards = _cxt.updateCards;
         var m = msg.dispatch(ic);
-        m = _cxt.full(m);
-        this.addAll(ret, m);
+        // m = _cxt.full(m);
+        // this.addAll(ret, m);
+        this.handleMessages(_cxt, m);
     }
 }
 
@@ -1296,7 +1298,15 @@ CrobagWindowEvent.prototype.dispatch = function(cx) {
     if (this.replyto instanceof FLError)
         return this.replyto;
     var arr = [];
-    // TODO: return an array of [Send handler msg]
+    var k = 0;
+    for (var i=0;i<this.bag._entries.length;i++) {
+        var e = this.bag._entries[i];
+        if (e.key < this.from)
+            continue;
+        if (k >= this.size)
+            break;
+        arr.push(Send.eval(cx, this.replyto, "next", [e.key, e.val], null));
+    }
     arr.push(Send.eval(cx, this.replyto, "done", [], _ActualSlideHandler.eval(cx, this.crobag)));
     return arr;
 }
@@ -1830,7 +1840,10 @@ Send.prototype.dispatch = function(cx) {
 	} else {
 		args.splice(args.length, 0, new IdempotentHandler());
 	}
-	var ret = this.obj._methods()[this.meth].apply(this.obj, args);
+	var meth = this.obj._methods()[this.meth];
+	if (!meth)
+		return;
+	var ret = meth.apply(this.obj, args);
 	if (this.obj._updateDisplay)
 		cx.env.queueMessages(cx, [new UpdateDisplay(cx, this.obj)]);
 	else if (this.obj._card && this.obj._card._updateDisplay)

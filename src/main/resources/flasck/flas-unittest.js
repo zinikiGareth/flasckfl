@@ -21,8 +21,6 @@ UTRunner.prototype.error = function(err) {
 	this.errors.push(err);
 }
 UTRunner.prototype.handleMessages = function(_cxt, msg) {
-	if (this.errors.length != 0)
-		throw this.errors[0];
 	return CommonEnv.prototype.handleMessages.call(this, _cxt, msg);
 }
 UTRunner.prototype.assertSameValue = function(_cxt, e, a) {

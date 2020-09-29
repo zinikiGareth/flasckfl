@@ -4,9 +4,17 @@
 	object Holder
 		state
 			Crobag[Item] places
+			List[String] keys <- []
 			
 		ctor make
 			places <- Crobag.new
 			
 		method hold (String key) (String val)
 			<- places.add key (Item val)
+			
+		method project
+			<- places.window '' 10 -> Handler
+			
+		handler CrobagWindow Handler
+			next key pl
+				keys <- append keys key

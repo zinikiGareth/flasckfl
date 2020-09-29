@@ -6,3 +6,6 @@
 		invoke h.hold 'yonder' 'Alonso'
 		assert (h.places.size)
 			4
+		invoke h.project
+		assert (h.keys)
+			['first','hello','there','yonder']
