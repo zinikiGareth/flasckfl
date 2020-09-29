@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.RepositoryEntry.ValidContexts;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
@@ -398,6 +399,17 @@ public class LoadBuiltins {
 		crobag.addMethod(crobagWindow);
 	}
 	
+	//   -> test acor Crobag.size
+	private static ObjectAccessor crobagSize;
+	static {
+		FunctionName size = FunctionName.objectMethod(pos, crobag.name(), "size");
+		FunctionDefinition sizeFn = new FunctionDefinition(size, 0, crobag);
+		crobagSize = new ObjectAccessor(crobag, sizeFn);
+		crobagSize.dontGenerate();
+		crobagSize.validContexts(ValidContexts.TESTS);
+		sizeFn.bindType(number);
+		crobag.addAccessor(crobagSize);
+	}
 	
 
 	// The type "operator"
@@ -540,6 +552,7 @@ public class LoadBuiltins {
 		repository.newObjectMethod(errors, crobagNew);
 		repository.newObjectMethod(errors, crobagAdd);
 		repository.newObjectMethod(errors, crobagWindow);
+		repository.newObjectAccessor(errors, crobagSize);
 
 		repository.newContract(errors, crobagWindowHandler);
 		repository.newContract(errors, crobagSlideWindow);

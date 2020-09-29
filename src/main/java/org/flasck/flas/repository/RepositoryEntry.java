@@ -9,6 +9,9 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.st.SystemTest;
 
 public interface RepositoryEntry {
+	public enum ValidContexts {
+		ALL, TESTS;
+	}
 	Comparator<? super RepositoryEntry> preferredOrder = new Comparator<RepositoryEntry>() {
 		@Override
 		public int compare(RepositoryEntry o1, RepositoryEntry o2) {
@@ -35,5 +38,5 @@ public interface RepositoryEntry {
 	NameOfThing name();
 	InputPosition location();
 	void dumpTo(PrintWriter pw);
-
+	default ValidContexts validContexts() { return ValidContexts.ALL; }
 }

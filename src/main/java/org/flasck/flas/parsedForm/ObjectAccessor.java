@@ -12,6 +12,7 @@ public class ObjectAccessor implements RepositoryEntry, FieldAccessor {
 	private final StateHolder od;
 	private final FunctionDefinition fn;
 	public boolean generate = true;
+	private ValidContexts contexts = ValidContexts.ALL;
 
 	public ObjectAccessor(StateHolder od, FunctionDefinition fn) {
 		this.od = od;
@@ -63,5 +64,14 @@ public class ObjectAccessor implements RepositoryEntry, FieldAccessor {
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println(toString());
+	}
+
+	@Override
+	public ValidContexts validContexts() {
+		return contexts;
+	}
+	
+	public void validContexts(ValidContexts valid) {
+		this.contexts = valid;
 	}
 }

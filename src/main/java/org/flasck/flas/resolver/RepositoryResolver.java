@@ -67,6 +67,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.repository.RepositoryEntry.ValidContexts;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
@@ -466,6 +467,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			}
 			FieldAccessor acor = od.getAccessor(var);
 			if (acor != null) {
+				if (((RepositoryEntry)acor).validContexts() == ValidContexts.TESTS) { // && isMain
+					errors.message(expr.fld.location(), ((RepositoryEntry)acor).name().uniqueName() + " may only be used in tests");
+					return;
+				}
 				expr.bind((RepositoryEntry) acor, false);
 				return;
 			}

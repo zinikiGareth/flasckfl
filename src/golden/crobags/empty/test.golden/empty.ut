@@ -1,5 +1,7 @@
-	test we can fill a crobag
+	test we can create an empty crobag
 		data Holder h <- Holder.make
+		assert (h.places.size)
+			0
 		invoke h.project
 		assert (h.error)
 			False

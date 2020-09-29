@@ -1,5 +1,5 @@
 creation.fl:  3.7:    Crobag[ _ String] wrong
                           a Crobag can only contain entities, not String
 testfns.fl:   3.27:   f (Crobag[Fred] bag) = bag. _ size
-                          object Crobag does not have a method, acor or member size
+                          Crobag.size may only be used in tests
                           
