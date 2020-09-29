@@ -1165,11 +1165,19 @@ CrobagWindow.prototype.done = function(_cxt, _ih) {
 CrobagWindow.prototype.done.nfargs = function() { return 0; }
  
 
+/* CROBAG entry */
+const CroEntry = function(key, val) {
+    this.key = key;
+    this.val = val;
+}
+
+
 /* CROBAG itself */
 const Crobag = function(_cxt, _card) {
     FLObject.call(this, _cxt);
     this._card = _card;
-    this.state = _cxt.fields();
+    // this.state = _cxt.fields();
+    this._entries = [];
 }
 
 Crobag._ctor_new = function(_cxt, _card) {
@@ -1179,7 +1187,7 @@ Crobag._ctor_new = function(_cxt, _card) {
 Crobag._ctor_new.nfargs = function() { return 1; }
 
 Crobag.prototype.add = function(_cxt, key, val) {
-    return [];
+    return [CrobagChangeEvent.eval(_cxt, this, key, null, val)];
 }
 Crobag.prototype.add.nfargs = function() { return 1; }
 
@@ -1189,9 +1197,26 @@ Crobag.prototype.window = function(_cxt, from, size, handler) {
 Crobag.prototype.window.nfargs = function() { return 3; }
 
 Crobag.prototype.size = function(_cxt) {
-    return 0;
+    return this._entries.length;
 }
 Crobag.prototype.size.nfargs = function() { return 0; }
+
+// internal method called from CCE.dispatch()
+Crobag.prototype._change = function(cx, add, remove, val) {
+    if (add != null) {
+        var e = new CroEntry(add, val);
+        var done = false;
+        for (var i=0;i<this._entries.length;i++) {
+            if (this._entries[i].key > add) {
+                this._entries.splice(i, 0, e);
+                done = true;
+                break;
+            }
+        }
+        if (!done)
+            this._entries.push(e);
+    }
+}
 
 Crobag.prototype._methods = function() {
     return {
@@ -1202,6 +1227,42 @@ Crobag.prototype._methods = function() {
 }
 
 // Events
+
+const CrobagChangeEvent = function() {
+}
+CrobagChangeEvent.eval = function(_cxt, bag, add, remove, val) {
+    const e = new CrobagChangeEvent();
+    e.bag = bag;
+    e.add = add;
+    e.remove = remove;
+    e.val = val;
+	return e;
+}
+CrobagChangeEvent.prototype._compare = function(cx, other) {
+	if (other instanceof CrobagChangeEvent) {
+		return other.msg == this.msg;
+	} else
+		return false;
+}
+CrobagChangeEvent.prototype.dispatch = function(cx) {
+    this.bag = cx.full(this.bag);
+    if (this.bag instanceof FLError)
+        return this.bag;
+    this.add = cx.full(this.add);
+    if (this.add instanceof FLError)
+        return this.add;
+    this.remove = cx.full(this.remove);
+    if (this.remove instanceof FLError)
+        return this.remove;
+    this.val = cx.full(this.val);
+    if (this.val instanceof FLError)
+        return this.val;
+    this.bag._change(cx, this.add, this.remove, this.val);
+    return [];
+}
+CrobagChangeEvent.prototype.toString = function() {
+	return "CrobagChangeEvent[" + this.from + ":" + this.size + "]";
+}
 
 // Note: strictly speaking, I am not sure this event is needed
 // I think we could just return the list of "Send" events directly from window

@@ -4,4 +4,5 @@
 		invoke h.hold 'there' 'Paris'
 		invoke h.hold 'first' 'Manchester'
 		invoke h.hold 'yonder' 'Alonso'
-		
+		assert (h.places.size)
+			4
