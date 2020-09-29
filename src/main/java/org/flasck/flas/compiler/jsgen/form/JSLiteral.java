@@ -1,7 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
-import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -40,8 +39,8 @@ public class JSLiteral implements JSExpr {
 			ret = md.getField(md.getField("_card"), "_renderTree");
 		} else {
 			try {
-				int x = Integer.parseInt(text);
-				ret = md.makeNew(J.NUMBER, md.box(md.intConst(x)), md.castTo(md.aNull(), "java.lang.Double"));
+				double x = Double.parseDouble(text);
+				ret = md.makeNew(Double.class.getName(), md.doubleConst(x));
 			} catch (NumberFormatException ex) {
 				throw new NotImplementedException("non-integer cases: " + text);
 			}

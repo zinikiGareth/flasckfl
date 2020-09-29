@@ -116,8 +116,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			if (e2 instanceof AssertFailed) {
 				AssertFailed af = (AssertFailed) e2;
 				pw.fail("JVM", desc);
-				pw.println("  expected: " + af.expected);
-				pw.println("  actual:   " + af.actual);
+				pw.println("  expected: " + valueOf(af.expected));
+				pw.println("  actual:   " + valueOf(af.actual));
 			} else if (e2 instanceof NotMatched) {
 				pw.fail("JVM", desc);
 				pw.println("  " + e2.getMessage());
@@ -131,5 +131,15 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		} catch (Throwable t) {
 			pw.error("JVM", desc, t);
 		}
+	}
+
+	private Object valueOf(Object val) {
+		if (val instanceof Double) {
+			double d = (double) val;
+			long k = (long) d;
+			if (k == d && !Double.isInfinite(d))
+				return k;
+		}
+		return val;
 	}
 }

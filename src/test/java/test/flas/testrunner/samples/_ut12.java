@@ -1,11 +1,10 @@
 package test.flas.testrunner.samples;
 
 import org.flasck.jvm.FLEvalContext;
-import org.flasck.jvm.builtin.FLNumber;
 import org.flasck.jvm.fl.TestHelper;
 
 public class _ut12 {
 	public static void dotest(TestHelper runner, FLEvalContext cxt) throws Exception {
-		runner.assertSameValue(cxt, new FLNumber(42, null), new FLNumber(42, null));
+		runner.assertSameValue(cxt, 42.0, 42.0);
 	}
 }

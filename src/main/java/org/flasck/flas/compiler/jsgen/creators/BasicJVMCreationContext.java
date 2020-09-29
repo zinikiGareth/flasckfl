@@ -60,6 +60,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		args = null;
 		this.runner = r1.getVar();
 		vars.put(as.get(0), this.runner);
+//		md.lenientMode(true);
 	}
 
 	// ctor
