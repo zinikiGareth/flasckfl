@@ -344,7 +344,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitStructField(StructField sf) {
 		visitor.visitStructField(sf);
-		visitTypeReference(sf.type, true);
+		visitTypeReference(sf.type, true, -1);
 		if (sf.init != null)
 			visitExpr(sf.init, 0);
 		leaveStructField(sf);
@@ -376,7 +376,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitUnionTypeDefn(UnionTypeDefn ud) {
 		visitor.visitUnionTypeDefn(ud);
 		for (TypeReference c : ud.cases)
-			visitTypeReference(c, true);
+			visitTypeReference(c, true, -1);
 		leaveUnionTypeDefn(ud);
 	}
 	
@@ -425,7 +425,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitObjectContract(ObjectContract oc) {
 		visitor.visitObjectContract(oc);
-		visitTypeReference(oc.implementsType(), true);
+		visitTypeReference(oc.implementsType(), true, -1);
 		leaveObjectContract(oc);
 	}
 
@@ -488,7 +488,7 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitProvides(Provides p) {
 		visitor.visitProvides(p);
-		visitTypeReference(p.implementsType(), true);
+		visitTypeReference(p.implementsType(), true, -1);
 		if (wantImplementedMethods) {
 			for (ObjectMethod om : p.implementationMethods)
 				visitObjectMethod(om);
@@ -503,12 +503,12 @@ public class Traverser implements RepositoryVisitor {
 	
 	public void visitRequires(RequiresContract rc) {
 		visitor.visitRequires(rc);
-		visitTypeReference(rc.implementsType(), true);
+		visitTypeReference(rc.implementsType(), true, -1);
 	}
 
 	public void visitImplements(ImplementsContract ic) {
 		visitor.visitImplements(ic);
-		visitTypeReference(ic.implementsType(), true);
+		visitTypeReference(ic.implementsType(), true, -1);
 		if (wantImplementedMethods) {
 			for (ObjectMethod om : ic.implementationMethods)
 				visitObjectMethod(om);
@@ -522,7 +522,7 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitHandlerImplements(HandlerImplements hi) {
 		visitor.visitHandlerImplements(hi);
-		visitTypeReference(hi.implementsType(), true);
+		visitTypeReference(hi.implementsType(), true, -1);
 		traverseHandlerLambdas(hi);
 		if (wantImplementedMethods) {
 			for (ObjectMethod om : hi.implementationMethods)
@@ -539,13 +539,13 @@ public class Traverser implements RepositoryVisitor {
 		visitor.visitTemplate(t, isFirst);
 		if (t.nestingChain() != null) {
 			for (TypeReference ty : t.nestingChain().types())
-				visitTypeReference(ty, true);
+				visitTypeReference(ty, true, -1);
 		}
 		afterTemplateChainTypes(t);
 		NestingChain chain = t.nestingChain();
 		if (chain != null) {
 			for (TypeReference ty : chain.types())
-				visitTypeReference(ty, true);
+				visitTypeReference(ty, true, -1);
 		}
 		for (TemplateBinding b : t.bindings()) {
 			visitTemplateBinding(b);
@@ -798,7 +798,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitHandlerLambda(HandlerLambda i) {
 		visitor.visitHandlerLambda(i);
 		if (i.patt instanceof TypedPattern)
-			visitTypeReference(((TypedPattern)i.patt).type, true);
+			visitTypeReference(((TypedPattern)i.patt).type, true, -1);
 	}
 
 	public void leaveObjectMethod(ObjectMethod meth) {
@@ -1360,7 +1360,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitTypedPattern(TypedPattern p, boolean isNested) {
 		visitor.visitTypedPattern(p, isNested);
-		visitTypeReference(p.type, true);
+		visitTypeReference(p.type, true, -1);
 		visitPatternVar(p.var.loc, p.var.var);
 	}
 
@@ -1450,6 +1450,8 @@ public class Traverser implements RepositoryVisitor {
 			visitStringLiteral((StringLiteral)expr);
 		else if (expr instanceof NumericLiteral)
 			visitNumericLiteral((NumericLiteral)expr);
+		else if (expr instanceof TypeReference)
+			visitTypeReference((TypeReference) expr, false, nargs);
 		else if (expr instanceof UnresolvedVar)
 			visitUnresolvedVar((UnresolvedVar) expr, nargs);
 		else if (expr instanceof AnonymousVar)
@@ -1477,7 +1479,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitCheckTypeExpr(CheckTypeExpr expr) {
 		visitor.visitCheckTypeExpr(expr);
-		visitTypeReference(expr.type, false);
+		visitTypeReference(expr.type, false, 0);
 		visitExpr(expr.expr, 0);
 		leaveCheckTypeExpr(expr);
 	}
@@ -1493,7 +1495,7 @@ public class Traverser implements RepositoryVisitor {
 		Expr fn;
 		if (expr instanceof ApplyExpr)
 			fn = (Expr) ((ApplyExpr)expr).fn;
-		else if (expr instanceof UnresolvedVar && nargs == 0)
+		else if ((expr instanceof UnresolvedVar || expr instanceof TypeReference) && nargs == 0)
 			fn = expr;
 		else
 			return false;
@@ -1553,24 +1555,33 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	private NestedVarReader isFnNeedingNesting(Expr fn) {
+		Object defn;
 		if (fn instanceof UnresolvedVar) {
-			UnresolvedVar uv = (UnresolvedVar)fn;
-			if (uv.defn() instanceof LogicHolder)
-				return ((LogicHolder)uv.defn()).nestedVars();
-			else if (uv.defn() instanceof HandlerImplements)
-				return ((HandlerImplements)uv.defn()).nestedVars();
-		}
-		return null;
+			defn = ((UnresolvedVar)fn).defn();
+		} else if (fn instanceof TypeReference) {
+			defn = ((TypeReference)fn).defn();
+		} else
+			return null;
+		if (defn instanceof LogicHolder)
+			return ((LogicHolder)defn).nestedVars();
+		else if (defn instanceof HandlerImplements)
+			return ((HandlerImplements)defn).nestedVars();
+		else
+			return null;
 	}
 
 	private NamedType containingMe(Expr fn) {
+		Object defn;
 		if (fn instanceof UnresolvedVar) {
-			UnresolvedVar uv = (UnresolvedVar)fn;
-			if (uv.defn() instanceof LogicHolder) {
-				return containingMe((FunctionName)uv.defn().name());
-			}
-		}
-		return null;
+			defn = ((UnresolvedVar)fn).defn();
+		} else if (fn instanceof TypeReference) {
+			defn = ((TypeReference)fn).defn();
+		} else
+			return null;
+		if (defn instanceof LogicHolder) {
+			return containingMe(((LogicHolder)defn).name());
+		} else
+			return null;
 	}
 
 	private NamedType containingMe(FunctionName n) {
@@ -1693,8 +1704,8 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitTypeReference(TypeReference var, boolean expectPolys) {
-		visitor.visitTypeReference(var, expectPolys);
+	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
+		visitor.visitTypeReference(var, expectPolys, exprNargs);
 	}
 
 	@Override
@@ -1802,7 +1813,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		visitor.visitUnitDataDeclaration(udd);
-		visitTypeReference(udd.ofType, true);
+		visitTypeReference(udd.ofType, true, -1);
 		if (udd.expr != null)
 			visitExpr(udd.expr, 0);
 		for (Assignment f : udd.fields)
@@ -1920,7 +1931,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitUnitTestSend(UnitTestSend s) {
 		visitor.visitUnitTestSend(s);
 		visitUnresolvedVar(s.card, 0);
-		visitTypeReference(s.contract, true);
+		visitTypeReference(s.contract, true, -1);
 		visitSendExpr(s.contract, s.expr);
 		leaveUnitTestSend(s);
 	}
@@ -2081,11 +2092,11 @@ public class Traverser implements RepositoryVisitor {
 		for (Object a : cmd.args) {
 			if (a instanceof TypedPattern) {
 				TypedPattern p = (TypedPattern) a;
-				visitTypeReference(p.type, true);
+				visitTypeReference(p.type, true, -1);
 			}
 		}
 		if (cmd.handler != null)
-			visitTypeReference(cmd.handler.type, true);
+			visitTypeReference(cmd.handler.type, true, -1);
 		leaveContractMethod(cmd);
 
 	}

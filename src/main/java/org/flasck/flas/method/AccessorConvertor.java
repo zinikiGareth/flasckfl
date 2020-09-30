@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -77,7 +78,6 @@ public class AccessorConvertor extends LeafAdapter {
 
 	@Override
 	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
-		UnresolvedVar meth = (UnresolvedVar) expr.fld;
 		Expr from = expr.from;
 		RepositoryEntry defn;
 		boolean ret = expr.boundEarly();
@@ -93,6 +93,9 @@ public class AccessorConvertor extends LeafAdapter {
 		} else if (from instanceof UnresolvedVar) {
 			UnresolvedVar uv = (UnresolvedVar) expr.from;
 			defn = uv.defn();
+		} else if (from instanceof TypeReference) {
+			TypeReference uv = (TypeReference) expr.from;
+			defn = (RepositoryEntry) uv.defn();
 		} else if (from instanceof MemberExpr) {
 			MemberExpr me = (MemberExpr) expr.from;
 			defn = me.defn();
@@ -107,6 +110,7 @@ public class AccessorConvertor extends LeafAdapter {
 			// I feel we should need this in order to reconstruct the actual type later ...
 //			polys = pi.getPolys();
 		}
+		UnresolvedVar meth = (UnresolvedVar) expr.fld;
 		AccessorHolder ah;
 		if (defn instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) defn;
@@ -162,8 +166,13 @@ public class AccessorConvertor extends LeafAdapter {
 				throw new CantHappenException("type of " + defn + " has not been bound");
 			}
 			if (ty instanceof PolyInstance)
-				ty = ((PolyInstance)ty).struct(); 
-			ah = (AccessorHolder) ty;
+				ty = ((PolyInstance)ty).struct();
+			if (ty instanceof AccessorHolder)
+				ah = (AccessorHolder) ty;
+			else {
+				errors.message(meth.location, "cannot access members of " + ty.signature());
+				return ret;
+			}
 		} else if (defn instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) defn;
 			if (fn.argCountWithoutHolder() == 0) {

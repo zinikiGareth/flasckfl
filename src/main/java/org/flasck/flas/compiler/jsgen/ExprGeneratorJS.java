@@ -33,6 +33,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -106,6 +107,17 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
 		generateFnOrCtor(defn, handleBuiltinName(defn), nargs);
+	}
+	
+	@Override
+	public void visitTypeReference(TypeReference tr, boolean expectPolys, int exprNargs) {
+		if (exprNargs == -1) {
+			return; // this is not an expression case
+		}
+		RepositoryEntry defn = (RepositoryEntry) tr.defn();
+		if (defn == null)
+			throw new RuntimeException("var " + tr + " was still not resolved");
+		generateFnOrCtor(defn, handleBuiltinName(defn), exprNargs);
 	}
 	
 	@Override

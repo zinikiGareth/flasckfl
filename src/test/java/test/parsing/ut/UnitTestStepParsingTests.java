@@ -195,7 +195,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanHandleASimpleEventStep() {
 		context.checking(new Expectations() {{
-			oneOf(builder).event((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(TargetZoneMatcher.path("target")), with(ExprMatcher.apply(ExprMatcher.unresolved("ClickEvent"), ExprMatcher.apply(ExprMatcher.operator("{}"), any(Expr.class), any(Expr.class)))));
+			oneOf(builder).event((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(TargetZoneMatcher.path("target")), with(ExprMatcher.apply(ExprMatcher.typeref("ClickEvent"), ExprMatcher.apply(ExprMatcher.operator("{}"), any(Expr.class), any(Expr.class)))));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("event card target (ClickEvent { x: 42, y: 31 })"));

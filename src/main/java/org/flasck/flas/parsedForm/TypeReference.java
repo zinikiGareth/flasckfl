@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.UtilException;
 
-public class TypeReference implements Locatable {
+public class TypeReference implements Expr {
 	private InputPosition location;
 	private String name;
 	private List<TypeReference> polys;

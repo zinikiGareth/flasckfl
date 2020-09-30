@@ -6,14 +6,14 @@ import org.flasck.flas.commonBase.Expr;
 public class TypeExpr implements Expr {
 	public final InputPosition location;
 	public final InputPosition tyLoc;
-	public final String type;
+	public final Expr type;
 
-	public TypeExpr(InputPosition location, InputPosition tyLoc, String type) {
+	public TypeExpr(InputPosition location, InputPosition tyLoc, Expr ctor) {
 		if (location == null)
 			System.out.println("TypeExpr without location");
 		this.location = location;
 		this.tyLoc = tyLoc;
-		this.type = type;
+		this.type = ctor;
 	}
 
 	@Override

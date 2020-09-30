@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -69,6 +70,15 @@ public class MemberExprConvertor extends LeafAdapter {
 			new MemberExprConvertor(errors, nv, oah, expr);
 			return false;
 		}
+	}
+	
+	@Override
+	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
+		if (obj != null) {
+			throw new ShouldBeError("I don't think " + var + " can be a method");
+		}
+		obj = var;
+		figureDestinationType((RepositoryEntry) var.defn());
 	}
 	
 	@Override

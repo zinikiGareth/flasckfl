@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.DotOperator;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ExprTermConsumer;
@@ -290,10 +291,10 @@ public class ExprReductionTests {
 	@Test // Nil
 	public void typeNamesAreRecognizedAsConstructors() {
 		context.checking(new Expectations() {{
-			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.unresolved("Nil")).location("-", 1, 0, 12)));
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.typeref("Nil")).location("-", 1, 0, 12)));
 			oneOf(builder).done();
 		}});
-		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "Nil"));
+		reducer.term(new TypeReference(pos.copySetEnd(12), "Nil"));
 		reducer.done();
 	}
 

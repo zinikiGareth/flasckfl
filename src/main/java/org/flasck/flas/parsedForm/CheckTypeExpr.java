@@ -9,12 +9,12 @@ public class CheckTypeExpr implements Expr {
 	public final TypeReference type;
 	public final Expr expr;
 
-	public CheckTypeExpr(InputPosition location, InputPosition tyLoc, String type, Expr expr) {
+	public CheckTypeExpr(InputPosition location, InputPosition tyLoc, Expr ctor, Expr expr) {
 		if (location == null)
 			System.out.println("CheckTypeExpr without location");
 		this.location = location;
 		this.tyLoc = tyLoc;
-		this.type = new TypeReference(tyLoc, type);
+		this.type = (TypeReference) ctor;
 		this.expr = expr;
 	}
 

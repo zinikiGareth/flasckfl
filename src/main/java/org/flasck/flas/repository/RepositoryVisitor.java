@@ -94,7 +94,7 @@ public interface RepositoryVisitor {
 	void visitUnresolvedOperator(UnresolvedOperator operator, int nargs);
 	void visitAnonymousVar(AnonymousVar var);
 	void visitIntroduceVar(IntroduceVar var);
-	void visitTypeReference(TypeReference var, boolean expectPolys);
+	void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs);
 	void visitFunctionGroup(FunctionGroup grp);
 	void visitFunction(FunctionDefinition fn);
 	void visitFunctionIntro(FunctionIntro fi);

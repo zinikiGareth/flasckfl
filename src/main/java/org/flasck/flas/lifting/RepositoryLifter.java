@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -145,6 +146,12 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		ma.visitFunctionIntro(fi);
 	}
 
+	@Override
+	public void visitTypeReference(TypeReference tr, boolean expectPolys, int nargs) {
+		if (ma != null)
+			ma.visitTypeReference(tr);
+	}
+	
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar vr, int nargs) {
 		if (ma != null)

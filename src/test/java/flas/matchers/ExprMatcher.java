@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.TypeExpr;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.Punctuator;
@@ -34,6 +35,34 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 				if (!(expr instanceof UnresolvedVar))
 					return false;
 				if (!((UnresolvedVar)expr).var.equals(name))
+					return false;
+				if (super.pos != null) {
+					if (expr.location() == null)
+						return false;
+					if (super.pos.compareTo(expr.location()) != 0)
+						return false;
+				}
+				return true;
+			}
+		};
+	}
+
+	public static ExprMatcher typeref(String name) {
+		return new ExprMatcher() {
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("type '" + name + "'");
+				if (super.pos != null) {
+					desc.appendText("pos");
+					desc.appendValue(super.pos);
+				}
+			}
+
+			@Override
+			protected boolean matchesSafely(Expr expr) {
+				if (!(expr instanceof TypeReference))
+					return false;
+				if (!((TypeReference)expr).name().equals(name))
 					return false;
 				if (super.pos != null) {
 					if (expr.location() == null)
@@ -166,7 +195,10 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 			protected boolean matchesSafely(Expr expr) {
 				if (!(expr instanceof TypeExpr))
 					return false;
-				if (!((TypeExpr)expr).type.equals(string))
+				expr = ((TypeExpr)expr).type;
+				if (!(expr instanceof UnresolvedVar))
+					return false;
+				if (!((UnresolvedVar)expr).var.equals(string))
 					return false;
 				if (super.pos != null) {
 					if (expr.location() == null)

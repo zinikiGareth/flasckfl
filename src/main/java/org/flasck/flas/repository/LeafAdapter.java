@@ -518,7 +518,7 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitTypeReference(TypeReference var, boolean expectPolys) {
+	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
 	}
 
 	@Override

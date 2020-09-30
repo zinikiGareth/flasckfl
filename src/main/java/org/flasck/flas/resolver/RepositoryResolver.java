@@ -387,6 +387,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			defn = uv.defn();
 			if (defn == null) // some kind of error
 				return;
+		} else if (expr.from instanceof TypeReference) {
+			TypeReference uv = (TypeReference) expr.from;
+			defn = (RepositoryEntry) uv.defn();
+			if (defn == null) // some kind of error
+				return;
 		} else if (expr.from instanceof ApplyExpr) {
 			// this is hard to say the least ...
 			return;
@@ -583,7 +588,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
-	public void visitTypeReference(TypeReference ref, boolean expectPolys) {
+	public void visitTypeReference(TypeReference ref, boolean expectPolys, int exprNargs) {
 		String tn = ref.name();
 		RepositoryEntry defn = find(ref.location(), scope, tn);
 		if (defn == null) {
@@ -613,7 +618,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 					ErrorMark mark = errors.mark();
 					List<Type> bound = new ArrayList<>();
 					for (TypeReference tr : nu) {
-						visitTypeReference(tr, expectPolys);
+						visitTypeReference(tr, expectPolys, exprNargs);
 						if (mark.hasMoreNow())
 							return;
 						NamedType arg = tr.defn();

@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.WithTypeSignature;
@@ -61,6 +62,8 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 			WithTypeSignature defn;
 			if (fn instanceof UnresolvedVar)
 				defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
+			else if (fn instanceof TypeReference)
+				defn = (WithTypeSignature) ((TypeReference)fn).defn();
 			else if (fn instanceof UnresolvedOperator)
 				defn = (WithTypeSignature) ((UnresolvedOperator)fn).defn();
 			else if (fn instanceof MakeSend)
@@ -73,6 +76,8 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 					defn = (MakeAcor) fn;
 				else if (fn instanceof UnresolvedVar)
 					defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
+				else if (fn instanceof TypeReference)
+					defn = (WithTypeSignature) ((TypeReference)fn).defn();
 				else if (fn instanceof ApplyExpr) {
 					defn = (WithTypeSignature) ((UnresolvedVar) ((ApplyExpr)fn).fn).defn();
 					makeClosure(null, defn.argCount() - ((ApplyExpr)fn).args.size());

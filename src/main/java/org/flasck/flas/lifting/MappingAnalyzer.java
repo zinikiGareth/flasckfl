@@ -6,6 +6,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.TypeBinder;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -37,6 +38,13 @@ public class MappingAnalyzer {
 	public void visitObjectMethod(ObjectActionHandler meth) {
 		this.meth = meth;
 		name = meth.name();
+	}
+
+	public void visitTypeReference(TypeReference tr) {
+		RepositoryEntry defn = (RepositoryEntry) tr.defn();
+		if (defn == null)
+			throw new CantHappenException("should have a definition by this point");
+		visitDefn(defn);
 	}
 
 	public void visitUnresolvedVar(UnresolvedVar vr) {

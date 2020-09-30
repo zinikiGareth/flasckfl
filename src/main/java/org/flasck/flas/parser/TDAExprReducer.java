@@ -12,6 +12,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.TypeExpr;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ParenTermConsumer.ParenCloseRewriter;
@@ -47,7 +48,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 		if (haveErrors)
 			return;
 		if (haveDot != null) {
-			if (!(term instanceof UnresolvedVar)) {
+			if (!(term instanceof UnresolvedVar) && !(term instanceof TypeReference)) {
 				errors.message(term.location(), "field access requires a field name");
 				haveErrors = true;
 				return;
@@ -154,7 +155,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 
 	private boolean isConstructor(Expr t0) {
-		return t0 instanceof UnresolvedVar && ((UnresolvedVar)t0).isConstructor();
+		return t0 instanceof TypeReference;
 	}
 	
 	private boolean isTypeExpr(Expr t0) {
@@ -171,7 +172,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 			return null;
 		}
 		Expr ctor = terms.get(from+1);
-		return new TypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ((UnresolvedVar)ctor).var);
+		return new TypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ctor);
 	}
 	
 	private Expr resolveCheckTypeExpr(Expr t0, int from, int to) {
@@ -182,7 +183,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 			return null;
 		}
 		Expr ctor = terms.get(from+1);
-		return new CheckTypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ((UnresolvedVar)ctor).var, terms.get(from+2));
+		return new CheckTypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ctor, terms.get(from+2));
 	}
 	
 	private List<Expr> args(int from, int to) {

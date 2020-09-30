@@ -55,7 +55,7 @@ public class TDAMethodGuardsTests {
 	@Test
 	public void seeingAGuardGeneratesAGuardAndReturnsAMessageParser() {
 		context.checking(new Expectations() {{
-			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.unresolved("True")))));
+			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.typeref("True")))));
 			oneOf(builder).done();
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
@@ -67,7 +67,7 @@ public class TDAMethodGuardsTests {
 	@Test
 	public void theFirstGuardCommitsUsToGuards() {
 		context.checking(new Expectations() {{
-			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.unresolved("True")))));
+			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.typeref("True")))));
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
@@ -105,7 +105,7 @@ public class TDAMethodGuardsTests {
 	@Test
 	public void theFinalGuardMayBeADefault() {
 		context.checking(new Expectations() {{
-			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.unresolved("True")))));
+			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.typeref("True")))));
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
@@ -136,7 +136,7 @@ public class TDAMethodGuardsTests {
 	@Test
 	public void cannotHaveTwoDefaults() {
 		context.checking(new Expectations() {{
-			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.unresolved("True")))));
+			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.typeref("True")))));
 			oneOf(builder).guard(with(GuardedMessagesMatcher.of(null)));
 			oneOf(errorsMock).message(with(any(InputPosition.class)), with("cannot provide two default guards"));
 			oneOf(builder).done();

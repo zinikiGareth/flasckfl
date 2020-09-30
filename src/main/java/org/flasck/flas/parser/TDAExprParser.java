@@ -8,6 +8,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.IntroduceVar;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.IntroduceNamer;
@@ -45,9 +46,12 @@ public class TDAExprParser implements TDAParsing {
 				break;
 			case ExprToken.IDENTIFIER: {
 				Expr term;
-				if (Character.isAlphabetic(tok.text.charAt(0)))
-					term = new UnresolvedVar(tok.location, tok.text);
-				else if (tok.text.equals("_"))
+				if (Character.isAlphabetic(tok.text.charAt(0))) {
+					if (Character.isLowerCase(tok.text.charAt(0)))
+						term = new UnresolvedVar(tok.location, tok.text);
+					else
+						term = new TypeReference(tok.location, tok.text);
+				} else if (tok.text.equals("_"))
 					term = new AnonymousVar(tok.location);
 				else if (consumer != null && tok.text.startsWith("_")) {
 					IntroduceVar iv = new IntroduceVar(tok.location, namer, tok.text.substring(1));

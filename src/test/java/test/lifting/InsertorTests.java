@@ -80,7 +80,7 @@ public class InsertorTests {
 		context.checking(new Expectations() {{
 			oneOf(hsi).visitPattern(tp, true);
 			oneOf(hsi).visitTypedPattern(tp, true);
-			oneOf(hsi).visitTypeReference(tp.type, true);
+			oneOf(hsi).visitTypeReference(tp.type, true, -1);
 			oneOf(hsi).visitPatternVar(pos, tp.var.var);
 			oneOf(hsi).leavePattern(tp, true);
 		}});

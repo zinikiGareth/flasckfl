@@ -183,8 +183,8 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitAnonymousVar(var);
 	}
 
-	public void visitTypeReference(TypeReference var, boolean expectPolys) {
-		top.visitTypeReference(var, true);
+	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
+		top.visitTypeReference(var, expectPolys, exprNargs);
 	}
 
 	public void visitFunctionGroup(FunctionGroup grp) {

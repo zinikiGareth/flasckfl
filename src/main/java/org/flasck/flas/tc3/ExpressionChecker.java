@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -37,6 +38,7 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -109,7 +111,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			throw new NullPointerException("undefined var: " + var);
 		RepositoryEntry defn = var.defn();
 		if (defn instanceof StructDefn || defn instanceof ObjectDefn || defn instanceof HandlerImplements) {
-			announce(pos, (Type) defn);
+			throw new CantHappenException("should be TypeReferences");
 		} else if (defn instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) defn;
 			if (fn.hasType())
@@ -170,6 +172,18 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			announce(pos, ia);
 		} else
 			throw new RuntimeException("Cannot handle " + defn + " of type " + defn.getClass());
+	}
+	
+	@Override
+	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
+		InputPosition pos = var.location();
+		if (var == null || var.defn() == null)
+			throw new NullPointerException("undefined var: " + var);
+		NamedType defn = var.defn();
+		if (defn instanceof StructDefn || defn instanceof ObjectDefn || defn instanceof HandlerImplements) {
+			announce(pos, defn);
+		} else
+			throw new RuntimeException("Cannot handle " + var.defn());
 	}
 	
 	@Override

@@ -71,10 +71,10 @@ public class ExpressionVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
 		}});
-		UnresolvedVar uv = new UnresolvedVar(pos, "Nil");
+		TypeReference uv = new TypeReference(pos, "Nil");
 		uv.bind(LoadBuiltins.nil);
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, fnCxt, false);
-		tc.visitUnresolvedVar(uv, 0);
+		tc.visitTypeReference(uv, false, 0);
 	}
 
 	@Test

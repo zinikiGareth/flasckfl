@@ -54,7 +54,7 @@ public class FlimVisitor extends LeafAdapter {
 	}
 	
 	@Override
-	public void visitTypeReference(TypeReference var, boolean expectPolys) {
+	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
 		reference((RepositoryEntry)var.defn());
 	}
 	

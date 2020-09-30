@@ -106,7 +106,7 @@ public class ExprTokenizationTests {
 	@Test
 	public void testNilBecomesAConstructorAsAValue() {
 		context.checking(new Expectations() {{
-			oneOf(builder).term(with(ExprMatcher.unresolved("Nil").location("test", 1, 0, 3))); inSequence(order);
+			oneOf(builder).term(with(ExprMatcher.typeref("Nil").location("test", 1, 0, 3))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
 		assertNull(parser.tryParsing(new Tokenizable("Nil")));

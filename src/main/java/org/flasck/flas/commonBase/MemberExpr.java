@@ -2,6 +2,7 @@ package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
@@ -35,6 +36,9 @@ public class MemberExpr implements Expr {
 	public String asName() {
 		if (from instanceof UnresolvedVar)
 			return ((UnresolvedVar)from).var + "." + fld;
+		else if (from instanceof TypeReference) {
+			return ((TypeReference)from).name() + "." + fld;
+		}
 		else if (from instanceof MemberExpr) {
 			String n = ((MemberExpr)from).asName();
 			if (n == null)
