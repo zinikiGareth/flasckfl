@@ -1,15 +1,19 @@
 package org.flasck.flas.compiler.jsgen;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
+import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSTypeOf;
 import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.ResultAware;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class TypeExprGeneratorJS extends LeafAdapter {
+public class TypeExprGeneratorJS extends LeafAdapter implements ResultAware {
 	private final JSFunctionState state;
 	private final NestedVisitor sv;
 	private final JSBlockCreator block;
@@ -29,9 +33,26 @@ public class TypeExprGeneratorJS extends LeafAdapter {
 	
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
-		throw new NotImplementedException("it seems reasonable to ask for the type of a var or expr");
+		ExprGeneratorJS ej = new ExprGeneratorJS(state, sv, block, false);
+		ej.visitUnresolvedVar(var, nargs);
 	}
 	
+	@Override
+	public void visitTypeExpr(TypeExpr expr) {
+		new TypeExprGeneratorJS(state, sv, block);
+	}
+	
+	@Override
+	public void visitApplyExpr(ApplyExpr expr) {
+		new ApplyExprGeneratorJS(state, sv, block);
+	}
+
+	@Override
+	public void result(Object r) {
+		if (this.expr != null)
+			throw new CantHappenException("set expr twice");
+		this.expr = new JSTypeOf((JSExpr)r);
+	}
 	
 	@Override
 	public void leaveTypeExpr(TypeExpr expr) {

@@ -1367,17 +1367,28 @@ Tuple.eval = function(_cxt, args) {
 const TypeOf = function(ty) {
 	this.ty = ty;
 }
+TypeOf.eval = function(_cxt, expr) {
+	expr = _cxt.full(expr);
+	if (typeof(expr) == 'object')
+	  	return new TypeOf(expr.constructor.name);
+	else
+		return new TypeOf(typeof(expr));
+}
+TypeOf.prototype._compare = function(_cxt, other) {
+	if (other instanceof TypeOf) {
+		return this.ty == other.ty;
+	} else
+		return false;
+}
 TypeOf.prototype.toString = function() {
-	if (typeof(this.ty) == 'string') {
-		switch (this.ty) {
-		case 'number':
-			return "Number";
-		default:
-			throw Error("can't be " + this.ty);
-		}
+	switch (this.ty) {
+	case 'number':
+		return "Number";
+	case 'TypeOf':
+		return 'Type';
+	default:
+		return this.ty;
 	}
-
-	return this.ty.toString();
 }
 
 

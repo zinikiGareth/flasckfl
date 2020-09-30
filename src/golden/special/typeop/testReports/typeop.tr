@@ -1,2 +1,8 @@
 JVM PASS that we can take the name of a type
+JVM PASS that we can take the type of a var
+JVM PASS that we can take the type of a type
+JVM PASS that we can show the type of a type
 JS PASS that we can take the name of a type
+JS PASS that we can take the type of a var
+JS PASS that we can take the type of a type
+JS PASS that we can show the type of a type

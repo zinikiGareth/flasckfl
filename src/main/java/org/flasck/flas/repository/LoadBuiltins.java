@@ -412,13 +412,11 @@ public class LoadBuiltins {
 	}
 	
 
-	// The type "operator"
+	// Types
 	public static final TypeReference typeTR = new TypeReference(pos, "Type");
-	private static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
-
+	public static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
 	static {
 		typeTR.bind(type);
-		// is this ok as a string or should it be something else?
 		type.addField(new StructField(pos, type, false, stringTR, "type"));
 	}
 

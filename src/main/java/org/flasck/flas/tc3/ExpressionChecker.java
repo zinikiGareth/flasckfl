@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -84,6 +85,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitCheckTypeExpr(CheckTypeExpr expr) {
 		new CheckTypeExprChecker(errors, repository, state, nv, fnCxt, inTemplate);
+	}
+	
+	@Override
+	public void visitTypeExpr(TypeExpr expr) {
+		new TypeExprChecker(errors, repository, state, nv, fnCxt, inTemplate);
 	}
 	
 	@Override
