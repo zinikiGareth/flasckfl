@@ -1,17 +1,16 @@
 package org.flasck.flas.compiler.jsgen;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSTypeOf;
 import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class TypeExprGeneratorJS extends LeafAdapter implements ResultAware {
 	private final JSFunctionState state;
@@ -27,14 +26,18 @@ public class TypeExprGeneratorJS extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
-		expr = new JSTypeOf(var.defn());
+	public void visitExpr(Expr expr, int nArgs) {
+		if (expr instanceof TypeReference)
+			return; // handled here directly
+		else {
+			ExprGeneratorJS ej = new ExprGeneratorJS(state, sv, block, false);
+			ej.visitExpr(expr, nArgs);
+		}
 	}
 	
 	@Override
-	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
-		ExprGeneratorJS ej = new ExprGeneratorJS(state, sv, block, false);
-		ej.visitUnresolvedVar(var, nargs);
+	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
+		expr = new JSTypeOf(var.defn());
 	}
 	
 	@Override
@@ -57,7 +60,7 @@ public class TypeExprGeneratorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveTypeExpr(TypeExpr expr) {
 		if (this.expr == null)
-			throw new NotImplementedException("we didn't consider some (type ...) case");
+			throw new CantHappenException("we didn't consider some (type ...) case");
 		sv.result(this.expr);
 	}
 }

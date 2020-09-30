@@ -29,6 +29,8 @@ public class JSTypeOf implements JSExpr {
 			String tn = type.name().jsName();
 			if ("Number".equals(tn))
 				tn = "'number'";
+			else if ("String".equals(tn))
+				tn = "'string'";
 			else if ("Type".equals(tn))
 				tn = "'TypeOf'";
 			return "new TypeOf(" + tn + ")";
@@ -49,6 +51,8 @@ public class JSTypeOf implements JSExpr {
 			String tn = type.name().javaName();
 			if ("org.flasck.jvm.builtin.Number".equals(tn))
 				tn = Double.class.getName();
+			else if ("org.flasck.jvm.builtin.String".equals(tn))
+				tn = String.class.getName();
 			else if ("org.flasck.jvm.builtin.Type".equals(tn))
 				tn = TypeOf.class.getName();
 			jvm.local(this, md.makeNew(J.TYPEOF, md.classConst(tn)));

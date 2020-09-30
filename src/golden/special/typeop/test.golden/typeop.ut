@@ -14,4 +14,16 @@
 		assert (show (type (type Number)))
 			"Type"
 			
+	test that we can handle string type
+		assert (show (type String))
+			"String"
+			
+	test that we can handle numeric values
+		assert (show (type 42))
+			"Number"
+			
+	test that we can handle string values
+		assert (show (type 'hello'))
+			"String"
+			
 			
