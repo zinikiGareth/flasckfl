@@ -180,7 +180,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		if (var == null || var.defn() == null)
 			throw new NullPointerException("undefined var: " + var);
 		NamedType defn = var.defn();
-		if (defn instanceof StructDefn || defn instanceof ObjectDefn || defn instanceof HandlerImplements) {
+		if (defn instanceof StructDefn || defn instanceof ObjectDefn || defn instanceof HandlerImplements || defn instanceof Primitive) {
 			announce(pos, defn);
 		} else
 			throw new RuntimeException("Cannot handle " + var.defn());

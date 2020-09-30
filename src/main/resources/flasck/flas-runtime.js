@@ -1364,6 +1364,24 @@ Tuple.eval = function(_cxt, args) {
 }
 
 /* istanbul ignore next */
+const TypeOf = function(ty) {
+	this.ty = ty;
+}
+TypeOf.prototype.toString = function() {
+	if (typeof(this.ty) == 'string') {
+		switch (this.ty) {
+		case 'number':
+			return "Number";
+		default:
+			throw Error("can't be " + this.ty);
+		}
+	}
+
+	return this.ty.toString();
+}
+
+
+/* istanbul ignore next */
 const FLBuiltin = function() {
 }
 

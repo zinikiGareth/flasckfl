@@ -1,0 +1,17 @@
+	test that we can take the name of a type
+		assert (show (type Number))
+			"Number"
+			
+.	test that we can take the type of a var
+.		assert (type n)
+.			(type Number)
+			
+.	test that we can take the type of a type
+.		assert (type (type Number))
+.			(type Type)
+			
+.	test that we can show the type of a type
+.		assert (show (type (type Number)))
+.			"Type"
+			
+			

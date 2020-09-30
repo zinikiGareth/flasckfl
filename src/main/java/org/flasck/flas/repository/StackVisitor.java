@@ -59,6 +59,7 @@ import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -779,6 +780,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitAjaxPump(AjaxPump ac) {
 		top.visitAjaxPump(ac);
+	}
+
+	public void visitTypeExpr(TypeExpr expr) {
+		top.visitTypeExpr(expr);
+	}
+
+	public void leaveTypeExpr(TypeExpr expr) {
+		top.leaveTypeExpr(expr);
 	}
 
 	public void traversalDone() {

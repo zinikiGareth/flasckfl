@@ -35,6 +35,7 @@ src/golden/functions/patterns/constants/multiple
 src/golden/functions/returns/unionErrors
 src/golden/functions/returns/unions
 src/golden/primitive/strings/utf8
+src/golden/special/typeop
 src/golden/functions/patterns/binding
 src/golden/functions/patterns/poly
 src/golden/structs/basic

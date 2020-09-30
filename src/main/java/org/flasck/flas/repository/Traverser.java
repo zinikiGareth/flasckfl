@@ -81,6 +81,7 @@ import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -1472,6 +1473,8 @@ public class Traverser implements RepositoryVisitor {
 			visitCurrentContainer((CurrentContainer)expr, false, false);
 		else if (expr instanceof CheckTypeExpr)
 			visitCheckTypeExpr((CheckTypeExpr)expr);
+		else if (expr instanceof TypeExpr)
+			visitTypeExpr((TypeExpr)expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
@@ -1489,6 +1492,17 @@ public class Traverser implements RepositoryVisitor {
 		visitor.leaveCheckTypeExpr(expr);
 	}
 	
+	@Override
+	public void visitTypeExpr(TypeExpr expr) {
+		visitor.visitTypeExpr(expr);
+		visitExpr(expr.type, 0);
+		leaveTypeExpr(expr);
+	}
+
+	public void leaveTypeExpr(TypeExpr expr) {
+		visitor.leaveTypeExpr(expr);
+	}
+
 	private boolean isNeedingEnhancement(Expr expr, int nargs) {
 		if (!wantNestedPatterns)
 			return false;

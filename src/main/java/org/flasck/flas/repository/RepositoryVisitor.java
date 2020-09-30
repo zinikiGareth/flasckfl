@@ -49,6 +49,7 @@ import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -242,4 +243,6 @@ public interface RepositoryVisitor {
 	void visitAjaxExpectSubscribe(AjaxSubscribe as);
 	void leaveAjaxExpectSubscribe(AjaxSubscribe as);
 	void visitAjaxPump(AjaxPump ac);
+	void visitTypeExpr(TypeExpr expr);
+	void leaveTypeExpr(TypeExpr expr);
 }

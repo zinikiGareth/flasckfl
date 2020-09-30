@@ -49,6 +49,7 @@ import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -727,6 +728,14 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void visitAjaxPump(AjaxPump ac) {
+	}
+
+	@Override
+	public void visitTypeExpr(TypeExpr expr) {
+	}
+
+	@Override
+	public void leaveTypeExpr(TypeExpr expr) {
 	}
 
 	@Override

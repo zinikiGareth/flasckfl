@@ -57,6 +57,7 @@ public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
 
 	public void bindType(Type ty) {
 		this.type = ty;
+		System.out.println("binding type for " + myName + " to " + ty);
 	}
 	
 	public Type type() {

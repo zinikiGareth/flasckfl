@@ -33,6 +33,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -84,6 +85,11 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
 		new ApplyExprGeneratorJS(state, sv, block);
+	}
+	
+	@Override
+	public void visitTypeExpr(TypeExpr expr) {
+		new TypeExprGeneratorJS(state, sv, block);
 	}
 	
 	@Override
