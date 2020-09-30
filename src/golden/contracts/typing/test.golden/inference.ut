@@ -1,0 +1,5 @@
+	test that we get the value we expect
+		data Doit card
+		contract card Inference hello (Thing "hi")
+		assert (card.value)
+			"hello"

@@ -102,6 +102,8 @@ public class FunctionGroupTCState implements CurrentTCState {
 		if (!allUTs.contains(ty))
 			throw new NotImplementedException("Where did this come from?");
 		patts.put(vp, ty);
+		if (vp.hasBoundType())
+			ty.canBeType(vp.location(), vp.type());
 	}
 
 	@Override

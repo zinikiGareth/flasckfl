@@ -1,0 +1,2 @@
+test.golden.Doit._C0.hello :: test.golden.Thing->List[Message]
+test.golden.Doit._C0.hello.message :: test.golden.Doit._C0->test.golden.Thing->String

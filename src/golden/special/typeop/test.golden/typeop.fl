@@ -1,1 +1,3 @@
 	n = 42
+	fred = show (type v)
+		v = 'hello'

@@ -1,0 +1,16 @@
+If we pass a value to a contract implementation, it should take the type specified in the contract
+
+	struct Thing
+		String msg
+		
+	contract Inference
+		hello (Thing t)
+		
+	card Doit
+		state
+			String value
+			
+		implements Inference
+			hello t
+				value <- "hello"
+					message = t.msg

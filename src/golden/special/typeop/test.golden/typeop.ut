@@ -26,4 +26,6 @@
 		assert (show (type 'hello'))
 			"String"
 			
-			
+	test that we can use nested functions
+		assert fred
+			"String"

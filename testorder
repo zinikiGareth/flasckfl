@@ -69,6 +69,7 @@ src/golden/agents/trampoline
 src/golden/cards/state/standalone
 src/golden/cards/nesting/functions
 src/golden/cards/state/guard
+src/golden/contracts/typing
 src/golden/cards/events/simple
 src/golden/cards/events/cond
 src/golden/cards/events/cond2
