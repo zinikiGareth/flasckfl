@@ -137,7 +137,7 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				stack.remove(0); // we are supplying the op directly here ...
 				sv.result(block.structArgs(fn, stack.toArray(new JSExpr[stack.size()])));
 			} else if (stack.size() > expArgs + 2) {
-				throw new CantHappenException("this should have been caught by the typechecker");
+				throw new CantHappenException("this should have been caught by the typechecker: stack has " + stack.size() + " and we expected " + (expArgs+2) + " in " + defn);
 			} else
 				sv.result(block.curry(false, expArgs, stack.toArray(new JSExpr[stack.size()])));
 		} else {

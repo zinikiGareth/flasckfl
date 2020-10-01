@@ -1,5 +1,7 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.Arrays;
+
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
@@ -72,5 +74,10 @@ public class JSClosure implements JSExpr, JSEffector {
 			if (args[i] != o.args[i])
 				return false;
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return (wantObject?"obj::":"") + Arrays.asList(args);
 	}
 }

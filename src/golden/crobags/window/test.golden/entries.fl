@@ -10,7 +10,7 @@
 			places <- Crobag.new
 			
 		method hold (String key) (String val)
-			<- places.add key (Item val)
+			<- places.upsert key (Item val)
 			
 		method project
 			<- places.window '' 10 -> Handler

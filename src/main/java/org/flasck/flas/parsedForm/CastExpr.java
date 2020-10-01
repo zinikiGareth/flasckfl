@@ -27,6 +27,6 @@ public class CastExpr implements Expr {
 	
 	@Override
 	public String toString() {
-		return "(type " + type + " " + val + ")";
+		return "(cast " + type + " " + val + ")";
 	}
 }

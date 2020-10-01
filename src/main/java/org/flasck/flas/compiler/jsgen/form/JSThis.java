@@ -31,4 +31,8 @@ public class JSThis implements JSExpr {
 		return obj instanceof JSThis;
 	}
 
+	@Override
+	public String toString() {
+		return "this";
+	}
 }

@@ -28,4 +28,9 @@ public class JSString implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 	}
+	
+	@Override
+	public String toString() {
+		return asVar();
+	}
 }

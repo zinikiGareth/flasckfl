@@ -19,10 +19,13 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry, PolyHolder {
+	private final static Logger logger = LoggerFactory.getLogger("TCUnification");
 	public final transient boolean generate;
 	private final InputPosition location;
 	private final SolidName name;
@@ -70,15 +73,17 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 	
 	public Type matches(ErrorReporter errors, InputPosition pos, UnionFinder finder, Set<Type> members, boolean needAll) {
 		Set<String> all = new HashSet<>();
-		Set<String> left = new HashSet<>();
+		Set<String> remaining = new HashSet<>();
 		for (TypeReference tr : cases) {
 			all.add(tr.defn().name().uniqueName());
-			left.add(tr.defn().name().uniqueName());
+			remaining.add(tr.defn().name().uniqueName());
 		}
+		logger.debug("considering if " + this + " is a match for " + members + " with needAll = " + needAll);
+		logger.debug("have cases " + this.cases);
 		SetMap<String, Type> polys = new SetMap<String, Type>();
 		for (Type t : members) {
 			if (t == this) {
-				left.clear();
+				remaining.clear();
 				continue;
 			}
 			NamedType sd;
@@ -89,7 +94,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 				sd = pi.struct();
 				TypeReference mine;
 				if (sd == this) {
-					left.clear();
+					remaining.clear();
 					List<TypeReference> trs = new ArrayList<>();
 					for (PolyType pt : polyvars)
 						trs.add(new TypeReference(pt.location(), pt.shortName()).bind(pt));
@@ -97,8 +102,10 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 					mine.bind(this);
 				} else {
 					mine = findCase(sd.name().uniqueName());
-					if (mine == null)
+					if (mine == null) {
+						logger.debug("not " + this.signature() + " because there is no case to handle " + sd.name().uniqueName());
 						return null;
+					}
 				}
 				List<Type> pip = pi.polys();
 				if (!mine.hasPolys() || pip.size() != mine.polys().size())
@@ -106,14 +113,20 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 				for (int i=0;i<pip.size();i++) {
 					polys.add(mine.polys().get(i).name(), pip.get(i));
 				}
-			} else
+			} else {
+				logger.debug("rejecting because something");
 				return null;
-			if (sd != this && !all.contains(sd.name().uniqueName()))
+			}
+			if (sd != this && !all.contains(sd.name().uniqueName())) {
+				logger.debug("rejecting because something");
 				return null;
-			left.remove(sd.name().uniqueName());
+			}
+			remaining.remove(sd.name().uniqueName());
 		}
-		if (needAll && !left.isEmpty())
+		if (needAll && !remaining.isEmpty()) {
+			logger.debug("rejecting because all are needed and we are missing " + remaining);
 			return null;
+		}
 		if (!polys.isEmpty()) {
 			List<Type> bound = new ArrayList<>();
 			for (PolyType pt : this.polyvars) {
@@ -131,9 +144,13 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 				} else
 				bound.add(LoadBuiltins.any);
 			}
-			return new PolyInstance(this.location(), this, bound);
-		} else
+			PolyInstance ret = new PolyInstance(this.location(), this, bound);
+			logger.debug("returning " + ret);
+			return ret;
+		} else {
+			logger.debug("returning " + this);
 			return this;
+		}
 	}
 
 	public TypeReference findCase(String ctor) {

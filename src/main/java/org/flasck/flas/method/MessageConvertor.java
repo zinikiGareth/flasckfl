@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ImplementsContract;
@@ -53,9 +54,12 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 			;
 		else if (expr instanceof MemberExpr)
 			;
-		else if (mode == Mode.RHS)
-			stack.add(expr);
-		else if (mode == Mode.SLOT && assign.assignsToCons()) {
+		else if (mode == Mode.RHS) {
+			if (expr instanceof CastExpr)
+				new SpecialConvertor(errors, nv, oah, assign);
+			else
+				stack.add(expr);
+		} else if (mode == Mode.SLOT && assign.assignsToCons()) {
 			slotContainer = expr;
 			mode = Mode.HAVESLOT;
 		}

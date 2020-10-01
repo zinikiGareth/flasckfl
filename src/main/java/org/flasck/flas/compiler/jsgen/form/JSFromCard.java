@@ -31,4 +31,8 @@ public class JSFromCard implements JSExpr {
 		jvm.local(this, md.castTo(jvm.clazz().getField(md, "_card"), n));
 	}
 
+	@Override
+	public String toString() {
+		return "this._card";
+	}
 }

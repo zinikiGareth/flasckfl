@@ -370,7 +370,7 @@ public class TypeConstraintSet implements UnifiableType {
 		if (t instanceof UnionTypeDefn) {
 			UnionTypeDefn utd = (UnionTypeDefn) t;
 			for (TypeReference c : utd.cases) {
-				StructDefn sd = (StructDefn) c.defn();
+				Type sd = (Type) c.defn();
 				addMore.add(new PosType(pos, sd));
 			}
 		} else if (t instanceof PolyInstance) {
@@ -713,6 +713,7 @@ public class TypeConstraintSet implements UnifiableType {
 		} else if (resolved.size() == 1)
 			resolvedTo = resolved.iterator().next().type;
 		else {
+			logger.debug("want to unify " + resolved);
 			Set<Type> alltys = new TreeSet<>(signatureComparator);
 			Set<Integer> acs = new HashSet<>();
 			for (PosType pt : resolved) {
@@ -726,6 +727,7 @@ public class TypeConstraintSet implements UnifiableType {
 				else
 					acs.add(0);
 			}
+			logger.debug("acs = " + acs);
 			if (acs.size() != 1) {
 				// cannot unify functions of different arities
 				// or functions with constants
@@ -750,8 +752,10 @@ public class TypeConstraintSet implements UnifiableType {
 					if (us.size() == cnt+1) {
 						resolvedTo = new Apply(us);
 					}
-				} else
+				} else {
+					logger.debug("looking for union with " + alltys + (needAll?" (need all)":" (accept subset)"));
 					resolvedTo = repository.findUnionWith(errors, pos, alltys, needAll);
+				}
 			}
 			if (resolvedTo == null) {
 				logger.info("could not unify " + this.id);

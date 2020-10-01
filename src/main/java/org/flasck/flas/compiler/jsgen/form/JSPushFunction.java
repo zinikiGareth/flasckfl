@@ -39,4 +39,9 @@ public class JSPushFunction implements JSExpr {
 	public String asVar() {
 		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
 	}
+	
+	@Override
+	public String toString() {
+		return "push(" + fn + ")";
+	}
 }

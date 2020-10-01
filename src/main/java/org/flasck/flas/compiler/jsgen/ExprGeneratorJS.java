@@ -14,6 +14,7 @@ import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.parsedForm.AnonymousVar;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -90,6 +91,11 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitTypeExpr(TypeExpr expr) {
 		new TypeExprGeneratorJS(state, sv, block);
+	}
+	
+	@Override
+	public void visitCastExpr(CastExpr expr) {
+		new CastExprGeneratorJS(state, sv, block, isExpectation);
 	}
 	
 	@Override

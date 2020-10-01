@@ -57,6 +57,7 @@ import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.SplitMetaData;
@@ -362,6 +363,22 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		} else if (matching.size() == 1)
 			return matching.get(0);
 		else {
+			// if multiple match, accept a uniquely "smallest" one
+			int min = Integer.MAX_VALUE;
+			Type ret = null;
+			boolean ambig = false;
+			for (Type t : matching) {
+				int nc = ncases(t);
+				if (nc < min) {
+					min = nc;
+					ret = t;
+				} else if (nc == min) {
+					ambig = true;
+				}
+			}
+			if (!ambig) {
+				return ret;
+			}
 			TreeSet<String> tyes = new TreeSet<String>();
 			for (Type ty : ms)
 				tyes.add(ty.signature());
@@ -371,6 +388,12 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			errors.message(pos, "multiple unions match " + tyes + ": " + us);
 			return null;
 		}
+	}
+
+	private int ncases(Type t) {
+		if (t instanceof PolyInstance)
+			t = ((PolyInstance)t).struct();
+		return ((UnionTypeDefn)t).cases.size();
 	}
 
 	@Override

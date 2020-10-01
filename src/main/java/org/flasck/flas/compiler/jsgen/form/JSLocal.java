@@ -60,4 +60,9 @@ public class JSLocal implements IVForm {
 		iw.write(value);
 		iw.println("");
 	}
+	
+	@Override
+	public String toString() {
+		return asVar() + " <- " + value;
+	}
 }

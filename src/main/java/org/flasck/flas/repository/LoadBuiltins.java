@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.RepositoryEntry.ValidContexts;
 import org.flasck.flas.tc3.Apply;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Tuple;
@@ -224,7 +225,21 @@ public class LoadBuiltins {
 	/*  Messages */
 	
 	//   -> Message (the union)
+	public static final TypeReference messageTR = new TypeReference(pos, "Message");
 	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
+	//   -> List[Message]
+	public static final TypeReference consMessagesTR = new TypeReference(pos, "Cons", messageTR);
+	public static final NamedType consMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.message));
+	public static final TypeReference listMessagesTR = new TypeReference(pos, "List", messageTR);
+	public static final NamedType listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
+	static {
+		messageTR.bind(message);
+		consMessagesTR.bind(consMessages);
+		listMessagesTR.bind(listMessages);
+		message.addCase(nilTR);
+		message.addCase(consMessagesTR);
+		message.addCase(listMessagesTR);
+	}
 
 	//   -> Debug
 	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
@@ -265,9 +280,6 @@ public class LoadBuiltins {
 		// why is this not added to message?
 	}
 	
-	//   -> List[Message]
-	public static final Type listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
-
 
 	/* Events */
 
@@ -284,7 +296,6 @@ public class LoadBuiltins {
 		source.fullName(new VarName(pos, clickEvent.name(), "source"));
 		event.addCase(clickEventTR);
 	}
-
 
 	/* Objects */
 
@@ -380,13 +391,33 @@ public class LoadBuiltins {
 	}
 	
 	//   -> method Crobag.add
-	private static ObjectMethod crobagAdd;
+	private static ObjectMethod crobagInsert;
 	static {
-		FunctionName add = FunctionName.objectMethod(pos, crobag.name(), "add");
-		crobagAdd = new ObjectMethod(pos, add, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, add, "key")), new TypedPattern(pos, entityTR, new VarName(pos, add, "value"))), null, crobag);
-		crobagAdd.dontGenerate();
-		crobagAdd.bindType(new Apply(string, entity, listMessages));
-		crobag.addMethod(crobagAdd);
+		FunctionName add = FunctionName.objectMethod(pos, crobag.name(), "insert");
+		crobagInsert = new ObjectMethod(pos, add, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, add, "key")), new TypedPattern(pos, entityTR, new VarName(pos, add, "value"))), null, crobag);
+		crobagInsert.dontGenerate();
+		crobagInsert.bindType(new Apply(string, entity, listMessages));
+		crobag.addMethod(crobagInsert);
+	}
+
+	//   -> method Crobag.put
+	private static ObjectMethod crobagPut;
+	static {
+		FunctionName add = FunctionName.objectMethod(pos, crobag.name(), "put");
+		crobagPut = new ObjectMethod(pos, add, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, add, "key")), new TypedPattern(pos, entityTR, new VarName(pos, add, "value"))), null, crobag);
+		crobagPut.dontGenerate();
+		crobagPut.bindType(new Apply(string, entity, listMessages));
+		crobag.addMethod(crobagPut);
+	}
+
+	//   -> method Crobag.upsert
+	private static ObjectMethod crobagUpsert;
+	static {
+		FunctionName add = FunctionName.objectMethod(pos, crobag.name(), "upsert");
+		crobagUpsert = new ObjectMethod(pos, add, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, add, "key")), new TypedPattern(pos, entityTR, new VarName(pos, add, "value"))), null, crobag);
+		crobagUpsert.dontGenerate();
+		crobagUpsert.bindType(new Apply(string, entity, listMessages));
+		crobag.addMethod(crobagUpsert);
 	}
 
 	//   -> method Crobag.window
@@ -548,7 +579,9 @@ public class LoadBuiltins {
 
 		repository.newObject(errors, crobag);
 		repository.newObjectMethod(errors, crobagNew);
-		repository.newObjectMethod(errors, crobagAdd);
+		repository.newObjectMethod(errors, crobagInsert);
+		repository.newObjectMethod(errors, crobagPut);
+		repository.newObjectMethod(errors, crobagUpsert);
 		repository.newObjectMethod(errors, crobagWindow);
 		repository.newObjectAccessor(errors, crobagSize);
 
