@@ -24,6 +24,10 @@ public class UnresolvedVar implements Expr {
 		return var;
 	}
 
+	public boolean isCast() {
+		return var.equals("cast");
+	}
+	
 	public boolean isType() {
 		return var.equals("type");
 	}

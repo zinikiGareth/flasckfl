@@ -1,5 +1,9 @@
 package org.flasck.flas.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -49,8 +53,16 @@ public class TDAExprParser implements TDAParsing {
 				if (Character.isAlphabetic(tok.text.charAt(0))) {
 					if (Character.isLowerCase(tok.text.charAt(0)))
 						term = new UnresolvedVar(tok.location, tok.text);
-					else
-						term = new TypeReference(tok.location, tok.text);
+					else {
+						line.reset(mark);
+						List<TypeReference> ltr = new ArrayList<>();
+						Consumer<TypeReference> captureTR = tr -> ltr.add(tr);
+						new TDATypeReferenceParser(errors, (VarNamer)namer, captureTR, (TopLevelDefinitionConsumer)consumer).tryParsing(line);
+						if (!ltr.isEmpty())
+							term = ltr.get(0);
+						else
+							return new IgnoreNestedParser();
+					}
 				} else if (tok.text.equals("_"))
 					term = new AnonymousVar(tok.location);
 				else if (consumer != null && tok.text.startsWith("_")) {

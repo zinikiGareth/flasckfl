@@ -1,0 +1,6 @@
+JVM PASS that we can cast an Any to a Number
+JVM PASS that a cast will typecheck as a number
+JVM PASS that we can cast an Any to a List with poly args
+JS PASS that we can cast an Any to a Number
+JS PASS that a cast will typecheck as a number
+JS PASS that we can cast an Any to a List with poly args

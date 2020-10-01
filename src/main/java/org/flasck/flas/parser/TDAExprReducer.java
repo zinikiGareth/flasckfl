@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.TypeExpr;
@@ -144,6 +145,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	private Expr fncall(int from, int to) {
 		final Expr t0 = terms.get(from);
+		if (isCastExpr(t0))
+			return resolveCastExpr(t0, from, to);
 		if (isTypeExpr(t0))
 			return resolveTypeExpr(t0, from, to);
 		if (isCheckTypeExpr(t0))
@@ -158,12 +161,26 @@ public class TDAExprReducer implements ExprTermConsumer {
 		return t0 instanceof TypeReference;
 	}
 	
+	private boolean isCastExpr(Expr t0) {
+		return t0 instanceof UnresolvedVar && ((UnresolvedVar)t0).isCast();
+	}
+
 	private boolean isTypeExpr(Expr t0) {
 		return t0 instanceof UnresolvedVar && ((UnresolvedVar)t0).isType();
 	}
 
 	private boolean isCheckTypeExpr(Expr t0) {
 		return t0 instanceof UnresolvedVar && ((UnresolvedVar)t0).isCheckType();
+	}
+
+	private Expr resolveCastExpr(Expr t0, int from, int to) {
+		if (to != from+3) {
+			errors.message(t0.location(), "cast must have exactly two arguments");
+			return null;
+		}
+		Expr type = terms.get(from+1);
+		Expr val = terms.get(from+2);
+		return new CastExpr(t0.location().copySetEnd(type.location().pastEnd()), type.location(), val.location(), (TypeReference) type, val);
 	}
 
 	private Expr resolveTypeExpr(Expr t0, int from, int to) {

@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -736,6 +737,14 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void leaveTypeExpr(TypeExpr expr) {
+	}
+
+	@Override
+	public void visitCastExpr(CastExpr expr) {
+	}
+
+	@Override
+	public void leaveCastExpr(CastExpr expr) {
 	}
 
 	@Override

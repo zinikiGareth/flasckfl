@@ -39,6 +39,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
@@ -1475,6 +1476,8 @@ public class Traverser implements RepositoryVisitor {
 			visitCheckTypeExpr((CheckTypeExpr)expr);
 		else if (expr instanceof TypeExpr)
 			visitTypeExpr((TypeExpr)expr);
+		else if (expr instanceof CastExpr)
+			visitCastExpr((CastExpr)expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
@@ -1482,7 +1485,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitCheckTypeExpr(CheckTypeExpr expr) {
 		visitor.visitCheckTypeExpr(expr);
-		visitTypeReference(expr.type, false, 0);
+		visitTypeReference(expr.type, false, -1);
 		visitExpr(expr.expr, 0);
 		leaveCheckTypeExpr(expr);
 	}
@@ -1501,6 +1504,17 @@ public class Traverser implements RepositoryVisitor {
 
 	public void leaveTypeExpr(TypeExpr expr) {
 		visitor.leaveTypeExpr(expr);
+	}
+
+	public void visitCastExpr(CastExpr expr) {
+		visitor.visitCastExpr(expr);
+		visitTypeReference(expr.type, true, -1);
+		visitExpr(expr.val, 0);
+		leaveCastExpr(expr);
+	}
+
+	public void leaveCastExpr(CastExpr expr) {
+		visitor.leaveCastExpr(expr);
 	}
 
 	private boolean isNeedingEnhancement(Expr expr, int nargs) {

@@ -38,6 +38,8 @@ public class TypeNameToken {
 		return new TypeNameToken(tok);
 	}
 
+	// qualified names are any number of (lowercase) package names followed by exactly one (uppercase) type name
+	// we then stop; if there is another dot, it is probably a ctor method
 	public static TypeNameToken qualified(Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore() || !Character.isJavaIdentifierStart(line.nextChar()))
@@ -45,15 +47,35 @@ public class TypeNameToken {
 	
 		InputPosition loc = line.realinfo();
 		int mark = line.at();
-		line.advance();
-		while (line.hasMore() && (Character.isJavaIdentifierPart(line.nextChar()) || line.nextChar() == '.'))
+//		line.advance();
+		boolean isNameStart = true;
+		boolean haveName = false;
+		while (line.hasMore()) {
+			if (Character.isJavaIdentifierPart(line.nextChar())) {
+				if (isNameStart) {
+					if (Character.isUpperCase(line.nextChar()) ) {
+						haveName = true;
+					}
+				}
+				isNameStart = false;
+			} else if (line.nextChar() == '.') {
+				if (haveName) // we are done
+					break;
+				isNameStart = true;
+			} else
+				break;
 			line.advance();
-		String proto = line.fromMark(mark);
-		int pos = proto.lastIndexOf('.')+1;
-		if (!Character.isUpperCase(proto.charAt(pos))) {
-			line.reset(mark);
-			return null; // doesn't qualify
 		}
-		return new TypeNameToken(loc, proto, line.at());
+		if (haveName)
+			return new TypeNameToken(loc, line.fromMark(mark), line.at());
+		else {
+			line.reset(mark); // we only saw lowercase things ...
+			return null;
+		}
+	}
+	
+	@Override
+	public String toString() {
+		return "TNT[" + text + "]";
 	}
 }

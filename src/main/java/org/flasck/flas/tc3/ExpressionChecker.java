@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -90,6 +91,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitTypeExpr(TypeExpr expr) {
 		new TypeExprChecker(errors, repository, state, nv, fnCxt, inTemplate);
+	}
+	
+	@Override
+	public void visitCastExpr(CastExpr expr) {
+		new CastExprChecker(errors, repository, state, nv, fnCxt, inTemplate);
 	}
 	
 	@Override

@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -245,4 +246,6 @@ public interface RepositoryVisitor {
 	void visitAjaxPump(AjaxPump ac);
 	void visitTypeExpr(TypeExpr expr);
 	void leaveTypeExpr(TypeExpr expr);
+	void visitCastExpr(CastExpr expr);
+	void leaveCastExpr(CastExpr expr);
 }

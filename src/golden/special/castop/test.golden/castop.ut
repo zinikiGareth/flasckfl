@@ -1,0 +1,12 @@
+	test that we can cast an Any to a Number
+		assert (cast Number (assoc {n: 42} "n"))
+			42
+
+	test that a cast will typecheck as a number
+		assert (10 * (cast Number (assoc {n: 42} "n")))
+			420
+
+	test that we can cast an Any to a List with poly args
+		assert (nth 0 (cast List[String] (assoc {l: ["hello", "world"]} "l")))
+			"hello"
+

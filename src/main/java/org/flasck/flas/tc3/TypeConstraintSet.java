@@ -699,14 +699,10 @@ public class TypeConstraintSet implements UnifiableType {
 			
 			if (r instanceof Primitive) {
 				errors.message(pos, "cannot extract field " + ff.fieldName + " from primitive type " + r.signature());
-				continue;
-			}
-			if (r instanceof UnionTypeDefn) {
+			} else if (r instanceof UnionTypeDefn) {
 				errors.message(pos, "cannot access members of unions");
-				continue;
-			}
-
-			errors.message(pos, "there is no field " + ff.fieldName + " in " + r.signature());
+			} else
+				errors.message(pos, "there is no field " + ff.fieldName + " in " + r.signature());
 		}
 
 		if (resolved.isEmpty()) {

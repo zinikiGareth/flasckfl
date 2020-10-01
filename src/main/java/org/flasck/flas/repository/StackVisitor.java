@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -788,6 +789,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveTypeExpr(TypeExpr expr) {
 		top.leaveTypeExpr(expr);
+	}
+
+	public void visitCastExpr(CastExpr expr) {
+		top.visitCastExpr(expr);
+	}
+
+	public void leaveCastExpr(CastExpr expr) {
+		top.leaveCastExpr(expr);
 	}
 
 	public void traversalDone() {
