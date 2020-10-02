@@ -6,24 +6,25 @@ const LiveAjaxService = function() {
 
 LiveAjaxService.prototype.subscribe = function(_cxt, uri, options, handler) {
     console.log("want to subscribe to", uri);
-    this.ajax(uri, this.feedback(_cxt.env, handler));
+    this.ajax(_cxt, uri, this.feedback(_cxt.env, uri, options, handler));
 }
 
-LiveAjaxService.prototype.ajax = function(url, handler) {
+LiveAjaxService.prototype.ajax = function(_cxt, uri, handler) {
     var verb = "GET";
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = handler;
-    xhr.open(verb, url, true);
+    xhr.open(verb, uri, true);
     xhr.send();
 }
   
-LiveAjaxService.prototype.feedback = function(env, handler) {
-    return function() {
+LiveAjaxService.prototype.feedback = function(env, uri, options, handler) {
+    var self = this;
+    var fb = function() {
         if (this.readyState == 4) {
+            _cxt = env.newContext();
             if (Math.floor(this.status / 100) != 2) {
                 console.log("error from ajax:", this.status);
             } else {
-                _cxt = env.newContext();
                 // A lot of this code is duplicated here and in the mock ...
                 var msg = new AjaxMessage(_cxt);
                 msg.state.set('headers', []);
@@ -32,8 +33,14 @@ LiveAjaxService.prototype.feedback = function(env, handler) {
                 env.queueMessages(_cxt, Send.eval(_cxt, handler, "message", [msg], null));
                 env.dispatchMessages(_cxt);
             }
+
+            var ms = options.state.get('subscribeRepeat').asJs();
+            setTimeout(() => {
+                self.ajax(_cxt, uri, fb);
+            }, ms);
         }
-    }
+    };
+    return fb;
 }
 
 FlasckServices.configure = function(env) {

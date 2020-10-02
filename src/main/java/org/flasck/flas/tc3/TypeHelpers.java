@@ -37,7 +37,13 @@ public class TypeHelpers {
 	}
 
 	public static boolean isListLike(Type type) {
-		return isList(type) || (type instanceof ObjectDefn && ((ObjectDefn)type).name().uniqueName().equals("Crobag"));
+		return isList(type) || isCrobag(type);
+	}
+
+	private static boolean isCrobag(Type type) {
+		if (type instanceof PolyInstance)
+			type = ((PolyInstance)type).struct();
+		return type instanceof ObjectDefn && ((ObjectDefn)type).name().uniqueName().equals("Crobag");
 	}
 
 	public static boolean isListString(Type type) {
@@ -56,9 +62,9 @@ public class TypeHelpers {
 	}
 
 	public static Type extractListPoly(Type etype) {
-		if (!isList(etype))
-			throw new NotImplementedException("not a list");
-		return ((PolyInstance)etype).polys().get(0);
+		if (isListLike(etype))
+			return ((PolyInstance)etype).polys().get(0);
+		throw new NotImplementedException("not a list");
 	}
 
 	public static boolean isListMessage(InputPosition pos, Type check) {
