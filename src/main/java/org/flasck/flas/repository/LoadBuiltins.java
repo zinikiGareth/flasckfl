@@ -477,7 +477,7 @@ public class LoadBuiltins {
 		FunctionDefinition sizeFn = new FunctionDefinition(size, 1, calendar);
 		calendarIsoDateTime = new ObjectAccessor(crobag, sizeFn);
 		calendarIsoDateTime.dontGenerate();
-		sizeFn.bindType(new Apply(instant, number));
+		sizeFn.bindType(new Apply(instant, string));
 		calendar.addAccessor(calendarIsoDateTime);
 	}
 	

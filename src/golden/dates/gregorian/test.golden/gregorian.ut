@@ -4,5 +4,5 @@ But obviously others can be defined.
 
 	test simple conversion to ISO dates
 		data Calendar cal <- Calendar.gregorian
-		assert (unixdate (fromunixdate 1601592451010))
-			1601592451010
+		assert (cal.isoDateTime (fromunixdate 1601592451))
+			"2020-10-01T22:47:31Z"
