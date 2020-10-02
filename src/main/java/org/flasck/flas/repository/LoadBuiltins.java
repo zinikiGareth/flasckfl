@@ -604,10 +604,12 @@ public class LoadBuiltins {
 	
 	//   -> date & time functions
 	public static final FunctionDefinition seconds = new FunctionDefinition(FunctionName.function(pos, null, "seconds"), 1, null).dontGenerate();
+	public static final FunctionDefinition milliseconds = new FunctionDefinition(FunctionName.function(pos, null, "milliseconds"), 1, null).dontGenerate();
 	public static final FunctionDefinition unixdate = new FunctionDefinition(FunctionName.function(pos, null, "unixdate"), 1, null).dontGenerate();
 	public static final FunctionDefinition fromunixdate = new FunctionDefinition(FunctionName.function(pos, null, "fromunixdate"), 1, null).dontGenerate();
 	static {
 		seconds.bindType(new Apply(number, interval));
+		milliseconds.bindType(new Apply(number, interval));
 		unixdate.bindType(new Apply(instant, number));
 		fromunixdate.bindType(new Apply(number, instant));
 	}	
@@ -727,6 +729,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, strlen);
 		
 		repository.functionDefn(errors, seconds);
+		repository.functionDefn(errors, milliseconds);
 		repository.functionDefn(errors, unixdate);
 		repository.functionDefn(errors, fromunixdate);
 		
