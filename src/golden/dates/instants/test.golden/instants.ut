@@ -1,0 +1,7 @@
+An instant represents that thing commonly called Date, Time or DateTime.
+It is a single moment in Earth-planetary time.
+For thought-experiment purposes, consider it to "be" UTC, but it doesn't really have a timezone attached.
+
+	test simple conversion to UNIX timestamps
+		assert (unixdate (fromunixdate 1601592451010))
+			1601592451010

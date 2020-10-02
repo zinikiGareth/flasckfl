@@ -441,6 +441,45 @@ public class LoadBuiltins {
 		sizeFn.bindType(number);
 		crobag.addAccessor(crobagSize);
 	}
+
+	
+	// Calendar
+	public static final TypeReference calendarTR = new TypeReference(pos, "Calendar");
+	public static final ObjectDefn calendar = new ObjectDefn(pos, pos, new ObjectName(null, "Calendar"), false, new ArrayList<>());
+	static {
+		crobagTR.bind(crobag);
+	}
+	
+	//   -> ctor Calendar.gregorian
+	private static ObjectCtor calendarGregorian;
+	static {
+		FunctionName gregorian = FunctionName.objectCtor(pos, calendar.name(), "gregorian");
+		calendarGregorian = new ObjectCtor(pos, calendar, gregorian, new ArrayList<>());
+		calendarGregorian.dontGenerate();
+		calendarGregorian.bindType(calendar);
+		calendar.addConstructor(calendarGregorian);
+	}
+	
+	//   -> method Crobag.insert
+	private static ObjectMethod calendarTimezone;
+	static {
+		FunctionName timezone = FunctionName.objectMethod(pos, calendar.name(), "timezone");
+		calendarTimezone = new ObjectMethod(pos, timezone, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, timezone, "tz"))), null, calendar);
+		calendarTimezone.dontGenerate();
+		calendarTimezone.bindType(new Apply(string, listMessages));
+		calendar.addMethod(calendarTimezone);
+	}
+
+	//   -> acor Calendar.isoDateTime
+	private static ObjectAccessor calendarIsoDateTime;
+	static {
+		FunctionName size = FunctionName.objectMethod(pos, calendar.name(), "isoDateTime");
+		FunctionDefinition sizeFn = new FunctionDefinition(size, 1, calendar);
+		calendarIsoDateTime = new ObjectAccessor(crobag, sizeFn);
+		calendarIsoDateTime.dontGenerate();
+		sizeFn.bindType(new Apply(instant, number));
+		calendar.addAccessor(calendarIsoDateTime);
+	}
 	
 
 	// Types
@@ -455,55 +494,14 @@ public class LoadBuiltins {
 	/* Functions */
 	
 	// Builtin operators
+	
+	//   -> comparisons
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, null).dontGenerate();
 	public static final FunctionDefinition isGE = new FunctionDefinition(FunctionName.function(pos, null, ">="), 2, null).dontGenerate();
 	public static final FunctionDefinition isGT = new FunctionDefinition(FunctionName.function(pos, null, ">"), 2, null).dontGenerate();
 	public static final FunctionDefinition isLE = new FunctionDefinition(FunctionName.function(pos, null, "<="), 2, null).dontGenerate();
 	public static final FunctionDefinition isLT = new FunctionDefinition(FunctionName.function(pos, null, "<"), 2, null).dontGenerate();
-	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null).dontGenerate();
-	public static final FunctionDefinition unaryMinus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 1, null).dontGenerate();
-	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, null).dontGenerate();
-	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, null).dontGenerate();
-	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, null).dontGenerate();
-	public static final FunctionDefinition mod = new FunctionDefinition(FunctionName.function(pos, null, "%"), 2, null).dontGenerate();
-	public static final FunctionDefinition not = new FunctionDefinition(FunctionName.function(pos, null, "!"), 1, null).dontGenerate();
-	public static final FunctionDefinition and = new FunctionDefinition(FunctionName.function(pos, null, "&&"), 2, null).dontGenerate();
-	public static final FunctionDefinition or = new FunctionDefinition(FunctionName.function(pos, null, "||"), 2, null).dontGenerate();
-	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null).dontGenerate();
-
-	// syntax support
-	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null).dontGenerate();
-	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null).dontGenerate();
-	public static final FunctionDefinition hashPair = new FunctionDefinition(FunctionName.function(pos, null, ":"), 2, null).dontGenerate();
-
-	// internal functions
-	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, null).dontGenerate();
-	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1, null).dontGenerate();
-	public static final FunctionDefinition replace = new FunctionDefinition(FunctionName.function(pos, null, "replace"), 3, null).dontGenerate();
-	public static final FunctionDefinition nth = new FunctionDefinition(FunctionName.function(pos, null, "nth"), 2, null).dontGenerate();
-	public static final FunctionDefinition item = new FunctionDefinition(FunctionName.function(pos, null, "item"), 2, null).dontGenerate();
-	public static final FunctionDefinition take = new FunctionDefinition(FunctionName.function(pos, null, "take"), 2, null).dontGenerate();
-	public static final FunctionDefinition drop = new FunctionDefinition(FunctionName.function(pos, null, "drop"), 2, null).dontGenerate();
-	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, null).dontGenerate();
-	public static final FunctionDefinition assoc = new FunctionDefinition(FunctionName.function(pos, null, "assoc"), 2, null).dontGenerate();
-	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, null).dontGenerate();
-	public static final FunctionDefinition concatLists = new FunctionDefinition(FunctionName.function(pos, null, "concatLists"), 1, null).dontGenerate();
-	public static final FunctionDefinition dispatch = new FunctionDefinition(FunctionName.function(pos, null, "dispatch"), 1, null).dontGenerate();
-	public static final FunctionDefinition show = new FunctionDefinition(FunctionName.function(pos, null, "show"), 1, null).dontGenerate();
-	public static final FunctionDefinition expr = new FunctionDefinition(FunctionName.function(pos, null, "expr"), 1, null).dontGenerate();
-	public static final FunctionDefinition seconds = new FunctionDefinition(FunctionName.function(pos, null, "seconds"), 1, null).dontGenerate();
-	public static final FunctionDefinition parseUri = new FunctionDefinition(FunctionName.function(pos, null, "parseUri"), 1, null).dontGenerate();
-	public static final FunctionDefinition parseJson = new FunctionDefinition(FunctionName.function(pos, null, "parseJson"), 1, null).dontGenerate();
-
-	// Secret builtin functions for testing
-	public static final UnresolvedVar probeState = new UnresolvedVar(pos, "_probe_state");
-	public static final UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
-
 	static {
-		probeState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_probe_state"), 2, null));
-		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, null));
-
-		// specify function types
 		{
 			Type pa = new PolyType(pos, new SolidName(isEqual.name(), "A"));
 			isEqual.bindType(new Apply(pa, pa, bool));
@@ -512,39 +510,126 @@ public class LoadBuiltins {
 		isGT.bindType(new Apply(number, number, bool));
 		isLE.bindType(new Apply(number, number, bool));
 		isLT.bindType(new Apply(number, number, bool));
-		isType.bindType(new Apply(type, any, bool));
+	}
+
+	//   -> arithmetic
+	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null).dontGenerate();
+	public static final FunctionDefinition unaryMinus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 1, null).dontGenerate();
+	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, null).dontGenerate();
+	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, null).dontGenerate();
+	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, null).dontGenerate();
+	public static final FunctionDefinition mod = new FunctionDefinition(FunctionName.function(pos, null, "%"), 2, null).dontGenerate();
+	static {
 		plus.bindType(new Apply(number, number, number));
 		unaryMinus.bindType(new Apply(number, number));
 		minus.bindType(new Apply(number, number, number));
 		mul.bindType(new Apply(number, number, number));
 		div.bindType(new Apply(number, number, number));
 		mod.bindType(new Apply(number, number, number));
+	}	
+	
+	//   -> boolean
+	public static final FunctionDefinition not = new FunctionDefinition(FunctionName.function(pos, null, "!"), 1, null).dontGenerate();
+	public static final FunctionDefinition and = new FunctionDefinition(FunctionName.function(pos, null, "&&"), 2, null).dontGenerate();
+	public static final FunctionDefinition or = new FunctionDefinition(FunctionName.function(pos, null, "||"), 2, null).dontGenerate();
+	static {
 		not.bindType(new Apply(bool, bool));
 		and.bindType(new Apply(bool, bool, bool));
 		or.bindType(new Apply(bool, bool, bool));
-		length.bindType(new Apply(list, number));
-		replace.bindType(new Apply(list, number, listA_A, list));
-		nth.bindType(new Apply(number, list, listA_A));
-		assoc.bindType(new Apply(hash, string, any));
-		hashPair.bindType(new Apply(string, any, hashPairType));
-		item.bindType(new Apply(number, list, assignItem));
-		take.bindType(new Apply(number, list, list));
-		drop.bindType(new Apply(number, list, list));
-		append.bindType(new Apply(list, listA_A, list));
-		strlen.bindType(new Apply(string, number));
+	}	
+	
+	//   -> string concat
+	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null).dontGenerate();
+	static {
 		concat.bindType(new Apply(string, string, string));
-		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(listA_A)))), new PolyInstance(pos, list, Arrays.asList(listA_A))));
+	}	
+
+	//   -> syntax support
+	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null).dontGenerate();
+	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null).dontGenerate();
+	static {
 		makeTuple.bindType(tuple);
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
+	}	
+
+	//   -> internal functions
+	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, null).dontGenerate();
+	public static final FunctionDefinition dispatch = new FunctionDefinition(FunctionName.function(pos, null, "dispatch"), 1, null).dontGenerate();
+	public static final FunctionDefinition show = new FunctionDefinition(FunctionName.function(pos, null, "show"), 1, null).dontGenerate();
+	public static final FunctionDefinition expr = new FunctionDefinition(FunctionName.function(pos, null, "expr"), 1, null).dontGenerate();
+	static {
+		isType.bindType(new Apply(type, any, bool));
 		dispatch.bindType(new Apply(listMessages, listMessages));
 		dispatch.restrict(new UTOnlyRestriction("dispatch"));
 		show.bindType(new Apply(any, string));
 		expr.bindType(new Apply(any, string));
+	}	
+	
+	//   -> list functions
+	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1, null).dontGenerate();
+	public static final FunctionDefinition replace = new FunctionDefinition(FunctionName.function(pos, null, "replace"), 3, null).dontGenerate();
+	public static final FunctionDefinition nth = new FunctionDefinition(FunctionName.function(pos, null, "nth"), 2, null).dontGenerate();
+	public static final FunctionDefinition item = new FunctionDefinition(FunctionName.function(pos, null, "item"), 2, null).dontGenerate();
+	public static final FunctionDefinition take = new FunctionDefinition(FunctionName.function(pos, null, "take"), 2, null).dontGenerate();
+	public static final FunctionDefinition drop = new FunctionDefinition(FunctionName.function(pos, null, "drop"), 2, null).dontGenerate();
+	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, null).dontGenerate();
+	public static final FunctionDefinition concatLists = new FunctionDefinition(FunctionName.function(pos, null, "concatLists"), 1, null).dontGenerate();
+	static {
+		length.bindType(new Apply(list, number));
+		replace.bindType(new Apply(list, number, listA_A, list));
+		nth.bindType(new Apply(number, list, listA_A));
+		item.bindType(new Apply(number, list, assignItem));
+		take.bindType(new Apply(number, list, list));
+		drop.bindType(new Apply(number, list, list));
+		append.bindType(new Apply(list, listA_A, list));
+		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(listA_A)))), new PolyInstance(pos, list, Arrays.asList(listA_A))));
+	}	
+	
+	
+	//   -> hash functions
+	public static final FunctionDefinition assoc = new FunctionDefinition(FunctionName.function(pos, null, "assoc"), 2, null).dontGenerate();
+	public static final FunctionDefinition hashPair = new FunctionDefinition(FunctionName.function(pos, null, ":"), 2, null).dontGenerate();
+	static {
+		assoc.bindType(new Apply(hash, string, any));
+		hashPair.bindType(new Apply(string, any, hashPairType));
+	}	
+
+	
+	//   -> string functions
+	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, null).dontGenerate();
+	static {
+		strlen.bindType(new Apply(string, number));
+	}
+
+	
+	//   -> date & time functions
+	public static final FunctionDefinition seconds = new FunctionDefinition(FunctionName.function(pos, null, "seconds"), 1, null).dontGenerate();
+	public static final FunctionDefinition unixdate = new FunctionDefinition(FunctionName.function(pos, null, "unixdate"), 1, null).dontGenerate();
+	public static final FunctionDefinition fromunixdate = new FunctionDefinition(FunctionName.function(pos, null, "fromunixdate"), 1, null).dontGenerate();
+	static {
 		seconds.bindType(new Apply(number, interval));
+		unixdate.bindType(new Apply(instant, number));
+		fromunixdate.bindType(new Apply(number, instant));
+	}	
+	
+	
+	//   -> URI & JSON functions
+	public static final FunctionDefinition parseUri = new FunctionDefinition(FunctionName.function(pos, null, "parseUri"), 1, null).dontGenerate();
+	public static final FunctionDefinition parseJson = new FunctionDefinition(FunctionName.function(pos, null, "parseJson"), 1, null).dontGenerate();
+	static {
 		parseUri.bindType(new Apply(string, uri));
 		parseJson.bindType(new Apply(string, hash));
-	}
+	}	
+
 	
+	//   -> secret builtin functions for testing
+	public static final UnresolvedVar probeState = new UnresolvedVar(pos, "_probe_state");
+	public static final UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
+	static {
+		probeState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_probe_state"), 2, null));
+		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, null));
+	}
+
 	public static void applyTo(ErrorReporter errors, Repository repository) {
 		repository.addEntry(errors, any.name(), any);
 		repository.addEntry(errors, new SolidName(null, "Entity"), entity);
@@ -585,6 +670,10 @@ public class LoadBuiltins {
 		repository.newObjectMethod(errors, crobagWindow);
 		repository.newObjectAccessor(errors, crobagSize);
 
+		repository.newObject(errors, calendar);
+		repository.newObjectMethod(errors, calendarGregorian);
+		repository.newObjectAccessor(errors, calendarIsoDateTime);
+
 		repository.newContract(errors, crobagWindowHandler);
 		repository.newContract(errors, crobagSlideWindow);
 		
@@ -596,39 +685,55 @@ public class LoadBuiltins {
 		repository.newStruct(errors, clickEvent);
 		repository.newUnion(errors, event);
 
-		repository.functionDefn(errors, isType);
 		repository.functionDefn(errors, isEqual);
 		repository.functionDefn(errors, isGE);
 		repository.functionDefn(errors, isGT);
 		repository.functionDefn(errors, isLE);
 		repository.functionDefn(errors, isLT);
+
 		repository.functionDefn(errors, plus);
+		// why not unaryMinus? because same symbol?
 		repository.functionDefn(errors, minus);
 		repository.functionDefn(errors, mul);
 		repository.functionDefn(errors, div);
 		repository.functionDefn(errors, mod);
+
 		repository.functionDefn(errors, not);
 		repository.functionDefn(errors, and);
 		repository.functionDefn(errors, or);
+		
+		repository.functionDefn(errors, concat);
+
+		repository.functionDefn(errors, makeTuple);
+		repository.functionDefn(errors, handleSend);
+
+		repository.functionDefn(errors, isType);
+		repository.functionDefn(errors, dispatch);
+		repository.functionDefn(errors, show);
+		repository.functionDefn(errors, expr);
+
 		repository.functionDefn(errors, length);
 		repository.functionDefn(errors, replace);
 		repository.functionDefn(errors, nth);
-		repository.functionDefn(errors, assoc);
-		repository.functionDefn(errors, hashPair);
 		repository.functionDefn(errors, item);
 		repository.functionDefn(errors, drop);
 		repository.functionDefn(errors, take);
 		repository.functionDefn(errors, append);
-		repository.functionDefn(errors, strlen);
-		repository.functionDefn(errors, concat);
 		repository.functionDefn(errors, concatLists);
-		repository.functionDefn(errors, makeTuple);
-		repository.functionDefn(errors, handleSend);
-		repository.functionDefn(errors, dispatch);
-		repository.functionDefn(errors, show);
-		repository.functionDefn(errors, expr);
+
+		repository.functionDefn(errors, assoc);
+		repository.functionDefn(errors, hashPair);
+
+		repository.functionDefn(errors, strlen);
+		
 		repository.functionDefn(errors, seconds);
+		repository.functionDefn(errors, unixdate);
+		repository.functionDefn(errors, fromunixdate);
+		
 		repository.functionDefn(errors, parseUri);
 		repository.functionDefn(errors, parseJson);
+		
+		// not probe_state
+		// not underlying
 	}
 }

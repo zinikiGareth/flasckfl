@@ -524,15 +524,7 @@ MockAjaxSubscriber.prototype.matchAndSend = function(_cxt, baseUri, sub) {
 			msg.state.set('headers', []);
 			msg.state.set('body', JSON.stringify(resp));
 		}
-		// should this in fact push a send?
-		_cxt.env.queueMessages(_cxt, {
-			dispatch: function(cx) {
-				var ret = sub.handler.message(cx, msg, new LoggingIdempotentHandler());
-				if (sub.handler._card && sub.handler._card._updateDisplay)
-					cx.env.queueMessages(cx, [new UpdateDisplay(cx, sub.handler._card)]);
-				return ret;
-			}
-		});
+		_cxt.env.queueMessages(_cxt, Send.eval(_cxt, sub.handler, "message", [msg], null));
 		_cxt.env.dispatchMessages(_cxt);
 		return true;
 	} else

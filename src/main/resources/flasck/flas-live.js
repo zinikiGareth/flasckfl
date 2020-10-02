@@ -29,14 +29,7 @@ LiveAjaxService.prototype.feedback = function(env, handler) {
                 msg.state.set('headers', []);
                 msg.state.set('body', this.responseText);
 
-                env.queueMessages(_cxt, {
-                    dispatch: function(cx) {
-                        var ret = handler.message(cx, msg, new LoggingIdempotentHandler());
-                        if (handler._card && handler._card._updateDisplay)
-                            cx.env.queueMessages(cx, [new UpdateDisplay(cx, handler._card)]);
-                        return ret;
-                    }
-                });
+                env.queueMessages(_cxt, Send.eval(_cxt, handler, "message", [msg], null));
                 env.dispatchMessages(_cxt);
             }
         }
