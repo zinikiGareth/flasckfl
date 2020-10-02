@@ -1188,10 +1188,20 @@ Crobag._ctor_new = function(_cxt, _card) {
 }
 Crobag._ctor_new.nfargs = function() { return 1; }
 
-Crobag.prototype.add = function(_cxt, key, val) {
-    return [CrobagChangeEvent.eval(_cxt, this, key, null, val)];
+Crobag.prototype.insert = function(_cxt, key, val) {
+    return [CrobagChangeEvent.eval(_cxt, this, "insert", key, null, val)];
 }
-Crobag.prototype.add.nfargs = function() { return 1; }
+Crobag.prototype.insert.nfargs = function() { return 1; }
+
+Crobag.prototype.put = function(_cxt, key, val) {
+    return [CrobagChangeEvent.eval(_cxt, this, "put", key, null, val)];
+}
+Crobag.prototype.put.nfargs = function() { return 1; }
+
+Crobag.prototype.upsert = function(_cxt, key, val) {
+    return [CrobagChangeEvent.eval(_cxt, this, "upsert", key, null, val)];
+}
+Crobag.prototype.upsert.nfargs = function() { return 1; }
 
 Crobag.prototype.window = function(_cxt, from, size, handler) {
     return [CrobagWindowEvent.eval(_cxt, this, from, size, handler)];
@@ -1204,12 +1214,12 @@ Crobag.prototype.size = function(_cxt) {
 Crobag.prototype.size.nfargs = function() { return 0; }
 
 // internal method called from CCE.dispatch()
-Crobag.prototype._change = function(cx, add, remove, val) {
-    if (add != null) {
-        var e = new CroEntry(add, val);
+Crobag.prototype._change = function(cx, op, newKey, remove, val) {
+    if (newKey != null) {
+        var e = new CroEntry(newKey, val);
         var done = false;
         for (var i=0;i<this._entries.length;i++) {
-            if (this._entries[i].key > add) {
+            if (this._entries[i].key > newKey) {
                 this._entries.splice(i, 0, e);
                 done = true;
                 break;
@@ -1222,8 +1232,10 @@ Crobag.prototype._change = function(cx, add, remove, val) {
 
 Crobag.prototype._methods = function() {
     return {
-        "add": Crobag.prototype.add,
+        "insert": Crobag.prototype.insert,
+        "put": Crobag.prototype.put,
         "size": Crobag.prototype.size,
+        "upsert": Crobag.prototype.upsert,
         "window": Crobag.prototype.window
     };
 }
@@ -1232,10 +1244,11 @@ Crobag.prototype._methods = function() {
 
 const CrobagChangeEvent = function() {
 }
-CrobagChangeEvent.eval = function(_cxt, bag, add, remove, val) {
+CrobagChangeEvent.eval = function(_cxt, bag, op, newKey, remove, val) {
     const e = new CrobagChangeEvent();
     e.bag = bag;
-    e.add = add;
+    e.op = op;
+    e.newKey = newKey;
     e.remove = remove;
     e.val = val;
 	return e;
@@ -1250,16 +1263,19 @@ CrobagChangeEvent.prototype.dispatch = function(cx) {
     this.bag = cx.full(this.bag);
     if (this.bag instanceof FLError)
         return this.bag;
-    this.add = cx.full(this.add);
-    if (this.add instanceof FLError)
-        return this.add;
+    this.op = cx.full(this.op);
+    if (this.op instanceof FLError)
+        return this.op;
+    this.newKey = cx.full(this.newKey);
+    if (this.newKey instanceof FLError)
+        return this.newKey;
     this.remove = cx.full(this.remove);
     if (this.remove instanceof FLError)
         return this.remove;
     this.val = cx.full(this.val);
     if (this.val instanceof FLError)
         return this.val;
-    this.bag._change(cx, this.add, this.remove, this.val);
+    this.bag._change(cx, this.op, this.newKey, this.remove, this.val);
     return [];
 }
 CrobagChangeEvent.prototype.toString = function() {

@@ -390,11 +390,11 @@ public class LoadBuiltins {
 		crobag.addConstructor(crobagNew);
 	}
 	
-	//   -> method Crobag.add
+	//   -> method Crobag.insert
 	private static ObjectMethod crobagInsert;
 	static {
-		FunctionName add = FunctionName.objectMethod(pos, crobag.name(), "insert");
-		crobagInsert = new ObjectMethod(pos, add, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, add, "key")), new TypedPattern(pos, entityTR, new VarName(pos, add, "value"))), null, crobag);
+		FunctionName insert = FunctionName.objectMethod(pos, crobag.name(), "insert");
+		crobagInsert = new ObjectMethod(pos, insert, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, insert, "key")), new TypedPattern(pos, entityTR, new VarName(pos, insert, "value"))), null, crobag);
 		crobagInsert.dontGenerate();
 		crobagInsert.bindType(new Apply(string, entity, listMessages));
 		crobag.addMethod(crobagInsert);
@@ -403,8 +403,8 @@ public class LoadBuiltins {
 	//   -> method Crobag.put
 	private static ObjectMethod crobagPut;
 	static {
-		FunctionName add = FunctionName.objectMethod(pos, crobag.name(), "put");
-		crobagPut = new ObjectMethod(pos, add, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, add, "key")), new TypedPattern(pos, entityTR, new VarName(pos, add, "value"))), null, crobag);
+		FunctionName put = FunctionName.objectMethod(pos, crobag.name(), "put");
+		crobagPut = new ObjectMethod(pos, put, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, put, "key")), new TypedPattern(pos, entityTR, new VarName(pos, put, "value"))), null, crobag);
 		crobagPut.dontGenerate();
 		crobagPut.bindType(new Apply(string, entity, listMessages));
 		crobag.addMethod(crobagPut);
@@ -413,8 +413,8 @@ public class LoadBuiltins {
 	//   -> method Crobag.upsert
 	private static ObjectMethod crobagUpsert;
 	static {
-		FunctionName add = FunctionName.objectMethod(pos, crobag.name(), "upsert");
-		crobagUpsert = new ObjectMethod(pos, add, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, add, "key")), new TypedPattern(pos, entityTR, new VarName(pos, add, "value"))), null, crobag);
+		FunctionName upsert = FunctionName.objectMethod(pos, crobag.name(), "upsert");
+		crobagUpsert = new ObjectMethod(pos, upsert, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, upsert, "key")), new TypedPattern(pos, entityTR, new VarName(pos, upsert, "value"))), null, crobag);
 		crobagUpsert.dontGenerate();
 		crobagUpsert.bindType(new Apply(string, entity, listMessages));
 		crobag.addMethod(crobagUpsert);
