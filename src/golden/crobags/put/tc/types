@@ -1,0 +1,2 @@
+test.golden.Card._C0.haveA :: String->test.golden.Thing->List[Message]
+test.golden.Card._C0.ready :: List[Message]

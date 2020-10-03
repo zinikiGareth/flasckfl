@@ -1,0 +1,61 @@
+	
+	test put can add something initially
+		data Card c
+		newdiv 3
+		contract c Setter ready
+		newdiv 0
+		contract c Setter haveA "thing" (Thing "hello")
+		newdiv 2
+		match c text things.0.message
+			hello
+			
+	test put can add a second thing at the end
+		data Card c
+		contract c Setter ready
+		contract c Setter haveA "thing" (Thing "hello")
+		newdiv 5
+		contract c Setter haveA "yonder" (Thing "later")
+		newdiv 2
+		match c text things.0.message
+			hello
+		match c text things.1.message
+			later
+
+	test put can add a second thing at the start
+		data Card c
+		contract c Setter ready
+		contract c Setter haveA "thing" (Thing "hello")
+		newdiv 5
+		contract c Setter haveA "first" (Thing "before")
+		newdiv 2
+		match c text things.0.message
+			before
+		match c text things.1.message
+			hello
+
+	test put can add a third thing in between
+		data Card c
+		contract c Setter ready
+		contract c Setter haveA "thing" (Thing "hello")
+		contract c Setter haveA "first" (Thing "before")
+		newdiv 7
+		contract c Setter haveA "middle" (Thing "between")
+		newdiv 2
+		match c text things.0.message
+			before
+		match c text things.1.message
+			between
+		match c text things.2.message
+			hello
+
+	test put replaces an object if it reuses a key
+		data Card c
+		contract c Setter ready
+		contract c Setter haveA "thing" (Thing "hello")
+		newdiv 5
+		contract c Setter haveA "thing" (Thing "replacement")
+		newdiv 0
+		match c text things.0.message
+			replacement
+
+// can we count the number of divs in a target zone (i.e. elements in the list?)

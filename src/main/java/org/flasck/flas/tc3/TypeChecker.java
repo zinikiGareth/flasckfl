@@ -209,11 +209,15 @@ public class TypeChecker extends LeafAdapter {
 		}
 		if (sendsTo.isEmpty()) {
 			if (types.size() == 1) {
-				return selectTemplateFromCollectionBasedOnOperatingType(errors, tz.location, allTemplates,
-						types.get(0));
+				Template ret = selectTemplateFromCollectionBasedOnOperatingType(errors, tz.location, allTemplates, types.get(0));
+				if (ret == null) {
+					errors.message(tz.location, "could not find a template for " + types.get(0).signature());
+				}
+				return ret;
+			} else {
+				errors.message(tz.location, "template " + ct.name().uniqueName() + " does not send to for " + idx);
+				return null;
 			}
-			errors.message(tz.location, "template " + ct.name().uniqueName() + " does not send to for " + idx);
-			return null;
 		}
 		if (sendsTo.size() > 1) {
 			errors.message(tz.location, idx + " is ambiguous for template " + ct.name().uniqueName());
@@ -223,7 +227,7 @@ public class TypeChecker extends LeafAdapter {
 	}
 
 	private Type notList(Type t) {
-		if (TypeHelpers.isList(t))
+		if (TypeHelpers.isListLike(t))
 			return TypeHelpers.extractListPoly(t);
 		else
 			return t;

@@ -1,0 +1,23 @@
+	entity Thing
+		String msg
+	
+	contract Setter
+		ready
+		haveA (String where) (Thing t)
+		
+	card Card
+		state
+			Crobag[Thing] things
+		
+		template test
+			things <- things
+			
+		template thing <- (Thing t)
+			message <- msg
+		
+		implements Setter
+			ready
+				things <- Crobag.new
+	
+			haveA where thing
+				<- things.put where thing

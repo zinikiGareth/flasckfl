@@ -1,0 +1,10 @@
+JVM PASS put can add something initially
+JVM PASS put can add a second thing at the end
+JVM PASS put can add a second thing at the start
+JVM PASS put can add a third thing in between
+JVM PASS put replaces an object if it reuses a key
+JS PASS put can add something initially
+JS PASS put can add a second thing at the end
+JS PASS put can add a second thing at the start
+JS PASS put can add a third thing in between
+JS PASS put replaces an object if it reuses a key

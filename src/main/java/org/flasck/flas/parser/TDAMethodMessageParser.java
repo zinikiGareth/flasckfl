@@ -49,6 +49,9 @@ public class TDAMethodMessageParser implements TDAParsing {
 		if (seen.isEmpty()) {
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser();
+		} else if (toks.hasMoreContent()) {
+			errors.message(toks, "syntax error");
+			return new IgnoreNestedParser();
 		}
 		return nestedParser;
 	}
