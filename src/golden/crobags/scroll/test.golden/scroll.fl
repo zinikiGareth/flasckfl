@@ -1,0 +1,23 @@
+	entity Stored
+		String name
+
+	contract AddNext
+		init
+		next (String msg)
+		
+	card Scroller
+		state
+			Crobag[Stored] names
+			
+		template top
+			names <- names
+			
+		template stored <- (Stored s)
+			name <- name
+		
+		implements AddNext
+			init
+				names <- Crobag.new
+
+			next s
+				<- names.put s (Stored s)

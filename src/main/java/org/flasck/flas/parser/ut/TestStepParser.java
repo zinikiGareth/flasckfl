@@ -321,8 +321,11 @@ public class TestStepParser implements TDAParsing {
 		case "style":
 			what = MatchedItem.STYLE;
 			break;
+		case "scroll":
+			what = MatchedItem.SCROLL;
+			break;
 		default:
-			errors.message(whattok.location, "invalid category: " + whattok.text);
+			errors.message(whattok.location, "cannot match '" + whattok.text + "'");
 			return new IgnoreNestedParser();
 		}
 		
@@ -346,6 +349,7 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
+		// TODO: should we return an expression parser for scroll matching?
 		return new FreeTextParser(errors, text -> { builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, text); });
 	}
 

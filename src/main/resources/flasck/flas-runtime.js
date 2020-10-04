@@ -944,6 +944,7 @@ FLCard.prototype._updateList = function(parent, rts, values, cb) {
 }
 
 FLCard.prototype._updateCrobag = function(parent, rts, crobag, callback) {
+    var scrollInfo = this._figureScrollInfo(parent);
     for (var i=0;i<crobag.size();i++) {
         var e = crobag._entries[i];
         if (i >= rts.length) {
@@ -959,6 +960,7 @@ FLCard.prototype._updateCrobag = function(parent, rts, crobag, callback) {
             var rt  = {value: e};
             rts.splice(i, 0, rt);
             callback.insert(rt, null, e.val);
+            parent.insertBefore(parent.lastElementChild, parent.children[i]);
             i++;
         } else if (e.key > rts[i].value.key) {
             // the current entry appears to no longer be in the crobag - remove it
@@ -969,6 +971,61 @@ FLCard.prototype._updateCrobag = function(parent, rts, crobag, callback) {
             debugger;
         }
     }
+    switch (scrollInfo.lockMode) {
+    case "bottom": {
+        scrollInfo.scroller.scrollTop = scrollInfo.scroller.scrollHeight - scrollInfo.lockOffset;
+        break;
+    }
+    case "top": {
+        scrollInfo.scroller.scrollTop = parent.children[0].offsetTop + scrollInfo.lockOffset;
+        break;
+    }
+    case "mid": {
+        scrollInfo.scroller.scrollTop = scrollInfo.lockDiv.offsetTop - scrollInfo.lockOffset;
+        break;
+    }
+    }
+}
+
+FLCard.prototype._figureScrollInfo = function(parent) {
+    var div = parent;
+    while (div != document.body) {
+        var oy = window.getComputedStyle(div)['overflowY'];
+        if (oy == 'scroll' || oy == 'auto')
+            break;
+        div = div.parentElement;
+    }
+    var min = div.scrollTop;
+    var max = min + div.clientHeight;
+    var mid = (min + max) / 2;
+    var ret = { scroller: div, ht : 0, scrollht: div.scrollHeight, scrollTop: div.scrollTop, viewport: div.clientHeight };
+    var nodes = parent.children;
+    if (nodes.length == 0) {
+        return ret;
+    }
+
+    var top = nodes[0];
+    var bottom = nodes[nodes.length-1];
+    
+    // see if it's at the bottom
+    if (bottom.offsetTop < max) {
+        ret.lockMode = 'bottom';
+        ret.lockOffset = ret.scrollht - ret.scrollTop;
+    } else if (top.offsetTop + top.offsetHeight > min) {
+        ret.lockMode = 'top';
+        ret.lockOffset = ret.scrollTop - top.offsetTop;
+    } else  {
+        for (var i=0;i<nodes.length;i++) {
+            if (nodes[i].offsetTop + nodes[i].offsetHeight >= mid) {
+                ret.lockMode = 'mid';
+                ret.lockDiv = nodes[i];
+                ret.lockOffset = nodes[i].offsetTop - ret.scrollTop;
+                break;
+            }
+        }
+    }
+    console.log("done: ", ret);
+    return ret;
 }
 
 /** This is provided with a list of RenderTree child and a new list of values.
@@ -1939,7 +1996,7 @@ ClickEvent.prototype._areYouA = function(cx, name) {
     return name == "ClickEvent" || name == "Event";
 }
 
-ClickEvent.prototype._makeJSEvent = function (_cxt) {
+ClickEvent.prototype._makeJSEvent = function (_cxt, div) {
     const ev = new Event("click", { bubbles: true });
     return ev;
 }
@@ -1948,6 +2005,34 @@ ClickEvent.prototype._field_source = function (_cxt, ev) {
     return this.EventSource.source;
 }
 ClickEvent.prototype._field_source.nfargs = function () {
+    return 0;
+}
+
+const ScrollTo = function(st) {
+    this.st = st;
+}
+ScrollTo.prototype = new FLEvent();
+ScrollTo.prototype.constructor = ScrollTo;
+ScrollTo._eventName = 'scrollTo';
+
+ScrollTo.eval = function(cx, st) {
+    return new ScrollTo(st);
+}
+
+ScrollTo.prototype._areYouA = function(cx, name) {
+    return name == "ScrollTo" || name == "Event";
+}
+
+ScrollTo.prototype._makeJSEvent = function (_cxt, div) {
+    div.scrollTop = this.st;
+    const ev = new Event("scroll", { bubbles: true });
+    return ev;
+}
+
+ScrollTo.prototype._field_source = function (_cxt, ev) {
+    return this.EventSource.source;
+}
+ScrollTo.prototype._field_source.nfargs = function () {
     return 0;
 }
 

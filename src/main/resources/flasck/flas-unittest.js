@@ -105,7 +105,7 @@ UTRunner.prototype.event = function(_cxt, target, zone, event) {
 	} else 
 		div = this.findDiv(_cxt, receiver._currentRenderTree(), zone, 0);
 	if (div) {
-		div.dispatchEvent(event._makeJSEvent(_cxt));
+		div.dispatchEvent(event._makeJSEvent(_cxt, div));
 		this.dispatchMessages(_cxt);
 	}
 }
@@ -183,6 +183,15 @@ UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected)
 		else
 			throw new Error("MATCH\n  expected: " + explist.join(' ') + "\n  actual:   " + clzlist.join(' '));
 	}
+}
+UTRunner.prototype.matchScroll = function(_cxt, target, zone, contains, expected) {
+	var matchOn = this.findMockFor(target);
+	if (!matchOn)
+		throw Error("there is no mock " + target);
+	var div = this.getZoneDiv(_cxt, matchOn, zone);
+	var actual = div.scrollTop;
+	if (actual != expected)
+		throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
 }
 UTRunner.prototype.updateCard = function(_cxt, card) {
 	if (!(card instanceof MockCard))

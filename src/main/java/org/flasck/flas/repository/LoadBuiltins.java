@@ -289,12 +289,30 @@ public class LoadBuiltins {
 	//   -> ClickEvent
 	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
 	public static final StructDefn clickEvent = new StructDefn(pos, FieldsType.STRUCT, null, "ClickEvent", false);
-	public static final StructField source = new StructField(pos, pos, clickEvent, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
 	static {
 		clickEventTR.bind(clickEvent);
+		final StructField source = new StructField(pos, pos, clickEvent, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
 		clickEvent.addField(source);
 		source.fullName(new VarName(pos, clickEvent.name(), "source"));
 		event.addCase(clickEventTR);
+	}
+
+	//   -> ScrollTo
+	public static final TypeReference scrollToTR = new TypeReference(pos, "ScrollTo");
+	public static final StructDefn scrollTo = new StructDefn(pos, FieldsType.STRUCT, null, "ScrollTo", false);
+	static {
+		scrollToTR.bind(scrollTo);
+		{
+			final StructField whereTo = new StructField(pos, pos, scrollTo, true, anyTR, "to", null);
+			scrollTo.addField(whereTo);
+			whereTo.fullName(new VarName(pos, scrollTo.name(), "to"));
+		}
+		{
+			final StructField source = new StructField(pos, pos, scrollTo, true, anyTR, "source", new CurrentContainer(pos, scrollTo));
+			scrollTo.addField(source);
+			source.fullName(new VarName(pos, scrollTo.name(), "source"));
+		}
+		event.addCase(scrollToTR);
 	}
 
 	/* Objects */
@@ -685,6 +703,7 @@ public class LoadBuiltins {
 		repository.newUnion(errors, message);
 
 		repository.newStruct(errors, clickEvent);
+		repository.newStruct(errors, scrollTo);
 		repository.newUnion(errors, event);
 
 		repository.functionDefn(errors, isEqual);

@@ -226,7 +226,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 			if (fld == null) {
 				errors.message(toSlot.location(), "there is no field " + v.var + " in " + sd.name().uniqueName());
 				return new ExprResult(rhsType.pos, new ErrorType());
-			} else if (fld == LoadBuiltins.source) {
+			} else if ("source".equals(v.var)) { // event source; test should probably be more precise
 				List<Type> sources = ((ObjectMethod)inMeth).sources();
 				if (sources.size() != 1) {
 					// if it's empty, I think that means the event handler is not used

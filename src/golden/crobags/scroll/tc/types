@@ -1,0 +1,2 @@
+test.golden.Scroller._C0.init :: List[Message]
+test.golden.Scroller._C0.next :: String->List[Message]

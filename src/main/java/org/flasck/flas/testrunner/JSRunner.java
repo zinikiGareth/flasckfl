@@ -205,18 +205,29 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 			String testDir;
 			if (specifiedTestName != null) {
 				testName = config.specifiedTestName;
-				testDir = jstestdir + "/html";
 			} else {
 				testName = "test";
-				testDir = jstestdir + "/html";
 			}
+			List<File> css = null;
+			File webdir = new File(jstestdir + "/web");
+			if (webdir.exists()) 
+				css = FileUtils.findFilesMatching(webdir, "*.css");
+			testDir = jstestdir + "/html";
 			String testDirJS = testDir + "/js";
+			File testDirCSS = new File(testDir + "/css");
 			FileUtils.assertDirectory(new File(testDirJS));
 			html = new File(testDir, testName + ".html");
 			PrintWriter pw = new PrintWriter(html);
 			pw.println("<!DOCTYPE html>");
 			pw.println("<html>");
 			pw.println("<head>");
+			if (css != null && !css.isEmpty()) {
+				FileUtils.assertDirectory(testDirCSS);
+				for (File c : css) {
+					FileUtils.copy(c, testDirCSS);
+					pw.println("  <link rel='stylesheet' type='text/css' href='" + c.getPath() + "'>");
+				}
+			}
 			for (Entry<String, String> e : templates.entrySet())
 				renderTemplate(pw, e.getKey(), e.getValue());
 

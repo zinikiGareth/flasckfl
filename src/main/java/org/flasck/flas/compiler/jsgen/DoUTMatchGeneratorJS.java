@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
+import org.zinutils.exceptions.HaventConsideredThisException;
 
 public class DoUTMatchGeneratorJS extends LeafAdapter implements ResultAware {
 	private final JSFunctionState state;
@@ -46,6 +47,11 @@ public class DoUTMatchGeneratorJS extends LeafAdapter implements ResultAware {
 		case STYLE:
 			block.assertable(runner, "matchStyle", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(m.text));
 			break;
+		case SCROLL:
+			block.assertable(runner, "matchScroll", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.literal(Double.toString(Double.parseDouble(m.text))));
+			break;
+		default:
+			throw new HaventConsideredThisException("cannot handle match " + m);
 		}
 		sv.result(null);
 	}

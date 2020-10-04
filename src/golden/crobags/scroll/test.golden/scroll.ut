@@ -1,0 +1,76 @@
+	test the bottom keeps coming as we add to the crobag
+		data Scroller scroller
+		contract scroller AddNext init
+		contract scroller AddNext next "hello"
+		newdiv 5
+		contract scroller AddNext next "at start"
+		contract scroller AddNext next "world"
+		contract scroller AddNext next "zebras finish last"
+		contract scroller AddNext next "early"
+		match scroller scroll names
+			66
+
+	test we stay at the top if we start at the top
+		data Scroller scroller
+		contract scroller AddNext init
+		// first add some junk
+		contract scroller AddNext next "hello"
+		contract scroller AddNext next "iguanas"
+		contract scroller AddNext next "junk"
+		contract scroller AddNext next "keep"
+		contract scroller AddNext next "losing"
+		match scroller scroll names
+			66
+		// now scroll near the top
+		event scroller names (ScrollTo 10)
+		match scroller scroll names
+			10
+		// now add something to the top
+		contract scroller AddNext next "at start"
+		match scroller scroll names
+			10
+
+
+	test we can choose some middle ground
+		data Scroller scroller
+		contract scroller AddNext init
+		// first add some junk
+		contract scroller AddNext next "greetings"
+		contract scroller AddNext next "hello"
+		contract scroller AddNext next "iguanas"
+		contract scroller AddNext next "junk"
+		contract scroller AddNext next "keep"
+		contract scroller AddNext next "losing"
+		contract scroller AddNext next "money"
+		match scroller scroll names
+			172
+		// now scroll back around junk
+		event scroller names (ScrollTo 66)
+		match scroller scroll names
+			66
+		// now add something to the top
+		contract scroller AddNext next "at start"
+		match scroller scroll names
+			119
+		contract scroller AddNext next "before most things"
+		match scroller scroll names
+			172
+		contract scroller AddNext next "come these things"
+		match scroller scroll names
+			225
+		contract scroller AddNext next "down the page"
+		match scroller scroll names
+			278
+		contract scroller AddNext next "while"
+		match scroller scroll names
+			278
+		contract scroller AddNext next "xrays"
+		match scroller scroll names
+			278
+		contract scroller AddNext next "yank"
+		match scroller scroll names
+			278
+		contract scroller AddNext next "zebras"
+		match scroller scroll names
+			278
+		

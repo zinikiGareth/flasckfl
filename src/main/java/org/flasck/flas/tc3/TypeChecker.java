@@ -123,7 +123,7 @@ public class TypeChecker extends LeafAdapter {
 
 	@Override
 	public void leaveUnitTestEvent(UnitTestEvent e) {
-		resolveTargetZone(e.card.defn(), e.targetZone, "event", "send event to", false);
+		resolveTargetZone(e.card.defn(), e.targetZone, "event", "send event to", true);
 	}
 
 	@Override
