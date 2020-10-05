@@ -17,4 +17,4 @@
 		template a <- (CaseA c)
 			here <- c.text
 		template b <- (CaseB b)
-			n <- b.value
+			n <- (show b.value)

@@ -5,7 +5,7 @@
 		ctor create
 		
 		template block
-			counter <- counter
+			counter <- (show counter)
 				=> handle
 				
 		event handle (ClickEvent ev)

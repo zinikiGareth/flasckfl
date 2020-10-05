@@ -21,6 +21,13 @@ public class TypeHelpers {
 			return false;
 	}
 
+	public static boolean isPrimitiveString(Type type) {
+		if (type instanceof Primitive)
+			return ((Primitive)type).getName().baseName().equals("String");
+		else
+			return false;
+	}
+
 	public static boolean isList(Type type) {
 		if (type == LoadBuiltins.nil)
 			return true;

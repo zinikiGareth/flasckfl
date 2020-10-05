@@ -1,2 +1,6 @@
+noprimitives  9.5:    n <-  _ n
+                          must format value as string for field n
+noprimitives 10.5:    i <-  _ i
+                          must format value as string for field i
 resolvederro  9.10:   entry1 <-  _ nth 1 [ c, c ]
-                          cannot render compound object in field entry1
+                          must format value as string for field entry1

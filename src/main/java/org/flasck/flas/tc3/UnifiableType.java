@@ -102,6 +102,9 @@ public interface UnifiableType extends Type {
 	// require that the UT resolves to (any kind of) primitive or else throw this error
 	void requirePrimitive(InputPosition pos, String err);
 
+	// require that the UT resolves to a string or else throw this error
+	void requirePrimitiveOfString(InputPosition pos, String notPrimitiveMsg, String notStringMsg);
+
 	// require that the UT resolves to (any kind of) non-primitive or else throw this error
 	void requireNonPrimitive(InputPosition pos, String err);
 

@@ -1,0 +1,10 @@
+// Test that we cannot directly assign numeric or instant primitives to a slot
+
+	card NoPrimitives
+		state
+			Number n
+			Instant i
+			
+		template top
+			n <- n
+			i <- i

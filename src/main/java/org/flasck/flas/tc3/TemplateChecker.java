@@ -133,11 +133,14 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 					break;
 				}
 			} else if (option.sendsTo == null) {
-				String msg = "cannot render compound object in field " + option.assignsTo.text;
+				String primMsg = "cannot render compound object in field " + option.assignsTo.text;
+				String strMsg = "must format value as string for field " + option.assignsTo.text;
 				if (etype instanceof UnifiableType)
-					((UnifiableType)etype).requirePrimitive(pos, msg);
+					((UnifiableType)etype).requirePrimitiveOfString(pos, primMsg, strMsg);
 				else if (!TypeHelpers.isPrimitive(etype))
-					errors.message(pos, msg);
+					errors.message(pos, primMsg);
+				else if (!TypeHelpers.isPrimitiveString(etype))
+					errors.message(pos, strMsg);
 			} else {
 				String msg = "cannot specify sendsTo operator when value is a primitive";
 				if (etype instanceof UnifiableType)

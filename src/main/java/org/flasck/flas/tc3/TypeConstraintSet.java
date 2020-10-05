@@ -100,6 +100,7 @@ public class TypeConstraintSet implements UnifiableType {
 		private final Function<Type, Boolean> predicate;
 		private final InputPosition location;
 		private final String err;
+		private ErrorConstraint chain;
 
 		public ErrorConstraint(Function<Type, Boolean> predicate, InputPosition pos, String err) {
 			this.predicate = predicate;
@@ -110,6 +111,13 @@ public class TypeConstraintSet implements UnifiableType {
 		public void apply(ErrorReporter errors, Type t) {
 			if (!predicate.apply(t))
 				errors.message(location, err);
+			else if (chain != null)
+				chain.apply(errors, t);
+		}
+
+		public ErrorConstraint chain(ErrorConstraint errorConstraint) {
+			this.chain = errorConstraint;
+			return errorConstraint;
 		}
 	}
 	
@@ -999,6 +1007,13 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public void requirePrimitive(InputPosition pos, String err) {
 		errorConstraints.add(new ErrorConstraint(x -> TypeHelpers.isPrimitive(x), pos, err));
+	}
+
+	@Override
+	public void requirePrimitiveOfString(InputPosition pos, String notPrimMsg, String notStringMsg) {
+		errorConstraints.add(
+			new ErrorConstraint(x -> TypeHelpers.isPrimitiveString(x), pos, notPrimMsg)
+				.chain(new ErrorConstraint(x -> TypeHelpers.isPrimitiveString(x), pos, notStringMsg)));
 	}
 
 	@Override
