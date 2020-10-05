@@ -1,5 +1,7 @@
 missingevent  3.11:   event card  _ no-zone (ClickEvent)
                           there is no target 'no-zone' on the card
+needkey.ut:   5.9:    contract  _ c Setter haveA (Thing "hello")
+                          contract method test.golden.Setter.haveA expects 2 not 1
 structlist.f  7.12:   Number k <-  _ 'hello'
                           cannot initialize k from String
 structlist.f  8.19:   List[Happy] joy <-  _ [ Happy 42 ]

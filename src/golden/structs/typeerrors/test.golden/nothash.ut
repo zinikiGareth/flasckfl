@@ -1,0 +1,6 @@
+ClickEvent does not need any ctor args, but it will take an "override" hash
+event needs to check this and report an error
+
+	test that we correctly typecheck things
+		data Card card
+		event card _ (ClickEvent 0)

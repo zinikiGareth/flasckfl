@@ -5,6 +5,7 @@ src/golden/agents/typeerrors
 src/golden/cards/errors
 src/golden/cards/events/errors
 src/golden/cards/templates/bindings/errors
+src/golden/cards/templates/spliterrors
 src/golden/cards/templates/errors
 src/golden/cards/templates/nested/errors
 src/golden/cards/templates/nested/typeerrors
@@ -16,6 +17,7 @@ src/golden/contracts/mismatches
 src/golden/functions/errors
 src/golden/functions/typeerrors
 src/golden/methods/objects/errors
+src/golden/structs/typeerrors
 src/golden/objects/converrors
 src/golden/objects/errors
 src/golden/objects/typeerrors

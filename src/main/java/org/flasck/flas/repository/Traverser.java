@@ -1975,9 +1975,17 @@ public class Traverser implements RepositoryVisitor {
 			Expr h = null;
 			List<Object> args;
 			if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals("->")) {
-				te = (UnresolvedVar) ae.args.get(0);
 				h = (Expr) ae.args.get(1);
-				args = new ArrayList<>();
+				Expr tmp = (Expr)ae.args.get(0);
+				if (tmp instanceof UnresolvedVar) {
+					te = (UnresolvedVar) tmp;
+					args = new ArrayList<>();
+				} else if (tmp instanceof ApplyExpr) {
+					ae = (ApplyExpr) tmp;
+					te = (UnresolvedVar) ae.fn;
+					args = ae.args;
+				} else
+					throw new CantHappenException("what is this? " + tmp.getClass());
 			} else {
 				te = (UnresolvedVar)ae.fn;
 				args = ae.args;

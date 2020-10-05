@@ -1,0 +1,9 @@
+	entity Thing
+		String msg
+	
+	contract Setter
+		haveA (String where) (Thing t)
+		
+	card Card
+		implements Setter
+			haveA where thing

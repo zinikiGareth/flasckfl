@@ -1,0 +1,8 @@
+index.html:   0.0:     _ <div id="flas-content-field">
+                          field declaration not in card or item: field
+index.html:   0.0:     _ <div id="flas-container-hold">
+                          field declaration not in card or item: hold
+index.html:   0.0:     _ <div id="flas-style-not-allowed">
+                          field declaration not in card or item: not-allowed
+index.html:   0.0:     _ <div id="flas-style-punnet-spilled">
+                          field declaration not in card or item: punnet-spilled

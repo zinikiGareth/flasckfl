@@ -1,0 +1,5 @@
+We need to report an error if contract is called with incorrect arguments
+
+	test put can add something initially
+		data Card c
+		contract c Setter haveA (Thing "hello")

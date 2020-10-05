@@ -75,6 +75,8 @@ import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeHelpers;
 import org.flasck.flas.tokenizers.PolyTypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
@@ -83,6 +85,7 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
+	private final static Logger logger = LoggerFactory.getLogger("Resolver");
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final List<NameOfThing> scopeStack = new ArrayList<>();
@@ -559,7 +562,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (defn == null)
 			defn = find(var.location, scope, var.var);
 		if (defn == null) {
-			errors.message(var.location, "cannot resolve '" + var.var + "'");
+			if (templateNestingChain != null && templateNestingChain.isEmpty())
+				errors.message(var.location, "there is no bound chain for '" + this.currentTemplate.name().baseName() + "' when resolving '" + var.var + "'");
+			else
+				errors.message(var.location, "cannot resolve '" + var.var + "'");
 			return;
 		}
 		if (inside instanceof ObjectCtor && !assigning && defn instanceof StructField) {
@@ -812,7 +818,47 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 						((Template)template).canUse(ty);
 				}
 			}
+		} else {
+			// It might be a list or crobag.  I feel we should be able to do something with this, but I'm not sure what.
+			// To be clear, it feels intuitive that you should be able to specify a field that's a list and go and find a template for that
+			// And we do this very easily if it says what type it is, but we don't seem to have what it takes to infer it just from the fields that it uses.
+			// And I feel in 90% of cases we should be able to.
+			
+			Type ofType = isListish(option.expr);
+			// My predicted logic runs like this:
+			//   Here we tell all other templates that don't already have template chains that "ofType" is something they might want to consider.
+			//   They may end up with a lot of these.
+			//   In resolve, if they can't figure it out, then they look at all the entries in "to consider"
+			//     They mark each that matches (may be more than one)
+			//     If none match, report the error as we currently do
+			//   On leaving the whole of template processing code, go back and look at all the things that "considered"
+			//     If they have 1 entry, assign that as the type
+			//     If they have > 1, it's ambiguous
+			//     0 => either there was a resolve error earlier or the template doesn't use any values (empty or constant)
+			//   It's also an error to not conclude that exactly one template matches from here ...
+			logger.info("I feel we should be able to do something with the fact that we are filling a container of " + ofType);
 		}
+	}
+
+	// TODO: there are undoubtedly other valid cases here, but I remind you that we
+	// are RIDICULOUSLY early in the process and thus failure is always an option ... they can specify a type by hand
+	private Type isListish(Expr expr) {
+		Object defn;
+		if (expr instanceof UnresolvedVar)
+			defn = ((UnresolvedVar)expr).defn();
+		else
+			return null;
+		if (defn == null)
+			return null;
+		Type t;
+		if (defn instanceof StructField) {
+			t = ((StructField)defn).type();
+		} else
+			return null;
+		if (TypeHelpers.isListLike(t))
+			return TypeHelpers.extractListPoly(t);
+		else
+			return null;
 	}
 
 	private Type figureTemplateValueType(Expr oe) {

@@ -57,12 +57,12 @@ public class ServiceDefinition implements Locatable, ServiceElementsConsumer, Re
 	}
 
 	@Override
-	public boolean providesContract(NameOfThing ctr) {
+	public Provides providesContract(NameOfThing ctr) {
 		for (Provides ic : this.provides) {
 			if (ic.implementsType().defn().name().uniqueName().equals(ctr.uniqueName()))
-				return true;
+				return ic;
 		}
-		return false;
+		return null;
 	}
 
 	@Override

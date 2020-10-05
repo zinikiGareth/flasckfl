@@ -1,0 +1,16 @@
+// Currently, it isn't possible to connect these two templates.
+// Note that if you manage to do that and this compiles without errors, I'm happy for this test to go away
+// But in the meantime, I would like a "good" error, rather than "cannot resolve"
+
+	entity Thing
+		String message
+		
+	card Card
+		state
+			List[Thing] things
+		
+		template test
+			things <- things
+			
+		template thing
+			message <- msg
