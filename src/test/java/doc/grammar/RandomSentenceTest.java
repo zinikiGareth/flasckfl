@@ -12,7 +12,6 @@ import java.util.function.Consumer;
 import org.flasck.flas.grammar.RepoChecker;
 import org.flasck.flas.grammar.SentenceData;
 import org.flasck.flas.grammar.SentenceProducer;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.utils.FileUtils;
 
@@ -22,9 +21,8 @@ import org.zinutils.utils.FileUtils;
 public class RandomSentenceTest {
 
 	@Test
-	@Ignore
 	public void testRandomSentenceProduction() throws Throwable {
-		final int seed = 21000;
+		final int seed = 21217;
 		File td = Files.createTempDirectory("flas").toFile();
 		File fd = new File(td, "test.r" + seed);
 		FileUtils.assertDirectory(fd);

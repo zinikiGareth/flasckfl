@@ -251,6 +251,8 @@ public class Grammar {
 		String type = rule.required("type");
 		String nameAppender = rule.optional("names");
 		String scope = rule.optional("scope", null);
+		String generator = rule.optional("generator", null);
+		boolean space = rule.optionalBoolean("space", true);
 		UseNameForScoping unfs = UseNameForScoping.UNSCOPED;
 		if ("true".equals(scope))
 			unfs = UseNameForScoping.USE_THIS_NAME;
@@ -261,7 +263,7 @@ public class Grammar {
 		boolean repeatLast = rule.optionalBoolean("maybe-repeat-last", false);
 		boolean saveLast = rule.optionalBoolean("save-last", false);
 		rule.attributesDone();
-		final TokenDefinition ret = new TokenDefinition(type, nameAppender, unfs, repeatLast, saveLast);
+		final TokenDefinition ret = new TokenDefinition(type, nameAppender, unfs, repeatLast, saveLast, generator, space);
 		List<XMLElement> matchers = rule.elementChildren("named");
 		for (XMLElement xe : matchers) {
 			String amendedName = xe.required("amended");

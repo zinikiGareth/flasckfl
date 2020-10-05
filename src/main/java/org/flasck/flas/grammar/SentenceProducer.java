@@ -162,12 +162,12 @@ public class SentenceProducer {
 				} else
 					visit(child);
 				if (withEOL)
-					token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>(), false, false);
+					token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>(), false, false, null, true);
 			}
 			if (op != null) {
 				while (!op.wrapUp(cxt, this)) {
 					if (withEOL)
-						token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>(), false, false);
+						token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>(), false, false, null, true);
 				}
 			}
 		}
@@ -245,21 +245,23 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers, boolean repeatLast, boolean saveLast) {
+		public void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers, boolean repeatLast, boolean saveLast, String generator, boolean space) {
 			final Lexer lexer = grammar.findToken(token);
 			String t;
 			String haveLast = dicts.get(indent).get("haveLast");
 			if (repeatLast && haveLast != null) {
 				t = haveLast;
 			} else {
-				t = genToken(token, lexer.pattern);
+				t = genToken(token, lexer.pattern, generator);
 				if (saveLast)
 					dicts.get(indent).put("haveLast", t);
 			}
 			if (debug)
 				System.out.println("    " + t);
-			Pattern p = Pattern.compile(lexer.pattern);
-			assertTrue("generated token for " + token + "(" + t + ") did not match pattern definition (" + lexer.pattern + ")", p.matcher(t).matches());
+			if (generator == null) {
+				Pattern p = Pattern.compile(lexer.pattern);
+				assertTrue("generated token for " + token + "(" + t + ") did not match pattern definition (" + lexer.pattern + ")", p.matcher(t).matches());
+			}
 			if (token.equals("EOL"))
 				haveSomething = false;
 			else {
@@ -267,14 +269,14 @@ public class SentenceProducer {
 					for (int i=0;i<indent;i++) {
 						sentence.append("\t");
 					}
-				} else
+				} else if (space)
 					sentence.append(" ");
 				haveSomething = true;
 			}
 			sentence.append(t);
 			if (patternMatcher != null) {
 				replace(t, scoping);
-				this.matchers.put(assembleName(t, scoping), patternMatcher);
+				this.matchers.put(assembleName(t.replaceFirst("^_", ""), scoping), patternMatcher);
 			}
 			for (Matcher m : matchers) {
 				String patt = m.pattern;
@@ -455,7 +457,9 @@ public class SentenceProducer {
 			}
 		}
 
-		private String genToken(String token, String pattern) {
+		private String genToken(String token, String pattern, String generator) {
+			if (generator != null)
+				return generateTokenUsing(generator);
 			switch (token) {
 			case "APPLY":
 				return ".";
@@ -492,7 +496,6 @@ public class SentenceProducer {
 			case "AJAX":
 			case "ASSERT":
 			case "CARD":
-			case "CLEANUP":
 			case "CONFIGURE":
 			case "CONTRACT":
 			case "CREATE":
@@ -503,6 +506,7 @@ public class SentenceProducer {
 			case "ENVELOPE":
 			case "EVENT":
 			case "EXPECT":
+			case "FINALLY":
 			case "HANDLER":
 			case "HEADER":
 			case "IMPLEMENTS":
@@ -559,6 +563,17 @@ public class SentenceProducer {
 
 			default:
 				throw new RuntimeException("Cannot generate a token for " + token);
+			}
+		}
+
+		private String generateTokenUsing(String generator) {
+			switch (generator) {
+			case "uri":
+				return "'https://random-uri'";
+			case "uri-path":
+				return "'/foo'";
+			default:
+				throw new RuntimeException("There is no generator for " + generator);
 			}
 		}
 

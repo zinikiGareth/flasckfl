@@ -32,10 +32,10 @@ public class RepoChecker {
 					continue; // assume that it's a builtin
 				String finalS = s.substring(id2+1, idx).trim();
 				String defn = s.substring(idx+1).trim();
-				if (finalS.startsWith("_ut_"))
+				if (finalS.startsWith("_ut_") || finalS.startsWith("_st"))
 					continue;
 				if (!ms.containsKey(name)) {
-					if (name.equals("Cons.A") || name.startsWith("Random.")) // I admit this is a hack, but I'm not sure what the real thing would look like ...
+					if (ignoreInternalNames(name)) // I admit this is a hack, but I'm not sure what the real thing would look like ...
 						continue;
 					System.out.println("There is no matcher defined in the grammar for the entry found in repository: " + name);
 					ret = false;
@@ -62,6 +62,14 @@ public class RepoChecker {
 			System.out.println("------");
 		}
 		return ret;
+	}
+
+	private static boolean ignoreInternalNames(String name) {
+		if (name.equals("Cons.A") || name.equals("List.A"))
+			return true;
+		if (name.startsWith("Random.") || name.startsWith("Crobag.") || name.startsWith("Calendar."))
+			return true;
+		return false;
 	}
 
 }

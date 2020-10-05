@@ -31,9 +31,6 @@
   <lex token='CCB' pattern='\}'>
   	<p>A closing curly bracket delimits the end of a constructor pattern or object creation.</p>
   </lex>
-  <lex token='CLEANUP' pattern='cleanup'>
-  	<p>The system test keyword <tt>cleanup</tt>.</p>
-  </lex>
   <lex token='COLON' pattern=':'>
   	<p>Can be an operator or can be used to define object literals.</p>
   </lex>
@@ -89,6 +86,9 @@
   <lex token='FALSE' pattern='False'>
   	<p>The boolean literal <tt>False</tt>.</p>
   </lex>
+  <lex token='FINALLY' pattern='finally'>
+  	<p>The system test keyword <tt>finally</tt>.</p>
+  </lex>
   <lex token='GUARD' pattern='\|'>
   	<p>Defines the variable/function definition operator.</p>
   </lex>
@@ -98,9 +98,11 @@
   <lex token='HANDLER' pattern='handler'>
   	<p>The <tt>handler</tt> keyword introduces a callback handler.</p>
   </lex>
+  <!--  NYI
   <lex token='HEADER' pattern='header'>
   	<p>The ajax system test keyword <tt>header</tt>.</p>
   </lex>
+  -->
   <lex token='IMPLEMENTS' pattern='implements'>
   	<p>The <tt>implements</tt> keyword introduces a contract implementation in a card.</p>
   </lex>
@@ -140,9 +142,12 @@
   <lex token='PUMP' pattern='pump'>
   	<p>The ajax system test keyword <tt>pump</tt>.</p>
   </lex>
+  
+  <!-- NYI
   <lex token='QUERY' pattern='query'>
   	<p>The ajax system test keyword <tt>query</tt>.</p>
   </lex>
+   -->
   <lex token='REQUIRES' pattern='requires'>
   	<p>The <tt>requires</tt> keyword identifies a variable which is bound to a service of the specified contract.</p>
   </lex>
@@ -267,7 +272,7 @@
       <many>
 	    <ref production='system-test-unit' />
       </many>
-      <ref production='system-test-clean' />
+      <ref production='system-test-finally' />
     </seq>
   </production>
   <production name='top-level-unit'>
@@ -810,7 +815,7 @@
     <section title='Types'/>
     <tested by='test.parsing.TDAPatternParsingTests' />
     <seq>
-      <token type='OSB'/>
+      <token type='OSB' space='false'/>
       <ref production='type-reference'/>
       <many>
         <ref production='comma-type-reference'/>
@@ -1706,7 +1711,7 @@ match style ...
     <section title='Unit Tests' />
     <seq>
       <token type='HANDLE' />
-      <token type='introduce-var'/>
+      <token type='introduce-var' names='Introduce\[VarName\[${name}.*\]\]'/>
     </seq>
   </production>
   <production name='unit-test-match'>
@@ -1796,7 +1801,31 @@ match style ...
       <i>I haven't really thought this through, but I'm sure it will again become apparent when I want to write one.</i>
       </description>
     </section>
-    <token type='CONFIGURE' />
+    <seq>
+      <token type='CONFIGURE' />
+      <indent>
+      	<ref production='system-configure-step'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='system-configure-step'>
+    <section title='System Tests'/>
+    <or>
+      <ref production='unit-data-declaration'/>
+      <ref production='ajax-configure-step'/>
+    </or>
+  </production>
+  <production name='ajax-configure-step'>
+    <section title='System Tests'/>
+    <seq>
+      <token type='AJAX' />
+      <token type='CREATE' />
+      <token type='var-name' />
+      <token type='STRING' generator='uri'/>
+      <indent>
+        <ref production='ajax-create-handler' />
+      </indent>
+    </seq>
   </production>
   <production name='system-test-unit'>
     <section title='System Tests'/>
@@ -1814,38 +1843,31 @@ match style ...
   <production name='system-test-step'>
     <section title='System Tests'/>
     <or>
-      <ref production='unit-test-step'/>
+      <ref production='unit-test-assert'/>
       <ref production='ajax-test-step'/>
     </or>
   </production>
   <production name='ajax-test-step'>
     <section title='System Tests'/>
-    <or>
-      <seq>
-        <token type='AJAX' />
-	    <token type='CREATE' />
-	    <token type='var-name' />
-	    <token type='STRING' />
-	    <indent>
-	      <ref production='ajax-create-handler' />
-	    </indent>
-      </seq>
+<!--  <or> -->   
       <seq>
         <token type='AJAX' />
 	    <token type='PUMP' /> 
 	    <token type='var-name' />
       </seq>
+      <!--  Not yet supported and/or is so obvious, all tests will automatically do it ...
       <seq>
         <token type='AJAX' />
 	    <token type='ASSERT' /> 
       </seq>
-    </or>
+       -->
+    <!-- </or> -->   
   </production>
   <production name='ajax-create-handler'>
     <section title='System Tests'/>
     <seq>
       <token type='SUBSCRIBE' />
-      <token type='STRING' />
+      <token type='STRING' generator='uri-path'/>
       <indent>
         <ref production='ajax-http-options' />
       </indent>
@@ -1853,6 +1875,7 @@ match style ...
   </production>
   <production name='ajax-http-options'>
     <section title='System Tests'/>
+  <!-- not yet implemented
     <or>
       <seq>
         <token type='QUERY'/>
@@ -1866,8 +1889,9 @@ match style ...
         <token type='HANDLE' />
         <token type='introduce-var'/>
       </seq>
+  -->
       <ref production='ajax-http-response-list' />
-    </or>
+    <!-- </or> -->
   </production>
   <production name='ajax-http-response-list'>
     <section title='System Tests'/>
@@ -1878,8 +1902,8 @@ match style ...
       </indent>
     </seq>
   </production>
-  <production name='system-test-clean'>
+  <production name='system-test-finally'>
     <section title='System Tests'/>
-    <token type='CLEANUP' />
+    <token type='FINALLY' />
   </production>
 </grammar>

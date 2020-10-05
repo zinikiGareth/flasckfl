@@ -961,7 +961,6 @@ FLCard.prototype._updateCrobag = function(parent, rts, crobag, callback) {
             rts.splice(i, 0, rt);
             callback.insert(rt, null, e.val);
             parent.insertBefore(parent.lastElementChild, parent.children[i]);
-            i++;
         } else if (e.key > rts[i].value.key) {
             // the current entry appears to no longer be in the crobag - remove it
             var rt = rts[i];

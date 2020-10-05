@@ -27,13 +27,17 @@ public class TokenDefinition extends Definition {
 	private final List<Matcher> matchers = new ArrayList<>();
 	private final boolean repeatLast;
 	private final boolean saveLast;
+	private final String generator;
+	private final boolean space;
 
-	public TokenDefinition(String token, String patternMatcher, UseNameForScoping scoping, boolean repeatLast, boolean saveLast) {
+	public TokenDefinition(String token, String patternMatcher, UseNameForScoping scoping, boolean repeatLast, boolean saveLast, String generator, boolean space) {
 		this.token = token;
 		this.patternMatcher = patternMatcher;
 		this.scoping = scoping;
 		this.repeatLast = repeatLast;
 		this.saveLast = saveLast;
+		this.generator = generator;
+		this.space = space;
 	}
 
 	@Override
@@ -52,7 +56,7 @@ public class TokenDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.token(token, patternMatcher, scoping, matchers, repeatLast, saveLast);
+		productionVisitor.token(token, patternMatcher, scoping, matchers, repeatLast, saveLast, generator, space);
 	}
 
 	public void addMatcher(String amendedName, String pattern, UseNameForScoping scoper) {

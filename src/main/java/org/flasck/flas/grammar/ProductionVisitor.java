@@ -24,7 +24,7 @@ public interface ProductionVisitor {
 	OrProduction isOr(String child);
 
 	void futurePattern(String amended, String pattern);
-	void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers, boolean repeatLast, boolean saveLast);
+	void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers, boolean repeatLast, boolean saveLast, String generator, boolean space);
 	void nestName(int offset);
 	void pushPart(String prefix, String names, boolean appendFileName);
 
