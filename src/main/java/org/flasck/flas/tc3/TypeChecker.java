@@ -122,16 +122,16 @@ public class TypeChecker extends LeafAdapter {
 	}
 
 	@Override
-	public void leaveUnitTestEvent(UnitTestEvent e) {
-		resolveTargetZone(e.card.defn(), e.targetZone, "event", "send event to", true);
+	public void visitUnitTestEvent(UnitTestEvent e) {
+		new UTEventChecker(errors, repository, sv, utName, e);
 	}
-
+	
 	@Override
 	public void leaveUnitTestMatch(UnitTestMatch m) {
-		resolveTargetZone(m.card.defn(), m.targetZone, "match", "match text in", true);
+		resolveTargetZone(errors, repository, m.card.defn(), m.targetZone, "match", "match text in", true);
 	}
 
-	private void resolveTargetZone(RepositoryEntry re, TargetZone tz, String type, String msg, boolean allowContainer) {
+	public static void resolveTargetZone(ErrorReporter errors, RepositoryReader repository, RepositoryEntry re, TargetZone tz, String type, String msg, boolean allowContainer) {
 		if (tz.isWholeCard()) {
 			// it's aimed at the whole card
 			tz.bindTypes(new ArrayList<>());
@@ -168,7 +168,7 @@ public class TypeChecker extends LeafAdapter {
 				} else {
 					curr = webInfo.get((String) idx);
 					if (curr == FieldType.CONTAINER) {
-						ct = findCBO(card.templates(), ct, tz, (String) idx);
+						ct = findCBO(errors, repository, card.templates(), ct, tz, (String) idx);
 						if (ct == null) // will have produced an error
 							return;
 						webInfo = ct.webinfo();
@@ -187,7 +187,7 @@ public class TypeChecker extends LeafAdapter {
 		}
 	}
 
-	private Template findCBO(List<Template> allTemplates, Template ct, TargetZone tz, String idx) {
+	private static Template findCBO(ErrorReporter errors, RepositoryReader repository, List<Template> allTemplates, Template ct, TargetZone tz, String idx) {
 		Set<Template> sendsTo = new HashSet<>();
 		List<Type> types = new ArrayList<>();
 		for (TemplateBinding b : ct.bindings()) {
@@ -226,7 +226,7 @@ public class TypeChecker extends LeafAdapter {
 		return CollectionUtils.nth(sendsTo, 0);
 	}
 
-	private Type notList(Type t) {
+	private static Type notList(Type t) {
 		if (TypeHelpers.isListLike(t))
 			return TypeHelpers.extractListPoly(t);
 		else
