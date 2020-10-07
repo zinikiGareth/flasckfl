@@ -39,7 +39,7 @@ public class Main {
 		setLogLevels();
 		if (args != null && args.length == 1 && "--lsp".equals(args[0])) {
 			LSPMain.run();
-			System.exit(0);
+			return; // there should be background threads keeping this alive ...
 		}
 		boolean failed;
 		try {

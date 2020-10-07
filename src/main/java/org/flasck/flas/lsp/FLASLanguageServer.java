@@ -10,9 +10,16 @@ import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.repository.Repository;
 
 public class FLASLanguageServer implements LanguageServer, LanguageClientAware {
+    private final FLASParsingService parsingService;
 
+    public FLASLanguageServer(Repository repo, FLASCompiler compiler) {
+    	 parsingService = new FLASParsingService(repo, compiler);
+	}
+    
 	@Override
 	public void connect(LanguageClient client) {
 		// TODO Auto-generated method stub
@@ -27,12 +34,12 @@ public class FLASLanguageServer implements LanguageServer, LanguageClientAware {
 
 	@Override
 	public TextDocumentService getTextDocumentService() {
-		return null;
+		return parsingService;
 	}
 
 	@Override
 	public WorkspaceService getWorkspaceService() {
-		return null;
+		return new FLASWorkspaceService();
 	}
 
 	@Override
