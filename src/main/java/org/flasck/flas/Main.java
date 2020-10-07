@@ -37,6 +37,10 @@ import org.zinutils.utils.FileUtils;
 public class Main {
 	public static void main(String[] args) {
 		setLogLevels();
+		if (args != null && args.length == 1 && "--lsp".equals(args[0])) {
+			LSPMain.run();
+			System.exit(0);
+		}
 		boolean failed;
 		try {
 			failed = standardCompiler(args);
