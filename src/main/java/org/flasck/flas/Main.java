@@ -37,8 +37,8 @@ import org.zinutils.utils.FileUtils;
 public class Main {
 	public static void main(String[] args) {
 		setLogLevels();
-		if (args != null && args.length == 1 && "--lsp".equals(args[0])) {
-			LSPMain.run();
+		if (args != null && args.length >= 1 && "--lsp".equals(args[0])) {
+			LSPMain.run(args);
 			return; // there should be background threads keeping this alive ...
 		}
 		boolean failed;

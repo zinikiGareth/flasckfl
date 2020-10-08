@@ -3,8 +3,13 @@ package org.flasck.flas.lsp;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -15,18 +20,22 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.Repository;
-import org.zinutils.utils.FileUtils;
+import org.zinutils.utils.FileNameComparator;
 
 public class FLASParsingService implements TextDocumentService {
+	private final ErrorReporter errors;
 	private final Repository repository;
 	private final FLASCompiler compiler;
+	private final BlockingQueue<CompileFile> tasks = new LinkedBlockingQueue<CompileFile>();
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private final Executor exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, (BlockingQueue<Runnable>)(BlockingQueue)tasks);
+	private final Map<File, Root> roots = new TreeMap<>(new FileNameComparator());
 	private LanguageClient client;
-	private URI uri;
-	private File root;
-	private Set<File> files;
 
-	public FLASParsingService(Repository repository, FLASCompiler compiler) {
+	public FLASParsingService(ErrorReporter errors, Repository repository, FLASCompiler compiler) {
+		this.errors = errors;
 		this.repository = repository;
 		this.compiler = compiler;
 	}
@@ -35,26 +44,18 @@ public class FLASParsingService implements TextDocumentService {
 		this.client = client;
 	}
 
-	public void setWorkspaceRoot(String rootUri) {
+	public void addRoot(String rootUri) {
 		try {
-			uri = new URI(rootUri + "/");
-			root = new File(uri.getPath());
-			gatherFiles();
+			URI uri = new URI(rootUri + "/");
+			File root = new File(uri.getPath());
+			if (roots.containsKey(root))
+				return;
+			client.logMessage(new MessageParams(MessageType.Log, "opening root " + root));
+			Root rootedAt = new Root(client, new CompilationSubmitter(errors, repository, tasks, exec), root);
+			roots.put(root, rootedAt);
+			rootedAt.gatherFiles();
 		} catch (URISyntaxException ex) {
-			uri = null;
-			root = null;
-		}
-	}
-
-	private void gatherFiles() {
-		files = new TreeSet<File>(new WorkspaceFileNameComparator());
-		for (File f : FileUtils.findFilesMatching(root, "*")) {
-			if (WorkspaceFileNameComparator.find(FileUtils.extension((f.getName()))) != -1) {
-				files.add(f);
-			}
-		}
-		for (File f : files) {
-			client.logMessage(new MessageParams(MessageType.Log, "gathered " + FileUtils.makeRelativeTo(f, root)));
+			client.logMessage(new MessageParams(MessageType.Error, "could not open " + rootUri));
 		}
 	}
 
@@ -71,13 +72,13 @@ public class FLASParsingService implements TextDocumentService {
 	}
 
 	@Override
-	public void didClose(DidCloseTextDocumentParams params) {
+	public void didSave(DidSaveTextDocumentParams params) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void didSave(DidSaveTextDocumentParams params) {
+	public void didClose(DidCloseTextDocumentParams params) {
 		// TODO Auto-generated method stub
 		
 	}
