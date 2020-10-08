@@ -9,6 +9,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.lsp.FLASLanguageServer;
 import org.flasck.flas.lsp.LSPErrorForwarder;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 
 /** The Language Server main class */
@@ -20,6 +21,7 @@ public class LSPMain {
 
         Repository repository = new Repository();
         LSPErrorForwarder errors = new LSPErrorForwarder();
+        LoadBuiltins.applyTo(errors, repository);
         FLASCompiler compiler = new FLASCompiler(errors, repository);
         FLASLanguageServer server = new FLASLanguageServer(repository, compiler);
         Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out);

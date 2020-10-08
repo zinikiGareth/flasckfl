@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -22,13 +23,14 @@ public class FLASLanguageServer implements LanguageServer, LanguageClientAware {
     
 	@Override
 	public void connect(LanguageClient client) {
-		// TODO Auto-generated method stub
-		
+		parsingService.connect(client);
 	}
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         ServerCapabilities capabilities = new ServerCapabilities();
+        capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
+        parsingService.setWorkspaceRoot(params.getRootUri());
         return CompletableFuture.completedFuture(new InitializeResult(capabilities));
 	}
 
