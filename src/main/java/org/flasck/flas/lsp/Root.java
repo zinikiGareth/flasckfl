@@ -1,6 +1,7 @@
 package org.flasck.flas.lsp;
 
 import java.io.File;
+import java.net.URI;
 import java.util.TreeSet;
 
 import org.eclipse.lsp4j.MessageParams;
@@ -11,13 +12,16 @@ import org.zinutils.utils.FileUtils;
 public class Root {
 	private final LanguageClient client;
 	private final Submitter submitter;
-	private final File root;
+	private final URI uri;
+	public final File root;
 	private final TreeSet<File> files = new TreeSet<File>(new WorkspaceFileNameComparator());
 
-	public Root(LanguageClient client, Submitter submitter, File root) {
+	public Root(LanguageClient client, Submitter submitter, URI uri) {
 		this.client = client;
 		this.submitter = submitter;
-		this.root = root;
+		this.uri = uri;
+		this.root = new File(uri.getPath());
+		client.logMessage(new MessageParams(MessageType.Log, "opening root " + root));
 	}
 
 	public void gatherFiles() {
@@ -42,13 +46,13 @@ public class Root {
 	private CompileFile compile(File f) {
 		switch (FileUtils.extension(f.getName())) {
 		case ".fl":
-			return new CompileFLAS(client, f);
+			return new CompileFLAS(uri.resolve(f.getPath()));
 		case ".ut":
 			break;
 		case ".st":
 			break;
 		case ".fa":
-			return new CompileFA(client, f);
+			return new CompileFA(uri.resolve(f.getPath()));
 		default:
 			client.logMessage(new MessageParams(MessageType.Log, "could not compile " + FileUtils.makeRelativeTo(f, root)));
 		}

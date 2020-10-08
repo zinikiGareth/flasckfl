@@ -25,35 +25,29 @@ import org.flasck.flas.repository.Repository;
 import org.zinutils.utils.FileNameComparator;
 
 public class FLASParsingService implements TextDocumentService {
-	private final ErrorReporter errors;
-	private final Repository repository;
-	private final FLASCompiler compiler;
-	private final BlockingQueue<CompileFile> tasks = new LinkedBlockingQueue<CompileFile>();
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private final Executor exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, (BlockingQueue<Runnable>)(BlockingQueue)tasks);
+	private final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<Runnable>();
+	private final Executor exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, tasks);
 	private final Map<File, Root> roots = new TreeMap<>(new FileNameComparator());
+	private final CompilationSubmitter submitter;
 	private LanguageClient client;
 
 	public FLASParsingService(ErrorReporter errors, Repository repository, FLASCompiler compiler) {
-		this.errors = errors;
-		this.repository = repository;
-		this.compiler = compiler;
+		this.submitter = new CompilationSubmitter(errors, repository, tasks, exec);
 	}
 
 	public void connect(LanguageClient client) {
 		this.client = client;
+		this.submitter.connect(client);
 	}
 
 	public void addRoot(String rootUri) {
 		try {
 			URI uri = new URI(rootUri + "/");
-			File root = new File(uri.getPath());
-			if (roots.containsKey(root))
+			Root root = new Root(client, submitter, uri);
+			if (roots.containsKey(root.root))
 				return;
-			client.logMessage(new MessageParams(MessageType.Log, "opening root " + root));
-			Root rootedAt = new Root(client, new CompilationSubmitter(errors, repository, tasks, exec), root);
-			roots.put(root, rootedAt);
-			rootedAt.gatherFiles();
+			roots.put(root.root, root);
+			root.gatherFiles();
 		} catch (URISyntaxException ex) {
 			client.logMessage(new MessageParams(MessageType.Error, "could not open " + rootUri));
 		}
