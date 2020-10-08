@@ -29,7 +29,7 @@ import org.junit.Test;
 public class MethodConversion {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null);
+	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private RepositoryReader repository = context.mock(RepositoryReader.class);

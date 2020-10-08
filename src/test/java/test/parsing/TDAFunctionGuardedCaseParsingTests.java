@@ -19,7 +19,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
 	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
 	private FunctionGuardedEquationConsumer consumer = context.mock(FunctionGuardedEquationConsumer.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private TDAFunctionGuardedEquationParser parser;
 
 	@Before

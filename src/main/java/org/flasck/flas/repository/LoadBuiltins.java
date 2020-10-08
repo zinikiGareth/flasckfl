@@ -36,7 +36,7 @@ import org.flasck.flas.tc3.Tuple;
 import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
-	public static final InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
+	public static final InputPosition pos = new InputPosition("BuiltIn", 1, 0, null, "<<builtin>>");
 
 	/* "Primitive" types */
 

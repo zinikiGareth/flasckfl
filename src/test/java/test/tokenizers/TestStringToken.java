@@ -73,7 +73,7 @@ public class TestStringToken {
 	@Test
 	public void testNoEndQuote() {
 		context.checking(new Expectations() {{
-			oneOf(errors).message(new InputPosition("test", 1, 0, ""), "unterminated string");
+			oneOf(errors).message(new InputPosition("test", 1, 0, null, ""), "unterminated string");
 		}});
 		String tok = StringToken.from(errors, new Tokenizable("'no end quote"));
 		assertNull(tok);

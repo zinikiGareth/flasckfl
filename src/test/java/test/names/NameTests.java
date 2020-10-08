@@ -12,7 +12,7 @@ import org.flasck.jvm.J;
 import org.junit.Test;
 
 public class NameTests {
-	InputPosition pos = new InputPosition("", -1, 0, "");
+	InputPosition pos = new InputPosition("", -1, 0, null, "");
 	PackageName pkg = new PackageName("demo.ziniki");
 	SolidName account = new SolidName(pkg, "Account");
 	HandlerName hdlr = new HandlerName(pkg, "BaseHandler");

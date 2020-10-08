@@ -26,7 +26,7 @@ public class FunctionAssemblerTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private FunctionScopeUnitConsumer consumer = context.mock(FunctionScopeUnitConsumer.class);
 	private final PackageName pkg = new PackageName("test.pkg");
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	Pattern p = new VarPattern(pos, new VarName(pos, pkg, "x"));
 
 	@Test

@@ -26,7 +26,7 @@ public class TDAMethodMessageParsingTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errorsMock);
 	private MethodMessagesConsumer builder = context.mock(MethodMessagesConsumer.class);
 	private LastOneOnlyNestedParser nestedFunctionScope = context.mock(LastOneOnlyNestedParser.class);
-	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
+	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
 
 	@Before
 	public void setup() {

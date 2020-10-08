@@ -78,7 +78,7 @@ public abstract class AssignMessageMatcher extends TypeSafeMatcher<AssignMessage
 	}
 
 	public AssignMessageMatcher location(String file, int line, int off, int end) {
-		pos = new InputPosition(file, line, off, "");
+		pos = new InputPosition(file, line, off, null, "");
 		pos.endAt(end);
 		return this;
 	}

@@ -45,7 +45,7 @@ public class UnitTestTopLevelParsingTests {
 	private UnitTestDefinitionConsumer builder = context.mock(UnitTestDefinitionConsumer.class);
 	private UnitDataFieldConsumer udc = context.mock(UnitDataFieldConsumer.class);
 	private final PackageName pkg = new PackageName("test.pkg._ut_file");
-	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
+	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
 	private FunctionScopeUnitConsumer topLevel = context.mock(FunctionScopeUnitConsumer.class);
 
 	@Test

@@ -33,7 +33,7 @@ import flas.matchers.SlotMatcher;
 
 public class HSITraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final NumericLiteral number = new NumericLiteral(pos, "42", 2);
 	final HSIVisitor v = context.mock(HSIVisitor.class);

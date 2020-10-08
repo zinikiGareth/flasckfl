@@ -10,7 +10,7 @@ import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.junit.Test;
 
 public class IncorporationTests {
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 
 	@Test

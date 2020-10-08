@@ -14,7 +14,7 @@ import org.flasck.flas.tc3.Primitive;
 import org.junit.Test;
 
 public class TypeBehaviors {
-	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
+	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, null, "<<builtin>>");
 
 	@Test(expected=RuntimeException.class)
 	public void applyRequiresArgs() {

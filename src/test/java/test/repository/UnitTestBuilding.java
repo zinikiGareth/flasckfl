@@ -31,7 +31,7 @@ import flas.matchers.ExprMatcher;
 import flas.matchers.TypeReferenceMatcher;
 
 public class UnitTestBuilding {
-	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
+	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
 	private PackageName pkg = new PackageName("test.pkg");
 	private UnitTestFileName utfn = new UnitTestFileName(pkg, "unit");
 	private UnitTestName name = new UnitTestName(utfn, 4);

@@ -26,7 +26,7 @@ public class ObjectDefnCheckerTests {
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	private String fnCxt = "test.repo.f";
 	

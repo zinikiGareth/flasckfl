@@ -49,7 +49,7 @@ public class TDATopLevelCardParsingTests {
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
 	private TDAParsing cardParser;
 	private CardDefinition card;
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 
 	@Before
 	public void setup() {

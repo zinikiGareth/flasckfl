@@ -24,7 +24,7 @@ public class StateCreation {
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final StackVisitor nv = new StackVisitor();
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
 	private FunctionName fn = FunctionName.function(pos, null, "f");
 

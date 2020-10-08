@@ -9,7 +9,7 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.ShouldBeError;
 
 public class Apply implements Type, SignatureNeedsParensType {
-	public final static InputPosition unknown = new InputPosition("unknown", 1, 0, "unknown");
+	public final static InputPosition unknown = new InputPosition("unknown", 1, 0, null, "unknown");
 	public final List<Type> tys;
 
 	public Apply(Type... types) {

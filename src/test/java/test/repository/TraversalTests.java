@@ -75,7 +75,7 @@ import flas.matchers.ExprMatcher;
 
 public class TraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
 	final NumericLiteral number = new NumericLiteral(pos, "42", 2);

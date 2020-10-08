@@ -63,11 +63,6 @@ public class LocalErrorTracker implements ErrorReporter {
 		return other.reportException(ex);
 	}
 
-	public void merge(ErrorReporter o) {
-		seenErrors();
-		other.merge(o);
-	}
-
 	public void fakeErrorWithoutNeedingAssertion() {
 		seenErrors();
 	}
@@ -84,11 +79,6 @@ public class LocalErrorTracker implements ErrorReporter {
 			@Override
 			public boolean hasMoreNow() {
 				return ab.get();
-			}
-
-			@Override
-			public boolean contains(FLASError e) {
-				throw new org.zinutils.exceptions.NotImplementedException();
 			}
 		};
 	}

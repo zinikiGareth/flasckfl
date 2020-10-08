@@ -26,7 +26,7 @@ import org.zinutils.bytecode.JavaInfo.Access;
 
 public class ContractGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, null);
+	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final JSStorage jss = context.mock(JSStorage.class);
 

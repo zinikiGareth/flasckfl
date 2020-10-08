@@ -17,7 +17,7 @@ import org.junit.Test;
 public class FunctionIntroCaseCollectorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final PackageName pkg = new PackageName("test.pkg");
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 
 	@Test
 	public void aSimpleIntroByItselfIsAssembled() {

@@ -63,7 +63,7 @@ public class ResolverTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 //	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	private final SolidName nested = new SolidName(pkg, "Nested");
 	private final FunctionName nameF = FunctionName.function(pos, nested, "f");

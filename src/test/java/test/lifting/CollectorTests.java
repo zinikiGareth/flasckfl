@@ -24,7 +24,7 @@ import org.junit.Test;
 
 public class CollectorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	InputPosition pos = new InputPosition("-", 1, 0, null);
+	InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	PackageName pkg = new PackageName("test.foo");
 	private VarDependencyMapper dependencies = context.mock(VarDependencyMapper.class);
 

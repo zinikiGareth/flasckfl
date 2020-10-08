@@ -44,7 +44,7 @@ public class TDAObjectElementParsingTests {
 	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
 	final SolidName objName = new SolidName(null, "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(objName);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 
 	@Test
 	public void junkIsNotAKeyword() {

@@ -64,7 +64,7 @@ public class MethodTests {
 	public interface RAV extends ResultAware, RepositoryVisitor {	}
 
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private final InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private final InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	private final StringLiteral str = new StringLiteral(pos, "yoyo");
 	private final List<Pattern> args = new ArrayList<>();

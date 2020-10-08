@@ -35,7 +35,7 @@ public abstract class BaseRunnerTests {
 //	private static final String HELLO_STRING = "hello, world";
 //	private static final String HELLO_CLICKED = "hello clicked";
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	InputPosition loc = new InputPosition("-", 1, 0, null);
+	InputPosition loc = new InputPosition("-", 1, 0, null, null);
 	ErrorResult errors = new ErrorResult();
 	// TODO: defining bce here feels out of place and should be in the JVMRunnerTest
 	// But it is "part of" the CompileResult.  Why?

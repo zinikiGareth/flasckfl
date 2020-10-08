@@ -44,7 +44,7 @@ import test.tc3.MethodTests.RAV;
 
 public class ContractMethodTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private final InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private final InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	private final List<Pattern> args = new ArrayList<>();
 	private final List<TypedPattern> cmdargs = new ArrayList<>();

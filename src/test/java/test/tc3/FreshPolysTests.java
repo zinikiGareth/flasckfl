@@ -28,7 +28,7 @@ import flas.matchers.PolyInstanceMatcher;
 
 public class FreshPolysTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 
 	@Test

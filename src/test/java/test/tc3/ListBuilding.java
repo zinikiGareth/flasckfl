@@ -26,7 +26,7 @@ import flas.matchers.PolyInstanceMatcher;
 
 public class ListBuilding {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private CurrentTCState state = context.mock(CurrentTCState.class);

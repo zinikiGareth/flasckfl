@@ -31,7 +31,7 @@ public class GuardGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
 	private RepositoryVisitor v = context.mock(RepositoryVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null);
+	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	JSFunctionState state = context.mock(JSFunctionState.class);
 

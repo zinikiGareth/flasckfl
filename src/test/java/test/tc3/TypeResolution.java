@@ -46,7 +46,7 @@ public class TypeResolution {
 	private final Repository repository = new Repository();
 	private final FunctionGroup grp = context.mock(FunctionGroup.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
-	private final InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private final InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	private final FunctionName nameF = FunctionName.function(pos, pkg, "f");
 	private final FunctionDefinition fnF = new FunctionDefinition(nameF, 1, null);

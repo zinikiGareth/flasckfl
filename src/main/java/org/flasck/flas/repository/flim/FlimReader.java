@@ -74,12 +74,12 @@ public class FlimReader {
 					blocker.present(f.getName(), lnr.getLineNumber(), s);
 				blocker.flush();
 			} catch (IOException ex) {
-				errors.message(new InputPosition(f.getName(), lnr.getLineNumber(), -1, null), ex.toString());
+				errors.message(new InputPosition(f.getName(), lnr.getLineNumber(), -1, null, null), ex.toString());
 			}
 		} catch (FileNotFoundException ex) {
-			errors.message(new InputPosition(f.getName(), -1, -1, null), "file does not exist");
+			errors.message(new InputPosition(f.getName(), -1, -1, null, null), "file does not exist");
 		} catch (IOException ex) {
-			errors.message(new InputPosition(f.getName(), -1, -1, null), ex.toString());
+			errors.message(new InputPosition(f.getName(), -1, -1, null, null), ex.toString());
 		} catch (Throwable t) {
 			errors.reportException(t);
 		}

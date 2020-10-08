@@ -29,7 +29,7 @@ import test.parsing.LocalErrorTracker;
 
 public class ConstraintUnification {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private CurrentTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);

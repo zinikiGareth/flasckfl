@@ -35,7 +35,7 @@ import flas.matchers.PosMatcher;
 // To do what they purport to do, you need to cut into the pattern analyzer and see the type constraints that come out using visitInTheTCWay ...
 public class PatternsProduceTypes {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);

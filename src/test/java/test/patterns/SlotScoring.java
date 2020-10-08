@@ -14,7 +14,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.junit.Test;
 
 public class SlotScoring {
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 

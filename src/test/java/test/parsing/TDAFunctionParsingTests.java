@@ -37,7 +37,7 @@ public class TDAFunctionParsingTests {
 	private FunctionCaseNameProvider caseNamer = context.mock(FunctionCaseNameProvider.class, "caseNamer");
 	private FunctionIntroConsumer intro = context.mock(FunctionIntroConsumer.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private PackageName pkg = new PackageName("test.pkg");
 
 	@Test

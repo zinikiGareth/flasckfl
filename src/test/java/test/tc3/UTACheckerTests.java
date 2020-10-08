@@ -27,7 +27,7 @@ public class UTACheckerTests {
 	private final LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final String fnCxt = "ut0";
 
 	@Test

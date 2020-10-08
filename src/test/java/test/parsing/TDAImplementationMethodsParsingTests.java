@@ -43,7 +43,7 @@ public class TDAImplementationMethodsParsingTests {
 	@Test
 	public void aSingleTokenIsTheImplementationOfAMethodWithNoArgs() {
 		context.checking(new Expectations() {{
-			oneOf(namer).functionName(with(any(InputPosition.class)), with("foo")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, "foo"), null, "foo")));
+			oneOf(namer).functionName(with(any(InputPosition.class)), with("foo")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, null, "foo"), null, "foo")));
 			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "foo").withArgs(0)));
 			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectMethod.class)));
 		}});
@@ -55,7 +55,7 @@ public class TDAImplementationMethodsParsingTests {
 	public void anImplementationMayHaveASimpleArgument() {
 		final Tokenizable line = TDABasicIntroParsingTests.line("bar x");
 		context.checking(new Expectations() {{
-			oneOf(namer).functionName(with(any(InputPosition.class)), with("bar")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, "bar x"), null, "bar")));
+			oneOf(namer).functionName(with(any(InputPosition.class)), with("bar")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, null, "bar x"), null, "bar")));
 			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "bar").withArgs(1)));
 			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectMethod.class)));
 			oneOf(topLevel).argument(with(errors), (VarPattern) with(VarPatternMatcher.var("bar.x")));
@@ -70,7 +70,7 @@ public class TDAImplementationMethodsParsingTests {
 	public void anImplementationMayHaveASimpleArgumentAndAHandler() {
 		final Tokenizable line = TDABasicIntroParsingTests.line("bar x -> h");
 		context.checking(new Expectations() {{
-			oneOf(namer).functionName(with(any(InputPosition.class)), with("bar")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, "bar x"), null, "bar")));
+			oneOf(namer).functionName(with(any(InputPosition.class)), with("bar")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, null, "bar x"), null, "bar")));
 			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "bar").withArgs(1).withHandler("bar.h")));
 			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectMethod.class)));
 			oneOf(topLevel).argument(with(errors), (VarPattern) with(VarPatternMatcher.var("bar.x")));
@@ -84,7 +84,7 @@ public class TDAImplementationMethodsParsingTests {
 
 	@Test
 	public void nothingHappensWhenTheImplementationsAreComplete() {
-		parser.scopeComplete(new InputPosition("fred", 10, 0, "hello"));
+		parser.scopeComplete(new InputPosition("fred", 10, 0, null, "hello"));
 	}
 
 	@Test

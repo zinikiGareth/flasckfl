@@ -40,7 +40,7 @@ import flas.matchers.ExprResultMatcher;
 public class ExpressionVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
 	private String fnCxt = "f";

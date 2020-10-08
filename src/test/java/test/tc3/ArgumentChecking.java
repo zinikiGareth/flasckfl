@@ -18,7 +18,7 @@ public class ArgumentChecking {
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private UnifiableType ut = context.mock(UnifiableType.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private FunctionName fn = FunctionName.function(pos, null, "f");
 	private String fnCxt = "f";
 	private SlotChecker tc = new SlotChecker(nv, fn, state, ut);

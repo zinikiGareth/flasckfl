@@ -132,6 +132,6 @@ public class TDAUnionParsingTests {
 	@Test
 	public void unionFieldParserDoesNothingAtEnd() {
 		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, null);
-		parser.scopeComplete(new InputPosition("-", 10, 0, "hello"));
+		parser.scopeComplete(new InputPosition("-", 10, 0, null, "hello"));
 	}
 }

@@ -12,7 +12,7 @@ import org.flasck.flas.tc3.PolyInstance;
 import org.junit.Test;
 
 public class PolyInstanceTests {
-	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
+	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, null, "<<builtin>>");
 
 	@Test
 	public void aPolyInstanceHasASignature() {

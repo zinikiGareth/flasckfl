@@ -21,7 +21,7 @@ public class FreeTextParserTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	@SuppressWarnings("unchecked")
 	private Consumer<String> handler = context.mock(Consumer.class);
-	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
+	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
 
 	@Test
 	public void aSimpleOneLiner() {

@@ -29,7 +29,7 @@ public class TDAMethodGuardsTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errorsMock);
 	private GM builder = context.mock(GM.class);
 	private LastOneOnlyNestedParser nestedFunctionScope = context.mock(LastOneOnlyNestedParser.class);
-	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
+	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
 
 	@Before
 	public void setup() {

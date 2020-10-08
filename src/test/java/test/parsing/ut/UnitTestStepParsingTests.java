@@ -44,7 +44,7 @@ public class UnitTestStepParsingTests {
 	private UnitTestDefinitionConsumer topLevel = context.mock(UnitTestDefinitionConsumer.class);
 	private UnitTestStepConsumer builder = context.mock(UnitTestStepConsumer.class);
 	private final PackageName pkg = new PackageName("test.pkg._ut_file");
-	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
+	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
 
 	@Test
 	public void testWeCanHandleASimpleAssertStep() {
@@ -419,7 +419,7 @@ public class UnitTestStepParsingTests {
 	public void testErrorsTurnUpInTheRightPlace() {
 		final Tokenizable line = UnitTestTopLevelParsingTests.line("assert (f ['hello', world'])");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(new InputPosition("fred", 1, 25, ""), "unterminated string");
+			oneOf(errors).message(new InputPosition("fred", 1, 25, null, ""), "unterminated string");
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(line);

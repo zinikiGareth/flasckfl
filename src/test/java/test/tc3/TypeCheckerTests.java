@@ -35,7 +35,7 @@ public class TypeCheckerTests {
 	private final LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final FunctionName nameF = FunctionName.function(pos, pkg, "f");
 	FunctionDefinition fnF = new FunctionDefinition(nameF, 1, null);

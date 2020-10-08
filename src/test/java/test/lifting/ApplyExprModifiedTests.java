@@ -30,7 +30,7 @@ import flas.matchers.ExprMatcher;
 
 public class ApplyExprModifiedTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	InputPosition pos = new InputPosition("-", 1, 0, null);
+	InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	PackageName pkg = new PackageName("test.foo");
 	HSIVisitor hsi = context.mock(HSIVisitor.class);
 

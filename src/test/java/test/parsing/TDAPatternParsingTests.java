@@ -34,7 +34,7 @@ import test.flas.stories.TDAStoryTests;
 
 public class TDAPatternParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
 	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
 	@SuppressWarnings("unchecked")

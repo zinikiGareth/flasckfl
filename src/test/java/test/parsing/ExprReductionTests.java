@@ -22,7 +22,7 @@ public class ExprReductionTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private ExprTermConsumer builder = context.mock(ExprTermConsumer.class);
-	private final InputPosition pos = new InputPosition("-", 1, 0, "");
+	private final InputPosition pos = new InputPosition("-", 1, 0, null, "");
 	private final TDAStackReducer reducer = new TDAStackReducer(tracker, builder);
 
 	@Test // 42

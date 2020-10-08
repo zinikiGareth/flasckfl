@@ -27,7 +27,7 @@ public class TDAFunctionParsingNestingTests {
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private TopLevelNamer functionNamer = new PackageNamer("test.pkg");
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private TDAParsing parser;
 
 	@Before

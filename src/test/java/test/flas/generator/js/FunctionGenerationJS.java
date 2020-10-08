@@ -41,7 +41,7 @@ import flas.matchers.SlotMatcher;
 
 public class FunctionGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, null);
+	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final JSStorage jss = context.mock(JSStorage.class);
 	private final JSMethodCreator meth = context.mock(JSMethodCreator.class);

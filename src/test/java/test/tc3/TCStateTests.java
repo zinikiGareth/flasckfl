@@ -46,7 +46,7 @@ import test.parsing.LocalErrorTracker;
 
 public class TCStateTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final FunctionName nameF = FunctionName.function(pos, pkg, "f");
 	FunctionDefinition fnF = new FunctionDefinition(nameF, 1, null);

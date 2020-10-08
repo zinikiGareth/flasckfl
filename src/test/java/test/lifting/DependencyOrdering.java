@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public class DependencyOrdering {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	InputPosition pos = new InputPosition("-", 1, 0, null);
+	InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	PackageName pkg = new PackageName("test.foo");
 	RepositoryLifter lifter = new RepositoryLifter();
 

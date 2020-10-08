@@ -44,7 +44,7 @@ public class TDATemplateParsingTests {
 	private TDATemplateBindingParser parser;
 	private TemplateBindingConsumer consumer = context.mock(TemplateBindingConsumer.class);
 	private PackageName pkg = new PackageName("test.golden");
-	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
+	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
 	private TemplateNamer namer = context.mock(TemplateNamer.class);
 
 	@Before

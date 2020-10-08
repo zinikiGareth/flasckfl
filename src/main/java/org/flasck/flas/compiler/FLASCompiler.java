@@ -77,7 +77,7 @@ public class FLASCompiler {
 	public FLASCompiler(ErrorReporter errors, Repository repository) {
 		this.errors = errors;
 		this.repository = repository;
-		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, x.text), x.message));
+		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
 	}
 	
 	public void processInput(File input) {
@@ -123,7 +123,7 @@ public class FLASCompiler {
 			System.out.println("    " + f.getName());
 			String file = FileUtils.dropExtension(f.getName());
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
-			UnitTestPackage utp = new UnitTestPackage(new InputPosition(file, 1, 0, ""), utfn);
+			UnitTestPackage utp = new UnitTestPackage(new InputPosition(file, 1, 0, null, ""), utfn);
 			repository.unitTestPackage(errors, utp);
 			ParsingPhase parser = new ParsingPhase(errors, utfn, new ConsumeDefinitions(errors, repository, utp));
 			parser.process(f);
