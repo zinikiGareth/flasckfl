@@ -1,57 +1,29 @@
 package org.flasck.flas.errors;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.utils.Justification;
 
-public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
+public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<FLASError> {
 	private final Set<FLASError> errors = new TreeSet<FLASError>();
 
 	public int count() {
 		return errors.size();
 	}
 	
+	@Override
 	public ErrorResult message(FLASError e) {
 		errors.add(e);
 		return this;
 	}
 	
-	public ErrorResult message(Tokenizable line, String msg) {
-		return message(line.realinfo(), msg);
-	}
-
-	public ErrorResult message(InputPosition pos, String msg) {
-		return message(new FLASError(pos, msg));
-	}
-
-	@Override
-	public ErrorResult message(InputPosition pos, Collection<InputPosition> locs, String msg) {
-		FLASError e = new FLASError(pos, msg);
-		if (locs != null)
-			e.others.addAll(locs);
-		return message(e);
-	}
-
-	public ErrorResult reportException(Throwable ex) {
-		final StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		ex.printStackTrace(pw);
-		String st = sw.toString();
-		int idx = st.indexOf('\n');
-		idx = st.indexOf('\n', idx+1);
-		return message((InputPosition)null, st.substring(0, idx).replaceAll("\n", " "));
-	}
-
 	public void merge(ErrorReporter from) {
 		errors.addAll(((ErrorResult)from).errors);
 	}
@@ -68,7 +40,8 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 		return CollectionUtils.nth(errors, i);
 	}
 	
-	public void showFromMark(ErrorMark mark, Writer pw, int ind) {
+	public void showFromMark(ErrorMark em, Writer pw, int ind) {
+		Marker mark = (Marker) em;
 		try {
 			for (FLASError e : errors) {
 				if (mark.contains(e))
@@ -112,14 +85,6 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 		return w.toString();
 	}
 	
-	public static ErrorResult oneMessage(Tokenizable line, String msg) {
-		return new ErrorResult().message(line, msg);
-	}
-
-	public static ErrorResult oneMessage(InputPosition location, String msg) {
-		return new ErrorResult().message(location, msg);
-	}
-
 	@Override
 	public String toString() {
 		try {
@@ -148,7 +113,6 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 			return count() > have.size();
 		}
 		
-		@Override
 		public boolean contains(FLASError e) {
 			return have.contains(e);
 		}

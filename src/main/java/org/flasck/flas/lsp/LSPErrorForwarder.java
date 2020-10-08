@@ -1,17 +1,24 @@
 package org.flasck.flas.lsp;
 
 import java.io.Writer;
-import java.util.Collection;
+import java.net.URI;
+import java.util.ArrayList;
 
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.FLASError;
-import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.errors.FatErrorAPI;
 
-public class LSPErrorForwarder implements ErrorReporter {
+public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 	private LanguageClient client;
+	private URI uri;
+	private ArrayList<Diagnostic> diagnostics;
 
 	public LSPErrorForwarder() {
 	}
@@ -20,47 +27,50 @@ public class LSPErrorForwarder implements ErrorReporter {
 		this.client = client;
 	}
 
-	@Override
-	public ErrorReporter message(InputPosition pos, String msg) {
-		return this;
+	public void beginProcessing(URI uri) {
+		this.uri = uri;
+		diagnostics = new ArrayList<>();
 	}
-
-	@Override
-	public ErrorReporter message(InputPosition pos, Collection<InputPosition> locs, String msg) {
-		return this;
-	}
-
-	@Override
-	public ErrorReporter message(Tokenizable line, String msg) {
-		return this;
-	}
-
+	
 	@Override
 	public ErrorReporter message(FLASError e) {
+		System.out.println(e);
+        Diagnostic diagnostic = new Diagnostic();
+        diagnostic.setSeverity(DiagnosticSeverity.Error);
+        if (e.loc != null) {
+        	diagnostic.setSource(e.loc.file);
+        	int line = e.loc.lineNo-1;
+        	int ind = 0;
+        	if (e.loc.indent != null)
+        		ind = e.loc.indent.tabs + e.loc.indent.spaces;
+			diagnostic.setRange(new Range(new Position(line, ind + e.loc.off), new Position(line, ind + e.loc.locAtEnd().off)));
+        } else {
+        	diagnostic.setSource(uri.toString());
+        	diagnostic.setRange(new Range(new Position(1, 1), new Position(2, 1)));
+        }
+        diagnostic.setMessage(e.msg);
+        diagnostics.add(diagnostic);
 		return this;
 	}
 
-	@Override
-	public ErrorReporter reportException(Throwable ex) {
-		return this;
+	public void doneProcessing() {
+		client.publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), diagnostics));
 	}
-
-	@Override
-	public void merge(ErrorReporter o) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 	@Override
 	public boolean hasErrors() {
-		// TODO Auto-generated method stub
-		return false;
+		return !diagnostics.isEmpty();
 	}
 
 	@Override
 	public ErrorMark mark() {
-		// TODO Auto-generated method stub
-		return null;
+		int cnt = diagnostics.size();
+		return new ErrorMark() {
+			@Override
+			public boolean hasMoreNow() {
+				return diagnostics.size() > cnt;
+			}
+		};
 	}
 
 	@Override

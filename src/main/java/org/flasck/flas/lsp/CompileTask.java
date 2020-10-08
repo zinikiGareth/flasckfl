@@ -9,17 +9,16 @@ import java.util.concurrent.BlockingQueue;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.Repository;
 
 public class CompileTask implements Runnable {
 	private final LanguageClient client;
 	private final BlockingQueue<Runnable> tasks;
-	private final ErrorReporter errors;
+	private final LSPErrorForwarder errors;
 	private final Repository repository;
 	private final AbstractCompilation cf;
 
-	public CompileTask(LanguageClient client, BlockingQueue<Runnable> tasks, ErrorReporter errors, Repository repository, CompileFile cf) {
+	public CompileTask(LanguageClient client, BlockingQueue<Runnable> tasks, LSPErrorForwarder errors, Repository repository, CompileFile cf) {
 		this.client = client;
 		this.tasks = tasks;
 		this.errors = errors;
@@ -40,7 +39,9 @@ public class CompileTask implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Compiling " + cf.file + " with tasks = " + tasks);
+		errors.beginProcessing(cf.uri);
 		cf.compile(client, errors, repository);
+		errors.doneProcessing();
 		if (tasks.isEmpty()) {
 			// do the rest of the compilation
 			sendRepo();

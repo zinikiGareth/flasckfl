@@ -43,6 +43,11 @@ public class Root {
 		}
 	}
 
+	public void parse(URI uri, String text) {
+		submitter.submit(compile(new File(uri.getPath())));
+		
+	}
+
 	private CompileFile compile(File f) {
 		switch (FileUtils.extension(f.getName())) {
 		case ".fl":

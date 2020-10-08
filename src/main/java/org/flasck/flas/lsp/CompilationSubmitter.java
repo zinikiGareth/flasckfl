@@ -4,17 +4,16 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.Repository;
 
 public class CompilationSubmitter implements Submitter {
-	private final ErrorReporter errors;
+	private final LSPErrorForwarder errors;
 	private final Repository repository;
 	private final BlockingQueue<Runnable> tasks;
 	private final Executor exec;
 	private LanguageClient client;
 
-	public CompilationSubmitter(ErrorReporter errors, Repository repository, BlockingQueue<Runnable> tasks, Executor exec) {
+	public CompilationSubmitter(LSPErrorForwarder errors, Repository repository, BlockingQueue<Runnable> tasks, Executor exec) {
 		this.errors = errors;
 		this.repository = repository;
 		this.tasks = tasks;

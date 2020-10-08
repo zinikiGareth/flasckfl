@@ -14,8 +14,6 @@ public interface ErrorReporter {
 	ErrorReporter message(FLASError e);
 	ErrorReporter reportException(Throwable ex);
 
-	void merge(ErrorReporter o);
-
 	boolean hasErrors();
 	ErrorMark mark();
 	void showFromMark(ErrorMark mark, Writer pw, int ind);
