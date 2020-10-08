@@ -40,9 +40,12 @@ public class CompileTask implements Runnable {
 	public void run() {
 		System.out.println("Compiling " + cf.file + " with tasks = " + tasks);
 		errors.beginProcessing(cf.uri);
+		repository.parsing(cf.uri);
 		cf.compile(client, errors, repository);
+		repository.done();
 		errors.doneProcessing();
 		if (tasks.isEmpty()) {
+			// if there were previously files that were corrupt, try compiling them again
 			// do the rest of the compilation
 			sendRepo();
 		}

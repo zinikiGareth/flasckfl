@@ -59,8 +59,11 @@ public class TDAFunctionParser implements TDAParsing {
 			return new TDAFunctionGuardedEquationParser(errors, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder));
 		}
 		ExprToken tok = ExprToken.from(errors, line);
-		if (tok == null || !tok.text.equals("=")) {
+		if (tok == null) {
 			errors.message(line, "syntax error");
+			return null;
+		} else if (!tok.text.equals("=")) {
+			errors.message(tok.location, "syntax error");
 			return null;
 		}
 		if (!line.hasMoreContent()) {

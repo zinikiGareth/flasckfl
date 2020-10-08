@@ -11,7 +11,7 @@ public abstract class FatErrorAPI implements ErrorReporter {
 	public abstract ErrorReporter message(FLASError e);
 
 	public ErrorReporter message(Tokenizable line, String msg) {
-		return message(line.realinfo(), msg);
+		return message(line.realinfo().copySetEnd(line.length()), msg);
 	}
 
 	public ErrorReporter message(InputPosition pos, String msg) {

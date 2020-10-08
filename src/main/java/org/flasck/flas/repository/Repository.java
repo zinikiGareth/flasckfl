@@ -3,6 +3,7 @@ package org.flasck.flas.repository;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -67,8 +68,27 @@ import org.zinutils.exceptions.NotImplementedException;
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
 	private final List<SplitMetaData> webs = new ArrayList<>();
+	private final Map<URI, List<String>> uriDefines = new TreeMap<>();
+	private List<String> currentDefines;
 	
 	public Repository() {
+	}
+
+	public void parsing(URI uri) {
+		List<String> curr = uriDefines.get(uri);
+		if (curr == null) {
+			currentDefines = new ArrayList<>();
+			uriDefines.put(uri, currentDefines);
+		} else {
+			while (!curr.isEmpty()) {
+				dict.remove(curr.remove(0));
+			}
+			currentDefines = curr;
+		}
+	}
+
+	public void done() {
+		this.currentDefines = null;
 	}
 	
 	@Override
@@ -232,6 +252,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 				throw new DuplicateNameException(name);
 		}
 		dict.put(un, entry);
+		if (currentDefines != null) {
+			currentDefines.add(un);
+		}
 	}
 
 	private boolean checkNoStateConflicts(ErrorReporter errors, NameOfThing name, RepositoryEntry entry) {
