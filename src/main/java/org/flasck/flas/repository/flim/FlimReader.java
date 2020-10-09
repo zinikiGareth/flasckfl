@@ -13,16 +13,16 @@ import java.util.Set;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.blocker.TDANester;
-import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.Repository;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.utils.FileUtils;
 
 public class FlimReader {
-	private final ErrorResult errors;
+	private final ErrorReporter errors;
 	private final Repository repository;
 
-	public FlimReader(ErrorResult errors, Repository repository) {
+	public FlimReader(ErrorReporter errors, Repository repository) {
 		this.errors = errors;
 		this.repository = repository;
 	}

@@ -1,21 +1,36 @@
 package org.flasck.flas.compiler;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.flasck.flas.Configuration;
+import org.flasck.flas.LSPTaskQueue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
@@ -26,6 +41,8 @@ import org.flasck.flas.compiler.templates.EventBuilder;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.RepositoryLifter;
+import org.flasck.flas.lsp.CompileTask;
+import org.flasck.flas.lsp.Root;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.st.SystemTest;
@@ -36,9 +53,12 @@ import org.flasck.flas.parser.ut.ConsumeDefinitions;
 import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.AssemblyVisitor;
 import org.flasck.flas.repository.FunctionGroups;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.flas.repository.flim.FlimReader;
+import org.flasck.flas.repository.flim.FlimWriter;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
 import org.flasck.flas.tc3.TypeChecker;
@@ -64,22 +84,73 @@ import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 
-public class FLASCompiler {
+public class FLASCompiler implements CompileUnit {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	public static boolean backwardCompatibilityMode = true;
+	private final Configuration config;
 	private final ErrorReporter errors;
 	private final Repository repository;
 	private final Splitter splitter;
+	private final Map<String, Root> roots = new TreeMap<>();
+	private TaskQueue tasks;
+	private LanguageClient lsp;
+	private DirectedAcyclicGraph<String> pkgs;
 	private JSEnvironment jse;
 	private Map<EventHolder, EventTargetZones> eventMap;
 	private ByteCodeEnvironment bce;
 
-	public FLASCompiler(ErrorReporter errors, Repository repository) {
+	public FLASCompiler(Configuration config, ErrorReporter errors, Repository repository) {
+		this.config = config;
 		this.errors = errors;
 		this.repository = repository;
 		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
 	}
+
+	public void taskQueue(LSPTaskQueue tasks) {
+		this.tasks = tasks;
+	}
+
+	public void connect(LanguageClient client) {
+		this.lsp = client;
+		errors.connect(client);
+	}
 	
+	public boolean loadFLIM() {
+		LoadBuiltins.applyTo(errors, repository);
+		pkgs = new DirectedAcyclicGraph<>();
+		if (config.flimdir() != null) {
+			new FlimReader(errors, repository).read(pkgs, config.flimdir(), config.inputs);
+			if (errors.hasErrors())
+				return true;
+		}
+		return false;
+	}
+	
+	public void addRoot(String rootUri) {
+		try {
+			URI uri = new URI(rootUri + "/");
+			Root root = new Root(uri);
+			if (roots.containsKey(root.root.getPath()))
+				return;
+			lsp.logMessage(new MessageParams(MessageType.Log, "opening root " + root.root));
+			roots.put(root.root.getPath(), root);
+			root.gatherFiles(lsp);
+			compileAll(root);
+		} catch (URISyntaxException ex) {
+			lsp.logMessage(new MessageParams(MessageType.Error, "could not open " + rootUri));
+		}
+	}
+	
+	private void compileAll(Root root) {
+		for (URI u : root) {
+			tasks.submit(new CompileTask(this, u, null));
+		}
+	}
+
+	public void setCardsFolder(String cardsFolder) {
+//		this.submitter.setCardsFolder(cardsFolder);
+	}
+
 	public void processInput(File input) {
 		try {
 			parse(input);
@@ -98,6 +169,101 @@ public class FLASCompiler {
 			repository.webData(md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + web);
+		}
+	}
+	
+	@Override
+	public void parse(URI uri, String text) {
+		System.out.println("Compiling " + uri);
+		errors.beginProcessing(uri);
+		repository.parsing(uri);
+		parseOne(uri);
+		repository.done();
+		errors.doneProcessing();
+		if (tasks.isReady()) {
+			// if there were previously files that were corrupt, try compiling them again
+			List<URI> broken = new ArrayList<>(errors.getAllBrokenURIs());
+			for (URI b : broken) {
+				parseOne(b);
+			}
+			
+			// If some are still broken, we cannot proceed
+			if (!errors.getAllBrokenURIs().isEmpty())
+				return;
+
+			/*
+			for (File ws : workspaces) {
+				File web = new File(ws, cardsFolder);
+				if (web.isDirectory())
+					compiler.splitWeb(web);
+			}
+			*/
+
+			// do the rest of the compilation
+			sendRepo();
+		}
+	}
+	
+	private void parseOne(URI uri) {
+		Root root = findRoot(uri);
+		if (root == null) {
+			lsp.logMessage(new MessageParams(MessageType.Error, "could not find root for " + uri));
+			return;
+		}
+		File file = new File(uri.getPath());
+		String inPkg = file.getParentFile().getName();
+		String name = file.getName();
+		String type = FileUtils.extension(name);
+		
+		switch (type) {
+		case ".fl":
+			parseFL(file, inPkg, name);
+		case ".ut":
+			break;
+		case ".st":
+			break;
+		case ".fa":
+			parseFA(file, inPkg, name);
+		default:
+			lsp.logMessage(new MessageParams(MessageType.Log, "could not compile " + FileUtils.makeRelativeTo(file, root.root)));
+		}
+
+	}
+
+	private Root findRoot(URI uri) {
+		String path = uri.getPath();
+		for (Entry<String, Root> e : roots.entrySet()) {
+			if (path.startsWith(e.getKey()))
+				return e.getValue();
+		}
+		return null;
+	}
+
+	public void parseFL(File file, String inPkg, String name) {
+		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer)repository);
+		lsp.logMessage(new MessageParams(MessageType.Log, "compiling " + name + " in " + inPkg));
+		flp.process(file);
+	}
+	
+	public void parseFA(File file, String inPkg, String name) {
+		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
+		lsp.logMessage(new MessageParams(MessageType.Log, "compiling " + file.getName() + " in " + inPkg));
+		fap.process(file);
+	}
+	
+	private void sendRepo() {
+		try {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			repository.dumpTo(pw);
+			pw.close();
+			LineNumberReader lnr = new LineNumberReader(new StringReader(sw.toString()));
+			String s;
+			while ((s = lnr.readLine()) != null) {
+				lsp.logMessage(new MessageParams(MessageType.Log, s));
+			}
+		} catch (Exception ex) {
+			lsp.logMessage(new MessageParams(MessageType.Log, "Error reading repo: " + ex));
 		}
 	}
 
@@ -148,6 +314,126 @@ public class FLASCompiler {
 		}
 	}
 	
+	public boolean stage2() {
+		File dump = config.dumprepo();
+		if (dump != null) {
+			try {
+				repository.dumpTo(dump);
+			} catch (IOException ex) {
+				System.out.println("Could not dump repository to " + dump);
+			}
+		}
+		
+		if (config.upto() == PhaseTo.PARSING)
+			return true;
+		
+		if (resolve())
+			return true;
+		
+		FunctionGroups ordering = lift();
+		analyzePatterns();
+		if (errors.hasErrors())
+			return true;
+		
+		if (config.doTypeCheck) {
+			doTypeChecking(ordering);
+			if (errors.hasErrors())
+				return true;
+			try {
+				dumpTypes(config.writeTypesTo);
+			} catch (FileNotFoundException ex) {
+				errors.message((InputPosition)null, "cannot open file " + config.writeTypesTo);
+				return true;
+			}
+			if (errors.hasErrors())
+				return true;
+		}
+
+		if (convertMethods())
+			return true;
+		
+		if (buildEventMaps())
+			return true;
+
+		Set<String> usedrefs = new TreeSet<>();
+		if (config.flimdir() != null) {
+			FlimWriter writer = new FlimWriter(repository, config.flimdir());
+			List<String> process = new ArrayList<>();
+			for (File f : config.inputs)
+				process.add(f.getName());
+			while (!process.isEmpty()) {
+				String input = process.remove(0);
+				Set<String> refs = writer.export(input);
+				if (refs == null)
+					return true;
+				pkgs.ensure(input);
+				for (String s : refs) {
+					pkgs.ensure(s);
+					pkgs.ensureLink(input, s);
+				}
+				usedrefs.addAll(refs);
+				refs.retainAll(process);
+				if (!refs.isEmpty()) {
+					for (String s : refs)
+						System.out.println("invalid order: package " + input + " depends on " + s + " which has not been processed");
+					return true;
+				}
+			}
+		}
+		
+		if (generateCode(config, pkgs))
+			return true;
+		
+		Map<File, TestResultWriter> testWriters = new HashMap<>();
+		try {
+			if (runUnitTests(config, testWriters))
+				return true;
+
+			if (runSystemTests(config, testWriters))
+				return true;
+		} finally {
+			testWriters.values().forEach(w -> w.close());
+		}
+
+
+		if (config.html != null) {
+			try (FileWriter fos = new FileWriter(config.html)) {
+				File fldir = new File(config.root, "flascklib/js");
+				FileUtils.cleanDirectory(fldir);
+				FileUtils.assertDirectory(fldir);
+				List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
+				for (File f : library) {
+					FileUtils.copy(f, fldir);
+				}
+				FLASAssembler asm = new FLASAssembler(fos, "flascklib");
+				if (!config.includeFrom.isEmpty()) {
+					File incdir = new File("includes/js");
+					File ct = new File(config.root, incdir.getPath());
+					FileUtils.cleanDirectory(ct);
+					FileUtils.assertDirectory(ct);
+					for (File f : config.includeFrom) {
+						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
+							FileUtils.copy(i, ct);
+							asm.includeJS(new File(incdir, i.getName()));
+						}
+					}
+				}
+				generateHTML(asm, config);
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+			if (config.openHTML) {
+				try {
+					Desktop.getDesktop().open(config.html);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public boolean resolve() {
 		Resolver resolver = new RepositoryResolver(errors, repository);
 		repository.traverseWithImplementedMethods(resolver);

@@ -1,6 +1,5 @@
 package org.flasck.flas;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -9,30 +8,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
-import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.repository.FunctionGroups;
-import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.flim.FlimReader;
-import org.flasck.flas.repository.flim.FlimWriter;
-import org.flasck.flas.testrunner.TestResultWriter;
-import org.flasck.jvm.assembly.FLASAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
-import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.streamedlogger.api.Level;
-import org.zinutils.utils.FileUtils;
 
 public class Main {
 	public static void main(String[] args) {
@@ -103,14 +86,9 @@ public class Main {
 		}
 
 		Repository repository = new Repository();
-		LoadBuiltins.applyTo(errors, repository);
-		DirectedAcyclicGraph<String> pkgs = new DirectedAcyclicGraph<>();
-		if (config.flimdir() != null) {
-			new FlimReader(errors, repository).read(pkgs, config.flimdir(), config.inputs);
-			if (errors.hasErrors())
-				return null;
-		}
-		FLASCompiler compiler = new FLASCompiler(errors, repository);
+		FLASCompiler compiler = new FLASCompiler(config, errors, repository);
+		if (compiler.loadFLIM())
+			return null;
 		if (config.inputs.isEmpty()) {
 			errors.message((InputPosition)null, "there are no input packages");
 			return null;
@@ -120,110 +98,10 @@ public class Main {
 		for (File web : config.webs)
 			compiler.splitWeb(web);
 
-		if (config.dumprepo != null) {
-			try {
-				repository.dumpTo(config.dumprepo);
-			} catch (IOException ex) {
-				System.out.println("Could not dump repository to " + config.dumprepo);
-			}
-		}
-		
-		if (config.upto == PhaseTo.PARSING)
+		if (compiler.stage2())
 			return null;
-		
-		if (compiler.resolve())
-			return null;
-		
-		FunctionGroups ordering = compiler.lift();
-		compiler.analyzePatterns();
-		if (errors.hasErrors())
-			return null;
-		
-		if (config.doTypeCheck) {
-			compiler.doTypeChecking(ordering);
-			if (errors.hasErrors())
-				return null;
-			compiler.dumpTypes(config.writeTypesTo);
-			if (errors.hasErrors())
-				return null;
-		}
-
-		if (compiler.convertMethods())
-			return null;
-		
-		if (compiler.buildEventMaps())
-			return null;
-
-		Set<String> usedrefs = new TreeSet<>();
-		if (config.flimdir() != null) {
-			FlimWriter writer = new FlimWriter(repository, config.flimdir());
-			List<String> process = new ArrayList<>();
-			for (File f : config.inputs)
-				process.add(f.getName());
-			while (!process.isEmpty()) {
-				String input = process.remove(0);
-				Set<String> refs = writer.export(input);
-				if (refs == null)
-					return null;
-				pkgs.ensure(input);
-				for (String s : refs) {
-					pkgs.ensure(s);
-					pkgs.ensureLink(input, s);
-				}
-				usedrefs.addAll(refs);
-				refs.retainAll(process);
-				if (!refs.isEmpty()) {
-					for (String s : refs)
-						System.out.println("invalid order: package " + input + " depends on " + s + " which has not been processed");
-					return null;
-				}
-			}
-		}
-		
-		if (compiler.generateCode(config, pkgs))
-			return null;
-		
-		Map<File, TestResultWriter> testWriters = new HashMap<>();
-		try {
-			if (compiler.runUnitTests(config, testWriters))
-				return null;
-
-			if (compiler.runSystemTests(config, testWriters))
-				return null;
-		} finally {
-			testWriters.values().forEach(w -> w.close());
-		}
-
-
-		if (config.html != null) {
-			try (FileWriter fos = new FileWriter(config.html)) {
-				File fldir = new File(config.root, "flascklib/js");
-				FileUtils.cleanDirectory(fldir);
-				FileUtils.assertDirectory(fldir);
-				List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
-				for (File f : library) {
-					FileUtils.copy(f, fldir);
-				}
-				FLASAssembler asm = new FLASAssembler(fos, "flascklib");
-				if (!config.includeFrom.isEmpty()) {
-					File incdir = new File("includes/js");
-					File ct = new File(config.root, incdir.getPath());
-					FileUtils.cleanDirectory(ct);
-					FileUtils.assertDirectory(ct);
-					for (File f : config.includeFrom) {
-						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
-							FileUtils.copy(i, ct);
-							asm.includeJS(new File(incdir, i.getName()));
-						}
-					}
-				}
-				compiler.generateHTML(asm, config);
-			}
-			if (config.openHTML)
-				Desktop.getDesktop().open(config.html);
-		}
-
-		return compiler;
+		else
+			return compiler;
 	}
 
 	public static void setLogLevels() {

@@ -2,14 +2,6 @@ package org.flasck.flas.lsp;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -20,40 +12,21 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import org.flasck.flas.compiler.FLASCompiler;
-import org.flasck.flas.repository.Repository;
+import org.flasck.flas.compiler.CompileUnit;
+import org.flasck.flas.compiler.TaskQueue;
 
-public class FLASParsingService implements TextDocumentService, ParseURI {
-	private final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<Runnable>();
-	private final Executor exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, tasks);
-	private final Map<String, Root> roots = new TreeMap<>();
-	private final CompilationSubmitter submitter;
+public class FLASParsingService implements TextDocumentService {
+	private final CompileUnit compiler;
+	private final TaskQueue queue;
 	private LanguageClient client;
 
-	public FLASParsingService(LSPErrorForwarder errors, Repository repository, FLASCompiler compiler) {
-		this.submitter = new CompilationSubmitter(this, errors, repository, tasks, exec);
+	public FLASParsingService(CompileUnit compiler, TaskQueue queue) {
+		this.compiler = compiler;
+		this.queue = queue;
 	}
 
 	public void connect(LanguageClient client) {
 		this.client = client;
-		this.submitter.connect(client);
-	}
-
-	public void setCardsFolder(String cardsFolder) {
-		this.submitter.setCardsFolder(cardsFolder);
-	}
-
-	public void addRoot(String rootUri) {
-		try {
-			URI uri = new URI(rootUri + "/");
-			Root root = new Root(client, submitter, uri);
-			if (roots.containsKey(root.root.getPath()))
-				return;
-			roots.put(root.root.getPath(), root);
-			root.gatherFiles();
-		} catch (URISyntaxException ex) {
-			client.logMessage(new MessageParams(MessageType.Error, "could not open " + rootUri));
-		}
 	}
 
 	@Override
@@ -63,7 +36,7 @@ public class FLASParsingService implements TextDocumentService, ParseURI {
     		return;
     	String text = params.getTextDocument().getText();
     	System.out.println("saw open of " + uri);
-    	parse(uri, text);
+    	queue.submit(new CompileTask(compiler, uri, text));
 	}
 
 	@Override
@@ -81,7 +54,7 @@ public class FLASParsingService implements TextDocumentService, ParseURI {
                 throw new UnsupportedOperationException("Text should not be null.");
             }
 
-            parse(uri, changeEvent.getText());
+            queue.submit(new CompileTask(compiler, uri, changeEvent.getText()));
         }
 	}
 
@@ -104,19 +77,5 @@ public class FLASParsingService implements TextDocumentService, ParseURI {
             client.logMessage(new MessageParams(MessageType.Warning, "Problem parsing " + uris));
             return null;
     	}
-	}
-
-	@Override
-	public void parse(URI uri, String text) {
-		// repository.clean(uri);
-    	String path = uri.getPath();
-    	for (Entry<String, Root> e : roots.entrySet()) {
-    		if (path.startsWith(e.getKey())) {
-    			System.out.println("matched root " + e.getKey());
-				e.getValue().parse(uri, text);
-    			return;
-    		}
-    	}
-    	client.logMessage(new MessageParams(MessageType.Warning, "did not find a root for " + uri));
 	}
 }

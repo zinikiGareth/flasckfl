@@ -2,65 +2,39 @@ package org.flasck.flas.lsp;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Iterator;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.zinutils.utils.FileUtils;
 
-public class Root {
-	private final LanguageClient client;
-	private final Submitter submitter;
-	private final URI uri;
+public class Root implements Iterable<URI> {
 	public final File root;
 	private final TreeSet<File> files = new TreeSet<File>(new WorkspaceFileNameComparator());
+	private URI uri;
 
-	public Root(LanguageClient client, Submitter submitter, URI uri) {
-		this.client = client;
-		this.submitter = submitter;
+	public Root(URI uri) {
 		this.uri = uri;
 		this.root = new File(uri.getPath());
-		client.logMessage(new MessageParams(MessageType.Log, "opening root " + root));
 	}
 
-	public void gatherFiles() {
+	public void gatherFiles(LanguageClient lsp) {
 		files.clear();
-		for (File f : FileUtils.findFilesMatching(root, "*")) {
-			if (WorkspaceFileNameComparator.find(FileUtils.extension((f.getName()))) != -1) {
+		for (File f : FileUtils.findFilesUnderMatching(root, "*")) {
+			if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((f.getName())))) {
 				files.add(f);
 			}
 		}
 		for (File f : files) {
-			client.logMessage(new MessageParams(MessageType.Log, "gathered " + FileUtils.makeRelativeTo(f, root)));
-		}
-		compileAll();
-	}
-
-	private void compileAll() {
-		for (File f : files) {
-			submitter.submit(compile(f));
+			lsp.logMessage(new MessageParams(MessageType.Log, "gathered " + f));
 		}
 	}
 
-	// TODO: if text is non-null, we need to use this instead of the contents of the file, otherwise we are "out of date"
-	public void parse(URI uri, String text) {
-		submitter.submit(compile(new File(uri.getPath())));
-	}
-
-	private CompileFile compile(File f) {
-		switch (FileUtils.extension(f.getName())) {
-		case ".fl":
-			return new CompileFLAS(uri.resolve(f.getPath()));
-		case ".ut":
-			break;
-		case ".st":
-			break;
-		case ".fa":
-			return new CompileFA(uri.resolve(f.getPath()));
-		default:
-			client.logMessage(new MessageParams(MessageType.Log, "could not compile " + FileUtils.makeRelativeTo(f, root)));
-		}
-		return null;
+	@Override
+	public Iterator<URI> iterator() {
+		return files.stream().map(f -> uri.resolve(f.getPath())).collect(Collectors.toList()).iterator();
 	}
 }

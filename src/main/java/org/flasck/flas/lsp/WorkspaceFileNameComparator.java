@@ -15,7 +15,11 @@ public class WorkspaceFileNameComparator extends FileNameComparator {
 		return Integer.compare(e1, e2);
 	}
 
-	public static int find(String extension) {
+	public static boolean isValidExtension(String extension) {
+		return find(extension) != -1;
+	}
+	
+	private static int find(String extension) {
 		for (int i=0;i<extensions.length;i++)
 			if (extensions[i].equals(extension))
 				return i;

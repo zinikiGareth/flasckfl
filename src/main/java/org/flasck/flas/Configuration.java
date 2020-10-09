@@ -222,4 +222,12 @@ public class Configuration {
 	public File flimdir() {
 		return flimDir;
 	}
+
+	public File dumprepo() {
+		return dumprepo;
+	}
+
+	public PhaseTo upto() {
+		return upto;
+	}
 }

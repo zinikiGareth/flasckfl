@@ -13,16 +13,18 @@ import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.flasck.flas.LSPTaskQueue;
 import org.flasck.flas.compiler.FLASCompiler;
-import org.flasck.flas.repository.Repository;
 
 public class FLASLanguageServer implements LanguageServer, LanguageClientAware {
+	private final FLASCompiler compiler;
     private final FLASParsingService parsingService;
 
-    public FLASLanguageServer(LSPErrorForwarder errors, Repository repo, FLASCompiler compiler) {
-    	 parsingService = new FLASParsingService(errors, repo, compiler);
+	public FLASLanguageServer(FLASCompiler compiler, LSPTaskQueue taskQ) {
+		this.compiler = compiler;
+		parsingService = new FLASParsingService(compiler, taskQ);
 	}
-    
+
 	@Override
 	public void connect(LanguageClient client) {
 		parsingService.connect(client);
@@ -30,11 +32,11 @@ public class FLASLanguageServer implements LanguageServer, LanguageClientAware {
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-		parsingService.addRoot(params.getRootUri());
+		compiler.addRoot(params.getRootUri());
 		List<WorkspaceFolder> folders = params.getWorkspaceFolders();
 		if (folders != null) {
 			for (WorkspaceFolder f : folders) {
-				parsingService.addRoot(f.getUri());
+				compiler.addRoot(f.getUri());
 			}
 		}
         ServerCapabilities capabilities = new ServerCapabilities();
@@ -43,7 +45,7 @@ public class FLASLanguageServer implements LanguageServer, LanguageClientAware {
 	}
 
 	public void setCardsFolder(String cardsFolder) {
-		parsingService.setCardsFolder(cardsFolder);
+		compiler.setCardsFolder(cardsFolder);
 	}
 
 	@Override
