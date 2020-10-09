@@ -3,6 +3,7 @@ package org.flasck.flas.lsp;
 import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -16,9 +17,10 @@ import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.errors.FatErrorAPI;
 
 public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
+	private final List<URI> broken = new ArrayList<>();
 	private LanguageClient client;
 	private URI uri;
-	private ArrayList<Diagnostic> diagnostics;
+	private List<Diagnostic> diagnostics;
 
 	public LSPErrorForwarder() {
 	}
@@ -54,7 +56,15 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 	}
 
 	public void doneProcessing() {
+		if (diagnostics.isEmpty())
+			broken.remove(uri);
+		else
+			broken.add(uri);
 		client.publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), diagnostics));
+	}
+	
+	public List<URI> getAllBrokenURIs() {
+		return broken;
 	}
 	
 	@Override

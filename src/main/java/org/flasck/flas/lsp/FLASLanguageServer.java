@@ -42,6 +42,10 @@ public class FLASLanguageServer implements LanguageServer, LanguageClientAware {
         return CompletableFuture.completedFuture(new InitializeResult(capabilities));
 	}
 
+	public void setCardsFolder(String cardsFolder) {
+		parsingService.setCardsFolder(cardsFolder);
+	}
+
 	@Override
 	public TextDocumentService getTextDocumentService() {
 		return parsingService;
@@ -49,7 +53,7 @@ public class FLASLanguageServer implements LanguageServer, LanguageClientAware {
 
 	@Override
 	public WorkspaceService getWorkspaceService() {
-		return new FLASWorkspaceService();
+		return new FLASWorkspaceService(this);
 	}
 
 	@Override

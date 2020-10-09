@@ -1,9 +1,13 @@
 package org.flasck.flas.lsp;
 
+import java.io.File;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.lsp4j.MessageParams;
@@ -11,18 +15,25 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.flasck.flas.repository.Repository;
 
+// TODO: extract most of this somewhere else (say "FLASCompiler")
+// "run" here should invoke that with the minimal amount of extra information
+// get it so that we do the remaining steps
 public class CompileTask implements Runnable {
 	private final LanguageClient client;
+	private final ParseURI parser;
 	private final BlockingQueue<Runnable> tasks;
 	private final LSPErrorForwarder errors;
 	private final Repository repository;
 	private final AbstractCompilation cf;
+	private final String cardsFolder;
 
-	public CompileTask(LanguageClient client, BlockingQueue<Runnable> tasks, LSPErrorForwarder errors, Repository repository, CompileFile cf) {
+	public CompileTask(LanguageClient client, ParseURI parser, BlockingQueue<Runnable> tasks, LSPErrorForwarder errors, Repository repository, String cardsFolder, CompileFile cf) {
 		this.client = client;
+		this.parser = parser;
 		this.tasks = tasks;
 		this.errors = errors;
 		this.repository = repository;
+		this.cardsFolder = cardsFolder;
 		this.cf = (AbstractCompilation) cf;
 	}
 
@@ -46,8 +57,26 @@ public class CompileTask implements Runnable {
 		errors.doneProcessing();
 		if (tasks.isEmpty()) {
 			// if there were previously files that were corrupt, try compiling them again
+			List<URI> broken = new ArrayList<>(errors.getAllBrokenURIs());
+			for (URI uri : broken) {
+				parser.parse(uri, null);
+			}
+			
+			// If some are still broken, we cannot proceed
+			if (!errors.getAllBrokenURIs().isEmpty())
+				return;
+
+			/*
+			for (File ws : workspaces) {
+				File web = new File(ws, cardsFolder);
+				if (web.isDirectory())
+					compiler.splitWeb(web);
+			}
+			*/
+
 			// do the rest of the compilation
 			sendRepo();
+			
 		}
 	}
 	

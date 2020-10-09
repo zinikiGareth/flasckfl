@@ -43,9 +43,9 @@ public class Root {
 		}
 	}
 
+	// TODO: if text is non-null, we need to use this instead of the contents of the file, otherwise we are "out of date"
 	public void parse(URI uri, String text) {
 		submitter.submit(compile(new File(uri.getPath())));
-		
 	}
 
 	private CompileFile compile(File f) {

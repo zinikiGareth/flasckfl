@@ -23,7 +23,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.repository.Repository;
 
-public class FLASParsingService implements TextDocumentService {
+public class FLASParsingService implements TextDocumentService, ParseURI {
 	private final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<Runnable>();
 	private final Executor exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, tasks);
 	private final Map<String, Root> roots = new TreeMap<>();
@@ -31,12 +31,16 @@ public class FLASParsingService implements TextDocumentService {
 	private LanguageClient client;
 
 	public FLASParsingService(LSPErrorForwarder errors, Repository repository, FLASCompiler compiler) {
-		this.submitter = new CompilationSubmitter(errors, repository, tasks, exec);
+		this.submitter = new CompilationSubmitter(this, errors, repository, tasks, exec);
 	}
 
 	public void connect(LanguageClient client) {
 		this.client = client;
 		this.submitter.connect(client);
+	}
+
+	public void setCardsFolder(String cardsFolder) {
+		this.submitter.setCardsFolder(cardsFolder);
 	}
 
 	public void addRoot(String rootUri) {
@@ -102,7 +106,8 @@ public class FLASParsingService implements TextDocumentService {
     	}
 	}
 
-	private void parse(URI uri, String text) {
+	@Override
+	public void parse(URI uri, String text) {
 		// repository.clean(uri);
     	String path = uri.getPath();
     	for (Entry<String, Root> e : roots.entrySet()) {
