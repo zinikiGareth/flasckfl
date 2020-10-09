@@ -61,6 +61,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.ziniki.splitter.CardData;
+import org.ziniki.splitter.NoMetaDataException;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
@@ -480,9 +481,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public CardData findWeb(String baseName) {
 		for (SplitMetaData web : webs) {
-			CardData ret = web.forCard(baseName);
-			if (ret != null)
-				return ret;
+			try {
+				return web.forCard(baseName);
+			} catch (NoMetaDataException ex) {
+				; // it wasn't there ...
+			}
 		}
 		return null;
 	}

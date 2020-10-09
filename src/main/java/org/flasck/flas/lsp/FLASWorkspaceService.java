@@ -17,7 +17,6 @@ public class FLASWorkspaceService implements WorkspaceService {
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
 		JsonObject settings = (JsonObject) params.getSettings();
 		String cardsFolder = settings.get("FLAS").getAsJsonObject().get("lookForCardsInFolder").getAsString();
-		System.out.println("did change config: " + cardsFolder);
 		server.setCardsFolder(cardsFolder);
 	}
 

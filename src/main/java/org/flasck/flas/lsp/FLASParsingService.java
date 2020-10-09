@@ -14,6 +14,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.flasck.flas.compiler.CompileUnit;
 import org.flasck.flas.compiler.TaskQueue;
+import org.zinutils.utils.FileUtils;
 
 public class FLASParsingService implements TextDocumentService {
 	private final CompileUnit compiler;
@@ -36,7 +37,8 @@ public class FLASParsingService implements TextDocumentService {
     		return;
     	String text = params.getTextDocument().getText();
     	System.out.println("saw open of " + uri);
-    	queue.submit(new CompileTask(compiler, uri, text));
+    	if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath()))))
+    		queue.submit(new CompileTask(compiler, uri, text));
 	}
 
 	@Override
@@ -45,6 +47,8 @@ public class FLASParsingService implements TextDocumentService {
     	if (uri == null)
     		return;
     	System.out.println("saw change to " + uri);
+    	if (!WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath()))))
+    		return;
         for (TextDocumentContentChangeEvent changeEvent : params.getContentChanges()) {
             // Will be full update because we specified that is all we support
             if (changeEvent.getRange() != null) {

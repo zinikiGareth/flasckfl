@@ -105,7 +105,9 @@ public class TemplateNestingChain implements NestingChain {
 	@Override
 	public RepositoryEntry resolve(RepositoryResolver resolver, UnresolvedVar var) {
 		for (Link l : links) {
-			if (l.name != null && l.name.var.equals(var.var))
+			if (l.actual == null)
+				continue;
+			else if (l.name != null && l.name.var.equals(var.var))
 				return new TemplateNestedField(var.location, l.name, l.actual, null);
 			else if (l.actual instanceof StructDefn) {
 				StructDefn ty = (StructDefn) l.actual;

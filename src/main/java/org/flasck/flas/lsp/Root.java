@@ -12,9 +12,9 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.zinutils.utils.FileUtils;
 
 public class Root implements Iterable<URI> {
+	public final URI uri;
 	public final File root;
 	private final TreeSet<File> files = new TreeSet<File>(new WorkspaceFileNameComparator());
-	private URI uri;
 
 	public Root(URI uri) {
 		this.uri = uri;

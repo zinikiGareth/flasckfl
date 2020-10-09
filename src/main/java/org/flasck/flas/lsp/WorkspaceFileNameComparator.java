@@ -12,7 +12,10 @@ public class WorkspaceFileNameComparator extends FileNameComparator {
 	public int compare(File o1, File o2) {
 		int e1 = find(FileUtils.extension(o1.getName()));
 		int e2 = find(FileUtils.extension(o2.getName()));
-		return Integer.compare(e1, e2);
+		int ret = Integer.compare(e1, e2);
+		if (ret != 0)
+			return ret;
+		return o1.getName().compareTo(o2.getName());
 	}
 
 	public static boolean isValidExtension(String extension) {

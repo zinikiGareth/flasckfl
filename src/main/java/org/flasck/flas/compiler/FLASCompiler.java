@@ -94,6 +94,7 @@ public class FLASCompiler implements CompileUnit {
 	private final Map<String, Root> roots = new TreeMap<>();
 	private TaskQueue tasks;
 	private LanguageClient lsp;
+	private String cardsFolder;
 	private DirectedAcyclicGraph<String> pkgs;
 	private JSEnvironment jse;
 	private Map<EventHolder, EventTargetZones> eventMap;
@@ -114,6 +115,14 @@ public class FLASCompiler implements CompileUnit {
 		this.lsp = client;
 		errors.connect(client);
 	}
+
+	public void setCardsFolder(String cardsFolder) {
+		this.cardsFolder = cardsFolder;
+		if (tasks.isReady()) {
+			System.out.println("Cards folder specified - splitting");
+			attemptRest();
+		}
+	}
 	
 	public boolean loadFLIM() {
 		LoadBuiltins.applyTo(errors, repository);
@@ -128,14 +137,16 @@ public class FLASCompiler implements CompileUnit {
 	
 	public void addRoot(String rootUri) {
 		try {
-			URI uri = new URI(rootUri + "/");
-			Root root = new Root(uri);
-			if (roots.containsKey(root.root.getPath()))
-				return;
-			lsp.logMessage(new MessageParams(MessageType.Log, "opening root " + root.root));
-			roots.put(root.root.getPath(), root);
-			root.gatherFiles(lsp);
-			compileAll(root);
+			synchronized (roots) {
+				URI uri = new URI(rootUri + "/");
+				Root root = new Root(uri);
+				if (roots.containsKey(root.root.getPath()))
+					return;
+				lsp.logMessage(new MessageParams(MessageType.Log, "opening root " + root.root));
+				roots.put(root.root.getPath(), root);
+				root.gatherFiles(lsp);
+				compileAll(root);
+			}
 		} catch (URISyntaxException ex) {
 			lsp.logMessage(new MessageParams(MessageType.Error, "could not open " + rootUri));
 		}
@@ -145,10 +156,6 @@ public class FLASCompiler implements CompileUnit {
 		for (URI u : root) {
 			tasks.submit(new CompileTask(this, u, null));
 		}
-	}
-
-	public void setCardsFolder(String cardsFolder) {
-//		this.submitter.setCardsFolder(cardsFolder);
 	}
 
 	public void processInput(File input) {
@@ -181,92 +188,10 @@ public class FLASCompiler implements CompileUnit {
 		repository.done();
 		errors.doneProcessing();
 		if (tasks.isReady()) {
-			// if there were previously files that were corrupt, try compiling them again
-			List<URI> broken = new ArrayList<>(errors.getAllBrokenURIs());
-			for (URI b : broken) {
-				parseOne(b);
-			}
-			
-			// If some are still broken, we cannot proceed
-			if (!errors.getAllBrokenURIs().isEmpty())
-				return;
-
-			/*
-			for (File ws : workspaces) {
-				File web = new File(ws, cardsFolder);
-				if (web.isDirectory())
-					compiler.splitWeb(web);
-			}
-			*/
-
-			// do the rest of the compilation
-			sendRepo();
+			attemptRest();
 		}
 	}
 	
-	private void parseOne(URI uri) {
-		Root root = findRoot(uri);
-		if (root == null) {
-			lsp.logMessage(new MessageParams(MessageType.Error, "could not find root for " + uri));
-			return;
-		}
-		File file = new File(uri.getPath());
-		String inPkg = file.getParentFile().getName();
-		String name = file.getName();
-		String type = FileUtils.extension(name);
-		
-		switch (type) {
-		case ".fl":
-			parseFL(file, inPkg, name);
-		case ".ut":
-			break;
-		case ".st":
-			break;
-		case ".fa":
-			parseFA(file, inPkg, name);
-		default:
-			lsp.logMessage(new MessageParams(MessageType.Log, "could not compile " + FileUtils.makeRelativeTo(file, root.root)));
-		}
-
-	}
-
-	private Root findRoot(URI uri) {
-		String path = uri.getPath();
-		for (Entry<String, Root> e : roots.entrySet()) {
-			if (path.startsWith(e.getKey()))
-				return e.getValue();
-		}
-		return null;
-	}
-
-	public void parseFL(File file, String inPkg, String name) {
-		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer)repository);
-		lsp.logMessage(new MessageParams(MessageType.Log, "compiling " + name + " in " + inPkg));
-		flp.process(file);
-	}
-	
-	public void parseFA(File file, String inPkg, String name) {
-		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
-		lsp.logMessage(new MessageParams(MessageType.Log, "compiling " + file.getName() + " in " + inPkg));
-		fap.process(file);
-	}
-	
-	private void sendRepo() {
-		try {
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			repository.dumpTo(pw);
-			pw.close();
-			LineNumberReader lnr = new LineNumberReader(new StringReader(sw.toString()));
-			String s;
-			while ((s = lnr.readLine()) != null) {
-				lsp.logMessage(new MessageParams(MessageType.Log, s));
-			}
-		} catch (Exception ex) {
-			lsp.logMessage(new MessageParams(MessageType.Log, "Error reading repo: " + ex));
-		}
-	}
-
 	public void parse(File dir) {
 		if (!dir.isDirectory()) {
 			errors.message((InputPosition)null, "there is no input directory " + dir);
@@ -314,6 +239,74 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 	
+	private void parseOne(URI uri) {
+		Root root = findRoot(uri);
+		if (root == null) {
+			lsp.logMessage(new MessageParams(MessageType.Error, "could not find root for " + uri));
+			return;
+		}
+		File file = new File(uri.getPath());
+		String inPkg = file.getParentFile().getName();
+		String name = file.getName();
+		String type = FileUtils.extension(name);
+		
+		switch (type) {
+		case ".fl":
+			parseFL(file, inPkg, name);
+			break;
+		case ".ut":
+			break;
+		case ".st":
+			break;
+		case ".fa":
+			parseFA(file, inPkg, name);
+			break;
+		default:
+			lsp.logMessage(new MessageParams(MessageType.Log, "could not compile " + FileUtils.makeRelativeTo(file, root.root)));
+		}
+	}
+
+	private void parseFL(File file, String inPkg, String name) {
+		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer)repository);
+		lsp.logMessage(new MessageParams(MessageType.Log, "compiling " + name + " in " + inPkg));
+		flp.process(file);
+	}
+	
+	private void parseFA(File file, String inPkg, String name) {
+		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
+		lsp.logMessage(new MessageParams(MessageType.Log, "compiling " + file.getName() + " in " + inPkg));
+		fap.process(file);
+	}
+
+	private void attemptRest() {
+		// if there were previously files that were corrupt, try compiling them again
+		List<URI> broken = new ArrayList<>(errors.getAllBrokenURIs());
+		for (URI b : broken) {
+			parseOne(b);
+		}
+		
+		// If some are still broken, we cannot proceed
+		if (!errors.getAllBrokenURIs().isEmpty())
+			return;
+
+		List<Root> traverse;
+		synchronized (roots) {
+			traverse = new ArrayList<>(roots.values());
+		}
+
+		if (cardsFolder != null) {
+			for (Root root : traverse) {
+				File web = new File(root.root, cardsFolder);
+				if (web.isDirectory())
+					splitWeb(web);
+			}
+		}
+
+		// do the rest of the compilation
+		sendRepo();
+		stage2();
+	}
+
 	public boolean stage2() {
 		File dump = config.dumprepo();
 		if (dump != null) {
@@ -680,6 +673,33 @@ public class FLASCompiler implements CompileUnit {
 		for (String s : bits) {
 			if (!Character.isLowerCase(s.charAt(0)))
 				throw new RuntimeException("Package must have valid package name");
+		}
+	}
+
+	private Root findRoot(URI uri) {
+		synchronized (roots) {
+			String path = uri.getPath();
+			for (Entry<String, Root> e : roots.entrySet()) {
+				if (path.startsWith(e.getKey()))
+					return e.getValue();
+			}
+			return null;
+		}
+	}
+	
+	private void sendRepo() {
+		try {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			repository.dumpTo(pw);
+			pw.close();
+			LineNumberReader lnr = new LineNumberReader(new StringReader(sw.toString()));
+			String s;
+			while ((s = lnr.readLine()) != null) {
+				lsp.logMessage(new MessageParams(MessageType.Log, s));
+			}
+		} catch (Exception ex) {
+			lsp.logMessage(new MessageParams(MessageType.Log, "Error reading repo: " + ex));
 		}
 	}
 

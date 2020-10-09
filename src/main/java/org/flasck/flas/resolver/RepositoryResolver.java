@@ -80,7 +80,6 @@ import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
-import org.ziniki.splitter.NoMetaDataException;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -686,11 +685,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		currentBindings = new TreeSet<>();
 		TemplateName name = t.name();
 		CardData webInfo = null;
-		try {
-			webInfo = repository.findWeb(name.baseName());
-		} catch (NoMetaDataException ex) {
-			// webInfo will be null and be caught below
-		}
+		webInfo = repository.findWeb(name.baseName());
 		if (webInfo == null) {
 			errors.message(name.location(), "there is no web template defined for " + name.baseName());
 			return;
