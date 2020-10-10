@@ -23,7 +23,7 @@ public class FlimWriter {
 		try {
 			FileUtils.assertDirectory(flimdir);
 
-			PrintWriter pw = new PrintWriter(new File(flimdir, pkg));
+			PrintWriter pw = new PrintWriter(new File(flimdir, pkg + ".flim"));
 			IndentWriter iw = new IndentWriter(pw, "\t").indent();
 			String pkgName = null;
 			if (!"root.package".equals(pkg))
