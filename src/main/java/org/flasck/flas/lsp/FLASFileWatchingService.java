@@ -7,27 +7,18 @@ import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import org.flasck.flas.compiler.CompileUnit;
-import org.flasck.flas.compiler.TaskQueue;
+import org.flasck.flas.errors.ErrorReporter;
 import org.zinutils.utils.FileUtils;
 
-public class FLASParsingService implements TextDocumentService {
-	private final CompileUnit compiler;
-	private final TaskQueue queue;
-	private LanguageClient client;
+public class FLASFileWatchingService implements TextDocumentService {
+	private final FLASLanguageServer dispatcher;
+	private final ErrorReporter errors;
 
-	public FLASParsingService(CompileUnit compiler, TaskQueue queue) {
-		this.compiler = compiler;
-		this.queue = queue;
-	}
-
-	public void connect(LanguageClient client) {
-		this.client = client;
+	public FLASFileWatchingService(ErrorReporter errors, FLASLanguageServer dispatcher) {
+		this.errors = errors;
+		this.dispatcher = dispatcher;
 	}
 
 	@Override
@@ -37,8 +28,7 @@ public class FLASParsingService implements TextDocumentService {
     		return;
     	String text = params.getTextDocument().getText();
     	System.out.println("saw open of " + uri);
-    	if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath()))))
-    		queue.submit(new CompileTask(compiler, uri, text));
+    	dispatcher.dispatch(uri, text);
 	}
 
 	@Override
@@ -58,7 +48,7 @@ public class FLASParsingService implements TextDocumentService {
                 throw new UnsupportedOperationException("Text should not be null.");
             }
 
-            queue.submit(new CompileTask(compiler, uri, changeEvent.getText()));
+        	dispatcher.dispatch(uri, changeEvent.getText());
         }
 	}
 
@@ -70,15 +60,14 @@ public class FLASParsingService implements TextDocumentService {
 
 	@Override
 	public void didClose(DidCloseTextDocumentParams params) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("CLOSE");
 	}
 
 	private URI parseURI(String uris) {
     	try {
     		return new URI(uris);
     	} catch (URISyntaxException ex) {
-            client.logMessage(new MessageParams(MessageType.Warning, "Problem parsing " + uris));
+            errors.logMessage("Problem parsing " + uris);
             return null;
     	}
 	}

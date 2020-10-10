@@ -13,24 +13,18 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.flasck.flas.Configuration;
-import org.flasck.flas.LSPTaskQueue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
@@ -41,8 +35,6 @@ import org.flasck.flas.compiler.templates.EventBuilder;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.RepositoryLifter;
-import org.flasck.flas.lsp.CompileTask;
-import org.flasck.flas.lsp.Root;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.st.SystemTest;
@@ -86,15 +78,13 @@ import org.zinutils.utils.FileUtils;
 
 public class FLASCompiler implements CompileUnit {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
-	public static boolean backwardCompatibilityMode = true;
 	private final Configuration config;
 	private final ErrorReporter errors;
 	private final Repository repository;
 	private final Splitter splitter;
-	private final Map<String, Root> roots = new TreeMap<>();
+	private final List<URI> brokenUris = new ArrayList<>();
 	private TaskQueue tasks;
-	private LanguageClient lsp;
-	private String cardsFolder;
+	private File cardsFolder;
 	private DirectedAcyclicGraph<String> pkgs;
 	private JSEnvironment jse;
 	private Map<EventHolder, EventTargetZones> eventMap;
@@ -107,57 +97,37 @@ public class FLASCompiler implements CompileUnit {
 		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
 	}
 
-	public void taskQueue(LSPTaskQueue tasks) {
+	public void taskQueue(TaskQueue tasks) {
 		this.tasks = tasks;
 	}
 
-	public void connect(LanguageClient client) {
-		this.lsp = client;
-		errors.connect(client);
-	}
-
-	public void setCardsFolder(String cardsFolder) {
+	public void setCardsFolder(File cardsFolder) {
 		this.cardsFolder = cardsFolder;
-		if (tasks.isReady()) {
-			System.out.println("Cards folder specified - splitting");
-			attemptRest();
-		}
+	}
+	
+	public void lspLoadFLIM(URI uri) {
+		errors.beginProcessing(uri);
+		loadFLIM();
+		errors.doneProcessing(brokenUris);
 	}
 	
 	public boolean loadFLIM() {
 		LoadBuiltins.applyTo(errors, repository);
 		pkgs = new DirectedAcyclicGraph<>();
+		FlimReader reader = new FlimReader(errors, repository);
+		for (File dir : config.includeFrom) {
+			reader.read(pkgs, dir, config.inputs);
+			if (errors.hasErrors())
+				return true;			
+		}
 		if (config.flimdir() != null) {
-			new FlimReader(errors, repository).read(pkgs, config.flimdir(), config.inputs);
+			reader.read(pkgs, config.flimdir(), config.inputs);
 			if (errors.hasErrors())
 				return true;
 		}
 		return false;
 	}
 	
-	public void addRoot(String rootUri) {
-		try {
-			synchronized (roots) {
-				URI uri = new URI(rootUri + "/");
-				Root root = new Root(uri);
-				if (roots.containsKey(root.root.getPath()))
-					return;
-				lsp.logMessage(new MessageParams(MessageType.Log, "opening root " + root.root));
-				roots.put(root.root.getPath(), root);
-				root.gatherFiles(lsp);
-				compileAll(root);
-			}
-		} catch (URISyntaxException ex) {
-			lsp.logMessage(new MessageParams(MessageType.Error, "could not open " + rootUri));
-		}
-	}
-	
-	private void compileAll(Root root) {
-		for (URI u : root) {
-			tasks.submit(new CompileTask(this, u, null));
-		}
-	}
-
 	public void processInput(File input) {
 		try {
 			parse(input);
@@ -176,19 +146,6 @@ public class FLASCompiler implements CompileUnit {
 			repository.webData(md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + web);
-		}
-	}
-	
-	@Override
-	public void parse(URI uri, String text) {
-		System.out.println("Compiling " + uri);
-		errors.beginProcessing(uri);
-		repository.parsing(uri);
-		parseOne(uri);
-		repository.done();
-		errors.doneProcessing();
-		if (tasks.isReady()) {
-			attemptRest();
 		}
 	}
 	
@@ -238,13 +195,19 @@ public class FLASCompiler implements CompileUnit {
 			parser.process(f);
 		}
 	}
-	
+
+	@Override
+	public void parse(URI uri, String text) {
+		System.out.println("Compiling " + uri);
+		errors.beginProcessing(uri);
+		repository.parsing(uri);
+		parseOne(uri);
+		repository.done();
+		errors.doneProcessing(brokenUris);
+		tasks.readyWhenYouAre(uri, this);
+	}
+
 	private void parseOne(URI uri) {
-		Root root = findRoot(uri);
-		if (root == null) {
-			lsp.logMessage(new MessageParams(MessageType.Error, "could not find root for " + uri));
-			return;
-		}
 		File file = new File(uri.getPath());
 		String inPkg = file.getParentFile().getName();
 		String name = file.getName();
@@ -262,25 +225,26 @@ public class FLASCompiler implements CompileUnit {
 			parseFA(file, inPkg, name);
 			break;
 		default:
-			lsp.logMessage(new MessageParams(MessageType.Log, "could not compile " + FileUtils.makeRelativeTo(file, root.root)));
+			errors.logMessage("could not compile " + inPkg + "/" + file);
+			break;
 		}
 	}
 
 	private void parseFL(File file, String inPkg, String name) {
 		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer)repository);
-		lsp.logMessage(new MessageParams(MessageType.Log, "compiling " + name + " in " + inPkg));
+		errors.logMessage("compiling " + name + " in " + inPkg);
 		flp.process(file);
 	}
 	
 	private void parseFA(File file, String inPkg, String name) {
 		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
-		lsp.logMessage(new MessageParams(MessageType.Log, "compiling " + file.getName() + " in " + inPkg));
+		errors.logMessage("compiling " + file.getName() + " in " + inPkg);
 		fap.process(file);
 	}
 
-	private void attemptRest() {
+	public void attemptRest(URI uri) {
 		// if there were previously files that were corrupt, try compiling them again
-		List<URI> broken = new ArrayList<>(errors.getAllBrokenURIs());
+		List<URI> broken = new ArrayList<>(this.brokenUris);
 		for (URI b : broken) {
 			parseOne(b);
 		}
@@ -289,22 +253,18 @@ public class FLASCompiler implements CompileUnit {
 		if (!errors.getAllBrokenURIs().isEmpty())
 			return;
 
-		List<Root> traverse;
-		synchronized (roots) {
-			traverse = new ArrayList<>(roots.values());
-		}
-
-		if (cardsFolder != null) {
-			for (Root root : traverse) {
-				File web = new File(root.root, cardsFolder);
-				if (web.isDirectory())
-					splitWeb(web);
-			}
+		if (cardsFolder != null && cardsFolder.isDirectory()) {
+			splitWeb(cardsFolder);
 		}
 
 		// do the rest of the compilation
-		sendRepo();
-		stage2();
+//		sendRepo();
+		errors.beginProcessing(uri);
+		repository.clean();
+		if (stage2()) {
+			// worked
+		}
+		errors.doneProcessing(this.brokenUris );
 	}
 
 	public boolean stage2() {
@@ -676,17 +636,7 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
-	private Root findRoot(URI uri) {
-		synchronized (roots) {
-			String path = uri.getPath();
-			for (Entry<String, Root> e : roots.entrySet()) {
-				if (path.startsWith(e.getKey()))
-					return e.getValue();
-			}
-			return null;
-		}
-	}
-	
+	@SuppressWarnings("unused")
 	private void sendRepo() {
 		try {
 			StringWriter sw = new StringWriter();
@@ -696,10 +646,10 @@ public class FLASCompiler implements CompileUnit {
 			LineNumberReader lnr = new LineNumberReader(new StringReader(sw.toString()));
 			String s;
 			while ((s = lnr.readLine()) != null) {
-				lsp.logMessage(new MessageParams(MessageType.Log, s));
+				errors.logMessage(s);
 			}
 		} catch (Exception ex) {
-			lsp.logMessage(new MessageParams(MessageType.Log, "Error reading repo: " + ex));
+			errors.logMessage("Error reading repo: " + ex);
 		}
 	}
 

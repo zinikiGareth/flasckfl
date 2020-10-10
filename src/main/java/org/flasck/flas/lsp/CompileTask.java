@@ -3,11 +3,14 @@ package org.flasck.flas.lsp;
 import java.net.URI;
 
 import org.flasck.flas.compiler.CompileUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO: extract most of this somewhere else (say "FLASCompiler")
 // "run" here should invoke that with the minimal amount of extra information
 // get it so that we do the remaining steps
 public class CompileTask implements Runnable {
+	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private final CompileUnit compiler;
 	private final URI uri;
 	private final String text;
@@ -30,7 +33,11 @@ public class CompileTask implements Runnable {
 
 	@Override
 	public void run() {
-		compiler.parse(uri, text);
+		try {
+			compiler.parse(uri, text);
+		} catch (Throwable t) {
+			logger.error("Exception processing " + uri, t);
+		}
 	}
 	
 	@Override

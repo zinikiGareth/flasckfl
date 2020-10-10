@@ -336,6 +336,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			pw.print(x.getKey() + " = ");
 			x.getValue().dumpTo(pw);
 		}
+		for (SplitMetaData smd : webs) {
+			pw.println("have webdata " + smd);
+		}
 		pw.flush();
 	}
 
@@ -492,6 +495,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	public Iterable<SplitMetaData> allWebs() {
 		return webs;
+	}
+
+	public void clean() {
+		for (RepositoryEntry e : dict.values())
+			e.clean();
 	}
 
 	@Override

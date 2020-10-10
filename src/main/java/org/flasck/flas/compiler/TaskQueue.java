@@ -1,11 +1,11 @@
 package org.flasck.flas.compiler;
 
+import java.net.URI;
+
 import org.flasck.flas.lsp.CompileTask;
 
 public interface TaskQueue {
-
-	boolean isReady();
-
 	void submit(CompileTask task);
-
+	void readyWhenYouAre(URI uri, CompileUnit stage2);
+	void loadFLIM(URI uri, FLASCompiler compiler);
 }

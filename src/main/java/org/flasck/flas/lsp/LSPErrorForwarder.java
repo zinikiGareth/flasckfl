@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -17,7 +19,6 @@ import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.errors.FatErrorAPI;
 
 public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
-	private final List<URI> broken = new ArrayList<>();
 	private LanguageClient client;
 	private URI uri;
 	private List<Diagnostic> diagnostics;
@@ -55,16 +56,14 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 		return this;
 	}
 
-	public void doneProcessing() {
+	public void doneProcessing(List<URI> broken) {
 		if (diagnostics.isEmpty())
 			broken.remove(uri);
 		else
 			broken.add(uri);
-		client.publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), diagnostics));
-	}
-	
-	public List<URI> getAllBrokenURIs() {
-		return broken;
+		synchronized (client) {
+			client.publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), diagnostics));
+		}
 	}
 	
 	@Override
@@ -87,6 +86,13 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 	public void showFromMark(ErrorMark mark, Writer pw, int ind) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void logMessage(String s) {
+		synchronized (client) {
+			client.logMessage(new MessageParams(MessageType.Log, s));
+		}
 	}
 
 }

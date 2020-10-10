@@ -39,4 +39,5 @@ public interface RepositoryEntry {
 	InputPosition location();
 	void dumpTo(PrintWriter pw);
 	default ValidContexts validContexts() { return ValidContexts.ALL; }
+	default void clean() {}
 }

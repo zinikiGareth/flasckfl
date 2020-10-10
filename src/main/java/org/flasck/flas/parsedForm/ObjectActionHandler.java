@@ -39,6 +39,16 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	}
 	
 	@Override
+	public void clean() {
+		System.out.println("Cleaning " + name);
+		RepositoryEntry.super.clean();
+		this.hsiTree = null;
+		this.type = null;
+		this.convertedIntros = null;
+		this.nestedVars = null;
+	}
+	
+	@Override
 	public InputPosition location() {
 		return location;
 	}
@@ -97,6 +107,7 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 				return true;
 		return false;
 	}
+	
 	public void nestedVars(NestedVarReader nestedVars) {
 		this.nestedVars = nestedVars;
 	}
@@ -144,7 +155,7 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 
 	public void bindType(Type ty) {
 		if (this.type != null)
-			throw new RuntimeException("Cannot bind type more than once");
+			throw new RuntimeException("Cannot bind type of " + this.name + " more than once");
 		this.type = ty;
 	}
 

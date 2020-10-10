@@ -17,4 +17,5 @@ public interface NestingChain extends Iterable<TemplateNestingChain.Link> {
 	List<TypeReference> types();
 	void resolvedTypes(ErrorReporter errors);
 	boolean isEmpty();
+	void clean();
 }

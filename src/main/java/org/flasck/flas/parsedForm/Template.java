@@ -31,6 +31,14 @@ public class Template implements Locatable, RepositoryEntry, TemplateBindingCons
 	}
 
 	@Override
+	public void clean() {
+		RepositoryEntry.super.clean();
+		if (chain != null)
+			chain.clean();
+		this.webInfo = null;
+	}
+	
+	@Override
 	public InputPosition location() {
 		return loc;
 	}

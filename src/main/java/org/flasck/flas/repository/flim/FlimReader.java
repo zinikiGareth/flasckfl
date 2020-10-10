@@ -28,12 +28,13 @@ public class FlimReader {
 	}
 
 	public void read(DirectedAcyclicGraph<String> pkgs, File flimdir, List<File> butNot) {
-		FileUtils.assertDirectory(flimdir);
-
+		if (!flimdir.exists())
+			return;
+		
 		List<String> ignore = new ArrayList<>();
 		for (File i : butNot)
 			ignore.add(i.getName());
-		
+
 		// Don't read any flim files if we are building the stdlib
 		if (ignore.contains("root.package"))
 			return;
@@ -64,6 +65,7 @@ public class FlimReader {
 	}
 
 	private FlimTop importFlim(File f) {
+		System.out.println("importing flim file " + f.getName());
 		FlimTop ret = new FlimTop(errors, repository, f.getName());
 		Blocker blocker = new Blocker(errors, new TDANester(ret));
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(f))) {

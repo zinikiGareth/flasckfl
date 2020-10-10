@@ -23,17 +23,20 @@ public class TemplateNestingChain implements NestingChain {
 		final TypeReference decl;
 		final VarName name;
 		Type actual;
+		private boolean inferred;
 		
 		public Link(TypeReference decl, VarName nameVar) {
 			this.decl = decl;
 			this.name = nameVar;
 			this.actual = null;
+			this.inferred = false;
 		}
 		
 		public Link(Type type, VarName name) {
 			this.decl = null;
 			this.name = name;
 			this.actual = type;
+			this.inferred = true;
 		}
 
 		public VarName name() {
@@ -42,6 +45,10 @@ public class TemplateNestingChain implements NestingChain {
 		
 		public Type type() {
 			return actual;
+		}
+
+		public void clean() {
+			this.actual = null;
 		}
 	}
 
@@ -52,6 +59,18 @@ public class TemplateNestingChain implements NestingChain {
 		this.namer = namer;
 	}
 
+	@Override
+	public void clean() {
+		Iterator<Link> it = links.iterator();
+		while (it.hasNext()) {
+			Link l = it.next();
+			if (l.inferred)
+				it.remove();
+			else
+				l.clean();
+		}
+	}
+	
 	@Override
 	public boolean isEmpty() {
 		return links.isEmpty();

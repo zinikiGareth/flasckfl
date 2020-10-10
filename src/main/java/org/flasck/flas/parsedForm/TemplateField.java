@@ -22,7 +22,7 @@ public class TemplateField implements Locatable {
 
 	public FieldType type() {
 		if (type == null) {
-			throw new NotImplementedException("type has not been bound");
+			throw new NotImplementedException("type has not been bound for " + location + ": " + text);
 		}
 		return type;
 	}

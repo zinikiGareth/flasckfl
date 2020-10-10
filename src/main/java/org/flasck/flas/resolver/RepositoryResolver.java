@@ -447,7 +447,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (nt == null) {
 			// no type was found ... this should have been an error at some point
 			if (!errors.hasErrors())
-				throw new CantHappenException("this should have been an error somewhere");
+				throw new CantHappenException("this should have been an error somewhere: expr = " + expr);
 			return;
 		}
 		if (nt instanceof PolyInstance)
@@ -863,7 +863,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return LoadBuiltins.number;
 		else if (oe instanceof UnresolvedVar) {
 			RepositoryEntry rd = ((UnresolvedVar)oe).defn();
-			if (rd instanceof StructField) {
+			if (rd == null) {
+				throw new CantHappenException("unbound var: " + oe);
+			} else if (rd instanceof StructField) {
 				StructField sf = (StructField)rd;
 				Type st = sf.type();
 				if (st == null) // it could not be resolved

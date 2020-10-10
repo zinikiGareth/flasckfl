@@ -8,6 +8,7 @@ import java.util.Set;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.utils.FileUtils;
 
 public class FlimWriter {
 	private final Repository repository;
@@ -20,6 +21,8 @@ public class FlimWriter {
 
 	public Set<String> export(String pkg) {
 		try {
+			FileUtils.assertDirectory(flimdir);
+
 			PrintWriter pw = new PrintWriter(new File(flimdir, pkg));
 			IndentWriter iw = new IndentWriter(pw, "\t").indent();
 			String pkgName = null;
