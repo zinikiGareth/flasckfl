@@ -65,7 +65,6 @@ public class FlimReader {
 	}
 
 	private FlimTop importFlim(File f, String name) {
-		System.out.println("importing flim file " + f);
 		String fn = f.getName();
 		FlimTop ret = new FlimTop(errors, repository, name);
 		Blocker blocker = new Blocker(errors, new TDANester(ret));

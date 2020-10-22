@@ -51,13 +51,20 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		// for the merging case
 		public PO(PO o, FunctionIntro fi, ObjectActionHandler meth) {
 			this(fi, meth, new VarPattern(o.p.location(), o.name), o.name);
+			VarPattern mp = (VarPattern)this.p;
 			if (o.p instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o.p;
 				this.opts.addVarWithType(tp.type, tp.var, fi);
 				this.var.bind(tp);
+				mp.bindType(tp.type());
 			} else {
-				this.opts.addVar((VarPattern) o.p, fi);
-				this.var.bind((VarPattern)o.p);
+				VarPattern vp = (VarPattern) o.p;
+				this.opts.addVar(vp, fi);
+				this.var.bind(vp);
+				if (vp.hasBoundType())
+					mp.bindType(vp.type());
+				else
+					vp.transitiveBind(mp);
 			}
 		}
 

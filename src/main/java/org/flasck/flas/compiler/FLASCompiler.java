@@ -213,6 +213,10 @@ public class FLASCompiler implements CompileUnit {
 		String name = file.getName();
 		String type = FileUtils.extension(name);
 		
+		if (type == null) {
+			errors.logMessage("could not compile " + inPkg + "/" + file);
+			return;
+		}
 		switch (type) {
 		case ".fl":
 			parseFL(file, inPkg, name);

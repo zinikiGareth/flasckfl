@@ -465,7 +465,7 @@ public class LoadBuiltins {
 	public static final TypeReference calendarTR = new TypeReference(pos, "Calendar");
 	public static final ObjectDefn calendar = new ObjectDefn(pos, pos, new ObjectName(null, "Calendar"), false, new ArrayList<>());
 	static {
-		crobagTR.bind(crobag);
+		calendarTR.bind(calendar);
 	}
 	
 	//   -> ctor Calendar.gregorian
@@ -478,7 +478,7 @@ public class LoadBuiltins {
 		calendar.addConstructor(calendarGregorian);
 	}
 	
-	//   -> method Crobag.insert
+	//   -> method Calendar.timezone
 	private static ObjectMethod calendarTimezone;
 	static {
 		FunctionName timezone = FunctionName.objectMethod(pos, calendar.name(), "timezone");
@@ -491,12 +491,22 @@ public class LoadBuiltins {
 	//   -> acor Calendar.isoDateTime
 	private static ObjectAccessor calendarIsoDateTime;
 	static {
-		FunctionName size = FunctionName.objectMethod(pos, calendar.name(), "isoDateTime");
-		FunctionDefinition sizeFn = new FunctionDefinition(size, 1, calendar);
-		calendarIsoDateTime = new ObjectAccessor(crobag, sizeFn);
+		FunctionName idt = FunctionName.objectMethod(pos, calendar.name(), "isoDateTime");
+		FunctionDefinition isodatetime = new FunctionDefinition(idt, 1, calendar);
+		calendarIsoDateTime = new ObjectAccessor(calendar, isodatetime);
 		calendarIsoDateTime.dontGenerate();
-		sizeFn.bindType(new Apply(instant, string));
+		isodatetime.bindType(new Apply(instant, string));
 		calendar.addAccessor(calendarIsoDateTime);
+	}
+	//   -> acor Calendar.parseIsoDateTime
+	private static ObjectAccessor calendarParseIsoDateTime;
+	static {
+		FunctionName pidt = FunctionName.objectMethod(pos, calendar.name(), "parseIsoDateTime");
+		FunctionDefinition pidtFn = new FunctionDefinition(pidt, 1, null);
+		calendarParseIsoDateTime = new ObjectAccessor(calendar, pidtFn);
+		calendarParseIsoDateTime.dontGenerate();
+		pidtFn.bindType(new Apply(string, instant));
+		calendar.addAccessor(calendarParseIsoDateTime);
 	}
 	
 
@@ -693,6 +703,7 @@ public class LoadBuiltins {
 		repository.newObject(errors, calendar);
 		repository.newObjectMethod(errors, calendarGregorian);
 		repository.newObjectAccessor(errors, calendarIsoDateTime);
+		repository.newObjectAccessor(errors, calendarParseIsoDateTime);
 
 		repository.newContract(errors, crobagWindowHandler);
 		repository.newContract(errors, crobagSlideWindow);

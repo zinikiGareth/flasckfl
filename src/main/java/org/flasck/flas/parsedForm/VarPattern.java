@@ -1,15 +1,20 @@
 package org.flasck.flas.parsedForm;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
+	private final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	public static Comparator<VarPattern> comparator = new Comparator<VarPattern>() {
 		@Override
 		public int compare(VarPattern o1, VarPattern o2) {
@@ -21,6 +26,7 @@ public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
 	private final VarName myName;
 	private Type type;
 	private LogicHolder definedBy;
+	private final List<VarPattern> transitiveBinds = new ArrayList<>();
 	
 	public VarPattern(InputPosition location, VarName name) {
 		this.varLoc = location;
@@ -56,7 +62,10 @@ public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
 	}
 
 	public void bindType(Type ty) {
+		logger.info("binding type of varpattern[" + this + "] to " + ty);
 		this.type = ty;
+		for (VarPattern vp : transitiveBinds)
+			vp.bindType(ty);
 	}
 
 	public boolean hasBoundType() {
@@ -81,5 +90,12 @@ public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
 
 	public boolean incorporates(Type other) {
 		return type.incorporates(this.varLoc, other);
+	}
+
+	public void transitiveBind(VarPattern vp) {
+		if (this.type != null)
+			vp.bindType(type);
+		else
+			transitiveBinds .add(vp);
 	}
 }

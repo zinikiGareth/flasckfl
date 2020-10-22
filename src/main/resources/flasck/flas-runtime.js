@@ -383,6 +383,9 @@ FLContext.prototype.mksend = function(meth, obj, cnt, handler) {
 		return new FLMakeSend(meth, obj, cnt, handler);
 }
 
+FLContext.returnNull = function(_cxt) {
+	return null;
+}
 FLContext.prototype.mkacor = function(meth, obj, cnt) {
 	if (cnt == 0) {
 		if (typeof obj === 'undefined' || obj === null)
@@ -391,9 +394,13 @@ FLContext.prototype.mkacor = function(meth, obj, cnt) {
 			return this.oclosure(meth, obj);
 	}
 	else {
-		if (typeof obj === 'undefined' || obj === null)
-			throw new Error("we want to return a curry of " + cnt + " args which ultimately returns undefined");
-		else
+		if (typeof obj === 'undefined' || obj === null) {
+			var fn = function(_cxt) {
+				return null;
+			}
+			fn.nfargs = function() { return cnt; };
+			return this.ocurry(cnt, fn, obj);
+		} else
 			return this.ocurry(cnt, meth, obj);
 	}
 }
@@ -997,7 +1004,7 @@ FLCard.prototype._figureScrollInfo = function(parent) {
     var min = div.scrollTop;
     var max = min + div.clientHeight;
     var mid = (min + max) / 2;
-    var ret = { scroller: div, ht : 0, scrollht: div.scrollHeight, scrollTop: div.scrollTop, viewport: div.clientHeight };
+    var ret = { lockMode: 'bottom', lockOffset: 0, scroller: div, ht : 0, scrollht: div.scrollHeight, scrollTop: div.scrollTop, viewport: div.clientHeight };
     var nodes = parent.children;
     if (nodes.length == 0) {
         return ret;
@@ -1954,9 +1961,69 @@ Calendar.prototype.isoDateTime = function(_cxt, inst) {
 }
 Calendar.prototype.isoDateTime.nfargs = function() { return 1; }
 
+Calendar.prototype._parseIsoItem = function(cursor, nd, decimal) {
+    if (typeof(nd) == 'undefined') {
+        nd = 2;
+    }
+    if (cursor.pos >= cursor.str.length)
+        return 0;
+    while (cursor.str[cursor.pos] == ':' || cursor.str[cursor.pos] == '-')
+        ;
+    if (cursor.pos >= cursor.str.length)
+        return 0;
+    var ret = 0;
+    for (var i=0;i<nd && cursor.pos < cursor.str.length;i++) {
+        var c = cursor.str[cursor.pos++];
+        if (c < '0' || c > '9')
+            break;
+        if (decimal) {
+            ret = ret + (c-'0') * decimal;
+            decimal /= 10;
+        } else {
+            ret = ret*10 + (c-'0');
+        }
+    }
+    return ret;
+}
+
+Calendar.prototype.parseIsoDateTime = function(_cxt, n) {
+    n = _cxt.full(n);
+	if (n instanceof FLError)
+		return n;
+	else if (typeof(n) !== 'string')
+        return new FLError("not a string");
+    var cursor = { str: n, pos: 0 };
+    var year = this._parseIsoItem(cursor, 4);
+    var month = this._parseIsoItem(cursor);
+    var day = this._parseIsoItem(cursor);
+    var dt = new Date();
+    dt.setUTCFullYear(year);
+    dt.setUTCMonth(month-1);
+    dt.setUTCDate(day);
+    dt.setUTCHours(0);
+    dt.setUTCMinutes(0);
+    dt.setUTCSeconds(0);
+    dt.setUTCMilliseconds(0);
+    var days = Math.floor(dt.getTime() / 86400000);
+    if (cursor.pos < cursor.str.length && cursor.str[cursor.pos] == 'T')
+        cursor.pos++;
+    var hour = this._parseIsoItem(cursor);
+    var min = this._parseIsoItem(cursor);
+    var sec = this._parseIsoItem(cursor);
+    var secs = ((hour*60) + min)*60 + sec;
+    if (cursor.pos < cursor.str.length && cursor.str[cursor.pos] == '.')
+        cursor.pos++;
+    var nanos = this._parseIsoItem(cursor, 9, 100000000);
+    var tz = cursor.str.substr(cursor.pos);
+    // TODO: adjust for TZ
+	return new Instant(days, secs * 1000 * 1000 * 1000 + nanos);
+}
+Calendar.prototype.parseIsoDateTime.nfargs = function() { return 1; }
+
 Calendar.prototype._methods = function() {
     return {
-        "isoDateTime": Calendar.prototype.isoDateTime
+        "isoDateTime": Calendar.prototype.isoDateTime,
+        "parseIsoDateTime": Calendar.prototype.parseIsoDateTime
     };
 }
 

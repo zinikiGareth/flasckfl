@@ -39,7 +39,8 @@ public class Configuration {
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;
-		process(args);
+		if (args != null)
+			process(args);
 	}
 
 	private void process(String[] args) {
