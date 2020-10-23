@@ -28,7 +28,6 @@ import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
-import org.flasck.flas.compiler.assembler.BuildApplicationAssembly;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.templates.EventBuilder;
@@ -73,6 +72,7 @@ import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.graphs.DirectedAcyclicGraph;
+import org.zinutils.reflection.Reflection;
 import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 
@@ -375,7 +375,7 @@ public class FLASCompiler implements CompileUnit {
 						}
 					}
 				}
-				generateHTML(asm, config);
+				generateHTML(asm);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -511,63 +511,13 @@ public class FLASCompiler implements CompileUnit {
 			repository.traverseAssemblies(errors, jse, storer);
 	}
 
-	public void generateHTML(FLASAssembler asm, Configuration config) {
-		final File root = config.root;
-		final File html = config.html;
-		final File cssdir = new File(html.getParent(), "css");
-		repository.traverseAssemblies(errors, jse, new BuildApplicationAssembly(new FLCommonEvalContext(new TrivialEnvironment())) {
-			@Override
-			protected ContentObject upload(String name, File f, String ctype) {
-				return new ContentObject() {
-					
-					@Override
-					public String url() {
-						String jsdir = config.jsDir().getPath();
-						if (root != null)
-							jsdir = jsdir.replace(root.getPath(), "");
-						return jsdir.replaceAll("^/*", "") + "/" + name;
-					}
-					
-					@Override
-					public String asString() {
-						return FileUtils.readFile(f);
-					}
-				};
-			}
-
-			@Override
-			protected ContentObject upload(String name, InputStream is, long length, boolean b, String ctype) throws IOException {
-				String val = FileUtils.readNStream(length, is);
-				return new ContentObject() {
-					
-					@Override
-					public String url() {
-						if ("text/css".equals(ctype)) {
-							FileUtils.assertDirectory(cssdir);
-							FileUtils.writeFile(new File(cssdir, name), val);
-							return "css/" + name;
-						} else {
-							return name;
-						}
-					}
-					
-					@Override
-					public String asString() {
-						return val;
-					}
-				};
-			}
-
-			@Override
-			protected void save(ApplicationAssembly assembly) {
-				try {
-					asm.assemble(assembly);
-				} catch (Exception ex) {
-					System.out.println(ex.toString());
-				}
-			}
-		});
-		
+	public void generateHTML(FLASAssembler asm) {
+		try {
+			Class<?> uploader = Class.forName("org.flasck.flas.upload.HTMLUploader");
+			Reflection.callStatic(uploader, "upload", errors, repository, config, jse, asm);
+		} catch (ClassNotFoundException ex) {
+			logger.debug("No HTMLUploader on class path");
+		}
 	}
 
 	private Map<String, String> extractTemplatesFromWebs() {
