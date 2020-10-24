@@ -36,6 +36,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.EventHolder;
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -58,10 +59,8 @@ import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
 import org.flasck.flas.testrunner.TestResultWriter;
 import org.flasck.jvm.J;
-import org.flasck.jvm.assembly.ApplicationAssembly;
+import org.flasck.jvm.assembly.CardInitializer;
 import org.flasck.jvm.assembly.FLASAssembler;
-import org.flasck.jvm.fl.FLCommonEvalContext;
-import org.flasck.jvm.fl.TrivialEnvironment;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +71,6 @@ import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.graphs.DirectedAcyclicGraph;
-import org.zinutils.reflection.Reflection;
 import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 
@@ -104,13 +102,13 @@ public class FLASCompiler implements CompileUnit {
 	public void setCardsFolder(File cardsFolder) {
 		this.cardsFolder = cardsFolder;
 	}
-	
+
 	public void lspLoadFLIM(URI uri) {
 		errors.beginProcessing(uri);
 		loadFLIM();
 		errors.doneProcessing(brokenUris);
 	}
-	
+
 	public boolean loadFLIM() {
 		LoadBuiltins.applyTo(errors, repository);
 		pkgs = new DirectedAcyclicGraph<>();
@@ -118,7 +116,7 @@ public class FLASCompiler implements CompileUnit {
 		for (File dir : config.includeFrom) {
 			reader.read(pkgs, dir, config.inputs);
 			if (errors.hasErrors())
-				return true;			
+				return true;
 		}
 		if (config.flimdir() != null) {
 			reader.read(pkgs, config.flimdir(), config.inputs);
@@ -127,7 +125,7 @@ public class FLASCompiler implements CompileUnit {
 		}
 		return false;
 	}
-	
+
 	public void processInput(File input) {
 		try {
 			parse(input);
@@ -148,17 +146,17 @@ public class FLASCompiler implements CompileUnit {
 			errors.message((InputPosition) null, "error splitting: " + web);
 		}
 	}
-	
+
 	public void parse(File dir) {
 		if (!dir.isDirectory()) {
-			errors.message((InputPosition)null, "there is no input directory " + dir);
+			errors.message((InputPosition) null, "there is no input directory " + dir);
 			return;
 		}
 
 		String inPkg = dir.getName();
 		checkPackageName(inPkg);
 		System.out.println(" |" + inPkg);
-		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer)repository);
+		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository);
 		List<File> files = FileUtils.findFilesMatching(dir, "*.fl");
 		files.sort(new FileNameComparator());
 		for (File f : files) {
@@ -191,7 +189,7 @@ public class FLASCompiler implements CompileUnit {
 			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
 			SystemTest st = new SystemTest(stfn);
 			repository.systemTest(errors, st);
-			ParsingPhase parser = new ParsingPhase(errors, stfn, st, (TopLevelDefinitionConsumer)repository);
+			ParsingPhase parser = new ParsingPhase(errors, stfn, st, (TopLevelDefinitionConsumer) repository);
 			parser.process(f);
 		}
 	}
@@ -212,7 +210,7 @@ public class FLASCompiler implements CompileUnit {
 		String inPkg = file.getParentFile().getName();
 		String name = file.getName();
 		String type = FileUtils.extension(name);
-		
+
 		if (type == null) {
 			errors.logMessage("could not compile " + inPkg + "/" + file);
 			return;
@@ -235,11 +233,11 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	private void parseFL(File file, String inPkg, String name) {
-		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer)repository);
+		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository);
 		errors.logMessage("compiling " + name + " in " + inPkg);
 		flp.process(file);
 	}
-	
+
 	private void parseFA(File file, String inPkg, String name) {
 		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
 		errors.logMessage("compiling " + file.getName() + " in " + inPkg);
@@ -252,7 +250,7 @@ public class FLASCompiler implements CompileUnit {
 		for (URI b : broken) {
 			parseOne(b);
 		}
-		
+
 		// If some are still broken, we cannot proceed
 		if (!errors.getAllBrokenURIs().isEmpty())
 			return;
@@ -268,7 +266,7 @@ public class FLASCompiler implements CompileUnit {
 		if (stage2()) {
 			// worked
 		}
-		errors.doneProcessing(this.brokenUris );
+		errors.doneProcessing(this.brokenUris);
 	}
 
 	public boolean stage2() {
@@ -280,18 +278,18 @@ public class FLASCompiler implements CompileUnit {
 				System.out.println("Could not dump repository to " + dump);
 			}
 		}
-		
+
 		if (config.upto() == PhaseTo.PARSING)
 			return true;
-		
+
 		if (resolve())
 			return true;
-		
+
 		FunctionGroups ordering = lift();
 		analyzePatterns();
 		if (errors.hasErrors())
 			return true;
-		
+
 		if (config.doTypeCheck) {
 			doTypeChecking(ordering);
 			if (errors.hasErrors())
@@ -299,7 +297,7 @@ public class FLASCompiler implements CompileUnit {
 			try {
 				dumpTypes(config.writeTypesTo);
 			} catch (FileNotFoundException ex) {
-				errors.message((InputPosition)null, "cannot open file " + config.writeTypesTo);
+				errors.message((InputPosition) null, "cannot open file " + config.writeTypesTo);
 				return true;
 			}
 			if (errors.hasErrors())
@@ -308,7 +306,7 @@ public class FLASCompiler implements CompileUnit {
 
 		if (convertMethods())
 			return true;
-		
+
 		if (buildEventMaps())
 			return true;
 
@@ -332,15 +330,16 @@ public class FLASCompiler implements CompileUnit {
 				refs.retainAll(process);
 				if (!refs.isEmpty()) {
 					for (String s : refs)
-						System.out.println("invalid order: package " + input + " depends on " + s + " which has not been processed");
+						System.out.println("invalid order: package " + input + " depends on " + s
+								+ " which has not been processed");
 					return true;
 				}
 			}
 		}
-		
+
 		if (generateCode(config, pkgs))
 			return true;
-		
+
 		Map<File, TestResultWriter> testWriters = new HashMap<>();
 		try {
 			if (runUnitTests(config, testWriters))
@@ -351,7 +350,6 @@ public class FLASCompiler implements CompileUnit {
 		} finally {
 			testWriters.values().forEach(w -> w.close());
 		}
-
 
 		if (config.html != null) {
 			try (FileWriter fos = new FileWriter(config.html)) {
@@ -403,7 +401,7 @@ public class FLASCompiler implements CompileUnit {
 	public FunctionGroups lift() {
 		return new RepositoryLifter().lift(repository);
 	}
-	
+
 	public void analyzePatterns() {
 		StackVisitor sv = new StackVisitor();
 		new PatternAnalyzer(errors, repository, sv);
@@ -433,31 +431,31 @@ public class FLASCompiler implements CompileUnit {
 		repository.traverseWithMemberFields(sv);
 		return errors.hasErrors();
 	}
-	
+
 	public boolean buildEventMaps() {
 		StackVisitor stack = new StackVisitor();
 		eventMap = new HashMap<EventHolder, EventTargetZones>();
 		new EventBuilder(stack, eventMap);
 		repository.traverse(stack);
-		
+
 		return errors.hasErrors();
 	}
-	
+
 	public boolean generateCode(Configuration config, DirectedAcyclicGraph<String> pkgs) {
 		jse = new JSEnvironment(config.jsDir(), pkgs);
 		bce = new ByteCodeEnvironment();
 		populateBCE(bce);
-		
+
 		StackVisitor jsstack = new StackVisitor();
 		new JSGenerator(repository, jse, jsstack, eventMap);
 
 		if (config.generateJS)
 			repository.traverseWithHSI(jsstack);
-		
+
 		if (errors.hasErrors()) {
 			return true;
 		}
-		
+
 		if (config.generateJS) {
 			saveJSE(config.jsDir(), jse, bce);
 			saveBCE(config.jvmDir(), bce);
@@ -465,7 +463,7 @@ public class FLASCompiler implements CompileUnit {
 
 		return errors.hasErrors();
 	}
-	
+
 	public boolean runUnitTests(Configuration config, Map<File, TestResultWriter> writers) {
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
 		if (config.generateJVM && config.unitjvm) {
@@ -512,12 +510,90 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public void generateHTML(FLASAssembler asm) {
-		try {
-			Class<?> uploader = Class.forName("org.flasck.flas.upload.HTMLUploader");
-			Reflection.callStatic(uploader, "upload", errors, repository, config, jse, asm);
-		} catch (ClassNotFoundException ex) {
-			logger.debug("No HTMLUploader on class path");
-		}
+		repository.traverseAssemblies(errors, jse, new AssemblyVisitor() {
+			private List<String> inits = new ArrayList<>();
+			private List<String> css = new ArrayList<>();
+			private List<String> js = new ArrayList<>();
+			private List<ContentObject> temps = new ArrayList<>();
+
+			@Override
+			public void visitAssembly(ApplicationAssembly a) {
+			}
+			
+			@Override
+			public void visitResource(String name, ZipInputStream zis) throws IOException {
+			}
+			
+			@Override
+			public void visitPackage(String pkg) {
+				inits.add(pkg);
+			}
+			
+			@Override
+			public void compiledPackageFile(File f) {
+				String jsdir = config.jsDir().getPath();
+				if (config.root != null)
+					jsdir = jsdir.replace(config.root.getPath(), "");
+				js.add(jsdir.replaceAll("^/*", "") + "/" + f.getName());
+			}
+			
+			@Override
+			public void visitCardTemplate(String cardName, InputStream is, long length) throws IOException {
+				String s = FileUtils.readNStream(length, is);
+				ContentObject co = new ContentObject() {
+					@Override
+					public String url() {
+						return null;
+					}
+					
+					@Override
+					public String asString() {
+						return "    <template id='" + cardName + "'>\n" + s + "\n    </template>\n";
+					}
+				};
+				temps.add(co);
+			}
+			
+			@Override
+			public void visitCSS(String name, ZipInputStream zis, long length) throws IOException {
+				css.add(name);
+			}
+			
+			@Override
+			public void leaveAssembly(ApplicationAssembly a) throws IOException {
+				asm.begin();
+				asm.title(a.getTitle());
+				asm.afterTitle();
+				for (ContentObject co : temps)
+					asm.templates(co);
+				asm.beginCss();
+				for (String c : css)
+					asm.css("css/" + c);
+				asm.endCss();
+				asm.beginJs();
+				for (String j : js)
+					asm.javascript(j);
+				asm.endJs();
+				asm.beginInit();
+				asm.initializer(new CardInitializer() {
+					@Override
+					public Iterable<String> packages() {
+						return inits;
+					}
+					
+					@Override
+					public String mainCard() {
+						return a.mainCard();
+					}
+				});
+				asm.endInit();
+				asm.end();
+			}
+			
+			@Override
+			public void traversalDone() throws Exception {
+			}
+		}); 
 	}
 
 	private Map<String, String> extractTemplatesFromWebs() {
@@ -528,12 +604,13 @@ public class FLASCompiler implements CompileUnit {
 					ZipEntry ze;
 					while ((ze = zis.getNextEntry()) != null) {
 						if (ze.getName().endsWith(".html"))
-							ret.put(ze.getName().replace(".html", ""), new String(FileUtils.readAllStream(zis), Charset.forName("UTF-8")));
+							ret.put(ze.getName().replace(".html", ""),
+									new String(FileUtils.readAllStream(zis), Charset.forName("UTF-8")));
 					}
 				}
 			}
 		} catch (IOException ex) {
-			errors.message(((InputPosition)null), "internal error reading templates from splitter");
+			errors.message(((InputPosition) null), "internal error reading templates from splitter");
 		}
 		return ret;
 	}
@@ -557,8 +634,7 @@ public class FLASCompiler implements CompileUnit {
 				// same directory
 				// FileUtils.cleanDirectory(writeJVM);
 				for (ByteCodeCreator bcc : bce.all()) {
-					File wto = new File(jvmDir,
-							FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
+					File wto = new File(jvmDir, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
 					bcc.writeTo(wto);
 				}
 			} catch (Exception ex) {

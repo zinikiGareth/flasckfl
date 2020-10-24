@@ -124,7 +124,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		v.visitResource(name, zis);
 	}
 
-	public void leaveAssembly(Assembly a) throws IOException {
+	public void leaveAssembly(ApplicationAssembly a) throws IOException {
 		v.leaveAssembly(a);
 	}
 
