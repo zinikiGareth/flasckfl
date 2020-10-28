@@ -54,28 +54,50 @@ public abstract class GenerateSyntaxJson {
 				methodDecl.pattern("type-pattern");
 				
 				Rule card = super.block("intro-card", "meta.card", 1, "card", null).top(top);
+				card.pattern("simple-type");
 				card.pattern("state-defn");
 				card.pattern("template-defn");
 				card.pattern("implements-defn");
+				card.pattern("requires-defn");
+				card.pattern("explicit-method-defn");
 				card.pattern("event-defn");
 				card.pattern("handler-defn");
 				card.pattern("function-defn");
 
 				Rule state = super.block("state-defn", "meta.card.state", 2, "state", null);
-				state.pattern("field-defn");
+				state.pattern("state-field-defn");
 				
-				Rule field = super.block("field-defn", "meta.card.state.field", 3, null, null);
+				Rule field = super.block("state-field-defn", "meta.card.state.field", 3, null, null);
 				field.pattern("type-reference");
 				field.pattern("variable-name");
 				field.pattern("field-assign");
+				
+				Rule struct = super.block("struct-defn", "meta.struct", 1, "struct", null).top(top);
+				struct.pattern("struct-field-defn");
+				
+				Rule entity = super.block("entity-defn", "meta.entity", 1, "entity", null).top(top);
+				entity.pattern("struct-field-defn");
+				
+				Rule structField = super.block("struct-field-defn", "meta.card.state.field", 2, null, null);
+				structField.pattern("type-reference");
+				structField.pattern("variable-name");
+				structField.pattern("field-assign");
 
 				Rule fieldAssign = super.continueBlock(repo, "field-assign", "meta.expression", 3, "<-", "entity.name.function");
 				fieldAssign.pattern("number");
 				
 				Rule template = super.block("template-defn", "meta.card.template", 2, "template", null);
+				template.pattern("variable-name");
+				template.pattern("number");
+				template.pattern("type-reference");
 
 				Rule implementsDefn = super.block("implements-defn", "meta.card.implements", 2, "implements", null);
-				implementsDefn.pattern("method-defn");
+				implementsDefn.pattern("type-reference");
+				implementsDefn.pattern("contract-method-defn");
+
+				Rule requiresDefn = super.block("requires-defn", "meta.card.requires", 2, "requires", null);
+				requiresDefn.pattern("type-reference");
+				requiresDefn.pattern("variable-name");
 
 				Rule event = super.block("event-defn", "meta.card.event", 2, "event", null);
 				event.pattern("variable-name");
@@ -83,20 +105,35 @@ public abstract class GenerateSyntaxJson {
 				event.pattern("type-reference");
 				event.pattern("handler-defn");
 
-				Rule methodDefn = super.block("method-defn", "meta.method.defn", 3, "[a-z][A-Za-z0-9]*", "entity.name.function");
-				methodDefn.pattern("variable-name");
-				methodDefn.pattern("number");
-				methodDefn.pattern("type-reference");
-				methodDefn.pattern("handler-defn");
+				Rule explicitMethodDefn = super.block("explicit-method-defn", "meta.method.defn", 2, "method", null);
+				explicitMethodDefn.pattern("variable-name");
+				explicitMethodDefn.pattern("number");
+				explicitMethodDefn.pattern("type-reference");
+				explicitMethodDefn.pattern("handler-defn");
+
+				// a contract method definition is at level three and only within a contract implements
+				Rule contractMethodDefn = super.block("contract-method-defn", "meta.method.defn", 3, "[a-z][A-Za-z0-9]*", "entity.name.function");
+				contractMethodDefn.pattern("single-quoted-string");
+				contractMethodDefn.pattern("double-quoted-string");
+				contractMethodDefn.pattern("variable-name");
+				contractMethodDefn.pattern("number");
+				contractMethodDefn.pattern("type-reference");
+				contractMethodDefn.pattern("handler-defn");
 
 				Rule handlerDefn = super.block("handler-defn", "meta.handler.defn", -1, "handler", null).top(top);
+				handlerDefn.pattern("contract-method-defn");
+				handlerDefn.pattern("type-reference");
+				
 				Rule functionDefn = super.block("function-defn", "meta.function.defn", -1, "[a-z][A-Za-z0-9]*", "entity.name.function").top(top);
+				functionDefn.pattern("function-defn");
 
 				Rule typatt = super.token(repo, "type-pattern", "meta.pattern.type", "\\([^()]+\\)");
 				typatt.pattern("type-reference");
 				typatt.pattern("variable-name");
 				
 				super.token(repo, "number", "constant.numeric", "[0-9]+");
+				super.token(repo, "single-quoted-string", "constant.string", "'[^']*'");
+				super.token(repo, "double-quoted-string", "constant.string", "\"[^\"]*\"");
 				super.token(repo, "simple-type", "entity.name.type", "\\b[A-Z][A-Za-z0-9]+\\b");
 				super.token(repo, "type-reference", "entity.name.type", "\\b([a-z][a-zA-Z0-9]+\\.)*[A-Z][A-Za-z0-9]+\\b");
 				super.token(repo, "variable-name", "variable.parameter", "\\b[a-z][a-zA-Z0-9]*\\b");

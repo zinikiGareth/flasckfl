@@ -416,17 +416,6 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public boolean indent() {
-			if (!haveSomething || indent >= 8)
-				return false;
-			sentence.append("\n");
-			haveSomething = false;
-			indent++;
-			dicts.add(new TreeMap<>());
-			return true;
-		}
-
-		@Override
 		public boolean indent(boolean force) {
 			if (!force && (!haveSomething || indent >= 8))
 				return false;

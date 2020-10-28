@@ -7,7 +7,6 @@ import org.flasck.flas.grammar.TokenDefinition.Matcher;
 
 public interface ProductionVisitor {
 
-	boolean indent();
 	boolean indent(boolean force);
 	void visit(Definition defn);
 	void exdent();
