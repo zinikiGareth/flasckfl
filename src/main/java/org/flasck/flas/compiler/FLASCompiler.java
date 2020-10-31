@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -80,6 +81,7 @@ public class FLASCompiler implements CompileUnit {
 	private final ErrorReporter errors;
 	private final Repository repository;
 	private final Splitter splitter;
+	private final ServiceLoader<ParserModule> modules;
 	private final List<URI> brokenUris = new ArrayList<>();
 	private TaskQueue tasks;
 	private File cardsFolder;
@@ -93,6 +95,7 @@ public class FLASCompiler implements CompileUnit {
 		this.errors = errors;
 		this.repository = repository;
 		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
+		this.modules = ServiceLoader.load(ParserModule.class);
 	}
 
 	public void taskQueue(TaskQueue tasks) {
@@ -156,7 +159,7 @@ public class FLASCompiler implements CompileUnit {
 		String inPkg = dir.getName();
 		checkPackageName(inPkg);
 		System.out.println(" |" + inPkg);
-		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository);
+		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository, modules);
 		List<File> files = FileUtils.findFilesMatching(dir, "*.fl");
 		files.sort(new FileNameComparator());
 		for (File f : files) {
@@ -189,7 +192,7 @@ public class FLASCompiler implements CompileUnit {
 			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
 			SystemTest st = new SystemTest(stfn);
 			repository.systemTest(errors, st);
-			ParsingPhase parser = new ParsingPhase(errors, stfn, st, (TopLevelDefinitionConsumer) repository);
+			ParsingPhase parser = new ParsingPhase(errors, stfn, st, (TopLevelDefinitionConsumer) repository, modules);
 			parser.process(f);
 		}
 	}
@@ -233,7 +236,7 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	private void parseFL(File file, String inPkg, String name) {
-		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository);
+		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository, modules);
 		errors.logMessage("compiling " + name + " in " + inPkg);
 		flp.process(file);
 	}

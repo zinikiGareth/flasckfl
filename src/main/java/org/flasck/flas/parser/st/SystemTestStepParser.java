@@ -71,8 +71,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		default: {
 			toks.reset(mark);
-			errors.message(toks, "unrecognized system test step " + kw.text);
-			return new IgnoreNestedParser();
+			return null;
 		}
 		}
 	}

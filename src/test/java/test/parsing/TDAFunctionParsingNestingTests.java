@@ -2,6 +2,8 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -32,7 +34,7 @@ public class TDAFunctionParsingNestingTests {
 
 	@Before
 	public void setup() {
-		parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder);
+		parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
 	}
 	
 	@Test
@@ -56,7 +58,7 @@ public class TDAFunctionParsingNestingTests {
 //			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("g")); will(returnValue(FunctionName.function(pos, null, "g")));
 //			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
 		}});
-		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder);
+		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
 		parser.tryParsing(line);
 		parser.scopeComplete(pos);
 	}
@@ -67,7 +69,7 @@ public class TDAFunctionParsingNestingTests {
 			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
-		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder);
+		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
 		TDAParsing nested = parser.tryParsing(line("f"));
 		nested.tryParsing(line("| true = 42"));
 		nested.scopeComplete(pos);
