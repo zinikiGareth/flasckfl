@@ -1,3 +1,4 @@
+test.golden.bobby :: Type
 test.golden.fred :: String
 test.golden.fred._1.v :: String
 test.golden.n :: Number

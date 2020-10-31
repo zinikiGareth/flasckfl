@@ -238,11 +238,12 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 //		} finally {
 //		FileUtils.cat(new File(s, "repo.txt"));
 //		}
-		if (checkExpectedErrors(te, expectedErrors, actualErrors)) {
+		if (!expectedErrors.isDirectory()) {
 			te.checkTestResults();
 			te.checkFlimStore();
 			te.checkTypes();
 		}
+		checkExpectedErrors(te, expectedErrors, actualErrors);
 	}
 
 	private static void copyFlimstoresTo(File flimstoreTo, File flimfrom) throws FileNotFoundException, IOException {

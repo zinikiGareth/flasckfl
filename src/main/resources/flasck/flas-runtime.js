@@ -1505,6 +1505,9 @@ TypeOf.prototype._compare = function(_cxt, other) {
 		return false;
 }
 TypeOf.prototype.toString = function() {
+	if (this.ty._typename) {
+		return this.ty._typename;
+	}
 	switch (this.ty) {
 	case 'number':
 		return "Number";

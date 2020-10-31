@@ -6,6 +6,7 @@ JVM PASS that we can handle string type
 JVM PASS that we can handle numeric values
 JVM PASS that we can handle string values
 JVM PASS that we can use nested functions
+JVM PASS that we can show the type of a struct
 JS PASS that we can take the name of a type
 JS PASS that we can take the type of a var
 JS PASS that we can take the type of a type
@@ -14,3 +15,4 @@ JS PASS that we can handle string type
 JS PASS that we can handle numeric values
 JS PASS that we can handle string values
 JS PASS that we can use nested functions
+JS PASS that we can show the type of a struct

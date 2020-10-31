@@ -243,7 +243,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator ctr = jse.newClass(pkg, obj.name());
 		ctr.inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 		ctr.implementsJava(J.AREYOUA);
+		ctr.implementsJava(J.ISDATA);
 		ctr.inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
+		ctr.wantsTypeName();
 		JSMethodCreator ctor = ctr.constructor();
 		JSVar cx = ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.superArg(cx);

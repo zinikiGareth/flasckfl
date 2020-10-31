@@ -29,3 +29,7 @@
 	test that we can use nested functions
 		assert fred
 			"String"
+			
+	test that we can show the type of a struct
+		assert (show bobby)
+			"test.golden.MyThing"

@@ -1,3 +1,9 @@
 	n = 42
 	fred = show (type v)
 		v = 'hello'
+		
+	struct MyThing
+		Number n
+		String s
+
+	bobby = type MyThing

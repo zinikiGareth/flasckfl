@@ -46,11 +46,17 @@ public class JSClass implements JSClassCreator {
 	private final List<Field> fields = new ArrayList<>();
 	private final List<Field> ifields = new ArrayList<>();
 	private final List<String> intfs = new ArrayList<>();
+	private boolean wantTypeNameClzVar;
 	
 	public JSClass(JSEnvironment jse, NameOfThing clz) {
 		this.jse = jse;
 		this.name = clz;
 		ctor = classMethod(null);
+	}
+
+	@Override
+	public void wantsTypeName() {
+		wantTypeNameClzVar = true;
 	}
 
 	@Override
@@ -132,6 +138,10 @@ public class JSClass implements JSClassCreator {
 		if (this.baseClass != null) {
 			iw.println(name.jsName() + ".prototype = new " + this.baseClass.jsName() + "();");
 			iw.println(name.jsName() + ".prototype.constructor = " + name.jsName() + ";");
+		}
+		if (wantTypeNameClzVar) {
+			iw.println("\n");
+			iw.println(name.jsName() + "._typename = '" + name.uniqueName() + "'");
 		}
 		for (JSMethod m : methods)
 			m.write(iw, names);
