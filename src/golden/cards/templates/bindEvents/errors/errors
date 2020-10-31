@@ -1,0 +1,2 @@
+                          JS FAIL clicking on an unbound zone will fail because the zone has not been rendered
+                          JVM FAIL clicking on an unbound zone will fail because the zone has not been rendered

@@ -283,7 +283,7 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		if (config.upto() == PhaseTo.PARSING)
-			return true;
+			return false;
 
 		if (resolve())
 			return true;

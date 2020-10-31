@@ -141,21 +141,25 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 					String jsex = ex.getMessage();
 					if (jsex.startsWith("Error: NSV\n")) {
 						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: EXP\n")) {
 						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: MATCH\n")) {
 						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: NEWDIV\n")) {
 						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
 						pw.println("incorrect number of divs created");
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
@@ -163,6 +167,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 					}
 				}
 				pw.error("JS", desc, t);
+				errors.add("JS ERROR " + desc);
 				cdl.countDown();
 			}
 		});

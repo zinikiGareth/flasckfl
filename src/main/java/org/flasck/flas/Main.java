@@ -40,13 +40,13 @@ public class Main {
 		ErrorResult errors = new ErrorResult();
 		Configuration config = new Configuration(errors, args);
 
-		commonCompiler(errors, config);
+		FLASCompiler ret = commonCompiler(errors, config);
 		// This is to do with Android
 //		if (compiler.getBuilder() != null)
 //			compiler.getBuilder().build();
 		// TODO: option to upload to a Ziniki Server
 		
-		return errors.hasErrors();
+		return errors.hasErrors() || ret == null;
 	}
 	
 	// If we are the embedded Ziniki compiler, store the resulting package in S3

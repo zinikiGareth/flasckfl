@@ -116,16 +116,20 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			if (e2 instanceof AssertFailed) {
 				AssertFailed af = (AssertFailed) e2;
 				pw.fail("JVM", desc);
+				errors.add("JVM FAIL " + desc);
 				pw.println("  expected: " + valueOf(af.expected));
 				pw.println("  actual:   " + valueOf(af.actual));
 			} else if (e2 instanceof NotMatched) {
 				pw.fail("JVM", desc);
+				errors.add("JVM FAIL " + desc);
 				pw.println("  " + e2.getMessage());
 			} else if (e2 instanceof NewDivException) {
 				pw.fail("JVM", desc);
+				errors.add("JVM FAIL " + desc);
 				pw.println("  " + e2.getMessage());
 			} else {
 				pw.error("JVM", desc, e2);
+				errors.add("JVM ERROR " + desc);
 				pw.println("JVM ERROR " + desc);
 			}
 		} catch (Throwable t) {
