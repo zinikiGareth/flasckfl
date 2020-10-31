@@ -7,3 +7,12 @@
 		String s
 
 	bobby = type MyThing
+	
+	object UsesType
+		state
+			String mytype
+			
+		ctor foo
+		
+		method setType
+			mytype <- show (type Number)

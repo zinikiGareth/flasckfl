@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.repository.LeafAdapter;
@@ -55,7 +56,7 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		else if (expr instanceof MemberExpr)
 			;
 		else if (mode == Mode.RHS) {
-			if (expr instanceof CastExpr)
+			if (expr instanceof CastExpr || expr instanceof TypeExpr)
 				new SpecialConvertor(errors, nv, oah, assign);
 			else
 				stack.add(expr);

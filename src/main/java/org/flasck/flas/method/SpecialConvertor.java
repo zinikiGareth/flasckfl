@@ -6,12 +6,13 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.TypeExpr;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 
 public class SpecialConvertor extends LeafAdapter implements ResultAware {
-
 	private final ErrorReporter errors;
 	private final NestedVisitor nv;
 	private final ObjectActionHandler oah;
@@ -21,6 +22,7 @@ public class SpecialConvertor extends LeafAdapter implements ResultAware {
 		this.errors = errors;
 		this.nv = nv;
 		this.oah = oah;
+		nv.push(this);
 	}
 	
 	@Override
@@ -35,8 +37,23 @@ public class SpecialConvertor extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
+	public void visitTypeExpr(TypeExpr expr) {
+		this.res = expr;
+	}
+	
+	@Override
+	public void visitCastExpr(CastExpr expr) {
+		this.res = expr;
+	}
+
+	@Override
 	public void result(Object r) {
 		this.res = r;
+	}
+
+	@Override
+	public void leaveTypeExpr(TypeExpr expr) {
+		nv.result(res);
 	}
 
 	@Override

@@ -1520,6 +1520,12 @@ TypeOf.prototype.toString = function() {
 	}
 }
 
+TypeOf.prototype._towire = function(wf) {
+    wf.type = this.toString();
+    wf.ns = ns;
+}
+
+
 
 /* istanbul ignore next */
 const FLBuiltin = function() {

@@ -56,6 +56,7 @@ public class StructGenerationJS {
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);
+			oneOf(clz).implementsJava(J.ISDATA);
 			oneOf(clz).inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).argument(J.FLEVALCONTEXT, "_cxt"); will(returnValue(jsa));
@@ -66,6 +67,7 @@ public class StructGenerationJS {
 			oneOf(ctorBlock).string("test.repo.Struct"); will(returnValue(str));
 			oneOf(ctorBlock).storeField(true, null, "_type", str);
 			oneOf(ctorBlock).returnVoid();
+			oneOf(clz).wantsTypeName();
 			oneOf(clz).createMethod("_areYouA", true); will(returnValue(aya));
 			oneOf(aya).argument(J.EVALCONTEXT, "_cxt");
 			oneOf(aya).argument(J.STRING, "ty");
@@ -106,7 +108,9 @@ public class StructGenerationJS {
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);
+			oneOf(clz).implementsJava(J.ISDATA);
 			oneOf(clz).inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
+			oneOf(clz).wantsTypeName();
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).argument(J.FLEVALCONTEXT, "_cxt"); will(returnValue(jsa));
 			oneOf(ctorBlock).superArg(jsa);

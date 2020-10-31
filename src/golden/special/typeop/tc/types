@@ -1,3 +1,5 @@
+test.golden.UsesType._ctor_foo :: test.golden.UsesType
+test.golden.UsesType.setType :: List[Message]
 test.golden.bobby :: Type
 test.golden.fred :: String
 test.golden.fred._1.v :: String

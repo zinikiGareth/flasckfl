@@ -33,3 +33,9 @@
 	test that we can show the type of a struct
 		assert (show bobby)
 			"test.golden.MyThing"
+			
+	test methods can convert type operators
+		data UsesType ut <- UsesType.foo
+		invoke ut.setType
+		assert (ut.mytype)
+			"Number"
