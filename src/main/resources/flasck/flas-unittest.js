@@ -1,7 +1,7 @@
 
 const UTRunner = function(logger) {
 	if (!logger)
-		logger = console.log;
+		logger = console;
 	CommonEnv.call(this, logger, new SimpleBroker(logger, this, {}));
 	this.errors = [];
 	this.mocks = {};
@@ -239,6 +239,14 @@ UTRunner.prototype.updateAllCards = function(_cxt) {
 			if (c._updateDisplay)
 				c._updateDisplay(_cxt, c._renderTree);
 		}
+	}
+}
+UTRunner.prototype.module = function(mod) {
+	if (window.callJava && window.callJava.module) {
+		return window.callJava.module(mod);
+	} else {
+		this.logger.log("module architecture not supported for " + mod);
+		return null;
 	}
 }
 

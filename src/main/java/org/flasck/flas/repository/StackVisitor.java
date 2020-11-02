@@ -2,6 +2,7 @@ package org.flasck.flas.repository;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -13,6 +14,8 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.compiler.ModuleExtensible;
+import org.flasck.flas.compiler.TraversalProcessor;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -93,17 +96,26 @@ import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.InvalidUsageException;
 
-public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor {
+public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor, ModuleExtensible {
 	private List<RepositoryVisitor> stack = new LinkedList<>();
 	private RepositoryVisitor top;
 	private HSIVisitor hsi;
 	private TreeOrderVisitor tov;
+	private final Iterable<TraversalProcessor> modules;
+
+	public StackVisitor() {
+		modules = ServiceLoader.load(TraversalProcessor.class);
+	}
 	
 	@Override
 	public void push(RepositoryVisitor v) {
 //		System.out.println("Pushing " + v.getClass().getName());
 		stack.add(0, v);
 		setTop(v);
+	}
+
+	public RepositoryVisitor top() {
+		return this.top;
 	}
 
 	private void setTop(RepositoryVisitor v) {
@@ -894,5 +906,15 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		while (stack.size() > cnt)
 			stack.remove(0);
 		setTop(stack.get(0));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends TraversalProcessor> T forModule(Class<T> extension, Class<? extends RepositoryVisitor> phase) {
+		for (TraversalProcessor tp : modules) {
+			if (tp.is(extension) && phase.isInstance(stack.get(stack.size()-1)))
+				return (T) tp;
+		}
+		return null;
 	}
 }

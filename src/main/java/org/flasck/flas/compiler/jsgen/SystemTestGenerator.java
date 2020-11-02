@@ -46,6 +46,10 @@ public class SystemTestGenerator extends LeafAdapter {
 		sv.push(this);
 		createClass(st);
 	}
+	
+	public void shareWith(SystemTestModule module) {
+		module.inject(meth, state, block, runner);
+	}
 
 	private void createClass(SystemTest st) {
 		NameOfThing name = st.name();

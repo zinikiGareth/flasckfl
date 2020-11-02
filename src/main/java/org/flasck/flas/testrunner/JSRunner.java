@@ -4,14 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
@@ -19,6 +20,7 @@ import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
+import org.flasck.jvm.container.FLEnvironment;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
@@ -32,41 +34,33 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner<JSObject> {
-	AtomicInteger pendingAsyncs = new AtomicInteger(0);
-
 	public class JSJavaBridge {
 		public void error(String s) {
 			errors.add(s);
 		}
 		
 		public void log(String s) {
+			System.out.println(s);
 			logger.info(s);
 		}
-
-		public void callAsync(final JSObject fn) {
-			pendingAsyncs.incrementAndGet();
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						fn.eval("this.f()");
-						if (pendingAsyncs.decrementAndGet() == 0) {
-							synchronized(pendingAsyncs) {
-								pendingAsyncs.notifyAll();
-							}
-						}
-					} catch (Throwable t) {
-						t.printStackTrace();
-						errors.add(t.getMessage());
-					}
+		
+		public Object module(String s) {
+			try {
+				Class<?> clz = Class.forName(s);
+				if (!modules.containsKey(clz)) {
+					modules.put(clz, clz.getConstructor(FLEnvironment.class).newInstance((Object) null));
 				}
-			});
+				return modules.get(clz);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+				throw WrappedException.wrap(e);
+			}
 		}
 	}
 
 	private final JSStorage jse;
 	private final JSJavaBridge st = new JSJavaBridge();
 	private final BrowserEngine browser;
+	private final Map<Class<?>, Object> modules = new HashMap<>();
 	private Page page;
 	private File html;
 	private boolean useCachebuster = false;

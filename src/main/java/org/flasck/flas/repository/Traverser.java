@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -166,9 +167,11 @@ public class Traverser implements RepositoryVisitor {
 		}
 	};
 	private Repository repository;
+	private Iterable<TraverserModule> modules = null;
 
 	public Traverser(RepositoryVisitor visitor) {
 		this.visitor = visitor;
+		this.modules = ServiceLoader.load(TraverserModule.class);
 	}
 
 	public Traverser withImplementedMethods() {
@@ -1829,7 +1832,15 @@ public class Traverser implements RepositoryVisitor {
 			visitAjaxCreate((AjaxCreate)s);
 		else if (s instanceof AjaxPump)
 			visitAjaxPump((AjaxPump)s);
-		else
+		else if (modules != null) {
+			boolean done = false;
+			for (TraverserModule m : modules ) {
+				if (done = m.visitUnitTestStep(visitor, s))
+					break;
+			}
+			if (!done)
+				throw new NotImplementedException("cannot handle " + s.getClass());
+		} else
 			throw new NotImplementedException("cannot handle " + s.getClass());
 	}
 

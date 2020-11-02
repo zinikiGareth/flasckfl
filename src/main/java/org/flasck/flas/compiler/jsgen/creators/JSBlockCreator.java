@@ -117,6 +117,10 @@ public interface JSBlockCreator {
 	JSExpr createService(CardName name);
 	JSExpr createAjax(JSExpr runner, StringLiteral url);
 
+	// support module commands
+	void module(JSExpr runner, String javaModule, String method, JSExpr... args);
+
+	
 	// Send the block to disk
 	JSExpr singleton();
 	boolean isEmpty();

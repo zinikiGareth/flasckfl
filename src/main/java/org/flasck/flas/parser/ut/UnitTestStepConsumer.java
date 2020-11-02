@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.MatchedItem;
+import org.flasck.flas.parsedForm.ut.UnitTestStep;
 
 public interface UnitTestStepConsumer {
 	void assertion(Expr expr, Expr value);
@@ -20,4 +21,5 @@ public interface UnitTestStepConsumer {
 	void expect(UnresolvedVar ctr, UnresolvedVar meth, Expr[] args, Expr handler);
 	void match(UnresolvedVar card, MatchedItem what, TargetZone targetZone, boolean contains, String text);
 	void newdiv(Integer cnt);
+	void other(UnitTestStep step);
 }

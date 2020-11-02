@@ -59,6 +59,7 @@ import org.flasck.flas.compiler.jsgen.form.JSMockCard;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSMockHandler;
 import org.flasck.flas.compiler.jsgen.form.JSMockService;
+import org.flasck.flas.compiler.jsgen.form.JSModuleStmt;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
 import org.flasck.flas.compiler.jsgen.form.JSNewDiv;
 import org.flasck.flas.compiler.jsgen.form.JSNewState;
@@ -358,6 +359,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void assertable(JSExpr obj, String assertion, JSExpr... args) {
 		JSAssertion stmt = new JSAssertion(obj, assertion, args);
+		stmts.add(stmt);
+	}
+
+	
+	@Override
+	public void module(JSExpr runner, String javaModule, String method, JSExpr... args) {
+		JSModuleStmt stmt = new JSModuleStmt(runner, javaModule, method, args);
 		stmts.add(stmt);
 	}
 

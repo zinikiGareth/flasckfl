@@ -64,4 +64,8 @@ public class TestStepHolder implements UnitTestStepConsumer {
 		this.steps.add(new UnitTestNewDiv(cnt));
 	}
 
+	@Override
+	public void other(UnitTestStep step) {
+		this.steps.add(step);
+	}
 }
