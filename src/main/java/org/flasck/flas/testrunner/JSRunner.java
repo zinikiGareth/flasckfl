@@ -20,7 +20,6 @@ import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
-import org.flasck.jvm.container.FLEnvironment;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
@@ -48,7 +47,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 			try {
 				Class<?> clz = Class.forName(s);
 				if (!modules.containsKey(clz)) {
-					modules.put(clz, clz.getConstructor(FLEnvironment.class).newInstance((Object) null));
+					modules.put(clz, clz.getConstructor(JSJavaBridge.class).newInstance(this));
 				}
 				return modules.get(clz);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
