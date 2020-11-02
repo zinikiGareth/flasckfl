@@ -11,6 +11,7 @@ JsonBeachhead.prototype.unmarshalContract = function(contract) {
     var sender = this.sender;
     return {
         begin: function(cx, method) {
+            // broker.logger.log("hello #1 " + contract);
             return new JsonArgsMarshaller(broker, {action:"invoke", contract, method, args:[]}, sender, new CollectingState(cx));
         }
     };
@@ -119,7 +120,6 @@ JsonMarshaller.prototype.circle = function(o, as) {
 }
 
 JsonMarshaller.prototype.handleCycle = function(cr) {
-    this.broker.logger.log("handling cycle", cr);
     if (this.collector.already(cr)) {
         this.collect({_cycle:this.collector.get(cr)});
         this.broker.logger.log("handled cycle", cr, new Error().stack);
@@ -217,10 +217,7 @@ const SimpleBroker = function(logger, factory, contracts) {
 
 SimpleBroker.prototype.connectToServer = function(uri) {
     const zwc = new ZiwshWebClient(this.logger, this.factory, uri);
-    this.logger.log("have zwc", zwc);
-    this.logger.log("jb = ", JsonBeachhead);
     const bh = new JsonBeachhead(this.factory, uri, this, zwc);
-    this.logger.log("have bh", bh);
     this.server = bh;
     zwc.attachBeachhead(bh);
     this.logger.log("attached", bh, "to", zwc);
@@ -228,6 +225,7 @@ SimpleBroker.prototype.connectToServer = function(uri) {
 }
 
 SimpleBroker.prototype.beachhead = function(bh) {
+    // this.logger.log("setting beachhead");
     this.server = bh;
 }
 
@@ -254,8 +252,10 @@ SimpleBroker.prototype.unmarshalTo = function(clz) {
     var svc = this.services[clz];
     if (svc != null)
         return svc;
-    else if (this.server != null)
+    else if (this.server != null) {
+        // this.logger.log("unmarshalling on server", clz);
         return this.server.unmarshalContract(clz);
+    }
     else
         return NoSuchContract.forContract(clz);
 }
@@ -411,6 +411,7 @@ ObjectMarshaller.prototype.marshal = function(o) {
 }
 
 ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
+    // this.logger.log("marshal " + o + " " + (typeof o));
     if (ux.handleCycle(o))
         ;
     else if (typeof o === "string")

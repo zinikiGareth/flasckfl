@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
@@ -20,6 +21,7 @@ import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
+import org.ziniki.ziwsh.intf.JsonSender;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
@@ -54,6 +56,14 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 				throw WrappedException.wrap(e);
 			}
 		}
+
+		public void transport(JsonSender toZiniki) {
+			if (Platform.isFxApplicationThread()) {
+				JSObject runner = (JSObject) page.executeScript("window.utrunner");
+				runner.call("transport", toZiniki);
+			} else
+				throw new RuntimeException("Could not pass transport to JS: not in FX thread");
+		}
 	}
 
 	private final JSStorage jse;
@@ -81,20 +91,24 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
 		buildHTML(templates);
 		page = browser.navigate("file:" + html.getPath());
-		CountDownLatch cdl = new CountDownLatch(1);
-		Platform.runLater(() -> {
+		boolean await = uiThread(cdl -> {
 			JSObject win = (JSObject)page.executeScript("window");
 			win.setMember("callJava", st);
 			cdl.countDown();
 		});
+		if (!await)
+			throw new RuntimeException("Whole test failed to initialize");
+	}
+
+	private boolean uiThread(Consumer<CountDownLatch> doit) {
+		CountDownLatch cdl = new CountDownLatch(1);
+		Platform.runLater(() -> doit.accept(cdl));
 		boolean await = false;
 		try {
 			await = cdl.await(1, TimeUnit.SECONDS);
 		} catch (Throwable t) {
 		}
-		if (!await) {
-			throw new RuntimeException("Whole test failed to initialize");
-		}
+		return await;
 	}
 
 	@Override
@@ -103,9 +117,9 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 	}
 
 	private Object runStage(TestResultWriter pw, String desc, JSObject obj, String ctr, String fn, boolean isTest) {
-		CountDownLatch cdl = new CountDownLatch(1);
+		System.out.println("Starting to run stage " + desc);
 		List<Object> rets = new ArrayList<>();
-		Platform.runLater(() -> {
+		boolean await = uiThread(cdl -> {
 			try {
 				boolean ran = false;
 				Object ret = null;
@@ -164,11 +178,6 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 				cdl.countDown();
 			}
 		});
-		boolean await = false;
-		try {
-			await = cdl.await(100, TimeUnit.SECONDS);
-		} catch (Exception ex) {
-		}
 		if (!await) {
 			pw.println("JS TIMEOUT " + desc);
 		}
