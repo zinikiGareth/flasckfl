@@ -364,9 +364,11 @@ public class JSBlock implements JSBlockCreator {
 
 	
 	@Override
-	public void module(JSExpr runner, String javaModule, String method, JSExpr... args) {
-		JSModuleStmt stmt = new JSModuleStmt(runner, javaModule, method, args);
-		stmts.add(stmt);
+	public JSExpr module(JSExpr runner, String javaIF, String javaModule, String method, JSExpr... args) {
+		JSModuleStmt mod = new JSModuleStmt(runner, javaIF, javaModule);
+		JSLocal ret = new JSLocal(creating, mod);
+		stmts.add(ret);
+		return ret;
 	}
 
 	@Override

@@ -1,8 +1,5 @@
 package org.flasck.flas.compiler.jsgen.form;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
@@ -11,15 +8,13 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSModuleStmt implements IVForm {
 	private final JSExpr obj;
+	private final String javaIF;
 	private final String javaModule;
-	private final String meth;
-	private final JSExpr[] args;
 
-	public JSModuleStmt(JSExpr obj, String javaModule, String method, JSExpr... args) {
+	public JSModuleStmt(JSExpr obj, String javaIF, String javaModule) {
 		this.obj = obj;
+		this.javaIF = javaIF;
 		this.javaModule = javaModule;
-		this.meth = method;
-		this.args = args;
 	}
 
 	@Override
@@ -30,32 +25,19 @@ public class JSModuleStmt implements IVForm {
 		}
 		w.print("module('");
 		w.print(javaModule);
-		w.print("').");
-		w.print(meth);
-		w.print("(_cxt");
-		for (JSExpr e : args) {
-			w.print(", ");
-			w.print(e.asVar());
-		}
-		w.println(");");
+		w.print("')");
 	}
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
- 		List<IExpr> as = new ArrayList<>();
- 		as.add(jvm.cxt());
-		for (JSExpr e : args) {
-			as.add(jvm.arg(e));
-		}
 		NewMethodDefiner md = jvm.method();
-		IExpr mod = md.castTo(md.callInterface(J.OBJECT, jvm.argAsIs(obj), "module", md.classConst(javaModule)), javaModule);
-		IExpr ret = md.callVirtual("void", mod, meth, as.toArray(new IExpr[as.size()]));
-		jvm.local(this, ret);
+		IExpr mod = md.castTo(md.callInterface(J.OBJECT, jvm.argAsIs(obj), "module", md.classConst(javaModule)), javaIF);
+		jvm.local(this, mod);
 	}
 
 	@Override
 	public void asivm(IVFWriter iw) {
-		iw.println("module " + javaModule + " " + meth);
+		iw.println("module " + javaModule);
 	}
 	
 	@Override
