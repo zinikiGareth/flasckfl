@@ -11,6 +11,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
+import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -64,6 +65,8 @@ public class HIGeneratorJS extends LeafAdapter {
 			args.add(new JSVar("_incard"));
 		}
 		hdlrCtor.returnVoid();
+		JSMethodCreator amclz = hdlr.createMethod("_clz", true);
+		amclz.returnObject(new JSString(hi.actualType().name().uniqueName()));
 		this.evalRet = eval.newOf(hi.name(), args);
 		this.eval.storeField(true, this.evalRet, "_type", this.eval.string(name.uniqueName()));
 		jse.handler(hi);
