@@ -118,7 +118,7 @@ public interface JSBlockCreator {
 	JSExpr createAjax(JSExpr runner, StringLiteral url);
 
 	// support module commands
-	JSExpr module(JSExpr runner, String javaIF, String javaModule, String method, JSExpr... args);
+	JSExpr module(JSExpr runner, String javaIF, String javaModule);
 
 	
 	// Send the block to disk
