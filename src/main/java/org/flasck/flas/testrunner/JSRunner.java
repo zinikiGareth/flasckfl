@@ -64,6 +64,19 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 			} else
 				throw new RuntimeException("Could not pass transport to JS: not in FX thread");
 		}
+
+		public void sendJson(String json) {
+			if (Platform.isFxApplicationThread()) {
+				JSObject runner = (JSObject) page.executeScript("window.utrunner");
+				runner.call("deliver", json);
+			} else {
+				uiThread(cdl -> {
+					JSObject runner = (JSObject) page.executeScript("window.utrunner");
+					runner.call("deliver", json);
+					cdl.countDown();
+				});
+			}
+		}
 	}
 
 	private final JSStorage jse;
@@ -104,7 +117,13 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 
 	private boolean uiThread(Consumer<CountDownLatch> doit) {
 		CountDownLatch cdl = new CountDownLatch(1);
-		Platform.runLater(() -> doit.accept(cdl));
+		Platform.runLater(() -> {
+			try {
+				doit.accept(cdl);
+			} catch (Throwable t) {
+				t.printStackTrace(System.out);
+			}
+		});
 		boolean await = false;
 		try {
 			await = cdl.await(1, TimeUnit.SECONDS);

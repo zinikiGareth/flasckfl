@@ -256,6 +256,10 @@ UTRunner.prototype.transport = function(tz) {
 	// we have a transport to Ziniki
 	this.broker.beachhead(new JsonBeachhead(this, "fred", this.broker, tz));
 }
+UTRunner.prototype.deliver = function(json) {
+	// we have a response from Ziniki
+	this.logger.log("have " + json + " ready for delivery");
+}
 
 	window.UTRunner = UTRunner;
 
