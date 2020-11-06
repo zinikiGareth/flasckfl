@@ -479,7 +479,7 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		if (config.generateJS && config.unitjs) {
-			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates);
+			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, this.getClass().getClassLoader());
 			jsRunner.runAllUnitTests(writers);
 			jsRunner.reportErrors(errors);
 		}
@@ -489,8 +489,9 @@ public class FLASCompiler implements CompileUnit {
 
 	public boolean runSystemTests(Configuration config, Map<File, TestResultWriter> writers) {
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
+		BCEClassLoader bcl = null;
 		if (config.generateJVM && config.systemjvm) {
-			BCEClassLoader bcl = new BCEClassLoader(bce);
+			bcl = new BCEClassLoader(bce);
 			for (File f : config.includeFrom)
 				bcl.addClassesFrom(f);
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
@@ -499,7 +500,8 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		if (config.generateJS && config.systemjs) {
-			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates);
+			ClassLoader cl = bcl != null ? bcl : this.getClass().getClassLoader();
+			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
 			jsRunner.runAllSystemTests(writers);
 			jsRunner.reportErrors(errors);
 		}

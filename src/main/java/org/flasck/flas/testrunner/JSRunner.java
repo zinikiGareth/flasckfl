@@ -49,7 +49,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 			try {
 				Class<?> clz = Class.forName(s);
 				if (!modules.containsKey(clz)) {
-					modules.put(clz, clz.getConstructor(JSJavaBridge.class).newInstance(this));
+					modules.put(clz, clz.getConstructor(JSJavaBridge.class, ClassLoader.class).newInstance(this, classloader));
 				}
 				return modules.get(clz);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
@@ -70,13 +70,14 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 	private final JSJavaBridge st = new JSJavaBridge();
 	private final BrowserEngine browser;
 	private final Map<Class<?>, Object> modules = new HashMap<>();
+	private final ClassLoader classloader;
 	private Page page;
 	private File html;
 	private boolean useCachebuster = false;
 	private String jstestdir;
 	private String specifiedTestName;
 	
-	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates) {
+	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates, ClassLoader cl) {
 		super(config, repository);
 		if (config != null) {
 			this.jstestdir = config.jsTestDir();
@@ -87,6 +88,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 		}
 		this.jse = jse;
 		this.browser = BrowserFactory.getWebKit();
+		this.classloader = cl;
 
 		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
 		buildHTML(templates);
