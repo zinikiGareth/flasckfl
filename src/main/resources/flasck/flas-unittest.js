@@ -254,11 +254,16 @@ UTRunner.prototype.module = function(mod) {
 }
 UTRunner.prototype.transport = function(tz) {
 	// we have a transport to Ziniki
-	this.broker.beachhead(new JsonBeachhead(this, "fred", this.broker, tz));
+	this.zinBch = new JsonBeachhead(this, "fred", this.broker, tz);
+	this.broker.beachhead(this.zinBch);
 }
 UTRunner.prototype.deliver = function(json) {
 	// we have a response from Ziniki
 	this.logger.log("have " + json + " ready for delivery");
+	var cx = this.newContext();
+	var msgs = this.zinBch.dispatch(cx, json, null);
+	this.logger.log("have messages", msgs);
+	this.queueMessages(cx, msgs);
 }
 
 	window.UTRunner = UTRunner;

@@ -24,11 +24,10 @@ JsonBeachhead.prototype.dispatch = function(cx, json, replyTo) {
 
     switch (jo.action) {
         case "invoke": {
-            this.invoke(uow, jo, replyTo);
-            break;
+            return this.invoke(uow, jo, replyTo);
         }
         case "idem": {
-            this.idem(uow, jo, replyTo);
+            return this.idem(uow, jo, replyTo);
         }
     }
 }
@@ -41,7 +40,7 @@ JsonBeachhead.prototype.invoke = function(uow, jo, replyTo) {
         this.handleArg(dispatcher, o);
     }
     dispatcher.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
-    dispatcher.dispatch();
+    return dispatcher.dispatch();
 }
 
 JsonBeachhead.prototype.handleArg = function(ux, o) {
@@ -77,7 +76,7 @@ JsonBeachhead.prototype.idem = function(uow, jo, replyTo) {
     else
         um.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
     uow.log("have args for", jo.method, "as", um.ret);
-    ih[jo.method].apply(ih, um.ret);
+    return ih[jo.method].apply(ih, um.ret);
 }
 
 JsonBeachhead.prototype.makeIdempotentHandler = function(replyTo, ihinfo) {

@@ -56,7 +56,7 @@ CommonEnv.prototype.handleMessagesWith = function(_cxt, msg, ret) {
     msg = _cxt.full(msg);
     if (!msg)
         return [];
-    else if (msg instanceof FLError) {
+    else if (msg instanceof FLError || typeof(msg) == 'string') {
         this.logger.log(msg);
         return [];
     } else if (msg instanceof Array) {

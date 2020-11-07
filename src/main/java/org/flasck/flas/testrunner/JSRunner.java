@@ -156,6 +156,8 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 						ran = true;
 					}
 				}
+				// TODO: this is a hack because the JS-side test code does not wait for all messages to have been fully processed
+				Thread.sleep(500);
 				if (ret != null && !"undefined".equals(ret))
 					rets.add(ret);
 				if (isTest && desc != null && ran)
