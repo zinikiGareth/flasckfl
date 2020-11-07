@@ -571,6 +571,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		currentContract.field(true, Access.PUBLICSTATIC, new PackageName("int"), "_nf_"+cmd.name.name, cmd.args.size());
 		JSMethodCreator meth = currentContract.createMethod(cmd.name.name, true);
 		meth.argument(J.FLEVALCONTEXT, "_cxt");
+		meth.argumentList();
 		for (int k=0;k<cmd.args.size();k++) {
 			meth.argument("_" + k);
 		}
