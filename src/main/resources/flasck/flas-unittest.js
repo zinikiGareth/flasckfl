@@ -335,6 +335,8 @@ MockContract.prototype.expect = function(meth, args, handler) {
 }
 
 MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
+	if (meth === 'success' || meth === 'failure')
+		return; // these should really just be part of the protocol
 	const ih = args[args.length-1];
 	args = args.slice(0, args.length-1);
 	if (!this.expected[meth]) {

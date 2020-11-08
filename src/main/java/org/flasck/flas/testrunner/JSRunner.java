@@ -138,7 +138,6 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 	}
 
 	private Object runStage(TestResultWriter pw, String desc, JSObject obj, String ctr, String fn, boolean isTest) {
-		System.out.println("Starting to run stage " + desc);
 		List<Object> rets = new ArrayList<>();
 		boolean await = uiThread(cdl -> {
 			try {
@@ -157,7 +156,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 					}
 				}
 				// TODO: this is a hack because the JS-side test code does not wait for all messages to have been fully processed
-				Thread.sleep(500);
+//				Thread.sleep(500);
 				if (ret != null && !"undefined".equals(ret))
 					rets.add(ret);
 				if (isTest && desc != null && ran)

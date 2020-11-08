@@ -112,6 +112,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			if (desc != null)
 				pw.pass("JVM", desc);
 		} catch (WrappedException | InvocationTargetException ex) {
+			ex.printStackTrace(System.out);
 			Throwable e2 = WrappedException.unwrapThrowable(ex);
 			if (e2 instanceof AssertFailed) {
 				AssertFailed af = (AssertFailed) e2;

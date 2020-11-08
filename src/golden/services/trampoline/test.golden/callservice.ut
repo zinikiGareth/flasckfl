@@ -3,7 +3,8 @@
 		data Trampoline t
 		data Value hdlr
 		expect mock data -> _reply
-		expect hdlr success
+// I have deliberately removed this because I think it should be part of the protocol, not part of the interface		
+//		expect hdlr success
 		contract t DependOn data -> hdlr
 		expect hdlr value "yo"
 		invoke reply.value "yo"

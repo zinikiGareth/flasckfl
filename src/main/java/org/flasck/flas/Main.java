@@ -118,8 +118,8 @@ public class Main {
 		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);
 		StaticLoggerBinder.setLevel("io.webfolder.ui4j", Level.WARN);
 		StaticLoggerBinder.setLevel("IdemHandler", Level.WARN);
-		StaticLoggerBinder.setLevel("Dispatcher", Level.WARN);
-		StaticLoggerBinder.setLevel("Send", Level.WARN);
+		StaticLoggerBinder.setLevel("Dispatcher", Level.DEBUG);
+		StaticLoggerBinder.setLevel("Send", Level.DEBUG);
 		StaticLoggerBinder.setLevel("GLS", Level.WARN);
 		StaticLoggerBinder.setLevel("TxManagerThreading", Level.WARN);
 		StaticLoggerBinder.setLevel("awstxstore", Level.WARN);
