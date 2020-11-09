@@ -359,6 +359,18 @@ public class FLASCompiler implements CompileUnit {
 				File fldir = new File(config.root, "flascklib/js");
 				FileUtils.cleanDirectory(fldir);
 				FileUtils.assertDirectory(fldir);
+				File cssdir = new File(config.root, "css");
+				FileUtils.cleanDirectory(cssdir);
+				FileUtils.assertDirectory(cssdir);
+				for (SplitMetaData wd : repository.allWebs()) {
+					ZipInputStream zoo = wd.processedZip();
+					ZipEntry ze;
+					while ((ze = zoo.getNextEntry()) != null) {
+						if (ze.getName().endsWith(".css"))
+							FileUtils.copyStreamToFileWithoutClosing(zoo, new File(cssdir, ze.getName()));
+					}
+					zoo.close();
+				}
 				List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
 				for (File f : library) {
 					FileUtils.copy(f, fldir);
