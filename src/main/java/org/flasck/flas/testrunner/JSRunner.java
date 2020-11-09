@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -25,7 +24,6 @@ import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.testrunner.JSRunner.CountingSender;
 import org.ziniki.ziwsh.intf.JsonSender;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
@@ -181,7 +179,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 		});
 		boolean await = false;
 		try {
-			await = cdl.await(100, TimeUnit.SECONDS);
+			await = cdl.await(1, TimeUnit.SECONDS);
 		} catch (Throwable t) {
 		}
 		return await;
