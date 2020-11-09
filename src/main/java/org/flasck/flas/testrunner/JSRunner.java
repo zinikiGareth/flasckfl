@@ -13,14 +13,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.testrunner.JSRunner.CountingSender;
 import org.ziniki.ziwsh.intf.JsonSender;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
@@ -35,6 +40,22 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner<JSObject> {
+	public class CountingSender implements JsonSender {
+		private final JsonSender toZiniki;
+
+		public CountingSender(JsonSender toZiniki) {
+			this.toZiniki = toZiniki;
+		}
+
+		@Override
+		public void send(String json) {
+			int cnt = counter.incrementAndGet();
+			System.out.println("counted up to " + cnt + " sending " + json);
+			toZiniki.send(json);
+		}
+
+	}
+
 	public class JSJavaBridge {
 		public void error(String s) {
 			errors.add(s);
@@ -58,23 +79,56 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 		}
 
 		public void transport(JsonSender toZiniki) {
+			JsonSender countingSender = new CountingSender(toZiniki);
 			if (Platform.isFxApplicationThread()) {
 				JSObject runner = (JSObject) page.executeScript("window.utrunner");
-				runner.call("transport", toZiniki);
+				runner.call("transport", countingSender);
 			} else
 				throw new RuntimeException("Could not pass transport to JS: not in FX thread");
 		}
 
 		public void sendJson(String json) {
+			System.out.println("sending " + json + " with " + counter);
 			if (Platform.isFxApplicationThread()) {
-				JSObject runner = (JSObject) page.executeScript("window.utrunner");
-				runner.call("deliver", json);
+				doSend(json);
 			} else {
 				uiThread(cdl -> {
-					JSObject runner = (JSObject) page.executeScript("window.utrunner");
-					runner.call("deliver", json);
+					doSend(json);
 					cdl.countDown();
 				});
+			}
+		}
+
+		private void doSend(String json) {
+			JSObject runner = (JSObject) page.executeScript("window.utrunner");
+			runner.call("deliver", json);
+			try {
+				JSONObject js = new JSONObject(json);
+				if (js.has("action") && js.getString("action").equals("idem")) {
+					String m = js.getString("method");
+					if ("success".equals(m) || "failure".equals(m)) {
+						synchronized (counter) {
+							if (counter.decrementAndGet() == 0)
+								counter.notify();
+							System.out.println("delivery counted down to " + counter.get() + " with " + json);
+						}
+					}
+				}
+			} catch (JSONException e) {
+				System.out.println("could not parse " + json + ": " + e.getMessage());
+			}
+		}
+		
+		public void lock() {
+			int cnt = counter.incrementAndGet();
+			System.out.println("locked; counter = " + cnt);
+		}
+		
+		public void unlock() {
+			synchronized (counter) {
+				if (counter.decrementAndGet() == 0)
+					counter.notify();
+				System.out.println("unlock counted down to " + counter.get());
 			}
 		}
 	}
@@ -89,6 +143,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 	private boolean useCachebuster = false;
 	private String jstestdir;
 	private String specifiedTestName;
+	private final AtomicInteger counter = new AtomicInteger(0);
 	
 	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates, ClassLoader cl) {
 		super(config, repository);
@@ -126,7 +181,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 		});
 		boolean await = false;
 		try {
-			await = cdl.await(1, TimeUnit.SECONDS);
+			await = cdl.await(100, TimeUnit.SECONDS);
 		} catch (Throwable t) {
 		}
 		return await;
@@ -139,6 +194,8 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 
 	private Object runStage(TestResultWriter pw, String desc, JSObject obj, String ctr, String fn, boolean isTest) {
 		List<Object> rets = new ArrayList<>();
+		counter.set(1);
+		System.out.println("starting count at " + counter);
 		boolean await = uiThread(cdl -> {
 			try {
 				boolean ran = false;
@@ -155,8 +212,8 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 						ran = true;
 					}
 				}
-				// TODO: this is a hack because the JS-side test code does not wait for all messages to have been fully processed
-//				Thread.sleep(500);
+				int cnt = counter.decrementAndGet();
+				System.out.println("counted down to " + cnt);
 				if (ret != null && !"undefined".equals(ret))
 					rets.add(ret);
 				if (isTest && desc != null && ran)
@@ -172,18 +229,24 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 						pw.fail("JS", desc);
 						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						int cnt = counter.decrementAndGet();
+						System.out.println("counted down to " + cnt);
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: EXP\n")) {
 						pw.fail("JS", desc);
 						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						int cnt = counter.decrementAndGet();
+						System.out.println("counted down to " + cnt);
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: MATCH\n")) {
 						pw.fail("JS", desc);
 						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						int cnt = counter.decrementAndGet();
+						System.out.println("counted down to " + cnt);
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: NEWDIV\n")) {
@@ -191,15 +254,29 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 						errors.add("JS FAIL " + desc);
 						pw.println("incorrect number of divs created");
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						int cnt = counter.decrementAndGet();
+						System.out.println("counted down to " + cnt);
 						cdl.countDown();
 						return;
 					}
 				}
 				pw.error("JS", desc, t);
 				errors.add("JS ERROR " + desc);
+				int cnt = counter.decrementAndGet();
+				System.out.println("counted down to " + cnt);
 				cdl.countDown();
 			}
 		});
+		synchronized (counter) {
+			try {
+				System.out.println("have counter at " + counter.get());
+				while (counter.get() != 0)
+					counter.wait(5000);
+			} catch (Throwable t) {
+				pw.error("JS", desc, t);
+				errors.add("JS ERROR " + desc);
+			}
+		}
 		if (!await) {
 			pw.println("JS TIMEOUT " + desc);
 		}

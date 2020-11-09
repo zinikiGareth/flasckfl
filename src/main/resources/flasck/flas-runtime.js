@@ -16,6 +16,9 @@ const CommonEnv = function(bridge, broker) {
 	this.evid = 1;
     this.cards = [];
     this.queue = [];
+    this.locker = { lock: function() {}, unlock: function() {} };
+    if (typeof(window) !== 'undefined' && typeof(window.callJava) !== 'undefined' && typeof(window.callJava.lock) !== null)
+        this.locker = window.callJava;
 }
 
 CommonEnv.prototype.makeReady = function() {
@@ -27,9 +30,10 @@ CommonEnv.prototype.clear = function() {
 }
 
 CommonEnv.prototype.queueMessages = function(_cxt, msg) {
+    this.locker.lock();
     this.queue.push(msg);
     var self = this;
-    setTimeout(() => self.dispatchMessages(_cxt), 0);
+    setTimeout(() => { self.dispatchMessages(_cxt); this.locker.unlock(); }, 0);
 }
 
 CommonEnv.prototype.dispatchMessages = function(_cxt) {
