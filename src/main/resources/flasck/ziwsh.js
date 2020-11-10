@@ -691,7 +691,7 @@ DispatcherTraverser.prototype.dispatch = function() {
         // I don't think this matches the semantics of when we want success to be called
         // I think we should add an event to the end of the list of actions
         // But have test cases to prove that and hold that
-        ih.success(this.cx);
+        // ih.success(this.cx);
     } catch (e) {
         ih.failure(this.cx, e.message);
     }

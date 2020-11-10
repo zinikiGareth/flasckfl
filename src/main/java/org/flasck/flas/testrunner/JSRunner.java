@@ -211,7 +211,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 					}
 				}
 				int cnt = counter.decrementAndGet();
-				System.out.println("counted down to " + cnt);
+				System.out.println("method complete: counted down to " + cnt);
 				if (ret != null && !"undefined".equals(ret))
 					rets.add(ret);
 				if (isTest && desc != null && ran)
@@ -228,7 +228,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						int cnt = counter.decrementAndGet();
-						System.out.println("counted down to " + cnt);
+						System.out.println("method failed: counted down to " + cnt);
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: EXP\n")) {
@@ -236,7 +236,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						int cnt = counter.decrementAndGet();
-						System.out.println("counted down to " + cnt);
+						System.out.println("method failed: counted down to " + cnt);
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: MATCH\n")) {
@@ -244,7 +244,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						int cnt = counter.decrementAndGet();
-						System.out.println("counted down to " + cnt);
+						System.out.println("method failed: counted down to " + cnt);
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: NEWDIV\n")) {
@@ -253,7 +253,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 						pw.println("incorrect number of divs created");
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						int cnt = counter.decrementAndGet();
-						System.out.println("counted down to " + cnt);
+						System.out.println("method failed: counted down to " + cnt);
 						cdl.countDown();
 						return;
 					}
@@ -261,13 +261,13 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 				pw.error("JS", desc, t);
 				errors.add("JS ERROR " + desc);
 				int cnt = counter.decrementAndGet();
-				System.out.println("counted down to " + cnt);
+				System.out.println("method error: counted down to " + cnt);
 				cdl.countDown();
 			}
 		});
 		synchronized (counter) {
 			try {
-				System.out.println("have counter at " + counter.get());
+				System.out.println("after method complete, have counter at " + counter.get());
 				while (counter.get() != 0)
 					counter.wait(5000);
 			} catch (Throwable t) {
