@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
@@ -45,6 +46,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	private final ClassLoader loader;
 	private List<Throwable> runtimeErrors = new ArrayList<Throwable>();
 	private final Map<String, String> templates;
+	private final AtomicInteger counter = new AtomicInteger(0);
 
 	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl, Map<String, String> templates) {
 		super(config, repository);
@@ -56,7 +58,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
 		String desc = utc.description;
 		try {
-			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors);
+			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors, counter);
 			Class<?> tc = Class.forName(utc.name.javaName(), false, loader);
 			runStepsFunction(pw, desc, helper, cxt -> Reflection.callStatic(tc, "dotest", helper, cxt));
 		} catch (ClassNotFoundException e) {
@@ -69,7 +71,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	protected State createSystemTest(TestResultWriter pw, SystemTest st) {
 		pw.println("JVM running system test " + st.name().uniqueName());
 		try {
-			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors);
+			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors, counter);
 			Class<?> clz = Class.forName(st.name().javaName(), false, loader);
 			Constructor<?> ctor = clz.getConstructor(TestHelper.class);
 			Object inst = ctor.newInstance(helper);
@@ -100,11 +102,19 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		}
 	}
 
-
 	private void runStepsFunction(TestResultWriter pw, String desc, JVMTestHelper helper, FunctionThrows<FLEvalContext, Object> doit) {
 		try {
 			FLEvalContext cxt = helper.create();
 			Object result = doit.apply(cxt);
+			synchronized (counter) {
+				System.out.println("after method complete, have counter at " + counter.get());
+				while (counter.get() != 0 || !cxt.getDispatcher().isDone()) {
+					if (counter.get() != 0)
+						counter.wait(5000);
+					if (!cxt.getDispatcher().isDone())
+						cxt.getDispatcher().waitForQueueDone();
+				}
+			}
 			if (result instanceof FLError)
 				throw (Throwable)result;
 			if (cxt.getError() != null)

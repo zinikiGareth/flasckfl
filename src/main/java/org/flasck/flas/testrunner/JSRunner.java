@@ -16,8 +16,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
@@ -38,22 +36,6 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner<JSObject> {
-	public class CountingSender implements JsonSender {
-		private final JsonSender toZiniki;
-
-		public CountingSender(JsonSender toZiniki) {
-			this.toZiniki = toZiniki;
-		}
-
-		@Override
-		public void send(String json) {
-			int cnt = counter.incrementAndGet();
-			System.out.println("counted up to " + cnt + " sending " + json);
-			toZiniki.send(json);
-		}
-
-	}
-
 	public class JSJavaBridge {
 		public void error(String s) {
 			errors.add(s);
@@ -77,10 +59,9 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 		}
 
 		public void transport(JsonSender toZiniki) {
-			JsonSender countingSender = new CountingSender(toZiniki);
 			if (Platform.isFxApplicationThread()) {
 				JSObject runner = (JSObject) page.executeScript("window.utrunner");
-				runner.call("transport", countingSender);
+				runner.call("transport", toZiniki);
 			} else
 				throw new RuntimeException("Could not pass transport to JS: not in FX thread");
 		}
@@ -100,21 +81,6 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 		private void doSend(String json) {
 			JSObject runner = (JSObject) page.executeScript("window.utrunner");
 			runner.call("deliver", json);
-			try {
-				JSONObject js = new JSONObject(json);
-				if (js.has("action") && js.getString("action").equals("idem")) {
-					String m = js.getString("method");
-					if ("success".equals(m) || "failure".equals(m)) {
-						synchronized (counter) {
-							if (counter.decrementAndGet() == 0)
-								counter.notify();
-							System.out.println("delivery counted down to " + counter.get() + " with " + json);
-						}
-					}
-				}
-			} catch (JSONException e) {
-				System.out.println("could not parse " + json + ": " + e.getMessage());
-			}
 		}
 		
 		public void lock() {
@@ -128,6 +94,10 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 					counter.notify();
 				System.out.println("unlock counted down to " + counter.get());
 			}
+		}
+
+		public AtomicInteger getTestCounter() {
+			return counter;
 		}
 	}
 
