@@ -60,7 +60,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		try {
 			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors, counter);
 			Class<?> tc = Class.forName(utc.name.javaName(), false, loader);
-			runStepsFunction(pw, desc, helper, cxt -> Reflection.callStatic(tc, "dotest", helper, cxt));
+			runStepsFunction(pw, desc, null, helper, cxt -> Reflection.callStatic(tc, "dotest", helper, cxt));
 		} catch (ClassNotFoundException e) {
 			pw.println("NOTFOUND " + desc);
 			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
@@ -86,7 +86,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	protected void runSystemTestStage(TestResultWriter pw, State state, SystemTest st, SystemTestStage e) {
 		try {
 			Method method = state.clz.getMethod(e.name.baseName());
-			runStepsFunction(pw, e.desc, state.helper, cxt -> method.invoke(state.inst));
+			runStepsFunction(pw, e.desc, state, state.helper, cxt -> method.invoke(state.inst));
 		} catch (Throwable t) {
 			pw.error("JVM", e.desc, t);
 			state.failed++;
@@ -102,7 +102,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		}
 	}
 
-	private void runStepsFunction(TestResultWriter pw, String desc, JVMTestHelper helper, FunctionThrows<FLEvalContext, Object> doit) {
+	private void runStepsFunction(TestResultWriter pw, String desc, State state, JVMTestHelper helper, FunctionThrows<FLEvalContext, Object> doit) {
 		try {
 			FLEvalContext cxt = helper.create();
 			Object result = doit.apply(cxt);
@@ -123,6 +123,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 				pw.pass("JVM", desc);
 		} catch (WrappedException | InvocationTargetException ex) {
 			ex.printStackTrace(System.out);
+			if (state != null)
+				state.failed++;
 			Throwable e2 = WrappedException.unwrapThrowable(ex);
 			if (e2 instanceof AssertFailed) {
 				AssertFailed af = (AssertFailed) e2;
@@ -144,6 +146,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 				pw.println("JVM ERROR " + desc);
 			}
 		} catch (Throwable t) {
+			if (state != null)
+				state.failed++;
 			pw.error("JVM", desc, t);
 		}
 	}

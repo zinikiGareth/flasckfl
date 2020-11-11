@@ -2,6 +2,7 @@ package org.flasck.flas.resolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -14,6 +15,8 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.TemplateName;
+import org.flasck.flas.compiler.ModuleExtensible;
+import org.flasck.flas.compiler.TraversalProcessor;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessRestrictions;
@@ -69,6 +72,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryEntry.ValidContexts;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
@@ -83,7 +87,7 @@ import org.ziniki.splitter.FieldType;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class RepositoryResolver extends LeafAdapter implements Resolver {
+public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleExtensible {
 	private final static Logger logger = LoggerFactory.getLogger("Resolver");
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
@@ -96,10 +100,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private NestingChain templateNestingChain;
 	private RepositoryEntry inside;
 	private boolean assigning;
+	private final Iterable<TraversalProcessor> modules;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
 		this.repository = repository;
+		modules = ServiceLoader.load(TraversalProcessor.class);
 	}
 
 	@Override
@@ -1110,4 +1116,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return recfind(s.container(), var);
 	}
 
+	@Override
+	public <T extends TraversalProcessor> T forModule(Class<T> extension, Class<? extends RepositoryVisitor> phase) {
+		for (TraversalProcessor tp : modules) {
+			if (tp.is(extension) && phase.isInstance(this))
+				return extension.cast(tp);
+		}
+		return null;
+	}
 }

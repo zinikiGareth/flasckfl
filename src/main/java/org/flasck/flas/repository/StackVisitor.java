@@ -908,12 +908,11 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		setTop(stack.get(0));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends TraversalProcessor> T forModule(Class<T> extension, Class<? extends RepositoryVisitor> phase) {
 		for (TraversalProcessor tp : modules) {
 			if (tp.is(extension) && phase.isInstance(stack.get(stack.size()-1)))
-				return (T) tp;
+				return extension.cast(tp);
 		}
 		return null;
 	}

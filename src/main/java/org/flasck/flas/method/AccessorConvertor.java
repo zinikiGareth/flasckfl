@@ -10,6 +10,7 @@ import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -112,6 +113,8 @@ public class AccessorConvertor extends LeafAdapter {
 		}
 		UnresolvedVar meth = (UnresolvedVar) expr.fld;
 		AccessorHolder ah;
+		if (defn instanceof IntroduceVar)
+			defn = (RepositoryEntry) ((IntroduceVar)defn).introducedAs();
 		if (defn instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) defn;
 			NamedType td = udd.ofType.defn();

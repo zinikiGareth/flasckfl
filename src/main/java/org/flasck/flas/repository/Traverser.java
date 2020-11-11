@@ -1834,7 +1834,7 @@ public class Traverser implements RepositoryVisitor {
 			visitAjaxPump((AjaxPump)s);
 		else if (modules != null) {
 			boolean done = false;
-			for (TraverserModule m : modules ) {
+			for (TraverserModule m : modules) {
 				if (done = m.visitUnitTestStep(visitor, s))
 					break;
 			}

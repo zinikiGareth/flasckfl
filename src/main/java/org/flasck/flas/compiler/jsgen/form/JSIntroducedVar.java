@@ -24,6 +24,6 @@ public class JSIntroducedVar implements JSExpr {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
 		IExpr ret = md.makeNew(J.BOUNDVAR);
-			jvm.local(this, ret);
+		jvm.local(this, ret);
 	}
 }

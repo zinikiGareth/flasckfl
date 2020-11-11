@@ -35,7 +35,7 @@ import javafx.application.Platform;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
-public class JSRunner extends CommonTestRunner<JSObject> {
+public class JSRunner extends CommonTestRunner<JSTestState> {
 	public class JSJavaBridge {
 		public void error(String s) {
 			errors.add(s);
@@ -160,7 +160,7 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 		runStage(pw, utc.description, null, utc.name.container().jsName(), utc.name.jsName(), true);
 	}
 
-	private Object runStage(TestResultWriter pw, String desc, JSObject obj, String ctr, String fn, boolean isTest) {
+	private Object runStage(TestResultWriter pw, String desc, JSTestState state, String ctr, String fn, boolean isTest) {
 		List<Object> rets = new ArrayList<>();
 		counter.set(1);
 		System.out.println("starting count at " + counter);
@@ -168,8 +168,8 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 			try {
 				boolean ran = false;
 				Object ret = null;
-				if (obj != null) {
-					ret = obj.call(fn);
+				if (state != null && state.jsobj != null) {
+					ret = state.jsobj.call(fn);
 					ran = true;
 				} else {
 					Object isdf = page.executeScript("typeof(" + ctr + ")");
@@ -188,6 +188,8 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 					pw.pass("JS", desc);
 				cdl.countDown();
 			} catch (Throwable t) {
+				if (state != null)
+					state.failed++;
 				if (t instanceof Ui4jException)
 					t = t.getCause();
 				if (t instanceof JSException) {
@@ -254,23 +256,23 @@ public class JSRunner extends CommonTestRunner<JSObject> {
 	}
 	
 	@Override
-	protected JSObject createSystemTest(TestResultWriter pw, SystemTest st) {
+	protected JSTestState createSystemTest(TestResultWriter pw, SystemTest st) {
 		pw.println("JS running system test " + st.name().uniqueName());
 		Object ret = runStage(pw, st.name().uniqueName(), null, st.name().container().jsName(), st.name().jsName(), false);
-		if (ret != null && ret instanceof JSObject)
-			return (JSObject) ret;
-		else
-			return null;
+		return new JSTestState(ret);
 	}
 	
 	@Override
-	protected void runSystemTestStage(TestResultWriter pw, JSObject state, SystemTest st, SystemTestStage e) {
+	protected void runSystemTestStage(TestResultWriter pw, JSTestState state, SystemTest st, SystemTestStage e) {
 		runStage(pw, e.desc, state, null, e.name.baseName(), true);
 	}
 	
 	@Override
-	protected void cleanupSystemTest(TestResultWriter pw, JSObject state, SystemTest st) {
-		pw.println("JS " + st.name().uniqueName() + " all stages passed");
+	protected void cleanupSystemTest(TestResultWriter pw, JSTestState state, SystemTest st) {
+		if (state.failed == 0)
+			pw.println("JS " + st.name().uniqueName() + " all stages passed");
+		else
+			pw.println("JS " + st.name().uniqueName() + " " + state.failed + " stages failed");
 	}
 
 	private void buildHTML(Map<String, String> templates) {
