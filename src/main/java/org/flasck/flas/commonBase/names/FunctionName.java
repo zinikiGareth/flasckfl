@@ -28,6 +28,10 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing>, JavaM
 		return name;
 	}
 	
+	public InputPosition location() {
+		return location;
+	}
+	
 	public static FunctionName function(InputPosition location, NameOfThing pkg, String name) {
 		return new FunctionName(location, pkg, name);
 	}

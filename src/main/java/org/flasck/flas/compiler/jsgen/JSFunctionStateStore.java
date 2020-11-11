@@ -15,7 +15,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class JSFunctionStateStore implements JSFunctionState {
 	public final Map<UnitDataDeclaration, JSExpr> mocks;
-	public final Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
+	public final Map<IntroduceVar, JSExpr> introductions;
 	private final Map<NameOfThing, JSExpr> containers = new HashMap<>();
 	private Map<String, JSExpr> templateObj;
 	private final JSMethodCreator meth;
@@ -23,12 +23,13 @@ public class JSFunctionStateStore implements JSFunctionState {
 	private JSExpr ocmsgs;
 
 	public JSFunctionStateStore(JSMethodCreator meth) {
-		this(meth, new TreeMap<>());
+		this(meth, new TreeMap<>(), new TreeMap<>(IntroduceVar.comparator));
 	}
 
-	public JSFunctionStateStore(JSMethodCreator meth, Map<UnitDataDeclaration, JSExpr> mocks) {
+	public JSFunctionStateStore(JSMethodCreator meth, Map<UnitDataDeclaration, JSExpr> mocks, Map<IntroduceVar, JSExpr> introductions) {
 		this.meth = meth;
 		this.mocks = mocks;
+		this.introductions = introductions;
 	}
 
 	@Override
@@ -36,6 +37,16 @@ public class JSFunctionStateStore implements JSFunctionState {
 		return meth;
 	}
 	
+	@Override
+	public Map<UnitDataDeclaration, JSExpr> mocks() {
+		return mocks;
+	}
+	
+	@Override
+	public Map<IntroduceVar, JSExpr> introductions() {
+		return introductions;
+	}
+
 	@Override
 	public void container(NameOfThing name, JSExpr expr) {
 		if (containers.containsKey(name))

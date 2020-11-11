@@ -60,7 +60,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		args = null;
 		this.runner = r1.getVar();
 		vars.put(as.get(0), this.runner);
-//		md.lenientMode(true);
+		md.lenientMode(true);
 	}
 
 	// ctor
@@ -102,6 +102,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			}
 		}
 		md.callSuper("void", bcc.getSuperClass(), "<init>", sas).flush();
+		md.lenientMode(true);
 	}
 
 	// class member
@@ -175,7 +176,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			}
 		}
 		this.runner = null;
-//		md.lenientMode(true);
+		md.lenientMode(true);
 	}
 
 	// split for if true/false blocks

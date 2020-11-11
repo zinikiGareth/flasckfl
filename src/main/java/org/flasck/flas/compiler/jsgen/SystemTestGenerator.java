@@ -4,24 +4,21 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SystemTestName;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
-import org.flasck.flas.parsedForm.st.AjaxCreate;
-import org.flasck.flas.parsedForm.st.AjaxPump;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
-import org.flasck.flas.parsedForm.ut.UnitTestAssert;
-import org.flasck.flas.parsedForm.ut.UnitTestMatch;
-import org.flasck.flas.parsedForm.ut.UnitTestSend;
+import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -39,7 +36,10 @@ public class SystemTestGenerator extends LeafAdapter {
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private final Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
-
+	private final Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
+	private final List<JSExpr> steps = new ArrayList<>();
+	private SystemTestName stageName;
+	
 	public SystemTestGenerator(NestedVisitor sv, JSStorage jse, SystemTest st) {
 		this.sv = sv;
 		this.jse = jse;
@@ -66,62 +66,32 @@ public class SystemTestGenerator extends LeafAdapter {
 	}
 
 	@Override
+	public void visitSystemTestStage(SystemTestStage s) {
+		this.stageName = s.name;
+		this.meth = clz.createMethod(s.name.baseName(), true);
+		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
+		state = new JSFunctionStateStore(meth, this.mocks, this.introductions);
+		meth.returnsType(List.class.getName());
+		this.runner = meth.field("_runner");
+//		meth.initContext(true);
+		this.block = meth;
+		steps.clear();
+	}
+
+	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		UDDGeneratorJS.handleUDD(sv, meth, state, this.block, globalMocks, explodingMocks, udd);
 	}
 	
 	@Override
-	public void visitUnitTestSend(UnitTestSend uts) {
-		new DoSendGeneratorJS(state, sv, this.block, this.runner);
-	}
-
-	@Override
-	public void visitSystemTestStage(SystemTestStage s) {
-		this.meth = clz.createMethod(s.name.baseName(), true);
-		state = new JSFunctionStateStore(meth, this.mocks);
-		meth.returnsType("void");
-		this.runner = meth.field("_runner");
-		meth.initContext(true);
-		this.block = meth;
-	}
-	
-	@Override
-	public void visitUnitTestAssert(UnitTestAssert a) {
-		new CaptureAssertionClauseVisitorJS(state, sv, state.meth(), this.runner);
-	}
-
-	@Override
-	public void visitUnitTestMatch(UnitTestMatch m) {
-		new DoUTMatchGeneratorJS(state, sv, this.block, this.runner);
-	}
-	
-	@Override
-	public void visitAjaxCreate(AjaxCreate ac) {
-		new AjaxCreator(clz, state, sv, this.block, this.runner, ac);
-	}
-
-	@Override
-	public void visitAjaxPump(AjaxPump ap) {
-		JSExpr member = block.member(new PackageName(J.AJAXMOCK), ap.var.baseName());
-		block.callMethod("void", member, "pump");
+	public void visitUnitTestStep(UnitTestStep s) {
+		UnitTestStepGenerator sg = new UnitTestStepGenerator(sv, jse, clz, meth, state, this.block, this.runner, globalMocks, explodingMocks, true, stageName, steps.size()+1);
+		steps.add(meth.string(sg.name()));
 	}
 
 	@Override
 	public void leaveSystemTestStage(SystemTestStage s) {
-		if (s.name.baseName().equals("configure")) {
-			Map<UnitDataDeclaration, JSExpr> asfields = new TreeMap<>(mocks);
-			mocks.clear();
-			for (Entry<UnitDataDeclaration, JSExpr> e : asfields.entrySet()) {
-				String mn = "_mock_" + e.getKey().name.baseName();
-				clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), mn);
-				this.meth.setField(false, mn, e.getValue());
-				mocks.put(e.getKey(), this.meth.field(mn));
-			}
-		} else if (s.name.baseName().equals("finally")) {
-			// TODO: this suggests we should probably always create these ...
-//			throw new NotImplementedException("we should check all the mocks");
-		}
-		state.meth().returnVoid();
+		state.meth().returnObject(state.meth().makeArray(steps));
 		state = null;
 	}
 

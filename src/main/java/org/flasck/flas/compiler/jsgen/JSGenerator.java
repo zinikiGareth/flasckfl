@@ -129,6 +129,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSClassCreator templateCreator;
 	private AtomicInteger containerIdx;
 	private boolean currentContractIsHandler;
+	private boolean testServices;
+	private UnitTestName testName;
+	private AtomicInteger stepNum;
 
 	public JSGenerator(RepositoryReader repository, JSStorage jse, StackVisitor sv, Map<EventHolder, EventTargetZones> eventMap) {
 		this.repository = repository;
@@ -812,8 +815,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			throw new NotImplementedException("I don't think you can nest a unit test in an accessor");
 		NameOfThing pkg = clzName.container();
 		this.meth = jse.newFunction(clzName, pkg.jsName(), pkg, false, clzName.baseName());
+		this.testServices = true;
+		this.testName = clzName;
 		if (involvesServices(e)) {
 			this.meth.noJS();
+			this.testServices = false;
 		}
 		this.block = meth;
 		runner = meth.argument("runner");
@@ -832,6 +838,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			if (!(udd.ofType.defn() instanceof ContractDecl))
 				visitUnitDataDeclaration(udd);
 		}
+		stepNum = new AtomicInteger(0);
 	}
 
 	private boolean involvesServices(TestStepHolder e) {
@@ -855,7 +862,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitUnitTestStep(UnitTestStep s) {
 		System.out.println("visiting a step");
-		new UnitTestStepGenerator(sv, meth, state, this.block, this.runner, globalMocks, explodingMocks);
+		new UnitTestStepGenerator(sv, jse, null, meth, state, this.block, this.runner, globalMocks, explodingMocks, testServices, testName, stepNum .incrementAndGet());
 	}
 
 	@Override
