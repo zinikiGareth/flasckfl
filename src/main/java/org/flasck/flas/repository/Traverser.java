@@ -1842,6 +1842,12 @@ public class Traverser implements RepositoryVisitor {
 				throw new NotImplementedException("cannot handle " + s.getClass());
 		} else
 			throw new NotImplementedException("cannot handle " + s.getClass());
+		leaveUnitTestStep(s);
+	}
+
+	@Override
+	public void leaveUnitTestStep(UnitTestStep s) {
+		visitor.leaveUnitTestStep(s);
 	}
 
 	@Override

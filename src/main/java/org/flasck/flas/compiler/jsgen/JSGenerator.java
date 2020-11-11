@@ -62,16 +62,7 @@ import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
-import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
-import org.flasck.flas.parsedForm.ut.UnitTestEvent;
-import org.flasck.flas.parsedForm.ut.UnitTestExpect;
-import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
-import org.flasck.flas.parsedForm.ut.UnitTestMatch;
-import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
-import org.flasck.flas.parsedForm.ut.UnitTestRender;
-import org.flasck.flas.parsedForm.ut.UnitTestSend;
-import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -855,56 +846,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		return false;
 	}
 
+	// handle global mocks ...
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		UDDGeneratorJS.handleUDD(sv, meth, state, this.block, globalMocks, explodingMocks, udd);
 	}
 	
 	@Override
-	public void visitUnitTestAssert(UnitTestAssert a) {
-		new CaptureAssertionClauseVisitorJS(state, sv, this.block, this.runner);
+	public void visitUnitTestStep(UnitTestStep s) {
+		System.out.println("visiting a step");
+		new UnitTestStepGenerator(sv, meth, state, this.block, this.runner, globalMocks, explodingMocks);
 	}
 
-	@Override
-	public void visitUnitTestShove(UnitTestShove a) {
-		new HandleShoveClauseVisitorJS(state, sv, this.block, this.runner);
-	}
-
-	@Override
-	public void visitUnitTestExpect(UnitTestExpect ute) {
-		new DoExpectationGeneratorJS(state, sv, this.block);
-	}
-
-	@Override
-	public void visitUnitTestInvoke(UnitTestInvoke uti) {
-		new DoInvocationGeneratorJS(state, sv, this.block, this.runner);
-	}
-
-	@Override
-	public void visitUnitTestSend(UnitTestSend uts) {
-		new DoSendGeneratorJS(state, sv, this.block, this.runner);
-	}
-
-	@Override
-	public void visitUnitTestRender(UnitTestRender e) {
-		new DoUTRenderGeneratorJS(state, sv, this.block, this.runner);
-	}
-
-	@Override
-	public void visitUnitTestEvent(UnitTestEvent ute) {
-		new DoUTEventGeneratorJS(state, sv, this.block, this.runner);
-	}
-
-	@Override
-	public void visitUnitTestMatch(UnitTestMatch m) {
-		new DoUTMatchGeneratorJS(state, sv, this.block, this.runner);
-	}
-	
-	@Override
-	public void visitUnitTestNewDiv(UnitTestNewDiv s) {
-		this.block.newdiv(s.cnt);
-	}
-	
 	@Override
 	public void leaveUnitTest(TestStepHolder e) {
 		for (JSExpr m : explodingMocks) {

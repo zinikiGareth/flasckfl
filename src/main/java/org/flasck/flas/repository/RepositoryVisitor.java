@@ -190,6 +190,7 @@ public interface RepositoryVisitor {
 	void visitUnitTestRender(UnitTestRender e);
 	void visitUnitTestEvent(UnitTestEvent e);
 	void leaveUnitTestEvent(UnitTestEvent e);
+	void leaveUnitTestStep(UnitTestStep s);
 	void visitSendMethod(NamedType defn, UnresolvedVar expr);
 	void visitHandleExpr(InputPosition location, Expr expr, Expr handler);
 	void leaveHandleExpr(Expr expr, Expr handler);

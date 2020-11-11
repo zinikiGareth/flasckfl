@@ -411,6 +411,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitUnitTestStep(s);
 	}
 
+	public void leaveUnitTestStep(UnitTestStep s) {
+		top.leaveUnitTestStep(s);
+	}
+
 	public void visitUnitTestAssert(UnitTestAssert a) {
 		top.visitUnitTestAssert(a);
 	}

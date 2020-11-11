@@ -584,6 +584,10 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void leaveUnitTestStep(UnitTestStep s) {
+	}
+
+	@Override
 	public void visitAssertExpr(boolean isValue, Expr e) {
 	}
 

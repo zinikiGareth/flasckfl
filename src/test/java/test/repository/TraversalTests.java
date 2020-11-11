@@ -622,6 +622,7 @@ public class TraversalTests {
 			oneOf(v).visitUnitDataDeclaration(udd);
 			oneOf(v).visitTypeReference(tr, true, -1);
 			oneOf(v).leaveUnitDataDeclaration(udd);
+			oneOf(v).leaveUnitTestStep(udd);
 			oneOf(v).visitUnitTestStep(uta);
 			oneOf(v).visitUnitTestAssert(uta);
 			oneOf(v).visitAssertExpr(true, null);
@@ -631,6 +632,7 @@ public class TraversalTests {
 			oneOf(v).visitExpr(null, 0);
 			oneOf(v).leaveAssertExpr(false, null);
 			oneOf(v).postUnitTestAssert(uta);
+			oneOf(v).leaveUnitTestStep(uta);
 			oneOf(v).visitUnitTestStep(ute);
 			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("ctr")), with(0));
 			oneOf(v).visitExpr(with(ExprMatcher.string("hello")), with(0));
@@ -640,6 +642,7 @@ public class TraversalTests {
 			oneOf(v).visitExpr(with(any(AnonymousVar.class)), with(0));
 			oneOf(v).visitAnonymousVar(with(any(AnonymousVar.class)));
 			oneOf(v).leaveUnitTestExpect(ute);
+			oneOf(v).leaveUnitTestStep(ute);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);
 			oneOf(v).traversalDone();
@@ -674,6 +677,7 @@ public class TraversalTests {
 			oneOf(v).visitExpr(hello, 0);
 			oneOf(v).visitStringLiteral(hello);
 			oneOf(v).leaveUnitTestSend(uts);
+			oneOf(v).leaveUnitTestStep(uts);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);
 			oneOf(v).traversalDone();
@@ -756,6 +760,7 @@ public class TraversalTests {
 			oneOf(v).visitExpr(simpleExpr, 0);
 			oneOf(v).visitStringLiteral(simpleExpr);
 			oneOf(v).leaveUnitTestInvoke(uti);
+			oneOf(v).leaveUnitTestStep(uti);
 			oneOf(v).leaveUnitTest(utc);
 		}});
 		new Traverser(v).visitUnitTest(utc);

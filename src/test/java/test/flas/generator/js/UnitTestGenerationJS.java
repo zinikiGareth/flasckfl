@@ -17,9 +17,9 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -83,7 +83,7 @@ public class UnitTestGenerationJS {
 	public void weCanCreateLocalUDDMockContracts() {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		JSExpr runner = context.mock(JSExpr.class, "runner");
-		NestedVisitor nv = context.mock(NestedVisitor.class);
+		NestedVisitor nv = new StackVisitor();
 		JSFunctionState state = context.mock(JSFunctionState.class);
 		JSExpr mc = context.mock(JSExpr.class, "mockContract");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
@@ -93,12 +93,13 @@ public class UnitTestGenerationJS {
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, utn, "data"), null);
 		context.checking(new Expectations() {{
-			oneOf(nv).push(with(any(JSGenerator.class)));
+//			oneOf(nv).push(with(any(JSGenerator.class)));
 			oneOf(meth).mockContract(cd.name()); will(returnValue(mc));
 			oneOf(state).addMock(udd, mc);
 		}});
-		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner, nv, state));
-		gen.visitUnitDataDeclaration(udd);
+		JSGenerator.forTests(meth, runner, nv, state);
+		Traverser gen = new Traverser(nv);
+		gen.visitUnitTestStep(udd);
 	}
 	
 	@Test
@@ -122,7 +123,7 @@ public class UnitTestGenerationJS {
 		}});
 		JSGenerator.forTests(meth, runner, nv, state);
 		Traverser gen = new Traverser(nv);
-		gen.visitUnitDataDeclaration(udd);
+		gen.visitUnitTestStep(udd);
 	}
 	
 	@Test
@@ -131,14 +132,15 @@ public class UnitTestGenerationJS {
 		JSExpr runner = context.mock(JSExpr.class, "runner");
 		NumericLiteral lhs = new NumericLiteral(pos, "42", 2);
 		StringLiteral rhs = new StringLiteral(pos, "hello");
-		NestedVisitor nv = context.mock(NestedVisitor.class);
 		context.checking(new Expectations() {{
-			oneOf(nv).push(with(any(JSGenerator.class)));
-			oneOf(nv).push(with(any(CaptureAssertionClauseVisitorJS.class)));
+			oneOf(meth).string("hello");
+			oneOf(meth).literal("42");
 		}});
-		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner, nv));
+		StackVisitor nv = new StackVisitor();
+		JSGenerator.forTests(meth, runner, nv);
+		Traverser gen = new Traverser(nv);
 		UnitTestAssert a = new UnitTestAssert(lhs, rhs);
-		gen.visitUnitTestAssert(a);
+		gen.visitUnitTestStep(a);
 	}
 	
 	@Test
