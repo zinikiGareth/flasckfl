@@ -68,6 +68,8 @@ public class UnitTestStepGenerator extends LeafAdapter {
 			this.meth.returnsType("void");
 			this.meth.helper(runner);
 			this.block = this.meth;
+			if (!includeJs)
+				this.meth.noJS();
 		} else {
 			// for global UDDs
 			this.baseName = null;

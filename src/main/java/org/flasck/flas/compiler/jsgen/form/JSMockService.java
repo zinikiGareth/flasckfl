@@ -6,6 +6,7 @@ import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSMockService implements JSExpr {
 	private final CardName name;
@@ -16,11 +17,12 @@ public class JSMockService implements JSExpr {
 
 	@Override
 	public String asVar() {
-		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
+		throw new NotImplementedException("services are suppressed in JS");
 	}
 
 	@Override
 	public void write(IndentWriter w) {
+		throw new NotImplementedException("services are suppressed in JS");
 	}
 
 	@Override

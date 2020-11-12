@@ -46,10 +46,13 @@ public class SingleJSTest {
 			return new ArrayList<>();
 		List<String> steps = new ArrayList<>();
 		uiThread(cdl -> {
-			JSObject arr = (JSObject) testObj.call("dotest", cxt);
-			int len = (Integer)arr.getMember("length");
-			for (int i=0;i<len;i++)
-				steps.add((String) arr.getMember(Integer.toString(i)));
+			Object ua = testObj.call("dotest", cxt);
+			if (ua instanceof JSObject) {
+				JSObject arr = (JSObject) ua;
+				int len = (Integer)arr.getMember("length");
+				for (int i=0;i<len;i++)
+					steps.add((String) arr.getMember(Integer.toString(i)));
+			}
 			cdl.countDown();
 		});
 		return steps;
