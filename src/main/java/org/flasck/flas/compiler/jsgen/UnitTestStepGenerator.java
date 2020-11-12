@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,6 @@ import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
@@ -40,6 +40,7 @@ public class UnitTestStepGenerator extends LeafAdapter {
 	private final JSFunctionState ostate;
 	private final JSExpr runner;
 	private final Set<UnitDataDeclaration> globalMocks;
+	private final List<JSExpr> parentExplodingMocks;
 	private final List<JSExpr> explodingMocks;
 	private final JSMethodCreator meth;
 	private final JSFunctionState state;
@@ -55,8 +56,10 @@ public class UnitTestStepGenerator extends LeafAdapter {
 		this.ostate = state;
 		this.runner = runner;
 		this.globalMocks = globalMocks;
-		this.explodingMocks = explodingMocks;
-		sv.push(this);
+		this.parentExplodingMocks = explodingMocks;
+		this.explodingMocks = new ArrayList<>();
+		if (sv != null)
+			sv.push(this);
 		
 		baseName = testName.baseName() + "_step_" + stepNum;
 		this.meth = clz.createMethod(baseName, true);
@@ -139,6 +142,7 @@ public class UnitTestStepGenerator extends LeafAdapter {
 	@Override
 	public void leaveUnitTestStep(UnitTestStep s) {
 		Map<UnitDataDeclaration, JSExpr> asfields = new TreeMap<>(mocks);
+		Map<JSExpr, JSExpr> mapmocks = new HashMap<>();
 		if (clz != null) {
 			for (Entry<UnitDataDeclaration, JSExpr> e : asfields.entrySet()) {
 				if (ostate.mocks().containsKey(e.getKey()))
@@ -146,7 +150,12 @@ public class UnitTestStepGenerator extends LeafAdapter {
 				String mn = "_mock_" + e.getKey().name.baseName();
 				clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), mn);
 				this.meth.setField(false, mn, e.getValue());
-				ostate.mocks().put(e.getKey(), this.meth.field(mn));
+				JSExpr fm = this.meth.field(mn);
+				ostate.mocks().put(e.getKey(), fm);
+				mapmocks.put(e.getValue(), fm);
+			}
+			for (JSExpr e : explodingMocks) {
+				parentExplodingMocks.add(mapmocks.get(e));
 			}
 			TreeMap<IntroduceVar, JSExpr> asflds = new TreeMap<>(introductions);
 			for (Entry<IntroduceVar, JSExpr> e : asflds.entrySet()) {
@@ -164,6 +173,11 @@ public class UnitTestStepGenerator extends LeafAdapter {
 
 	public String name() {
 		return baseName;
+	}
+
+	public void assertSatisfied(JSExpr m) {
+		state.meth().assertSatisfied(m);
+		state.meth().returnVoid();
 	}
 
 }

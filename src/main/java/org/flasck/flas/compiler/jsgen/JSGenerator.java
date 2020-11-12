@@ -882,8 +882,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void leaveUnitTest(TestStepHolder e) {
-		for (JSExpr m : explodingMocks) {
-			meth.assertSatisfied(m);
+		if (!explodingMocks.isEmpty()) {
+			UnitTestStepGenerator sg = new UnitTestStepGenerator(null, jse, utclz, meth, state, this.block, this.runner, globalMocks, explodingMocks, testServices, testName, utsteps.size()+1);
+			for (JSExpr m : explodingMocks) {
+				sg.assertSatisfied(m);
+			}
 		}
 		// but we need the runner to call this itself
 //		meth.testComplete();
