@@ -161,10 +161,10 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		String desc = utc.description;
 		
 		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, desc);
-		t1.create();
-		List<String> steps = t1.getSteps("dotest");
+		t1.create(desc);
+		List<String> steps = t1.getSteps(desc, "dotest");
 		for (String s : steps) {
-			t1.step(s);
+			t1.step(desc, s);
 		}
 		if (!steps.isEmpty() && desc != null && t1.ok())
 			pw.pass("JS", desc);
@@ -175,10 +175,9 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	@Override
 	protected JSTestState createSystemTest(TestResultWriter pw, SystemTest st) {
 		String clz = st.name().jsName();
-		String desc = null;
 		pw.println("JS running system test " + st.name().uniqueName());
-		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, desc);
-		t1.create();
+		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, null);
+		t1.create(null);
 //		Object ret = runStage(pw, st.name().uniqueName(), null, st.name().container().jsName(), st.name().jsName(), false);
 		return new JSTestState(t1);
 	}
@@ -186,9 +185,9 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	@Override
 	protected void runSystemTestStage(TestResultWriter pw, JSTestState state, SystemTest st, SystemTestStage e) {
 		String desc = e.desc;
-		List<String> steps = state.test.getSteps(e.name.baseName());
+		List<String> steps = state.test.getSteps(desc, e.name.baseName());
 		for (String s : steps) {
-			state.test.step(s);
+			state.test.step(desc, s);
 		}
 		if (!steps.isEmpty() && desc != null && state.test.ok())
 			pw.pass("JS", desc);

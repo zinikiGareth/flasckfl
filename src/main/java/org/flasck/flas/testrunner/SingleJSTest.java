@@ -18,7 +18,6 @@ public class SingleJSTest {
 	private final TestResultWriter pw;
 	private final JSTestState state;
 	private final String clz;
-	private final String desc;
 	private boolean error;
 	private JSObject cxt;
 	private JSObject testObj;
@@ -29,11 +28,10 @@ public class SingleJSTest {
 		this.pw = pw;
 		this.state = state;
 		this.clz = clz;
-		this.desc = desc;
 	}
 
-	public void create() {
-		uiThread(cdl -> {
+	public void create(String desc) {
+		uiThread(desc, cdl -> {
 			cxt = (JSObject) page.executeScript("window.runner = new window.UTRunner(window.JavaLogger); window.testcxt = window.runner.newContext();;");
 			testObj = (JSObject) page.executeScript("new " + clz + "(window.runner, window.testcxt)");
 			page.executeScript("window.runner.clear();");
@@ -41,11 +39,11 @@ public class SingleJSTest {
 		});
 	}
 
-	public List<String> getSteps(String name) {
+	public List<String> getSteps(String desc, String name) {
 		if (error)
 			return new ArrayList<>();
 		List<String> steps = new ArrayList<>();
-		uiThread(cdl -> {
+		uiThread(desc, cdl -> {
 			Object ua = testObj.call(name, cxt);
 			if (ua instanceof JSObject) {
 				JSObject arr = (JSObject) ua;
@@ -58,12 +56,12 @@ public class SingleJSTest {
 		return steps;
 	}
 
-	public void step(String s) {
+	public void step(String desc, String s) {
 		if (error)
 			return;
 		System.out.println("running js step " + s);
 		List<Throwable> excs = new ArrayList<>();
-		uiThread(cdl -> {
+		uiThread(desc, cdl -> {
 			try {
 				testObj.call(s, cxt);
 				cdl.countDown();
@@ -108,7 +106,7 @@ public class SingleJSTest {
 		}
 	}
 	
-	private void uiThread(Consumer<CountDownLatch> doit) {
+	private void uiThread(String desc, Consumer<CountDownLatch> doit) {
 		CountDownLatch cdl = new CountDownLatch(1);
 		if (Platform.isFxApplicationThread()) {
 			try {
