@@ -34,7 +34,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	private final IExpr runner;
 	private Var cxt;
 	private final Var args;
-	private final Map<JSExpr, Var> vars = new HashMap<>();
+	private final Map<JSExpr, IExpr> vars = new HashMap<>();
 	private final Map<JSExpr, IExpr> stack = new HashMap<>();
 	private final Map<Slot, IExpr> slots = new HashMap<>();
 	private final Map<JSBlockCreator, IExpr> blocks = new HashMap<>();
@@ -59,7 +59,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		cxt = c1.getVar();
 		args = null;
 		this.runner = r1.getVar();
-		vars.put(as.get(0), (Var) this.runner);
+		vars.put(as.get(0), this.runner);
 		md.lenientMode(true);
 	}
 
@@ -175,11 +175,11 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 				vars.put(e.getKey(), e.getValue().getVar());
 			}
 		}
-		if (runner != null)
+		if (runner != null) {
 			this.runner = md.getField("_runner"); 
-		else
+			vars.put(new JSVar("_runner"), this.runner);
+		} else
 			this.runner = null;
-//		this.runner = runner;
 		md.lenientMode(true);
 	}
 
@@ -189,6 +189,8 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		isCtor = false;
 		this.md = md;
 		this.runner = runner;
+		if (runner != null)
+			vars.put(new JSVar("_runner"), this.runner);
 		this.cxt = cxt;
 		this.args = args;
 	}

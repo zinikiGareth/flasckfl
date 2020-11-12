@@ -823,7 +823,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.setField(false, "_runner", r);
 		ctor.initContext(false);
-//		ctor.clear();
 		ctor.returnVoid();
 		this.meth = utclz.createMethod("dotest", true);
 		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
@@ -837,8 +836,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.testServices = false;
 		}
 		this.block = meth;
-//		meth.clear();
-//		meth.initContext(false);
 		this.state = new JSFunctionStateStore(meth);
 		this.state.container(new PackageName("_DisplayUpdater"), runner);
 		explodingMocks.clear();
@@ -854,7 +851,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 				declareGlobalMock(udd);
 		}
 		utsteps.clear();
-
 	}
 
 	private void declareGlobalMock(UnitDataDeclaration udd) {

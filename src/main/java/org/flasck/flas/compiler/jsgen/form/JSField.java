@@ -18,6 +18,7 @@ public class JSField implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
+		w.print(asVar());
 	}
 
 	@Override

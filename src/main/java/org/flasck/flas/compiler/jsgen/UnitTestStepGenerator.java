@@ -66,6 +66,7 @@ public class UnitTestStepGenerator extends LeafAdapter {
 			this.meth = clz.createMethod(baseName, true);
 			this.meth.argument(J.FLEVALCONTEXT, "_cxt");
 			this.meth.returnsType("void");
+			this.meth.helper(runner);
 			this.block = this.meth;
 		} else {
 			// for global UDDs
