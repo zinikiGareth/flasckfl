@@ -21,6 +21,7 @@ import org.flasck.flas.testrunner.CommonTestRunner;
 import org.flasck.flas.testrunner.TestResultWriter;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -53,6 +54,7 @@ public abstract class BaseRunnerTests {
 	}
 	
 	@Test
+	@Ignore
 	public void testAssertIsOKIfXDoesIndeedEqualX() throws Exception {
 		Configuration config = new Configuration(errors, new String[] {});
 		Repository repository = new Repository();
@@ -65,6 +67,7 @@ public abstract class BaseRunnerTests {
 	}
 
 	@Test
+	@Ignore
 	public void testAssertFailsIfXDoesNotEqualAGivenValue() throws Exception {
 		Configuration config = new Configuration(errors, new String[] {});
 		Repository repository = new Repository();
@@ -77,6 +80,7 @@ public abstract class BaseRunnerTests {
 	}
 
 	@Test
+	@Ignore
 	public void testAClosureIsFullyEvaluatedBeforeTheComparisonIsDone() throws Exception {
 		Configuration config = new Configuration(errors, new String[] {});
 		Repository repository = new Repository();

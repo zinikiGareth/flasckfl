@@ -143,10 +143,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			sv.push(this);
 	}
 
-	public JSGenerator(JSMethodCreator meth, JSExpr runner, NestedVisitor sv, JSFunctionState state) {
+	public JSGenerator(JSMethodCreator meth, JSExpr runner, NestedVisitor sv, JSFunctionState state, JSStorage jse) {
 		this.repository = null;
 		this.sv = sv;
-		this.jse = null;
+		this.jse = jse;
 		if (meth == null)
 			throw new RuntimeException("Meth cannot be null");
 		this.meth = meth;
@@ -948,10 +948,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner, NestedVisitor nv) {
-		return new JSGenerator(meth, runner, nv, null);
+		return new JSGenerator(meth, runner, nv, null, null);
+	}
+
+	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner, NestedVisitor nv, JSStorage jse) {
+		return new JSGenerator(meth, runner, nv, null, jse);
 	}
 
 	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner, NestedVisitor nv, JSFunctionState state) {
-		return new JSGenerator(meth, runner, nv, state);
+		return new JSGenerator(meth, runner, nv, state, null);
+	}
+
+	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner, NestedVisitor nv, JSStorage jse, JSFunctionState state) {
+		return new JSGenerator(meth, runner, nv, state, jse);
 	}
 }

@@ -61,8 +61,9 @@ public class SystemTestGenerator extends LeafAdapter {
 		clz.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");
 		JSMethodCreator ctor = clz.constructor();
 		this.runner = ctor.argument(J.TESTHELPER, "runner");
+		ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.setField(false, "_runner", runner);
-//		ctor.initContext(false);
+		ctor.initContext(false);
 //		ctor.clear();
 		ctor.returnVoid();
 	}

@@ -82,8 +82,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			ClientContext cxt = (ClientContext) helper.create();
 			helper.clearBody(cxt);
 			Class<?> clz = Class.forName(st.name().javaName(), false, loader);
-			Constructor<?> ctor = clz.getConstructor(TestHelper.class);
-			Object inst = ctor.newInstance(helper);
+			Constructor<?> ctor = clz.getConstructor(TestHelper.class, FLEvalContext.class);
+			Object inst = ctor.newInstance(helper, cxt);
 			return new State(helper, clz, inst, cxt);
 		} catch (Throwable t) {
 			pw.error("  JVM", "creating " + st.name().uniqueName(), t);
