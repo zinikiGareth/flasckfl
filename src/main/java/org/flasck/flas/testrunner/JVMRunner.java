@@ -23,7 +23,6 @@ import org.flasck.jvm.fl.JVMTestHelper;
 import org.flasck.jvm.fl.NewDivException;
 import org.flasck.jvm.fl.NotMatched;
 import org.flasck.jvm.fl.TestHelper;
-import org.ziniki.ziwsh.intf.EvalContext;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
@@ -36,12 +35,14 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		private final JVMTestHelper helper;
 		private final Class<?> clz;
 		private final Object inst;
+		private final ClientContext cxt;
 		private int failed = 0;
 
-		public State(JVMTestHelper helper, Class<?> clz, Object inst) {
+		public State(JVMTestHelper helper, Class<?> clz, Object inst, ClientContext cxt) {
 			this.helper = helper;
 			this.clz = clz;
 			this.inst = inst;
+			this.cxt = cxt;
 		}
 	}
 
@@ -78,10 +79,12 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		pw.println("JVM running system test " + st.name().uniqueName());
 		try {
 			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors, counter);
+			ClientContext cxt = (ClientContext) helper.create();
+			helper.clearBody(cxt);
 			Class<?> clz = Class.forName(st.name().javaName(), false, loader);
 			Constructor<?> ctor = clz.getConstructor(TestHelper.class);
 			Object inst = ctor.newInstance(helper);
-			return new State(helper, clz, inst);
+			return new State(helper, clz, inst, cxt);
 		} catch (Throwable t) {
 			pw.error("  JVM", "creating " + st.name().uniqueName(), t);
 			return null;
@@ -91,8 +94,10 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	@Override
 	protected void runSystemTestStage(TestResultWriter pw, State state, SystemTest st, SystemTestStage e) {
 		try {
-			Method method = state.clz.getMethod(e.name.baseName());
-			runStepsFunction(pw, e.desc, state, state.helper, cxt -> method.invoke(state.inst));
+			Method method = state.clz.getMethod(e.name.baseName(), FLEvalContext.class);
+			@SuppressWarnings("unchecked")
+			List<String> steps = (List<String>) method.invoke(state.inst, state.cxt);
+			doSteps(pw, state, state.inst, steps, state.cxt, e.desc);
 		} catch (Throwable t) {
 			pw.error("JVM", e.desc, t);
 			state.failed++;
@@ -105,56 +110,6 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			pw.println("JVM " + st.name().uniqueName() + " all stages passed");
 		} else {
 			pw.println("JVM " + st.name().uniqueName() + " " + state.failed + " stages failed");
-		}
-	}
-
-	private void runStepsFunction(TestResultWriter pw, String desc, State state, JVMTestHelper helper, FunctionThrows<FLEvalContext, Object> doit) {
-		try {
-			FLEvalContext cxt = helper.create();
-			Object result = doit.apply(cxt);
-			synchronized (counter) {
-				System.out.println("after method complete, have counter at " + counter.get());
-				while (counter.get() != 0 || !cxt.getDispatcher().isDone()) {
-					if (counter.get() != 0)
-						counter.wait(5000);
-					if (!cxt.getDispatcher().isDone())
-						cxt.getDispatcher().waitForQueueDone();
-				}
-			}
-			if (result instanceof FLError)
-				throw (Throwable)result;
-			if (cxt.getError() != null)
-				throw cxt.getError();
-			if (desc != null)
-				pw.pass("JVM", desc);
-		} catch (WrappedException | InvocationTargetException ex) {
-			ex.printStackTrace(System.out);
-			if (state != null)
-				state.failed++;
-			Throwable e2 = WrappedException.unwrapThrowable(ex);
-			if (e2 instanceof AssertFailed) {
-				AssertFailed af = (AssertFailed) e2;
-				pw.fail("JVM", desc);
-				errors.add("JVM FAIL " + desc);
-				pw.println("  expected: " + valueOf(af.expected));
-				pw.println("  actual:   " + valueOf(af.actual));
-			} else if (e2 instanceof NotMatched) {
-				pw.fail("JVM", desc);
-				errors.add("JVM FAIL " + desc);
-				pw.println("  " + e2.getMessage());
-			} else if (e2 instanceof NewDivException) {
-				pw.fail("JVM", desc);
-				errors.add("JVM FAIL " + desc);
-				pw.println("  " + e2.getMessage());
-			} else {
-				pw.error("JVM", desc, e2);
-				errors.add("JVM ERROR " + desc);
-				pw.println("JVM ERROR " + desc);
-			}
-		} catch (Throwable t) {
-			if (state != null)
-				state.failed++;
-			pw.error("JVM", desc, t);
 		}
 	}
 
@@ -211,4 +166,54 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		}
 		return val;
 	}
+	private void runStepsFunction(TestResultWriter pw, String desc, State state, JVMTestHelper helper, FunctionThrows<FLEvalContext, Object> doit) {
+		try {
+			FLEvalContext cxt = helper.create();
+			Object result = doit.apply(cxt);
+			synchronized (counter) {
+				System.out.println("after method complete, have counter at " + counter.get());
+				while (counter.get() != 0 || !cxt.getDispatcher().isDone()) {
+					if (counter.get() != 0)
+						counter.wait(5000);
+					if (!cxt.getDispatcher().isDone())
+						cxt.getDispatcher().waitForQueueDone();
+				}
+			}
+			if (result instanceof FLError)
+				throw (Throwable)result;
+			if (cxt.getError() != null)
+				throw cxt.getError();
+			if (desc != null)
+				pw.pass("JVM", desc);
+		} catch (WrappedException | InvocationTargetException ex) {
+			ex.printStackTrace(System.out);
+			if (state != null)
+				state.failed++;
+			Throwable e2 = WrappedException.unwrapThrowable(ex);
+			if (e2 instanceof AssertFailed) {
+				AssertFailed af = (AssertFailed) e2;
+				pw.fail("JVM", desc);
+				errors.add("JVM FAIL " + desc);
+				pw.println("  expected: " + valueOf(af.expected));
+				pw.println("  actual:   " + valueOf(af.actual));
+			} else if (e2 instanceof NotMatched) {
+				pw.fail("JVM", desc);
+				errors.add("JVM FAIL " + desc);
+				pw.println("  " + e2.getMessage());
+			} else if (e2 instanceof NewDivException) {
+				pw.fail("JVM", desc);
+				errors.add("JVM FAIL " + desc);
+				pw.println("  " + e2.getMessage());
+			} else {
+				pw.error("JVM", desc, e2);
+				errors.add("JVM ERROR " + desc);
+				pw.println("JVM ERROR " + desc);
+			}
+		} catch (Throwable t) {
+			if (state != null)
+				state.failed++;
+			pw.error("JVM", desc, t);
+		}
+	}
+
 }

@@ -1,15 +1,10 @@
 package org.flasck.flas.testrunner;
 
-import netscape.javascript.JSObject;
-
 public class JSTestState {
-	public final JSObject jsobj;
+	public final SingleJSTest test;
 	public int failed = 0;
 
-	public JSTestState(Object ret) {
-		if (ret instanceof JSObject)
-			this.jsobj = (JSObject) ret;
-		else
-			this.jsobj = null;
+	public JSTestState(SingleJSTest ret) {
+		this.test = ret;
 	}
 }

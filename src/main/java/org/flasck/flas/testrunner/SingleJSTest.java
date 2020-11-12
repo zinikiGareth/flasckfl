@@ -41,12 +41,12 @@ public class SingleJSTest {
 		});
 	}
 
-	public List<String> getSteps() {
+	public List<String> getSteps(String name) {
 		if (error)
 			return new ArrayList<>();
 		List<String> steps = new ArrayList<>();
 		uiThread(cdl -> {
-			Object ua = testObj.call("dotest", cxt);
+			Object ua = testObj.call(name, cxt);
 			if (ua instanceof JSObject) {
 				JSObject arr = (JSObject) ua;
 				int len = (Integer)arr.getMember("length");

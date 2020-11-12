@@ -160,16 +160,39 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		String clz = utc.name.jsName();
 		String desc = utc.description;
 		
-		boolean isTest = true;
 		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, desc);
 		t1.create();
-		List<String> steps = t1.getSteps();
+		List<String> steps = t1.getSteps("dotest");
 		for (String s : steps) {
 			t1.step(s);
 		}
-		if (isTest && !steps.isEmpty() && desc != null && t1.ok())
+		if (!steps.isEmpty() && desc != null && t1.ok())
 			pw.pass("JS", desc);
 //		runStage(pw, utc.description, null, utc.name.container().jsName(), utc.name.jsName(), true);
+	}
+
+	
+	@Override
+	protected JSTestState createSystemTest(TestResultWriter pw, SystemTest st) {
+		String clz = st.name().jsName();
+		String desc = null;
+		pw.println("JS running system test " + st.name().uniqueName());
+		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, desc);
+		t1.create();
+//		Object ret = runStage(pw, st.name().uniqueName(), null, st.name().container().jsName(), st.name().jsName(), false);
+		return new JSTestState(t1);
+	}
+	
+	@Override
+	protected void runSystemTestStage(TestResultWriter pw, JSTestState state, SystemTest st, SystemTestStage e) {
+		String desc = e.desc;
+		List<String> steps = state.test.getSteps(e.name.baseName());
+		for (String s : steps) {
+			state.test.step(s);
+		}
+		if (!steps.isEmpty() && desc != null && state.test.ok())
+			pw.pass("JS", desc);
+//		runStage(pw, e.desc, state, null, e.name.baseName(), true);
 	}
 
 	private Object runStage(TestResultWriter pw, String desc, JSTestState state, String ctr, String fn, boolean isTest) {
@@ -180,8 +203,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			try {
 				boolean ran = false;
 				Object ret = null;
-				if (state != null && state.jsobj != null) {
-					ret = state.jsobj.call(fn);
+				if (state != null && state.test != null) {
+//					ret = state.test.call(fn);
 					ran = true;
 				} else {
 					Object isdf = page.executeScript("typeof(" + ctr + ")");
@@ -265,18 +288,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		if (rets.isEmpty())
 			return null;
 		return rets.get(0);
-	}
-	
-	@Override
-	protected JSTestState createSystemTest(TestResultWriter pw, SystemTest st) {
-		pw.println("JS running system test " + st.name().uniqueName());
-		Object ret = runStage(pw, st.name().uniqueName(), null, st.name().container().jsName(), st.name().jsName(), false);
-		return new JSTestState(ret);
-	}
-	
-	@Override
-	protected void runSystemTestStage(TestResultWriter pw, JSTestState state, SystemTest st, SystemTestStage e) {
-		runStage(pw, e.desc, state, null, e.name.baseName(), true);
 	}
 	
 	@Override
