@@ -65,7 +65,6 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			@SuppressWarnings("unchecked")
 			List<String> steps = (List<String>)Reflection.call(test, "dotest", cxt);
 			doSteps(pw, null, test, steps, cxt, utc.description);
-//			runStepsFunction(pw, desc, null, helper, cxt -> Reflection.callStatic(tc, "dotest", helper, cxt));
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			pw.println("NOTFOUND " + desc);
 			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
@@ -172,7 +171,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	}
 
 	public void handleError(TestResultWriter pw, State state, String desc, Throwable ex) {
-		ex.printStackTrace(System.out);
+//		ex.printStackTrace(System.out);
 		if (state != null)
 			state.failed++;
 		if (ex instanceof WrappedException || ex instanceof InvocationTargetException) {

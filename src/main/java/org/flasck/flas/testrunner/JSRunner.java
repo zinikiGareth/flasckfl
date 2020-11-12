@@ -157,7 +157,20 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 	@Override
 	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
-		runStage(pw, utc.description, null, utc.name.container().jsName(), utc.name.jsName(), true);
+		String clz = utc.name.jsName();
+		String desc = utc.description;
+		
+		boolean isTest = true;
+		boolean ran = true;
+		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, desc);
+		t1.create();
+		List<String> steps = t1.getSteps();
+		for (String s : steps) {
+			t1.step(s);
+		}
+		if (isTest && desc != null && ran)
+			pw.pass("JS", desc);
+//		runStage(pw, utc.description, null, utc.name.container().jsName(), utc.name.jsName(), true);
 	}
 
 	private Object runStage(TestResultWriter pw, String desc, JSTestState state, String ctr, String fn, boolean isTest) {
