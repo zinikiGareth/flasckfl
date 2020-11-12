@@ -18,6 +18,7 @@ import org.flasck.flas.testrunner.JVMRunner.State;
 import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.fl.AssertFailed;
+import org.flasck.jvm.fl.ClientContext;
 import org.flasck.jvm.fl.JVMTestHelper;
 import org.flasck.jvm.fl.NewDivException;
 import org.flasck.jvm.fl.NotMatched;
@@ -60,7 +61,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		String desc = utc.description;
 		try {
 			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors, counter);
-			FLEvalContext cxt = helper.create();
+			ClientContext cxt = (ClientContext) helper.create();
+			helper.clearBody(cxt);
 			Object test = Class.forName(utc.name.javaName(), false, loader).getConstructor(TestHelper.class, FLEvalContext.class).newInstance(helper, cxt);
 			@SuppressWarnings("unchecked")
 			List<String> steps = (List<String>)Reflection.call(test, "dotest", cxt);

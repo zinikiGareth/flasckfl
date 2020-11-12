@@ -26,7 +26,7 @@ public class JSNewDiv implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		jvm.local(this, md.callInterface("void", jvm.argAsIs(new JSVar("runner")), "newdiv", cnt == null ? md.as(md.aNull(), J.INTEGER) : md.box(md.intConst(cnt))));
+		jvm.local(this, md.callInterface("void", jvm.argAsIs(new JSVar("_runner")), "newdiv", cnt == null ? md.as(md.aNull(), J.INTEGER) : md.box(md.intConst(cnt))));
 	}
 
 }

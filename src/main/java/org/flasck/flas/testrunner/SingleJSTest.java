@@ -34,8 +34,9 @@ public class SingleJSTest {
 
 	public void create() {
 		uiThread(cdl -> {
-			cxt = (JSObject) page.executeScript("window.runner = new window.UTRunner(window.JavaLogger); window.testcxt = window.runner.newContext();");
+			cxt = (JSObject) page.executeScript("window.runner = new window.UTRunner(window.JavaLogger); window.testcxt = window.runner.newContext();;");
 			testObj = (JSObject) page.executeScript("new " + clz + "(window.runner, window.testcxt)");
+			page.executeScript("window.runner.clear();");
 			cdl.countDown();
 		});
 	}

@@ -844,16 +844,23 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		explodingMocks.clear();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {
-			if (udd.ofType.defn() instanceof ContractDecl)
-				visitUnitDataDeclaration(udd);
+			if (udd.ofType.defn() instanceof ContractDecl) {
+				declareGlobalMock(udd);
+			}
 		}
 		// and then declare non-contracts
 		for (UnitDataDeclaration udd : globalMocks) {
 			if (!(udd.ofType.defn() instanceof ContractDecl))
-				visitUnitDataDeclaration(udd);
+				declareGlobalMock(udd);
 		}
 		utsteps.clear();
 
+	}
+
+	private void declareGlobalMock(UnitDataDeclaration udd) {
+		UnitTestStepGenerator sg = new UnitTestStepGenerator(null, jse, utclz, meth, state, null, this.runner, globalMocks, explodingMocks, testServices, null, 0);
+		sg.visitUnitDataDeclaration(udd);
+		sg.leaveUnitTestStep(null);
 	}
 
 	private boolean involvesServices(TestStepHolder e) {
@@ -871,7 +878,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	// handle global mocks ...
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
-		UDDGeneratorJS.handleUDD(sv, meth, state, this.block, globalMocks, explodingMocks, udd);
+		globalMocks.add(udd);
 	}
 	
 	@Override

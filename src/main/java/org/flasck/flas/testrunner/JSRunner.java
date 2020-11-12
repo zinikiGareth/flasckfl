@@ -161,7 +161,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		String desc = utc.description;
 		
 		boolean isTest = true;
-		boolean ran = true;
 		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, desc);
 		t1.create();
 		List<String> steps = t1.getSteps();

@@ -61,11 +61,18 @@ public class UnitTestStepGenerator extends LeafAdapter {
 		if (sv != null)
 			sv.push(this);
 		
-		baseName = testName.baseName() + "_step_" + stepNum;
-		this.meth = clz.createMethod(baseName, true);
-		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
-		this.meth.returnsType("void");
-		this.block = this.meth;
+		if (testName != null) {
+			baseName = testName.baseName() + "_step_" + stepNum;
+			this.meth = clz.createMethod(baseName, true);
+			this.meth.argument(J.FLEVALCONTEXT, "_cxt");
+			this.meth.returnsType("void");
+			this.block = this.meth;
+		} else {
+			// for global UDDs
+			this.baseName = null;
+			this.meth = meth;
+			this.block = meth;
+		}
 		mocks = new TreeMap<>(ostate.mocks());
 		introductions = new TreeMap<>(IntroduceVar.comparator);
 		introductions.putAll(ostate.introductions());
@@ -143,32 +150,32 @@ public class UnitTestStepGenerator extends LeafAdapter {
 	public void leaveUnitTestStep(UnitTestStep s) {
 		Map<UnitDataDeclaration, JSExpr> asfields = new TreeMap<>(mocks);
 		Map<JSExpr, JSExpr> mapmocks = new HashMap<>();
-		if (clz != null) {
-			for (Entry<UnitDataDeclaration, JSExpr> e : asfields.entrySet()) {
-				if (ostate.mocks().containsKey(e.getKey()))
-					continue;
-				String mn = "_mock_" + e.getKey().name.baseName();
-				clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), mn);
-				this.meth.setField(false, mn, e.getValue());
-				JSExpr fm = this.meth.field(mn);
-				ostate.mocks().put(e.getKey(), fm);
-				mapmocks.put(e.getValue(), fm);
-			}
-			for (JSExpr e : explodingMocks) {
-				parentExplodingMocks.add(mapmocks.get(e));
-			}
-			TreeMap<IntroduceVar, JSExpr> asflds = new TreeMap<>(introductions);
-			for (Entry<IntroduceVar, JSExpr> e : asflds.entrySet()) {
-				if (ostate.introductions().containsKey(e.getKey()))
-					continue;
-				String bn = "_iv_" + e.getKey().var;
-				clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), bn);
-				this.meth.setField(false, bn, e.getValue());
-				ostate.introductions().put(e.getKey(), this.meth.field(bn));
-			}
+		for (Entry<UnitDataDeclaration, JSExpr> e : asfields.entrySet()) {
+			if (ostate.mocks().containsKey(e.getKey()))
+				continue;
+			String mn = "_mock_" + e.getKey().name.baseName();
+			clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), mn);
+			this.meth.setField(false, mn, e.getValue());
+			JSExpr fm = this.meth.field(mn);
+			ostate.mocks().put(e.getKey(), fm);
+			mapmocks.put(e.getValue(), fm);
 		}
-		block.returnVoid();
-		sv.result(null);
+		for (JSExpr e : explodingMocks) {
+			parentExplodingMocks.add(mapmocks.get(e));
+		}
+		TreeMap<IntroduceVar, JSExpr> asflds = new TreeMap<>(introductions);
+		for (Entry<IntroduceVar, JSExpr> e : asflds.entrySet()) {
+			if (ostate.introductions().containsKey(e.getKey()))
+				continue;
+			String bn = "_iv_" + e.getKey().var;
+			clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), bn);
+			this.meth.setField(false, bn, e.getValue());
+			ostate.introductions().put(e.getKey(), this.meth.field(bn));
+		}
+		if (s != null)
+			block.returnVoid();
+		if (sv != null)
+			sv.result(null);
 	}
 
 	public String name() {
