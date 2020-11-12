@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -30,9 +30,7 @@ import org.zinutils.utils.FileUtils;
 import io.webfolder.ui4j.api.browser.BrowserEngine;
 import io.webfolder.ui4j.api.browser.BrowserFactory;
 import io.webfolder.ui4j.api.browser.Page;
-import io.webfolder.ui4j.api.util.Ui4jException;
 import javafx.application.Platform;
-import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner<JSTestState> {
@@ -162,131 +160,50 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		
 		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, desc);
 		t1.create(desc);
-		List<String> steps = t1.getSteps(desc, "dotest");
+		String name = "dotest";
+		runSteps(pw, desc, t1, name);
+	}
+
+	private void runSteps(TestResultWriter pw, String desc, SingleJSTest t1, String name) {
+		List<String> steps = t1.getSteps(desc, name);
 		for (String s : steps) {
+			counter.set(1);
+			System.out.println("starting count at " + counter);
 			t1.step(desc, s);
+			int cnt = counter.decrementAndGet();
+			System.out.println("step complete: counted down to " + cnt);
+			synchronized (counter) {
+				try {
+					System.out.println("after method complete, have counter at " + counter.get());
+					if (counter.get() != 0)
+						counter.wait(5000);
+					if (counter.get() != 0)
+						throw new TimeoutException();
+				} catch (Throwable t) {
+					pw.error("JS", desc, t);
+					errors.add("JS ERROR " + desc);
+					break;
+				}
+			}
 		}
 		if (!steps.isEmpty() && desc != null && t1.ok())
 			pw.pass("JS", desc);
-//		runStage(pw, utc.description, null, utc.name.container().jsName(), utc.name.jsName(), true);
 	}
 
-	
 	@Override
 	protected JSTestState createSystemTest(TestResultWriter pw, SystemTest st) {
 		String clz = st.name().jsName();
 		pw.println("JS running system test " + st.name().uniqueName());
 		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, null);
 		t1.create(null);
-//		Object ret = runStage(pw, st.name().uniqueName(), null, st.name().container().jsName(), st.name().jsName(), false);
 		return new JSTestState(t1);
 	}
 	
 	@Override
 	protected void runSystemTestStage(TestResultWriter pw, JSTestState state, SystemTest st, SystemTestStage e) {
-		String desc = e.desc;
-		List<String> steps = state.test.getSteps(desc, e.name.baseName());
-		for (String s : steps) {
-			state.test.step(desc, s);
-		}
-		if (!steps.isEmpty() && desc != null && state.test.ok())
-			pw.pass("JS", desc);
-//		runStage(pw, e.desc, state, null, e.name.baseName(), true);
-	}
-
-	private Object runStage(TestResultWriter pw, String desc, JSTestState state, String ctr, String fn, boolean isTest) {
-		List<Object> rets = new ArrayList<>();
-		counter.set(1);
-		System.out.println("starting count at " + counter);
-		boolean await = uiThread(cdl -> {
-			try {
-				boolean ran = false;
-				Object ret = null;
-				if (state != null && state.test != null) {
-//					ret = state.test.call(fn);
-					ran = true;
-				} else {
-					Object isdf = page.executeScript("typeof(" + ctr + ")");
-					if (!"undefined".equals(isdf))
-						isdf = page.executeScript("typeof(" + fn + ")");
-					if ("function".equals(isdf)) {
-						ret = page.executeScript((!isTest?"new ":"") + fn + "(new window.UTRunner(window.JavaLogger))");
-						ran = true;
-					}
-				}
-				int cnt = counter.decrementAndGet();
-				System.out.println("method complete: counted down to " + cnt);
-				if (ret != null && !"undefined".equals(ret))
-					rets.add(ret);
-				if (isTest && desc != null && ran)
-					pw.pass("JS", desc);
-				cdl.countDown();
-			} catch (Throwable t) {
-				if (state != null)
-					state.failed++;
-				if (t instanceof Ui4jException)
-					t = t.getCause();
-				if (t instanceof JSException) {
-					JSException ex = (JSException) t;
-					String jsex = ex.getMessage();
-					if (jsex.startsWith("Error: NSV\n")) {
-						pw.fail("JS", desc);
-						errors.add("JS FAIL " + desc);
-						pw.println(jsex.substring(jsex.indexOf('\n')+1));
-						int cnt = counter.decrementAndGet();
-						System.out.println("method failed: counted down to " + cnt);
-						cdl.countDown();
-						return;
-					} else if (jsex.startsWith("Error: EXP\n")) {
-						pw.fail("JS", desc);
-						errors.add("JS FAIL " + desc);
-						pw.println(jsex.substring(jsex.indexOf('\n')+1));
-						int cnt = counter.decrementAndGet();
-						System.out.println("method failed: counted down to " + cnt);
-						cdl.countDown();
-						return;
-					} else if (jsex.startsWith("Error: MATCH\n")) {
-						pw.fail("JS", desc);
-						errors.add("JS FAIL " + desc);
-						pw.println(jsex.substring(jsex.indexOf('\n')+1));
-						int cnt = counter.decrementAndGet();
-						System.out.println("method failed: counted down to " + cnt);
-						cdl.countDown();
-						return;
-					} else if (jsex.startsWith("Error: NEWDIV\n")) {
-						pw.fail("JS", desc);
-						errors.add("JS FAIL " + desc);
-						pw.println("incorrect number of divs created");
-						pw.println(jsex.substring(jsex.indexOf('\n')+1));
-						int cnt = counter.decrementAndGet();
-						System.out.println("method failed: counted down to " + cnt);
-						cdl.countDown();
-						return;
-					}
-				}
-				pw.error("JS", desc, t);
-				errors.add("JS ERROR " + desc);
-				int cnt = counter.decrementAndGet();
-				System.out.println("method error: counted down to " + cnt);
-				cdl.countDown();
-			}
-		});
-		synchronized (counter) {
-			try {
-				System.out.println("after method complete, have counter at " + counter.get());
-				while (counter.get() != 0)
-					counter.wait(5000);
-			} catch (Throwable t) {
-				pw.error("JS", desc, t);
-				errors.add("JS ERROR " + desc);
-			}
-		}
-		if (!await) {
-			pw.println("JS TIMEOUT " + desc);
-		}
-		if (rets.isEmpty())
-			return null;
-		return rets.get(0);
+		runSteps(pw, e.desc, state.test, e.name.baseName());
+		if (!state.test.ok())
+			state.failed++;
 	}
 	
 	@Override

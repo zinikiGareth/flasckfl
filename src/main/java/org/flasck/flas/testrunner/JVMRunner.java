@@ -16,7 +16,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.testrunner.JVMRunner.State;
 import org.flasck.jvm.FLEvalContext;
-import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.fl.AssertFailed;
 import org.flasck.jvm.fl.ClientContext;
 import org.flasck.jvm.fl.JVMTestHelper;
@@ -32,14 +31,12 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	}
 
 	public class State {
-		private final JVMTestHelper helper;
 		private final Class<?> clz;
 		private final Object inst;
 		private final ClientContext cxt;
 		private int failed = 0;
 
 		public State(JVMTestHelper helper, Class<?> clz, Object inst, ClientContext cxt) {
-			this.helper = helper;
 			this.clz = clz;
 			this.inst = inst;
 			this.cxt = cxt;
@@ -116,7 +113,18 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	private void doSteps(TestResultWriter pw, State state, Object test, List<String> steps, FLEvalContext cxt, String desc) {
 		try {
 			for (String s : steps) {
+				counter.set(1);
 				Reflection.call(test, s, cxt);
+				synchronized (counter) {
+					counter.decrementAndGet();
+					System.out.println("after method complete, have counter at " + counter.get());
+					while (counter.get() != 0 || !cxt.getDispatcher().isDone()) {
+						if (counter.get() != 0)
+							counter.wait(5000);
+						if (!cxt.getDispatcher().isDone())
+							cxt.getDispatcher().waitForQueueDone();
+					}
+				}
 			}
 			if (cxt.getError() != null)
 				throw cxt.getError();
@@ -128,7 +136,6 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	}
 
 	public void handleError(TestResultWriter pw, State state, String desc, Throwable ex) {
-//		ex.printStackTrace(System.out);
 		if (state != null)
 			state.failed++;
 		if (ex instanceof WrappedException || ex instanceof InvocationTargetException) {
@@ -166,54 +173,4 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		}
 		return val;
 	}
-	private void runStepsFunction(TestResultWriter pw, String desc, State state, JVMTestHelper helper, FunctionThrows<FLEvalContext, Object> doit) {
-		try {
-			FLEvalContext cxt = helper.create();
-			Object result = doit.apply(cxt);
-			synchronized (counter) {
-				System.out.println("after method complete, have counter at " + counter.get());
-				while (counter.get() != 0 || !cxt.getDispatcher().isDone()) {
-					if (counter.get() != 0)
-						counter.wait(5000);
-					if (!cxt.getDispatcher().isDone())
-						cxt.getDispatcher().waitForQueueDone();
-				}
-			}
-			if (result instanceof FLError)
-				throw (Throwable)result;
-			if (cxt.getError() != null)
-				throw cxt.getError();
-			if (desc != null)
-				pw.pass("JVM", desc);
-		} catch (WrappedException | InvocationTargetException ex) {
-			ex.printStackTrace(System.out);
-			if (state != null)
-				state.failed++;
-			Throwable e2 = WrappedException.unwrapThrowable(ex);
-			if (e2 instanceof AssertFailed) {
-				AssertFailed af = (AssertFailed) e2;
-				pw.fail("JVM", desc);
-				errors.add("JVM FAIL " + desc);
-				pw.println("  expected: " + valueOf(af.expected));
-				pw.println("  actual:   " + valueOf(af.actual));
-			} else if (e2 instanceof NotMatched) {
-				pw.fail("JVM", desc);
-				errors.add("JVM FAIL " + desc);
-				pw.println("  " + e2.getMessage());
-			} else if (e2 instanceof NewDivException) {
-				pw.fail("JVM", desc);
-				errors.add("JVM FAIL " + desc);
-				pw.println("  " + e2.getMessage());
-			} else {
-				pw.error("JVM", desc, e2);
-				errors.add("JVM ERROR " + desc);
-				pw.println("JVM ERROR " + desc);
-			}
-		} catch (Throwable t) {
-			if (state != null)
-				state.failed++;
-			pw.error("JVM", desc, t);
-		}
-	}
-
 }
