@@ -2,11 +2,6 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
-import org.flasck.jvm.J;
-import org.flasck.jvm.container.FLEvalContextFactory;
-import org.zinutils.bytecode.IExpr;
-import org.zinutils.bytecode.JavaType;
-import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class InitContext implements IVForm {
@@ -20,10 +15,10 @@ public class InitContext implements IVForm {
 
 	@Override
 	public void write(IndentWriter w) {
-		String r = "runner";
-		if (field)
-			r = "this._runner";
-		w.println("const _cxt = " + r + ".newContext();");
+//		String r = "runner";
+//		if (field)
+//			r = "this._runner";
+//		w.println("const _cxt = " + r + ".newContext();");
 		if (!field) {
 			for (String e : env.packages())
 				if (!e.contains("_ut_") && !e.contains("_st_"))
@@ -34,15 +29,15 @@ public class InitContext implements IVForm {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		Var v = jvm.method().avar(J.FLEVALCONTEXT, "_cxt");
-		IExpr r;
-		if (field)
-			r = jvm.method().as(jvm.method().getField("_runner"), FLEvalContextFactory.class.getName());
-		else
-			r = jvm.argAs(new JSVar("runner"), new JavaType(FLEvalContextFactory.class.getName()));
-		IExpr ass = jvm.method().assign(v, jvm.method().callInterface(J.FLEVALCONTEXT, r, "create"));
-		jvm.local(this, ass);
-		jvm.setCxt(v);
+//		Var v = jvm.method().avar(J.FLEVALCONTEXT, "_cxt");
+//		IExpr r;
+//		if (field)
+//			r = jvm.method().as(jvm.method().getField("_runner"), FLEvalContextFactory.class.getName());
+//		else
+//			r = jvm.argAs(new JSVar("runner"), new JavaType(FLEvalContextFactory.class.getName()));
+//		IExpr ass = jvm.method().assign(v, jvm.method().callInterface(J.FLEVALCONTEXT, r, "create"));
+		jvm.local(this, null);
+//		jvm.setCxt(v);
 	}
 	
 	@Override

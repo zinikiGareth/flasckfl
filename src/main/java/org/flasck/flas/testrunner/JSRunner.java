@@ -168,7 +168,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		for (String s : steps) {
 			t1.step(s);
 		}
-		if (isTest && desc != null && ran)
+		if (isTest && desc != null && t1.ok())
 			pw.pass("JS", desc);
 //		runStage(pw, utc.description, null, utc.name.container().jsName(), utc.name.jsName(), true);
 	}

@@ -35,7 +35,7 @@ public class SingleJSTest {
 	public void create() {
 		uiThread(cdl -> {
 			cxt = (JSObject) page.executeScript("window.runner = new window.UTRunner(window.JavaLogger); window.testcxt = window.runner.newContext();");
-			testObj = (JSObject) page.executeScript("new " + clz + "(window.runner)");
+			testObj = (JSObject) page.executeScript("new " + clz + "(window.runner, window.testcxt)");
 			cdl.countDown();
 		});
 	}
@@ -55,6 +55,9 @@ public class SingleJSTest {
 	}
 
 	public void step(String s) {
+		if (error)
+			return;
+		System.out.println("running js step " + s);
 		List<Throwable> excs = new ArrayList<>();
 		uiThread(cdl -> {
 			try {
@@ -126,5 +129,9 @@ public class SingleJSTest {
 			error = true;
 			pw.println("JS TIMEOUT " + desc);
 		}
+	}
+
+	public boolean ok() {
+		return !error;
 	}
 }

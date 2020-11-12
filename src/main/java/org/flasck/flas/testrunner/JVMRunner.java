@@ -60,8 +60,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		String desc = utc.description;
 		try {
 			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors, counter);
-			Object test = Class.forName(utc.name.javaName(), false, loader).getConstructor(TestHelper.class).newInstance(helper);
 			FLEvalContext cxt = helper.create();
+			Object test = Class.forName(utc.name.javaName(), false, loader).getConstructor(TestHelper.class, FLEvalContext.class).newInstance(helper, cxt);
 			@SuppressWarnings("unchecked")
 			List<String> steps = (List<String>)Reflection.call(test, "dotest", cxt);
 			doSteps(pw, null, test, steps, cxt, utc.description);
