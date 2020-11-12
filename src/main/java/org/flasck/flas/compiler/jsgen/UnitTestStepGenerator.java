@@ -60,7 +60,6 @@ public class UnitTestStepGenerator extends LeafAdapter {
 		
 		baseName = testName.baseName() + "_step_" + stepNum;
 		this.meth = clz.createMethod(baseName, true);
-		this.meth.argument(J.TESTHELPER, "runner");
 		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
 		this.meth.returnsType("void");
 		this.block = this.meth;

@@ -22,6 +22,7 @@ import org.flasck.jvm.fl.JVMTestHelper;
 import org.flasck.jvm.fl.NewDivException;
 import org.flasck.jvm.fl.NotMatched;
 import org.flasck.jvm.fl.TestHelper;
+import org.ziniki.ziwsh.intf.EvalContext;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
@@ -59,9 +60,13 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		String desc = utc.description;
 		try {
 			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors, counter);
-			Class<?> tc = Class.forName(utc.name.javaName(), false, loader);
-			runStepsFunction(pw, desc, null, helper, cxt -> Reflection.callStatic(tc, "dotest", helper, cxt));
-		} catch (ClassNotFoundException e) {
+			Object test = Class.forName(utc.name.javaName(), false, loader).getConstructor(TestHelper.class).newInstance(helper);
+			FLEvalContext cxt = helper.create();
+			@SuppressWarnings("unchecked")
+			List<String> steps = (List<String>)Reflection.call(test, "dotest", cxt);
+			doSteps(pw, test, steps, cxt, utc.description);
+//			runStepsFunction(pw, desc, null, helper, cxt -> Reflection.callStatic(tc, "dotest", helper, cxt));
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			pw.println("NOTFOUND " + desc);
 			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
 		}
@@ -151,6 +156,21 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			pw.error("JVM", desc, t);
 		}
 	}
+
+	private void doSteps(TestResultWriter pw, Object test, List<String> steps, FLEvalContext cxt, String desc) {
+		try {
+			for (String s : steps) {
+				Reflection.call(test, s, cxt);
+			}
+			if (cxt.getError() != null)
+				throw cxt.getError();
+			if (desc != null)
+				pw.pass("JVM", desc);
+		} catch (Throwable t) {
+			t.printStackTrace(System.out);
+		}
+	}
+
 
 	private Object valueOf(Object val) {
 		if (val instanceof Double) {
