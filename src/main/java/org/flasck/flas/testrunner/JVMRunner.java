@@ -64,7 +64,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			FLEvalContext cxt = helper.create();
 			@SuppressWarnings("unchecked")
 			List<String> steps = (List<String>)Reflection.call(test, "dotest", cxt);
-			doSteps(pw, test, steps, cxt, utc.description);
+			doSteps(pw, null, test, steps, cxt, utc.description);
 //			runStepsFunction(pw, desc, null, helper, cxt -> Reflection.callStatic(tc, "dotest", helper, cxt));
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			pw.println("NOTFOUND " + desc);
@@ -157,7 +157,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		}
 	}
 
-	private void doSteps(TestResultWriter pw, Object test, List<String> steps, FLEvalContext cxt, String desc) {
+	private void doSteps(TestResultWriter pw, State state, Object test, List<String> steps, FLEvalContext cxt, String desc) {
 		try {
 			for (String s : steps) {
 				Reflection.call(test, s, cxt);
@@ -167,10 +167,39 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			if (desc != null)
 				pw.pass("JVM", desc);
 		} catch (Throwable t) {
-			t.printStackTrace(System.out);
+			handleError(pw, state, desc, t);
 		}
 	}
 
+	public void handleError(TestResultWriter pw, State state, String desc, Throwable ex) {
+		ex.printStackTrace(System.out);
+		if (state != null)
+			state.failed++;
+		if (ex instanceof WrappedException || ex instanceof InvocationTargetException) {
+			Throwable e2 = WrappedException.unwrapThrowable(ex);
+			if (e2 instanceof AssertFailed) {
+				AssertFailed af = (AssertFailed) e2;
+				pw.fail("JVM", desc);
+				errors.add("JVM FAIL " + desc);
+				pw.println("  expected: " + valueOf(af.expected));
+				pw.println("  actual:   " + valueOf(af.actual));
+			} else if (e2 instanceof NotMatched) {
+				pw.fail("JVM", desc);
+				errors.add("JVM FAIL " + desc);
+				pw.println("  " + e2.getMessage());
+			} else if (e2 instanceof NewDivException) {
+				pw.fail("JVM", desc);
+				errors.add("JVM FAIL " + desc);
+				pw.println("  " + e2.getMessage());
+			} else {
+				pw.error("JVM", desc, e2);
+				errors.add("JVM ERROR " + desc);
+				pw.println("JVM ERROR " + desc);
+			}
+		} else {
+			pw.error("JVM", desc, ex);
+		}
+	}
 
 	private Object valueOf(Object val) {
 		if (val instanceof Double) {

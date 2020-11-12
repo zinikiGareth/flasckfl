@@ -819,8 +819,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.utclz = jse.newUnitTest(e);
 		utclz.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");
 		JSMethodCreator ctor = utclz.constructor();
-		this.runner = ctor.argument(J.TESTHELPER, "runner");
-		ctor.setField(false, "_runner", runner);
+		ctor.setField(false, "_runner", ctor.argument(J.TESTHELPER, "runner"));
 //		ctor.initContext(false);
 //		ctor.clear();
 		ctor.returnVoid();
