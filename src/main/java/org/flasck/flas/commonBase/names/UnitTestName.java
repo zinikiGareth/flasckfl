@@ -6,4 +6,8 @@ public class UnitTestName extends SolidName {
 		super(container, "_ut" + cnt);
 	}
 
+	public UnitTestName(NameOfThing container, String step) {
+		super(container, step);
+	}
+
 }

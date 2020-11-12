@@ -13,10 +13,12 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.st.SystemTest;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
 
 public interface JSStorage {
 
 	JSClassCreator newClass(String pkg, NameOfThing clz);
+	JSClassCreator newUnitTest(UnitTestCase ut);
 	JSClassCreator newSystemTest(SystemTest st);
 
 	void ensurePackageExists(String filePkg, String pkg);

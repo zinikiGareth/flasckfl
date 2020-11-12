@@ -31,7 +31,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class BasicJVMCreationContext implements JVMCreationContext {
 	private final ByteCodeSink bcc;
 	private final NewMethodDefiner md;
-	private final Var runner;
+	private final IExpr runner;
 	private Var cxt;
 	private final Var args;
 	private final Map<JSExpr, Var> vars = new HashMap<>();
@@ -59,7 +59,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		cxt = c1.getVar();
 		args = null;
 		this.runner = r1.getVar();
-		vars.put(as.get(0), this.runner);
+		vars.put(as.get(0), (Var) this.runner);
 		md.lenientMode(true);
 	}
 
@@ -106,8 +106,8 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 
 	// class member
-	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean wantArgumentList, List<JSVar> as, String returnsA) {
-		this(figureMemberClassThings(bce, clzName, name, fnName, returnsA), wantArgumentList, as);
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean wantArgumentList, List<JSVar> as, JSExpr runner, String returnsA) {
+		this(figureMemberClassThings(bce, clzName, name, fnName, returnsA), wantArgumentList, as, runner);
 	}
 
 	private static MethodCxt figureMemberClassThings(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, String returnsA) {
@@ -124,8 +124,8 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 	
 	// "static" function
-	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean wantArgumentList, List<JSVar> as) {
-		this(figureStaticClassThings(bce, fnName, clzName, name, as.size()-1), wantArgumentList, as);
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean wantArgumentList, List<JSVar> as, JSExpr runner) {
+		this(figureStaticClassThings(bce, fnName, clzName, name, as.size()-1), wantArgumentList, as, runner);
 	}
 
 	private static MethodCxt figureStaticClassThings(ByteCodeEnvironment bce, NameOfThing fnName, NameOfThing clzName, String name, int nfargs) {
@@ -143,7 +143,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 
 	// common to anything that is in a class (static or member)
-	private BasicJVMCreationContext(MethodCxt mc, boolean wantArgumentList, List<JSVar> as) {
+	private BasicJVMCreationContext(MethodCxt mc, boolean wantArgumentList, List<JSVar> as, JSExpr runner) {
 		this.bcc = mc.bcc;
 		isCtor = false;
 		PendingVar c1 = null;
@@ -175,12 +175,16 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 				vars.put(e.getKey(), e.getValue().getVar());
 			}
 		}
-		this.runner = null;
+		if (runner != null)
+			this.runner = md.getField("_runner"); 
+		else
+			this.runner = null;
+//		this.runner = runner;
 		md.lenientMode(true);
 	}
 
 	// split for if true/false blocks
-	private BasicJVMCreationContext(ByteCodeSink bcc, NewMethodDefiner md, Var runner, Var cxt, Var args) {
+	private BasicJVMCreationContext(ByteCodeSink bcc, NewMethodDefiner md, IExpr runner, Var cxt, Var args) {
 		this.bcc = bcc;
 		isCtor = false;
 		this.md = md;

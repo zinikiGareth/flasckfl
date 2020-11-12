@@ -131,7 +131,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private boolean currentContractIsHandler;
 	private boolean testServices;
 	private UnitTestName testName;
-	private AtomicInteger stepNum;
+	private final List<JSExpr> utsteps = new ArrayList<>();
+	private JSClassCreator utclz;
 
 	public JSGenerator(RepositoryReader repository, JSStorage jse, StackVisitor sv, Map<EventHolder, EventTargetZones> eventMap) {
 		this.repository = repository;
@@ -814,7 +815,20 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		if (currentOA != null)
 			throw new NotImplementedException("I don't think you can nest a unit test in an accessor");
 		NameOfThing pkg = clzName.container();
-		this.meth = jse.newFunction(clzName, pkg.jsName(), pkg, false, clzName.baseName());
+		jse.ensurePackageExists(pkg.jsName(), e.name.container().jsName());
+		this.utclz = jse.newUnitTest(e);
+		utclz.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");
+		JSMethodCreator ctor = utclz.constructor();
+		this.runner = ctor.argument(J.TESTHELPER, "runner");
+		ctor.setField(false, "_runner", runner);
+//		ctor.initContext(false);
+//		ctor.clear();
+		ctor.returnVoid();
+		this.meth = utclz.createMethod("dotest", true);
+		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
+		meth.returnsType(List.class.getName());
+		this.runner = meth.field("_runner");
+		this.meth.helper(runner);
 		this.testServices = true;
 		this.testName = clzName;
 		if (involvesServices(e)) {
@@ -822,9 +836,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.testServices = false;
 		}
 		this.block = meth;
-		runner = meth.argument("runner");
-		meth.clear();
-		meth.initContext(false);
+//		meth.clear();
+//		meth.initContext(false);
 		this.state = new JSFunctionStateStore(meth);
 		this.state.container(new PackageName("_DisplayUpdater"), runner);
 		explodingMocks.clear();
@@ -838,7 +851,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			if (!(udd.ofType.defn() instanceof ContractDecl))
 				visitUnitDataDeclaration(udd);
 		}
-		stepNum = new AtomicInteger(0);
+		utsteps.clear();
+
 	}
 
 	private boolean involvesServices(TestStepHolder e) {
@@ -861,8 +875,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void visitUnitTestStep(UnitTestStep s) {
-		System.out.println("visiting a step");
-		new UnitTestStepGenerator(sv, jse, null, meth, state, this.block, this.runner, globalMocks, explodingMocks, testServices, testName, stepNum .incrementAndGet());
+		UnitTestStepGenerator sg = new UnitTestStepGenerator(sv, jse, utclz, meth, state, this.block, this.runner, globalMocks, explodingMocks, testServices, testName, utsteps.size()+1);
+		utsteps.add(meth.string(sg.name()));
 	}
 
 	@Override
@@ -870,7 +884,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (JSExpr m : explodingMocks) {
 			meth.assertSatisfied(m);
 		}
-		meth.testComplete();
+		// but we need the runner to call this itself
+//		meth.testComplete();
+		state.meth().returnObject(state.meth().makeArray(utsteps));
 		meth = null;
 		state = null;
 	}

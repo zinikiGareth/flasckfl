@@ -36,6 +36,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	private boolean hasHandler;
 	private boolean genJS = true;
 	private boolean genJVM = true;
+	private JSExpr runner = null;
 
 	public JSMethod(JSStorage jse, NameOfThing fnName, NameOfThing pkg, boolean prototype, String name) {
 		this.jse = jse;
@@ -99,6 +100,11 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	@Override
 	public void returnsType(String ty) {
 		this.returnsA = ty;
+	}
+
+	@Override
+	public void helper(JSExpr runner) {
+		this.runner = runner;
 	}
 
 	@Override
@@ -201,9 +207,9 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 			else if (fnName == null && name == null)
 				jvm = new BasicJVMCreationContext(bce, clzName, args, superArgs);
 			else if (this.prototype)
-				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args, returnsA);
+				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args, runner, returnsA);
 			else
-				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args);
+				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args, runner);
 			if (!isInterface) {
 				super.generate(jvm);
 				jvm.done(this);

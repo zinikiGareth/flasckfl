@@ -16,20 +16,21 @@ import org.zinutils.exceptions.NotImplementedException;
 public class JSFunctionStateStore implements JSFunctionState {
 	public final Map<UnitDataDeclaration, JSExpr> mocks;
 	public final Map<IntroduceVar, JSExpr> introductions;
-	private final Map<NameOfThing, JSExpr> containers = new HashMap<>();
+	private final Map<NameOfThing, JSExpr> containers;
 	private Map<String, JSExpr> templateObj;
 	private final JSMethodCreator meth;
 	private JSExpr ocret;
 	private JSExpr ocmsgs;
 
 	public JSFunctionStateStore(JSMethodCreator meth) {
-		this(meth, new TreeMap<>(), new TreeMap<>(IntroduceVar.comparator));
+		this(meth, new TreeMap<>(), new TreeMap<>(IntroduceVar.comparator), new HashMap<>());
 	}
 
-	public JSFunctionStateStore(JSMethodCreator meth, Map<UnitDataDeclaration, JSExpr> mocks, Map<IntroduceVar, JSExpr> introductions) {
+	public JSFunctionStateStore(JSMethodCreator meth, Map<UnitDataDeclaration, JSExpr> mocks, Map<IntroduceVar, JSExpr> introductions, Map<NameOfThing, JSExpr> containers) {
 		this.meth = meth;
 		this.mocks = mocks;
 		this.introductions = introductions;
+		this.containers = containers;
 	}
 
 	@Override
@@ -45,6 +46,11 @@ public class JSFunctionStateStore implements JSFunctionState {
 	@Override
 	public Map<IntroduceVar, JSExpr> introductions() {
 		return introductions;
+	}
+
+	@Override
+	public Map<NameOfThing, JSExpr> containers() {
+		return containers;
 	}
 
 	@Override

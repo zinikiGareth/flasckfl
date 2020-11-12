@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ public class SystemTestGenerator extends LeafAdapter {
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private final Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
 	private final Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
+	private final Map<NameOfThing, JSExpr> containers = new HashMap<>();
 	private final List<JSExpr> steps = new ArrayList<>();
 	private SystemTestName stageName;
 	
@@ -70,7 +72,7 @@ public class SystemTestGenerator extends LeafAdapter {
 		this.stageName = s.name;
 		this.meth = clz.createMethod(s.name.baseName(), true);
 		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
-		state = new JSFunctionStateStore(meth, this.mocks, this.introductions);
+		state = new JSFunctionStateStore(meth, this.mocks, this.introductions, this.containers);
 		meth.returnsType(List.class.getName());
 		this.runner = meth.field("_runner");
 //		meth.initContext(true);

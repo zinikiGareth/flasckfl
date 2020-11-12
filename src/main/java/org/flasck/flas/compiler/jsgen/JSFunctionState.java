@@ -24,4 +24,5 @@ public interface JSFunctionState {
 	public JSExpr ocret();
 	public JSExpr ocmsgs();
 	public Map<IntroduceVar, JSExpr> introductions();
+	public Map<NameOfThing, JSExpr> containers();
 }
