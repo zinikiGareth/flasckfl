@@ -6,6 +6,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.flasck.jvm.fl.FlasTestException;
+
 import io.webfolder.ui4j.api.browser.Page;
 import io.webfolder.ui4j.api.util.Ui4jException;
 import javafx.application.Platform;
@@ -16,23 +18,23 @@ public class SingleJSTest {
 	private final Page page;
 	private final List<String> errors;
 	private final TestResultWriter pw;
-	private final JSTestState state;
+	final JSTestState state;
 	private final String clz;
 	private boolean error;
 	private JSObject cxt;
 	private JSObject testObj;
 
-	public SingleJSTest(Page page, List<String> errors, TestResultWriter pw, JSTestState state, String clz, String desc) {
+	public SingleJSTest(Page page, List<String> errors, TestResultWriter pw, String clz, String desc) {
 		this.page = page;
 		this.errors = errors;
 		this.pw = pw;
-		this.state = state;
+		this.state = new JSTestState(this);
 		this.clz = clz;
 	}
 
 	public void create(String desc) {
 		uiThread(desc, cdl -> {
-			cxt = (JSObject) page.executeScript("window.runner = new window.UTRunner(window.JavaLogger); window.testcxt = window.runner.newContext();;");
+			cxt = (JSObject) page.executeScript("window.runner = new window.UTRunner(window.JavaLogger); window.testcxt = window.runner.newContext();");
 			testObj = (JSObject) page.executeScript("new " + clz + "(window.runner, window.testcxt)");
 			page.executeScript("window.runner.clear();");
 			cdl.countDown();
@@ -64,10 +66,10 @@ public class SingleJSTest {
 		uiThread(desc, cdl -> {
 			try {
 				testObj.call(s, cxt);
-				cdl.countDown();
 			} catch (Throwable t) {
 				excs.add(t);
 			}
+			cdl.countDown();
 		});
 		if (!excs.isEmpty()) {
 			Throwable t = excs.get(0);
@@ -77,28 +79,33 @@ public class SingleJSTest {
 				t = t.getCause();
 			if (t instanceof JSException) {
 				JSException ex = (JSException) t;
-				String jsex = ex.getMessage();
-				if (jsex.startsWith("Error: NSV\n")) {
-					pw.fail("JS", desc);
-					errors.add("JS FAIL " + desc);
-					pw.println(jsex.substring(jsex.indexOf('\n')+1));
+				if (ex.getCause() instanceof FlasTestException) {
+					JVMRunner.handleError("JS", errors, pw, null, desc, ex.getCause());
 					return;
-				} else if (jsex.startsWith("Error: EXP\n")) {
-					pw.fail("JS", desc);
-					errors.add("JS FAIL " + desc);
-					pw.println(jsex.substring(jsex.indexOf('\n')+1));
-					return;
-				} else if (jsex.startsWith("Error: MATCH\n")) {
-					pw.fail("JS", desc);
-					errors.add("JS FAIL " + desc);
-					pw.println(jsex.substring(jsex.indexOf('\n')+1));
-					return;
-				} else if (jsex.startsWith("Error: NEWDIV\n")) {
-					pw.fail("JS", desc);
-					errors.add("JS FAIL " + desc);
-					pw.println("incorrect number of divs created");
-					pw.println(jsex.substring(jsex.indexOf('\n')+1));
-					return;
+				} else {
+					String jsex = ex.getMessage();
+					if (jsex.startsWith("Error: NSV\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
+					} else if (jsex.startsWith("Error: EXP\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
+					} else if (jsex.startsWith("Error: MATCH\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
+					} else if (jsex.startsWith("Error: NEWDIV\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println("incorrect number of divs created");
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
+					}
 				}
 			}
 			pw.error("JS", desc, t);

@@ -17,12 +17,17 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.testrunner.CommonTestRunner.CommonState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
 
-public abstract class CommonTestRunner<T> {
+public abstract class CommonTestRunner<T extends CommonState> {
+	public static class CommonState {
+		int failed;
+	}
+
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
 	protected final Configuration config;
 	protected final String compiledPkg;

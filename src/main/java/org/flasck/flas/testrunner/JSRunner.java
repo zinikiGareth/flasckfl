@@ -158,7 +158,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		String clz = utc.name.jsName();
 		String desc = utc.description;
 		
-		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, desc);
+		SingleJSTest t1 = new SingleJSTest(page, errors, pw, clz, desc);
 		t1.create(desc);
 		String name = "dotest";
 		runSteps(pw, desc, t1, name);
@@ -167,6 +167,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	private void runSteps(TestResultWriter pw, String desc, SingleJSTest t1, String name) {
 		List<String> steps = t1.getSteps(desc, name);
 		for (String s : steps) {
+			if (t1.state != null && t1.state.failed > 0)
+				break;
 			counter.set(1);
 			System.out.println("starting count at " + counter);
 			t1.step(desc, s);
@@ -194,9 +196,9 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	protected JSTestState createSystemTest(TestResultWriter pw, SystemTest st) {
 		String clz = st.name().jsName();
 		pw.println("JS running system test " + st.name().uniqueName());
-		SingleJSTest t1 = new SingleJSTest(page, errors, pw, null, clz, null);
+		SingleJSTest t1 = new SingleJSTest(page, errors, pw, clz, null);
 		t1.create(null);
-		return new JSTestState(t1);
+		return t1.state;
 	}
 	
 	@Override

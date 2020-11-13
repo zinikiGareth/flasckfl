@@ -14,10 +14,12 @@ import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.testrunner.CommonTestRunner.CommonState;
 import org.flasck.flas.testrunner.JVMRunner.State;
 import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.fl.AssertFailed;
 import org.flasck.jvm.fl.ClientContext;
+import org.flasck.jvm.fl.FlasTestException;
 import org.flasck.jvm.fl.JVMTestHelper;
 import org.flasck.jvm.fl.NewDivException;
 import org.flasck.jvm.fl.NotMatched;
@@ -30,11 +32,10 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		T2 apply(T1 in) throws Throwable;
 	}
 
-	public class State {
+	public class State extends CommonState {
 		private final Class<?> clz;
 		private final Object inst;
 		private final ClientContext cxt;
-		private int failed = 0;
 
 		public State(JVMTestHelper helper, Class<?> clz, Object inst, ClientContext cxt) {
 			this.clz = clz;
@@ -131,40 +132,40 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			if (desc != null)
 				pw.pass("JVM", desc);
 		} catch (Throwable t) {
-			handleError(pw, state, desc, t);
+			handleError("JVM", errors, pw, state, desc, t);
 		}
 	}
 
-	public void handleError(TestResultWriter pw, State state, String desc, Throwable ex) {
+	public static void handleError(String code, List<String> errors, TestResultWriter pw, CommonState state, String desc, Throwable ex) {
 		if (state != null)
 			state.failed++;
-		if (ex instanceof WrappedException || ex instanceof InvocationTargetException) {
+		if (ex instanceof WrappedException || ex instanceof InvocationTargetException || ex instanceof FlasTestException) {
 			Throwable e2 = WrappedException.unwrapThrowable(ex);
 			if (e2 instanceof AssertFailed) {
 				AssertFailed af = (AssertFailed) e2;
-				pw.fail("JVM", desc);
-				errors.add("JVM FAIL " + desc);
+				pw.fail(code, desc);
+				errors.add(code + " FAIL " + desc);
 				pw.println("  expected: " + valueOf(af.expected));
 				pw.println("  actual:   " + valueOf(af.actual));
 			} else if (e2 instanceof NotMatched) {
-				pw.fail("JVM", desc);
-				errors.add("JVM FAIL " + desc);
+				pw.fail(code, desc);
+				errors.add(code + " FAIL " + desc);
 				pw.println("  " + e2.getMessage());
 			} else if (e2 instanceof NewDivException) {
-				pw.fail("JVM", desc);
-				errors.add("JVM FAIL " + desc);
+				pw.fail(code, desc);
+				errors.add(code + " FAIL " + desc);
 				pw.println("  " + e2.getMessage());
 			} else {
-				pw.error("JVM", desc, e2);
-				errors.add("JVM ERROR " + desc);
-				pw.println("JVM ERROR " + desc);
+				pw.error(code, desc, e2);
+				errors.add(code + " ERROR " + desc);
+				pw.println(code + " ERROR " + desc);
 			}
 		} else {
-			pw.error("JVM", desc, ex);
+			pw.error(code, desc, ex);
 		}
 	}
 
-	private Object valueOf(Object val) {
+	private static Object valueOf(Object val) {
 		if (val instanceof Double) {
 			double d = (double) val;
 			long k = (long) d;
