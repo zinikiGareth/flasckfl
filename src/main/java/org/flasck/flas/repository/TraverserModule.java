@@ -4,6 +4,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 
 public interface TraverserModule {
 
-	boolean visitUnitTestStep(RepositoryVisitor visitor, UnitTestStep s);
+	boolean visitUnitTestStep(Traverser traverser, RepositoryVisitor visitor, UnitTestStep s);
 
 }

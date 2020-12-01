@@ -268,7 +268,6 @@ UTRunner.prototype.deliver = function(json) {
 
 	window.UTRunner = UTRunner;
 
-
 const BoundVar = function() {
 }
 

@@ -1835,7 +1835,7 @@ public class Traverser implements RepositoryVisitor {
 		else if (modules != null) {
 			boolean done = false;
 			for (TraverserModule m : modules) {
-				if (done = m.visitUnitTestStep(visitor, s))
+				if (done = m.visitUnitTestStep(this, visitor, s))
 					break;
 			}
 			if (!done)

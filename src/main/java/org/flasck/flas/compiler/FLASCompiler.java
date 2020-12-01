@@ -155,6 +155,7 @@ public class FLASCompiler implements CompileUnit {
 			errors.message((InputPosition) null, "there is no input directory " + dir);
 			return;
 		}
+		
 
 		String inPkg = dir.getName();
 		checkPackageName(inPkg);
@@ -162,12 +163,14 @@ public class FLASCompiler implements CompileUnit {
 		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository, modules);
 		List<File> files = FileUtils.findFilesMatching(dir, "*.fl");
 		files.sort(new FileNameComparator());
+		logger.info("parsing fl");
 		for (File f : files) {
 			System.out.println("    " + f.getName());
 			flp.process(f);
 		}
 		List<File> utfiles = FileUtils.findFilesMatching(dir, "*.ut");
 		utfiles.sort(new FileNameComparator());
+		logger.info("parsing ut");
 		for (File f : utfiles) {
 			System.out.println("    " + f.getName());
 			String file = FileUtils.dropExtension(f.getName());
@@ -180,12 +183,14 @@ public class FLASCompiler implements CompileUnit {
 		List<File> fafiles = FileUtils.findFilesMatching(dir, "*.fa");
 		fafiles.sort(new FileNameComparator());
 		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
+		logger.info("parsing fa");
 		for (File f : fafiles) {
 			System.out.println("    " + f.getName());
 			fap.process(f);
 		}
 		List<File> stfiles = FileUtils.findFilesMatching(dir, "*.st");
 		stfiles.sort(new FileNameComparator());
+		logger.info("parsing st");
 		for (File f : stfiles) {
 			System.out.println("    " + f.getName());
 			String file = FileUtils.dropExtension(f.getName());
@@ -285,15 +290,19 @@ public class FLASCompiler implements CompileUnit {
 		if (config.upto() == PhaseTo.PARSING)
 			return false;
 
+		logger.info("resolving");
 		if (resolve())
 			return true;
 
+		logger.info("lifting");
 		FunctionGroups ordering = lift();
+		logger.info("analyzing patterns");
 		analyzePatterns();
 		if (errors.hasErrors())
 			return true;
 
 		if (config.doTypeCheck) {
+			logger.info("typechecking");
 			doTypeChecking(ordering);
 			if (errors.hasErrors())
 				return true;
@@ -307,9 +316,11 @@ public class FLASCompiler implements CompileUnit {
 				return true;
 		}
 
+		logger.info("converting methods");
 		if (convertMethods())
 			return true;
 
+		logger.info("building event maps");
 		if (buildEventMaps())
 			return true;
 
@@ -340,14 +351,17 @@ public class FLASCompiler implements CompileUnit {
 			}
 		}
 
+		logger.info("generating code");
 		if (generateCode(config, pkgs))
 			return true;
 
 		Map<File, TestResultWriter> testWriters = new HashMap<>();
 		try {
+			logger.info("running unit tests");
 			if (runUnitTests(config, testWriters))
 				return true;
 
+			logger.info("running system tests");
 			if (runSystemTests(config, testWriters))
 				return true;
 		} finally {
