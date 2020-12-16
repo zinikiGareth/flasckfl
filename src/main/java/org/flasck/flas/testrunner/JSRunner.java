@@ -39,7 +39,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		}
 		
 		public void log(String s) {
-			System.out.println(s);
 			logger.info(s);
 		}
 		
@@ -64,7 +63,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		}
 
 		public void sendJson(String json) {
-			System.out.println("sending " + json + " with " + counter);
 			if (Platform.isFxApplicationThread()) {
 				doSend(json);
 			} else {
@@ -81,15 +79,13 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		}
 		
 		public void lock() {
-			int cnt = counter.incrementAndGet();
-			System.out.println("locked; counter = " + cnt);
+			counter.incrementAndGet();
 		}
 		
 		public void unlock() {
 			synchronized (counter) {
 				if (counter.decrementAndGet() == 0)
 					counter.notify();
-				System.out.println("unlock counted down to " + counter.get());
 			}
 		}
 
@@ -169,13 +165,10 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			if (t1.state != null && t1.state.failed > 0)
 				break;
 			counter.set(1);
-			System.out.println("starting count at " + counter);
 			t1.step(desc, s);
-			int cnt = counter.decrementAndGet();
-			System.out.println("step complete: counted down to " + cnt);
+			counter.decrementAndGet();
 			synchronized (counter) {
 				try {
-					System.out.println("after method complete, have counter at " + counter.get());
 					if (counter.get() != 0)
 						counter.wait(5000);
 					if (counter.get() != 0)

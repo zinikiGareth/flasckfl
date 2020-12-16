@@ -61,7 +61,6 @@ public class SingleJSTest {
 	public void step(String desc, String s) {
 		if (error)
 			return;
-		System.out.println("running js step " + s);
 		List<Throwable> excs = new ArrayList<>();
 		uiThread(desc, cdl -> {
 			try {

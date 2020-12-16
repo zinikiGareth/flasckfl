@@ -118,7 +118,6 @@ public class JVMRunner extends CommonTestRunner<State>  {
 				Reflection.call(test, s, cxt);
 				synchronized (counter) {
 					counter.decrementAndGet();
-					System.out.println("after method complete, have counter at " + counter.get());
 					while (counter.get() != 0 || !cxt.getDispatcher().isDone()) {
 						if (counter.get() != 0)
 							counter.wait(5000);
