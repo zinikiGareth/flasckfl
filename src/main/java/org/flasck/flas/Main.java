@@ -124,5 +124,15 @@ public class Main {
 		StaticLoggerBinder.setLevel("TxManagerThreading", Level.WARN);
 		StaticLoggerBinder.setLevel("awstxstore", Level.WARN);
 		StaticLoggerBinder.setLevel("org.ziniki.awstxstore", Level.WARN);
+		
+		StaticLoggerBinder.setLevel("ZiWSH", Level.WARN);
+		StaticLoggerBinder.setLevel("Ziniki", Level.WARN);
+		StaticLoggerBinder.setLevel("ZinikiTI", Level.WARN);
+		StaticLoggerBinder.setLevel("IMUnitOfWork", Level.WARN);
+		StaticLoggerBinder.setLevel("BrokerDelegate", Level.WARN);
+		StaticLoggerBinder.setLevel("BTResponder", Level.WARN);
+		StaticLoggerBinder.setLevel("ZinDelivery", Level.WARN);
+		StaticLoggerBinder.setLevel("DoGet", Level.WARN);
+		
 	}
 }
