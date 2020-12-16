@@ -248,10 +248,12 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 				renderTemplate(pw, e.getKey(), e.getValue());
 
 			List<String> inlib = new ArrayList<>();
-			List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
-			for (File f : library) {
-				includeFileAsScript(pw, f, testDirJS);
-				inlib.add(f.getName());
+			if (config.flascklib != null) {
+				List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
+				for (File f : library) {
+					includeFileAsScript(pw, f, testDirJS);
+					inlib.add(f.getName());
+				}
 			}
 			for (File mld : config.modules) {
 				List<File> l = FileUtils.findFilesMatching(mld, "*");
