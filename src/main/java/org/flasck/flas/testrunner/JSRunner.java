@@ -2,10 +2,8 @@ package org.flasck.flas.testrunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +23,7 @@ import org.flasck.flas.repository.Repository;
 import org.ziniki.ziwsh.intf.JsonSender;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
+import org.zinutils.reflection.Reflection;
 import org.zinutils.utils.FileUtils;
 
 import io.webfolder.ui4j.api.browser.BrowserEngine;
@@ -48,10 +47,10 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			try {
 				Class<?> clz = Class.forName(s);
 				if (!modules.containsKey(clz)) {
-					modules.put(clz, clz.getConstructor(JSJavaBridge.class, ClassLoader.class).newInstance(this, classloader));
+					modules.put(clz, Reflection.callStatic(clz, "createJS", this, classloader));
 				}
 				return modules.get(clz);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+			} catch (IllegalArgumentException | ClassNotFoundException e) {
 				throw WrappedException.wrap(e);
 			}
 		}
@@ -248,10 +247,20 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			for (Entry<String, String> e : templates.entrySet())
 				renderTemplate(pw, e.getKey(), e.getValue());
 
-			// probably wants to be config :-)
-			List<String> flascklib = Arrays.asList("javalogger.js", "ziwsh.js", "flas-runtime.js", "flas-container.js", "flas-unittest.js");
-			for (String s : flascklib)
-				copyResourceIntoScript(pw, s, testDirJS);
+			List<String> inlib = new ArrayList<>();
+			List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
+			for (File f : library) {
+				includeFileAsScript(pw, f, testDirJS);
+				inlib.add(f.getName());
+			}
+			for (File mld : config.modules) {
+				List<File> l = FileUtils.findFilesMatching(mld, "*");
+				for (File f : l) {
+					includeFileAsScript(pw, f, testDirJS);
+					inlib.add(f.getName());
+				}
+			}
+
 			for (String s : jse.packages()) {
 				File f = jse.fileFor(s);
 				if (f != null)
@@ -259,7 +268,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 				else {
 					for (File q : config.includeFrom) {
 						for (File i : FileUtils.findFilesMatching(q, s + ".js")) {
-							if (!flascklib.contains(i.getName()))
+							if (!inlib.contains(i.getName()))
 								includeFileAsScript(pw, i, testDirJS);
 						}
 					}
@@ -275,17 +284,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);
 		}
-	}
-
-	private void copyResourceIntoScript(PrintWriter pw, String resource, String testDir) {
-		File to = new File(testDir, resource);
-		InputStream is = this.getClass().getResourceAsStream("/flasck/" + resource);
-		if (is == null) {
-			errors.add("Could not copy resource " + resource);
-			return;
-		}
-		FileUtils.copyStreamToFile(is, to);
-		pw.println("<script src='file:" + to.getPath() + "' type='text/javascript'></script>");
 	}
 
 	private void renderTemplate(PrintWriter pw, String name, String template) {

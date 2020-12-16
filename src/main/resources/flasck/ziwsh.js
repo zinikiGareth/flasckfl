@@ -46,6 +46,8 @@ JsonBeachhead.prototype.invoke = function(uow, jo, replyTo) {
 JsonBeachhead.prototype.handleArg = function(ux, o) {
     if (typeof(o) === 'string')
         ux.string(o);
+    else if (typeof(o) === 'number')
+        ux.number(o);
     else if (o._cycle) {
         ux.handleCycle(o._cycle);
     } else if (o._wireable) {
@@ -54,7 +56,7 @@ JsonBeachhead.prototype.handleArg = function(ux, o) {
         const fm = ux.beginFields(o._clz);
         ux.unpack(fm.collectingAs());
         const ks = Object.keys(o);
-        for (var k in ks) {
+        for (var k=0;k<ks.length;k++) {
             fm.field(ks[k]);
             this.handleArg(fm, o[ks[k]]);
         }

@@ -9,10 +9,22 @@ const UTRunner = function(bridge) {
 	this.activeSubscribers = [];
 	if (typeof(window) !== 'undefined')
 		window.utrunner = this;
+	this.moduleInstances = {};
+	for (var mn in UTRunner.modules) {
+		if (UTRunner.modules.hasOwnProperty(mn)) {
+			var jm;
+			if (window.callJava && window.callJava.module) {
+				jm = window.callJava.module(mn);
+			}
+			this.moduleInstances[mn] = new UTRunner.modules[mn](this, jm);
+		}
+	}
 }
 
 UTRunner.prototype = new CommonEnv();
 UTRunner.prototype.constructor = UTRunner;
+
+UTRunner.modules = {};
 
 UTRunner.prototype.makeReady = function() {
 	CommonEnv.prototype.makeReady.call(this);
@@ -245,12 +257,10 @@ UTRunner.prototype.updateAllCards = function(_cxt) {
 	}
 }
 UTRunner.prototype.module = function(mod) {
-	if (window.callJava && window.callJava.module) {
-		return window.callJava.module(mod);
-	} else {
-		this.logger.log("module architecture not supported for " + mod);
-		return null;
-	}
+	var m = this.moduleInstances[mod];
+	if (!m)
+		throw new Error("There is no module " + mod);
+	return m;
 }
 UTRunner.prototype.transport = function(tz) {
 	// we have a transport to Ziniki

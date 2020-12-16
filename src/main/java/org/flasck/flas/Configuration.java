@@ -36,6 +36,7 @@ public class Configuration {
 	public String flascklib; // needs a default relative to me
 	public boolean openHTML;
 	public final List<File> includeFrom = new ArrayList<File>();
+	public final List<File> modules = new ArrayList<>();
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;
@@ -68,10 +69,16 @@ public class Configuration {
 					++i;
 				} else if (arg.equals("--flascklib")) {
 					if (hasMore == 0) {
-						System.out.println("--errors <dir>");
+						System.out.println("--flascklib <dir>");
 						System.exit(1);
 					}
 					this.flascklib = args[++i]; // definitely NOT under root 
+				} else if (arg.equals("--modulelib")) {
+					if (hasMore == 0) {
+						System.out.println("--modulelib <dir>");
+						System.exit(1);
+					}
+					this.modules.add(new File(args[++i])); // definitely NOT under root 
 				} else if (arg.equals("--phase"))
 					upto = PhaseTo.valueOf(args[++i]);
 				else if (arg.equals("--dumprepo"))

@@ -389,6 +389,12 @@ public class FLASCompiler implements CompileUnit {
 				for (File f : library) {
 					FileUtils.copy(f, fldir);
 				}
+				for (File mld : config.modules) {
+					List<File> l = FileUtils.findFilesMatching(mld, "*");
+					for (File f : l) {
+						FileUtils.copy(f, fldir);
+					}
+				}
 				FLASAssembler asm = new FLASAssembler(fos, "flascklib");
 				if (!config.includeFrom.isEmpty()) {
 					File incdir = new File("includes/js");
