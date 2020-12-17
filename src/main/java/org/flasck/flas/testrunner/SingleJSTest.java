@@ -108,7 +108,7 @@ public class SingleJSTest {
 				}
 			}
 			pw.error("JS", desc, t);
-			errors.add("JS ERROR " + desc);
+			errors.add("JS ERROR " + (desc == null ? "configure":desc));
 		}
 	}
 	

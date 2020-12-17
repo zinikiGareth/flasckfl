@@ -172,6 +172,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File flimstore = new File(s, "flimstore");
 		final File flimstoreTo = new File(s, "flimstore-tmp");
 		final File flimfrom = new File(s, "flim-imports");
+		final File incldirs = new File(s, "incl");
+		final File modules = new File(s, "modules");
 		FileUtils.cleanDirectory(actualErrors);
 		FileUtils.cleanDirectory(tr);
 		FileUtils.assertDirectory(actualErrors);
@@ -218,10 +220,24 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		}
 		if (flimfrom.exists()) {
 			for (String ff : FileUtils.readFileAsLines(flimfrom)) {
+				if (ff.startsWith("."))
+					continue;
 				args.add("--incl");
 				args.add("src/golden/" + ff + "/jsout");
 				args.add("--incl");
 				args.add("src/golden/" + ff + "/jvmout");
+			}
+		}
+		if (incldirs.exists()) {
+			for (String fi : FileUtils.readFileAsLines(incldirs)) {
+				args.add("--incl");
+				args.add(fi);
+			}
+		}
+		if (modules.exists()) {
+			for (String fi : FileUtils.readFileAsLines(modules)) {
+				args.add("--modulelib");
+				args.add(fi);
 			}
 		}
 		if (interceptor != null)
@@ -259,15 +275,23 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(flimfrom))) {
 			String s;
 			while ((s = lnr.readLine()) != null) {
-				File f = new File("src/golden", s);
+				File f;
+				if (s.startsWith("."))
+					f = new File(s);
+				else
+					f = new File("src/golden", s);
 				if (!f.isDirectory())
-					throw new RuntimeException("No golden test " + s);
+					throw new RuntimeException("No FLIM directory " + s + " in golden test");
 				File g = new File(f, "flimstore");
 				if (!g.isDirectory())
-					throw new RuntimeException("Test " + s + " does not provide a flimstore");
-				for (File z : FileUtils.findFilesMatching(g, "*")) {
+					g = f;
+				boolean any = false;
+				for (File z : FileUtils.findFilesMatching(g, "*.flim")) {
 					FileUtils.copy(z, flimstoreTo);
+					any = true;
 				}
+				if (!any)
+					throw new RuntimeException("No .flim files found in " + g);
 			}
 		}
 	}

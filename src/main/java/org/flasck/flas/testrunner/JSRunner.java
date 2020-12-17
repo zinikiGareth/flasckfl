@@ -175,7 +175,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 						throw new TimeoutException();
 				} catch (Throwable t) {
 					pw.error("JS", desc, t);
-					errors.add("JS ERROR " + desc);
+					errors.add("JS ERROR " + (desc == null ? "configure":desc));
 					break;
 				}
 			}

@@ -40,6 +40,8 @@ public class TestResultWriter {
 	}
 
 	public void error(String which, String description, Throwable t) {
+		if (description == null)
+			description = "configure";
 		pw.println(which + " ERROR " + description);
 		t.printStackTrace(pw);
 		pw.flush();

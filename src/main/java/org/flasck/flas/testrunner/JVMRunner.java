@@ -136,6 +136,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	}
 
 	public static void handleError(String code, List<String> errors, TestResultWriter pw, CommonState state, String desc, Throwable ex) {
+		if (desc == null)
+			desc = "configure";
 		if (state != null)
 			state.failed++;
 		if (ex instanceof WrappedException || ex instanceof InvocationTargetException || ex instanceof FlasTestException) {
