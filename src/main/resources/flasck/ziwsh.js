@@ -67,14 +67,16 @@ JsonBeachhead.prototype.handleArg = function(ux, o) {
 JsonBeachhead.prototype.idem = function(uow, jo, replyTo) {
     const ih = this.broker.currentIdem(jo.idem);
     const um = new UnmarshalTraverser(uow, new CollectingState());
-    const om = new ObjectMarshaller(uow, um);
+    // const om = new ObjectMarshaller(uow, um);
     for (var i=0;i<jo.args.length-1;i++) {
-        om.marshal(jo.args[i]);
+        this.handleArg(um, jo.args[i]);
+        // om.marshal(jo.args[i]);
     }
     if (jo.method == "success")
         ;
     else if (jo.method == "failure")
-        om.marshal(jo.args[0]);
+        this.handleArg(um, jo.args[0]);
+        // om.marshal(jo.args[0]);
     else
         um.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
     uow.log("have args for", jo.method, "as", um.ret);
@@ -412,7 +414,7 @@ ObjectMarshaller.prototype.marshal = function(o) {
 }
 
 ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
-    // this.logger.log("marshal " + o + " " + (typeof o));
+    this.logger.log("marshal " + o + " " + (typeof o));
     if (ux.handleCycle(o))
         ;
     else if (typeof o === "string")
@@ -433,9 +435,14 @@ ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
         } else if (o._towire) {
             ux.wireable(o);
         } else {
-            this.logger.log("o =", o);
+            this.logger.log("o =", JSON.stringify(o));
             this.logger.log("o.state = ", o.state);
-            throw Error("cannot handle object with constructor " + o.constructor.name);
+            try {
+                throw Error("cannot handle object with constructor " + o.constructor.name);
+            } catch (e) {
+                this.logger.log(e.stack);
+                throw e;
+            }
         }
     } else {
         this.logger.log("typeof o =", typeof o);

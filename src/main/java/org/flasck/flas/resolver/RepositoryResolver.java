@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.AccessRestrictions;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
@@ -385,6 +386,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			return;
 		
 		Expr from = expr.from;
+		UnresolvedVar fld = (UnresolvedVar) expr.fld;
 		RepositoryEntry defn;
 		if (from instanceof MemberExpr) {
 			defn = expr.defn();
@@ -403,9 +405,15 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		} else if (expr.from instanceof ApplyExpr) {
 			// this is hard to say the least ...
 			return;
+		} else if (expr.from instanceof CastExpr) {
+			CastExpr ce = (CastExpr) expr.from;
+			NamedType nt = ce.type.defn();
+			if (nt == null) // some kind of error
+				return;
+			processMemberOfType(expr, nt, fld.var);
+			return;
 		} else
 			throw new NotImplementedException("cannot handle elt " + expr.from.getClass());
-		UnresolvedVar fld = (UnresolvedVar) expr.fld;
 		if (defn instanceof ObjectDefn) {
 			ObjectDefn od = (ObjectDefn) defn;
 			ObjectCtor ctor = od.getConstructor(fld.var);

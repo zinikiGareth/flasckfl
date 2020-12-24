@@ -59,7 +59,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
 		String desc = utc.description;
 		try {
-			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors, counter);
+			JVMTestHelper helper = new JVMTestHelper(loader, config.root, templates, runtimeErrors, counter);
 			ClientContext cxt = (ClientContext) helper.create();
 			helper.clearBody(cxt);
 			Object test = Class.forName(utc.name.javaName(), false, loader).getConstructor(TestHelper.class, FLEvalContext.class).newInstance(helper, cxt);
@@ -76,7 +76,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	protected State createSystemTest(TestResultWriter pw, SystemTest st) {
 		pw.println("JVM running system test " + st.name().uniqueName());
 		try {
-			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors, counter);
+			JVMTestHelper helper = new JVMTestHelper(loader, config.root, templates, runtimeErrors, counter);
 			ClientContext cxt = (ClientContext) helper.create();
 			helper.clearBody(cxt);
 			Class<?> clz = Class.forName(st.name().javaName(), false, loader);
@@ -91,6 +91,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	
 	@Override
 	protected void runSystemTestStage(TestResultWriter pw, State state, SystemTest st, SystemTestStage e) {
+		if (state.failed > 0)
+			return;
 		try {
 			Method method = state.clz.getMethod(e.name.baseName(), FLEvalContext.class);
 			@SuppressWarnings("unchecked")
@@ -114,6 +116,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	private void doSteps(TestResultWriter pw, State state, Object test, List<String> steps, FLEvalContext cxt, String desc) {
 		try {
 			for (String s : steps) {
+				if (state != null && state.failed > 0)
+					return;
 				counter.set(1);
 				Reflection.call(test, s, cxt);
 				synchronized (counter) {

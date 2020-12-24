@@ -30,6 +30,7 @@ import io.webfolder.ui4j.api.browser.BrowserEngine;
 import io.webfolder.ui4j.api.browser.BrowserFactory;
 import io.webfolder.ui4j.api.browser.Page;
 import javafx.application.Platform;
+import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner<JSTestState> {
@@ -46,7 +47,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			try {
 				Class<?> clz = Class.forName(s);
 				if (!modules.containsKey(clz)) {
-					modules.put(clz, Reflection.callStatic(clz, "createJS", this, classloader));
+					modules.put(clz, Reflection.callStatic(clz, "createJS", this, classloader, config.root));
 				}
 				return modules.get(clz);
 			} catch (IllegalArgumentException | ClassNotFoundException e) {
@@ -75,7 +76,11 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 		private void doSend(String json) {
 			JSObject runner = (JSObject) page.executeScript("window.utrunner");
-			runner.call("deliver", json);
+			try {
+				runner.call("deliver", json);
+			} catch (JSException ex) {
+				logger.error("JSException " + ex);
+			}
 		}
 		
 		public void lock() {

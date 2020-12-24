@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
@@ -27,6 +28,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
@@ -35,7 +37,7 @@ import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.ShouldBeError;
 
-public class MemberExprConvertor extends LeafAdapter {
+public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final NestedVisitor nv;
 	private final ObjectActionHandler oah;
@@ -52,6 +54,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	private final Type containedType;
 	private boolean isAcor;
 	private FieldAccessor acorFrom;
+	private final List<Object> results = new ArrayList<>();
 
 	public MemberExprConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah, MemberExpr me) {
 		this.errors = errors;
@@ -70,6 +73,11 @@ public class MemberExprConvertor extends LeafAdapter {
 			new MemberExprConvertor(errors, nv, oah, expr);
 			return false;
 		}
+	}
+
+	@Override
+	public void visitCastExpr(CastExpr expr) {
+		nv.push(new MessageConvertor(errors, nv, oah, null));
 	}
 	
 	@Override
@@ -134,6 +142,11 @@ public class MemberExprConvertor extends LeafAdapter {
 			throw new NotImplementedException("Too many arguments to MemberExpr");
 	}
 
+	@Override
+	public void result(Object r) {
+		this.results.add(r);
+	}
+	
 	private void figureDestinationType(RepositoryEntry defn) {
 		Type ct = containerType;
 		if (ct instanceof PolyInstance) {
@@ -154,6 +167,26 @@ public class MemberExprConvertor extends LeafAdapter {
 
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
+		if (results.size() > 1) {
+			throw new CantHappenException("only one result should come back");
+		} else if (results.size() == 1) {
+			// we need to process the result
+			Object e = results.get(0);
+			if (e instanceof CastExpr) {
+				CastExpr ce = (CastExpr) e;
+				TypeReference tr = ce.type;
+				if (!(tr.defn() instanceof StructDefn))
+					throw new HaventConsideredThisException("Can only handle cast-to-struct at the moment, not " + tr.getClass());
+				sd = (StructDefn) tr.defn();
+				String fld = ((UnresolvedVar)expr.fld).var;
+				acorFrom = this.sd.getAccessor(fld);
+				if (acorFrom == null)
+					throw new NotImplementedException("There is no acor " + fld);
+				expargs = 0;
+				obj = ce.val;
+			} else
+				throw new HaventConsideredThisException("e is of type " + e.getClass());
+		}
 		if (expr.boundEarly()) {
 			if (obj == null) {
 				obj = expr;

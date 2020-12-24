@@ -143,6 +143,11 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		Object op = stack.remove(0);
 		nv.result(new ApplyExpr(expr.location(), op, stack));
 	}
+	
+	@Override
+	public void leaveCastExpr(CastExpr expr) {
+		nv.result(new CastExpr(expr.location(), expr.tyLoc, expr.valLoc, expr.type, (Expr) stack.remove(0)));
+	}
 
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
