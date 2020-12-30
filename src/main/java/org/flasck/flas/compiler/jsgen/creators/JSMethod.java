@@ -27,6 +27,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	private final NameOfThing fnName;
 	private final NameOfThing clzName;
 	private final boolean prototype;
+	private boolean isOptional;
 	private final String name;
 	final List<JSVar> args = new ArrayList<>();
 	private int nextVar = 1;
@@ -62,6 +63,10 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	@Override
 	public void noJVM() {
 		genJVM = false;
+	}
+	
+	public void makeOptional() {
+		isOptional = true;
 	}
 
 	@Override
@@ -210,7 +215,9 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args, runner, returnsA);
 			else
 				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args, runner);
-			if (!isInterface) {
+			if (!isInterface || isOptional) {
+				if (isOptional)
+					jvm.version(55);
 				super.generate(jvm);
 				jvm.done(this);
 			}
@@ -235,5 +242,10 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 
 	public String obtainNextVar() {
 		return "v" + nextVar ++;
+	}
+	
+	@Override
+	public String toString() {
+		return "method " + this.name;
 	}
 }

@@ -26,6 +26,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSFromCard;
+import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
@@ -565,13 +566,15 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	public void visitContractMethod(ContractMethodDecl cmd) {
 		currentContract.field(true, Access.PUBLICSTATIC, new PackageName("int"), "_nf_"+cmd.name.name, cmd.args.size());
 		JSMethodCreator meth = currentContract.createMethod(cmd.name.name, true);
+		if (!cmd.required)
+			meth.makeOptional();
 		meth.argument(J.FLEVALCONTEXT, "_cxt");
 		meth.argumentList();
 		for (int k=0;k<cmd.args.size();k++) {
 			meth.argument("_" + k);
 		}
 		meth.handlerArg();
-		meth.returnObject(new JSString("interface method for " + cmd.name.uniqueName()));
+		meth.returnObject(new JSLiteral("null"));
 
 		if (this.currentContractIsHandler && (cmd.name.name.equals("success") || cmd.name.name.contentEquals("failure")))
 			meth.noJVM();

@@ -133,6 +133,5 @@ public class Main {
 		StaticLoggerBinder.setLevel("BTResponder", Level.WARN);
 		StaticLoggerBinder.setLevel("ZinDelivery", Level.WARN);
 		StaticLoggerBinder.setLevel("DoGet", Level.WARN);
-		
 	}
 }

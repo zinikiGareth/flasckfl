@@ -11,6 +11,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 
 public interface JVMCreationContext {
+	void version(int vno);
 	JVMCreationContext split();
 	void done(JSBlockCreator meth);
 

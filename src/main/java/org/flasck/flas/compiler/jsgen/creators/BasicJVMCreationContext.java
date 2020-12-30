@@ -110,6 +110,11 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		this(figureMemberClassThings(bce, clzName, name, fnName, returnsA), wantArgumentList, as, runner);
 	}
 
+	@Override
+	public void version(int vno) {
+		bcc.version(vno);
+	}
+
 	private static MethodCxt figureMemberClassThings(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, String returnsA) {
 		MethodCxt ret = new MethodCxt();
 		ret.returnsA = returnsA;
