@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.flasck.flas.Configuration;
@@ -24,6 +22,7 @@ import org.ziniki.ziwsh.intf.JsonSender;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
+import org.zinutils.sync.LockingCounter;
 import org.zinutils.utils.FileUtils;
 
 import io.webfolder.ui4j.api.browser.BrowserEngine;
@@ -84,17 +83,14 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		}
 		
 		public void lock() {
-			counter.incrementAndGet();
+			counter.lock("lock");
 		}
 		
 		public void unlock() {
-			synchronized (counter) {
-				if (counter.decrementAndGet() == 0)
-					counter.notify();
-			}
+			counter.release("unlock");
 		}
 
-		public AtomicInteger getTestCounter() {
+		public LockingCounter getTestCounter() {
 			return counter;
 		}
 	}
@@ -109,7 +105,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	private boolean useCachebuster = false;
 	private String jstestdir;
 	private String specifiedTestName;
-	private final AtomicInteger counter = new AtomicInteger(0);
+	private final LockingCounter counter = new LockingCounter();
 	
 	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates, ClassLoader cl) {
 		super(config, repository);
@@ -166,23 +162,22 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 	private void runSteps(TestResultWriter pw, String desc, SingleJSTest t1, String name) {
 		List<String> steps = t1.getSteps(desc, name);
+		if (desc != null)
+			pw.begin("JS", desc);
 		for (String s : steps) {
 			if (t1.state != null && t1.state.failed > 0)
 				break;
-			counter.set(1);
+			if (desc != null)
+				pw.begin("JS", desc + ": " + s);
+			counter.start();
 			t1.step(desc, s);
-			counter.decrementAndGet();
-			synchronized (counter) {
-				try {
-					if (counter.get() != 0)
-						counter.wait(5000);
-					if (counter.get() != 0)
-						throw new TimeoutException();
-				} catch (Throwable t) {
-					pw.error("JS", desc, t);
-					errors.add("JS ERROR " + (desc == null ? "configure":desc));
-					break;
-				}
+			counter.end(s);
+			try {
+				counter.waitForZero(5000);
+			} catch (Throwable t) {
+				pw.error("JS", desc, t);
+				errors.add("JS ERROR " + (desc == null ? "configure":desc));
+				break;
 			}
 		}
 		if (!steps.isEmpty() && desc != null && t1.ok())

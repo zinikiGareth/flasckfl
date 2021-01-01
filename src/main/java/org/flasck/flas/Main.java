@@ -118,7 +118,8 @@ public class Main {
 		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);
 		StaticLoggerBinder.setLevel("io.webfolder.ui4j", Level.WARN);
 		StaticLoggerBinder.setLevel("IdemHandler", Level.WARN);
-		StaticLoggerBinder.setLevel("Dispatcher", Level.WARN);
+		StaticLoggerBinder.setLevel("TestStages", Level.INFO);
+		StaticLoggerBinder.setLevel("Dispatcher", Level.INFO);
 		StaticLoggerBinder.setLevel("Send", Level.WARN);
 		StaticLoggerBinder.setLevel("GLS", Level.WARN);
 		StaticLoggerBinder.setLevel("TxManagerThreading", Level.WARN);
@@ -126,7 +127,7 @@ public class Main {
 		StaticLoggerBinder.setLevel("org.ziniki.awstxstore", Level.WARN);
 		
 		StaticLoggerBinder.setLevel("ZiWSH", Level.WARN);
-		StaticLoggerBinder.setLevel("Ziniki", Level.WARN);
+		StaticLoggerBinder.setLevel("Ziniki", Level.INFO);
 		StaticLoggerBinder.setLevel("ZinikiTI", Level.WARN);
 		StaticLoggerBinder.setLevel("IMUnitOfWork", Level.WARN);
 		StaticLoggerBinder.setLevel("BrokerDelegate", Level.WARN);

@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
@@ -26,6 +25,7 @@ import org.flasck.jvm.fl.NotMatched;
 import org.flasck.jvm.fl.TestHelper;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
+import org.zinutils.sync.LockingCounter;
 
 public class JVMRunner extends CommonTestRunner<State>  {
 	public interface FunctionThrows<T1, T2> {
@@ -47,7 +47,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	private final ClassLoader loader;
 	private List<Throwable> runtimeErrors = new ArrayList<Throwable>();
 	private final Map<String, String> templates;
-	private final AtomicInteger counter = new AtomicInteger(0);
+	private final LockingCounter counter = new LockingCounter();
 
 	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl, Map<String, String> templates) {
 		super(config, repository);
@@ -115,18 +115,23 @@ public class JVMRunner extends CommonTestRunner<State>  {
 
 	private void doSteps(TestResultWriter pw, State state, Object test, List<String> steps, FLEvalContext cxt, String desc) {
 		try {
+			if (desc != null)
+				pw.begin("JVM", desc);
 			for (String s : steps) {
 				if (state != null && state.failed > 0)
 					return;
-				counter.set(1);
+				if (desc != null)
+					pw.begin("JVM", desc + ": " + s);
+				counter.start();
 				Reflection.call(test, s, cxt);
-				synchronized (counter) {
-					counter.decrementAndGet();
-					while (counter.get() != 0 || !cxt.getDispatcher().isDone()) {
-						if (counter.get() != 0)
-							counter.wait(5000);
-						if (!cxt.getDispatcher().isDone())
-							cxt.getDispatcher().waitForQueueDone();
+				counter.end(s);
+				while (true) {
+					counter.waitForZero(5000);
+					if (!cxt.getDispatcher().isDone())
+						cxt.getDispatcher().waitForQueueDone();
+					if (counter.isZero()) {
+						logger.error("counter is still zero; step done");
+						break;
 					}
 				}
 			}
