@@ -130,7 +130,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 					if (!cxt.getDispatcher().isDone())
 						cxt.getDispatcher().waitForQueueDone();
 					if (counter.isZero()) {
-						logger.error("counter is still zero; step done");
+						logger.debug("counter is still zero; step done");
 						break;
 					}
 				}
