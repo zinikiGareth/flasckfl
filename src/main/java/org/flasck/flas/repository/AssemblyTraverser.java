@@ -80,13 +80,17 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	public void traverseAssemblyWithWebs(Repository repository, ApplicationAssembly a) {
 		try {
 			visitAssembly(a);
+			logger.info("have files: " + jse);
 			for (String s : jse.packages()) {
+				logger.info("have package " + s);
 				if (s.contains("_ut_") || s.contains("_st_"))
 					continue;
 				visitPackage(s);
 				File f = jse.fileFor(s);
 				if (f != null)
 					compiledPackageFile(f);
+				else
+					includePackageFile(new File("packages/js", s + ".js"));
 			}
 			Iterable<SplitMetaData> allWebs = repository.allWebs();
 			for (SplitMetaData w : allWebs)
@@ -104,6 +108,10 @@ public class AssemblyTraverser implements AssemblyVisitor {
 
 	public void compiledPackageFile(File f) {
 		v.compiledPackageFile(f);
+	}
+
+	public void includePackageFile(File f) {
+		v.includePackageFile(f);
 	}
 
 	@Override

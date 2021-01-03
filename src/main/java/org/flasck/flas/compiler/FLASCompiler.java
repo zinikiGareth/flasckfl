@@ -575,6 +575,11 @@ public class FLASCompiler implements CompileUnit {
 			}
 			
 			@Override
+			public void includePackageFile(File f) {
+				this.compiledPackageFile(f);
+			}
+
+			@Override
 			public void visitCardTemplate(String cardName, InputStream is, long length) throws IOException {
 				String s = FileUtils.readNStream(length, is);
 				ContentObject co = new ContentObject() {

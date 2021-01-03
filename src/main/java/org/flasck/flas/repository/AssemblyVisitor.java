@@ -13,6 +13,7 @@ public interface AssemblyVisitor {
 	void visitAssembly(ApplicationAssembly a);
 	void leaveAssembly(ApplicationAssembly a) throws IOException;
 	void compiledPackageFile(File f);
+	void includePackageFile(File f);
 	void visitPackage(String pkg);
 	void visitCardTemplate(String cardName, InputStream is, long length) throws IOException;
 	void visitCSS(String name, ZipInputStream zis, long length) throws IOException;

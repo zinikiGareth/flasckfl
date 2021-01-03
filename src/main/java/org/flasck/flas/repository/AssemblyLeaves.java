@@ -22,6 +22,10 @@ public class AssemblyLeaves implements AssemblyVisitor {
 	}
 	
 	@Override
+	public void includePackageFile(File f) {
+	}
+
+	@Override
 	public void visitPackage(String pkg) {
 	}
 

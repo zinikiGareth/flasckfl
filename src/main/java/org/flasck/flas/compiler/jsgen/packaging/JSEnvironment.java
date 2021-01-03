@@ -222,4 +222,9 @@ public class JSEnvironment implements JSStorage {
 			f.asivm();
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return "JSEnv[" + files + "]";
+	}
 }
