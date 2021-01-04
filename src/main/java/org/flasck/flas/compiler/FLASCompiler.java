@@ -85,6 +85,7 @@ public class FLASCompiler implements CompileUnit {
 	private final List<URI> brokenUris = new ArrayList<>();
 	private TaskQueue tasks;
 	private File cardsFolder;
+	// TODO: it feels to me that these should be in the REPO, not on the compiler itself
 	private DirectedAcyclicGraph<String> pkgs;
 	private JSEnvironment jse;
 	private Map<EventHolder, EventTargetZones> eventMap;

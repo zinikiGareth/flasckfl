@@ -7,7 +7,6 @@ import java.util.ServiceLoader;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.OptionModule;
-import org.flasck.flas.compiler.ParserModule;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.AssemblyVisitor;
@@ -19,6 +18,7 @@ public class Configuration {
 	public boolean unitjvm = true, unitjs = true;
 	public boolean systemjvm = true, systemjs = true;
 	public boolean dumpTypes;
+	public final List<File> readFlims = new ArrayList<>();
 	private File flimDir;
 	public File root;
 	public boolean doTypeCheck = true;
@@ -133,11 +133,8 @@ public class Configuration {
 						System.out.println("--flim <dir>");
 						System.exit(1);
 					}
-					if (flimDir != null) {
-						System.out.println("cannot set flim dir more than once");
-						System.exit(1);
-					}
 					flimDir = new File(args[++i]);
+					readFlims.add(flimDir);
 				} else if (arg.equals("--incl")) {
 					if (hasMore == 0) {
 						System.out.println("--incl <dir>");

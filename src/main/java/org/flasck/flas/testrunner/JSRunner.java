@@ -258,13 +258,25 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 			for (String s : jse.packages()) {
 				File f = jse.fileFor(s);
-				if (f != null)
+				if (f != null) {
 					includeFileAsScript(pw, f, testDirJS);
-				else {
+					inlib.add(f.getName());
+				} else {
+					for (File q : config.readFlims) {
+						File i = new File(q, s + ".js");
+						if (i.exists()) {
+							if (!inlib.contains(i.getName())) {
+								includeFileAsScript(pw, i, testDirJS);
+								inlib.add(i.getName());
+							}
+						}
+					}
 					for (File q : config.includeFrom) {
 						for (File i : FileUtils.findFilesMatching(q, s + ".js")) {
-							if (!inlib.contains(i.getName()))
+							if (!inlib.contains(i.getName())) {
 								includeFileAsScript(pw, i, testDirJS);
+								inlib.add(i.getName());
+							}
 						}
 					}
 				}
