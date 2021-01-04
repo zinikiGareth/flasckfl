@@ -123,6 +123,7 @@ public class Main {
 		StaticLoggerBinder.setLevel("Send", Level.WARN);
 		StaticLoggerBinder.setLevel("GLS", Level.WARN);
 		StaticLoggerBinder.setLevel("TxManagerThreading", Level.WARN);
+		StaticLoggerBinder.setLevel("assembler", Level.WARN);
 		StaticLoggerBinder.setLevel("awstxstore", Level.WARN);
 		StaticLoggerBinder.setLevel("org.ziniki.awstxstore", Level.WARN);
 		

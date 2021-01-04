@@ -55,8 +55,9 @@ public class Configuration {
 				if (root != null) {
 					System.out.println("--root can only be specified once");
 					System.exit(1);
-				} else
+				} else {
 					root = new File(args[++i]);
+				}
 			}
 		}
 		for (int i=0;i<args.length;i++) {

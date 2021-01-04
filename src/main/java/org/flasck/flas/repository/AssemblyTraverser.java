@@ -90,7 +90,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 				if (f != null)
 					compiledPackageFile(f);
 				else
-					includePackageFile(new File("packages/js", s + ".js"));
+					includePackageFile(s);
 			}
 			Iterable<SplitMetaData> allWebs = repository.allWebs();
 			for (SplitMetaData w : allWebs)
@@ -110,8 +110,8 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		v.compiledPackageFile(f);
 	}
 
-	public void includePackageFile(File f) {
-		v.includePackageFile(f);
+	public void includePackageFile(String s) {
+		v.includePackageFile(s);
 	}
 
 	@Override

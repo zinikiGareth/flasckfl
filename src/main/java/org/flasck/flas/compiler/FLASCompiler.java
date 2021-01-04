@@ -569,15 +569,16 @@ public class FLASCompiler implements CompileUnit {
 			
 			@Override
 			public void compiledPackageFile(File f) {
-				String jsdir = config.jsDir().getPath();
-				if (config.root != null)
-					jsdir = jsdir.replace(config.root.getPath(), "");
-				js.add(jsdir.replaceAll("^/*", "") + "/" + f.getName());
+				logger.debug("compiled " + f);
+				js.add(FileUtils.figureRelativePathFrom(config.root, f).getPath());
 			}
 			
 			@Override
-			public void includePackageFile(File f) {
-				this.compiledPackageFile(f);
+			public void includePackageFile(String s) {
+				// TODO: this should probably search all of them and find the right one where it actually is
+				File f = new File(config.readFlims.get(0), s + ".js");
+				logger.debug("included " + s);
+				js.add(FileUtils.figureRelativePathFrom(config.root, f).getPath());
 			}
 
 			@Override
@@ -614,6 +615,7 @@ public class FLASCompiler implements CompileUnit {
 					asm.css("css/" + c);
 				asm.endCss();
 				asm.beginJs();
+				logger.info("assembly has " + js);
 				for (String j : js)
 					asm.javascript(j);
 				asm.endJs();
