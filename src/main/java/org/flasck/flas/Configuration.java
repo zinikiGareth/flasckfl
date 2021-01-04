@@ -3,14 +3,18 @@ package org.flasck.flas;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.compiler.OptionModule;
+import org.flasck.flas.compiler.ParserModule;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.AssemblyVisitor;
 import org.zinutils.utils.FileUtils;
 
 public class Configuration {
+	private final ServiceLoader<OptionModule> optionModules;
 	public final ErrorReporter errors;
 	public boolean unitjvm = true, unitjs = true;
 	public boolean systemjvm = true, systemjs = true;
@@ -39,6 +43,7 @@ public class Configuration {
 	public final List<File> modules = new ArrayList<>();
 
 	public Configuration(ErrorReporter errors, String[] args) {
+		this.optionModules = ServiceLoader.load(OptionModule.class);
 		this.errors = errors;
 		if (args != null)
 			process(args);
@@ -167,6 +172,14 @@ public class Configuration {
 					webs.add(new File(root, args[++i]));
 				} else {
 					boolean matched = false;
+					for (OptionModule om : optionModules) {
+						int cnt = om.options(errors, args, i);
+						if (cnt > 0) {
+							i += cnt-1;
+							matched = true;
+							break;
+						}
+					}
 					if (!matched) {
 						errors.message((InputPosition)null, "unknown option: " + arg);
 					}
