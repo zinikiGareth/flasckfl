@@ -249,4 +249,12 @@ public class Configuration {
 	public PhaseTo upto() {
 		return upto;
 	}
+
+	public <T extends OptionModule> T getOptionsModule(Class<T> clz) {
+		for (OptionModule o : optionModules) {
+			if (clz.isInstance(o))
+				return clz.cast(o);
+		}
+		return null;
+	}
 }

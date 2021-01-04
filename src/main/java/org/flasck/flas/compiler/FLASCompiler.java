@@ -82,6 +82,7 @@ public class FLASCompiler implements CompileUnit {
 	private final Repository repository;
 	private final Splitter splitter;
 	private final ServiceLoader<ParserModule> modules;
+	private final ServiceLoader<CompilerComplete> completeModules;
 	private final List<URI> brokenUris = new ArrayList<>();
 	private TaskQueue tasks;
 	private File cardsFolder;
@@ -97,6 +98,7 @@ public class FLASCompiler implements CompileUnit {
 		this.repository = repository;
 		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
 		this.modules = ServiceLoader.load(ParserModule.class);
+		this.completeModules = ServiceLoader.load(CompilerComplete.class);
 	}
 
 	public void taskQueue(TaskQueue tasks) {
@@ -497,6 +499,10 @@ public class FLASCompiler implements CompileUnit {
 			saveBCE(config.jvmDir(), bce);
 		}
 
+		for (CompilerComplete cc : completeModules) {
+			cc.complete(errors, config, bce, jse);
+		}
+		
 		return errors.hasErrors();
 	}
 

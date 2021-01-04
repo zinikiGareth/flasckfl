@@ -128,6 +128,7 @@ public class Main {
 		StaticLoggerBinder.setLevel("org.ziniki.awstxstore", Level.WARN);
 		
 		StaticLoggerBinder.setLevel("ZiWSH", Level.WARN);
+		StaticLoggerBinder.setLevel("ZiwshClient", Level.WARN);
 		StaticLoggerBinder.setLevel("Ziniki", Level.WARN);
 		StaticLoggerBinder.setLevel("ZinikiTI", Level.WARN);
 		StaticLoggerBinder.setLevel("IMUnitOfWork", Level.WARN);
