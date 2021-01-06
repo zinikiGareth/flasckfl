@@ -63,6 +63,7 @@ import org.flasck.flas.tc3.Type;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.NoMetaDataException;
 import org.ziniki.splitter.SplitMetaData;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -476,8 +477,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.doTraversal(this);
 	}
 
-	public void traverseAssemblies(ErrorReporter errors, JSEnvironment jse, AssemblyVisitor v) {
-		AssemblyTraverser t = new AssemblyTraverser(errors, jse, v);
+	public void traverseAssemblies(ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v) {
+		AssemblyTraverser t = new AssemblyTraverser(errors, jse, bce, v);
 		t.doTraversal(this);
 	}
 

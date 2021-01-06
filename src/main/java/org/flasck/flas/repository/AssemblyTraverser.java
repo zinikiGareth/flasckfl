@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.SplitMetaData;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class AssemblyTraverser implements AssemblyVisitor {
@@ -21,10 +22,12 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	private final AssemblyVisitor v;
 	private final ErrorReporter errors;
 	private final JSEnvironment jse;
+	private final ByteCodeEnvironment bce;
 
-	public AssemblyTraverser(ErrorReporter errors, JSEnvironment jse, AssemblyVisitor v) {
+	public AssemblyTraverser(ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v) {
 		this.errors = errors;
 		this.jse = jse;
+		this.bce = bce;
 		this.v = v;
 	}
 
@@ -82,15 +85,16 @@ public class AssemblyTraverser implements AssemblyVisitor {
 			visitAssembly(a);
 			logger.info("have files: " + jse);
 			for (String s : jse.packages()) {
-				logger.info("have package " + s);
-				if (s.contains("_ut_") || s.contains("_st_"))
+				if (s.contains("_ut_") || s.contains("_st_") || s.endsWith("_ut") || s.endsWith("_st"))
 					continue;
+				logger.info("have package " + s);
 				visitPackage(s);
 				File f = jse.fileFor(s);
 				if (f != null)
 					compiledPackageFile(f);
 				else
 					includePackageFile(s);
+				uploadJar(bce, s);
 			}
 			Iterable<SplitMetaData> allWebs = repository.allWebs();
 			for (SplitMetaData w : allWebs)
@@ -100,6 +104,10 @@ public class AssemblyTraverser implements AssemblyVisitor {
 			logger.error("Error uploading", ex);
 			errors.message((InputPosition)null, "error uploading assembly: " + ex);
 		}
+	}
+
+	public void uploadJar(ByteCodeEnvironment bce, String s) {
+		v.uploadJar(bce, s);
 	}
 
 	public void visitAssembly(ApplicationAssembly a) {

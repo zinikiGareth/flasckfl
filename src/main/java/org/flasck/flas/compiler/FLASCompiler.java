@@ -550,11 +550,11 @@ public class FLASCompiler implements CompileUnit {
 
 	public void storeAssemblies(AssemblyVisitor storer) {
 		if (jse != null)
-			repository.traverseAssemblies(errors, jse, storer);
+			repository.traverseAssemblies(errors, jse, bce, storer);
 	}
 
 	public void generateHTML(FLASAssembler asm) {
-		repository.traverseAssemblies(errors, jse, new AssemblyVisitor() {
+		repository.traverseAssemblies(errors, jse, bce, new AssemblyVisitor() {
 			private List<String> inits = new ArrayList<>();
 			private List<String> css = new ArrayList<>();
 			private List<String> js = new ArrayList<>();
@@ -573,6 +573,10 @@ public class FLASCompiler implements CompileUnit {
 				inits.add(pkg);
 			}
 			
+			@Override
+			public void uploadJar(ByteCodeEnvironment bce, String s) {
+			}
+
 			@Override
 			public void compiledPackageFile(File f) {
 				logger.debug("compiled " + f);
@@ -596,6 +600,11 @@ public class FLASCompiler implements CompileUnit {
 						return null;
 					}
 					
+					@Override
+					public byte[] asByteArray() {
+						return null;
+					}
+
 					@Override
 					public String asString() {
 						return "    <template id='" + cardName + "'>\n" + s + "\n    </template>\n";

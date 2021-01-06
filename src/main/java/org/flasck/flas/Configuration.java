@@ -151,11 +151,11 @@ public class Configuration {
 				} else if (arg.equals("--no-unit-js")) {
 					unitjs = false;
 				} else if (arg.equals("--no-unit-jvm")) {
-					unitjvm = false;
+					systemjs = false;
 				} else if (arg.equals("--no-system-js")) {
 					unitjs = false;
 				} else if (arg.equals("--no-system-jvm")) {
-					unitjvm = false;
+					systemjvm = false;
 				} else if (arg.equals("--jvmout")) {
 					if (hasMore == 0) {
 						System.out.println("--jvmout <build-dir>");

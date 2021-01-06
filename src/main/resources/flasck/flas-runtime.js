@@ -566,9 +566,30 @@ FLContext.prototype.handleEvent = function(card, handler, event) {
 	this.env.queueMessages(this, reply);
 }
 
-FLContext.prototype.localCard = function(cardClz, elt) {
-	const card = new cardClz(cx);
-	card._renderInto(cx, document.getElementById(elt));
+FLContext.prototype.localCard = function(cardClz, eltName) {
+	// TODO: this should be conditional on the card "wanting" to talk over the beachhead to a server
+	// which needs to be a feature, but I'm unclear on how and where to express it.
+	const self = this;
+	const elt = document.getElementById(eltName);
+	if (!this.broker.server) {
+		// we can't do anything yet that needs the server, so put a login button in the elt
+		const login = document.createElement("button");
+		login.innerText = "Log In";
+		login.onclick = function() {
+			console.log("want to log in");
+			window.haveit = function(token, secret) {
+				console.log("have credentials:", token, secret);
+				env.broker.connectToServer(zinikiServer + '/' + token + '/' + secret);
+				elt.innerHTML = '';
+				self.localCard(cardClz, eltName);
+			}
+			window.open(zinikiLogin);
+		}
+		elt.appendChild(login);
+		return;
+	}
+	const card = new cardClz(this);
+	card._renderInto(cx, elt);
 	var lc = this.findContractOnCard(card, "Lifecycle");
 	if (lc && lc.init) {
 		var msgs = lc.init(this);

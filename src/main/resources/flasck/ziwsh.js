@@ -771,7 +771,11 @@ const ZiwshWebClient = function(logger, factory, uri) {
     this.conn.addEventListener("message", (ev) => {
         logger.log("received a message", ev.data);
         logger.log("dispatching to", this.bh);
-        this.bh.dispatch(factory.newContext(), ev.data, this);
+        const cx = factory.newContext();
+        var actions = this.bh.dispatch(cx, ev.data, this);
+        if (factory.queueMessages) {
+            factory.queueMessages(cx, actions);
+        }
     });
     logger.log("created ZWC");
 }

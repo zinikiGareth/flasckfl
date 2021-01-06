@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.zip.ZipInputStream;
 
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class AssemblyLeaves implements AssemblyVisitor {
 
@@ -27,6 +28,10 @@ public class AssemblyLeaves implements AssemblyVisitor {
 
 	@Override
 	public void visitPackage(String pkg) {
+	}
+
+	@Override
+	public void uploadJar(ByteCodeEnvironment bce, String s) {
 	}
 
 	@Override
