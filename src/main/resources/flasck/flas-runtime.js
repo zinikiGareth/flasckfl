@@ -571,7 +571,7 @@ FLContext.prototype.localCard = function(cardClz, eltName) {
 	// which needs to be a feature, but I'm unclear on how and where to express it.
 	const self = this;
 	const elt = document.getElementById(eltName);
-	if (!this.broker.server) {
+	if (!this.broker.server && typeof(zinikiLogin) != 'undefined' && typeof(zinikiServer) != 'undefined' && zinikiLogin && zinikiServer) {
 		// we can't do anything yet that needs the server, so put a login button in the elt
 		const login = document.createElement("button");
 		login.innerText = "Log In";

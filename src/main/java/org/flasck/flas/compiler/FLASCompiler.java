@@ -596,6 +596,11 @@ public class FLASCompiler implements CompileUnit {
 				String s = FileUtils.readNStream(length, is);
 				ContentObject co = new ContentObject() {
 					@Override
+					public String key() {
+						return null;
+					}
+
+					@Override
 					public String url() {
 						return null;
 					}
