@@ -586,7 +586,11 @@ public class FLASCompiler implements CompileUnit {
 			@Override
 			public void includePackageFile(String pkg, String s) {
 				// TODO: this should probably search all of them and find the right one where it actually is
-				File f = new File(config.readFlims.get(0), s + ".js");
+				File f;
+				if ("runtime".equals(pkg)) {
+					f = new File("compiler/flascklib", s + ".js");
+				} else
+					f = new File(config.readFlims.get(0), s + ".js");
 				logger.debug("included " + s);
 				js.add(FileUtils.figureRelativePathFrom(config.root, f).getPath());
 			}
