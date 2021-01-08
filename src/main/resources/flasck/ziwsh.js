@@ -227,6 +227,14 @@ SimpleBroker.prototype.connectToServer = function(uri) {
     return zwc;
 }
 
+SimpleBroker.prototype.updateConnection = function(uri) {
+    this.server.sender.connectTo(uri);
+}
+
+SimpleBroker.prototype.awaitingServerConnection = function() {
+    return this.server && !this.server.sender.conn;
+}
+
 SimpleBroker.prototype.beachhead = function(bh) {
     // this.logger.log("setting beachhead");
     this.server = bh;
@@ -750,43 +758,49 @@ CollectingState.prototype.get = function(cr) {
 // It needs to pass in a factory instead of URI, I think ...
 
 const ZiwshWebClient = function(logger, factory, uri) {
-    const zwc = this;
     this.logger = logger;
-    logger.log("connecting to URI " + uri);
-    this.conn = new WebSocket(uri);
-    logger.log("have ws", this.conn);
-    this.backlog = [];
-    this.conn.addEventListener("error", (ev) => {
-        logger.log("an error occurred");
-    });
-    this.conn.addEventListener("open", () => {
-        logger.log("opened with backlog", this.backlog.length);
-        while (this.backlog.length > 0) {
-            const json = this.backlog.pop();
-            logger.log("sending", json);
-            this.conn.send(json);
-        }
-        logger.log("cleared backlog");
-    });
-    this.conn.addEventListener("message", (ev) => {
-        logger.log("received a message", ev.data);
-        logger.log("dispatching to", this.bh);
-        const cx = factory.newContext();
-        var actions = this.bh.dispatch(cx, ev.data, this);
-        if (factory.queueMessages) {
-            factory.queueMessages(cx, actions);
-        }
-    });
+    this.factory = factory;
+    if (uri) {
+        this.connectTo(uri);
+    }
     logger.log("created ZWC");
 }
 
+ZiwshWebClient.prototype.connectTo = function(uri) {
+    const zwc = this;
+    this.logger.log("connecting to URI " + uri);
+    this.conn = new WebSocket(uri);
+    this.logger.log("have ws", this.conn);
+    this.backlog = [];
+    this.conn.addEventListener("error", (ev) => {
+        zwc.logger.log("an error occurred");
+    });
+    this.conn.addEventListener("open", () => {
+        zwc.logger.log("opened with backlog", this.backlog.length);
+        while (this.backlog.length > 0) {
+            const json = zwc.backlog.pop();
+            zwc.logger.log("sending", json);
+            zwc.conn.send(json);
+        }
+        zwc.logger.log("cleared backlog");
+    });
+    this.conn.addEventListener("message", (ev) => {
+        zwc.logger.log("received a message", ev.data);
+        zwc.logger.log("dispatching to", this.bh);
+        const cx = zwc.factory.newContext();
+        var actions = this.bh.dispatch(cx, ev.data, this);
+        if (zwc.factory.queueMessages) {
+            zwc.factory.queueMessages(cx, actions);
+        }
+    });
+}
 ZiwshWebClient.prototype.attachBeachhead = function(bh) {
     this.bh = bh;
 }
 
 ZiwshWebClient.prototype.send = function(json) {
-    this.logger.log("want to send " + json + " to " + this.bh.name + " state = " + this.conn.readyState);
-    if (this.conn.readyState == 1)
+    this.logger.log("want to send " + json + " to " + this.bh.name + (this.conn ? (" state = " + this.conn.readyState) : " not connected" ));
+    if (this.conn && this.conn.readyState == 1)
         this.conn.send(json);
     else
         this.backlog.push(json);

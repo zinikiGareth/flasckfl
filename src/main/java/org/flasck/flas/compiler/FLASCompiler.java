@@ -398,7 +398,7 @@ public class FLASCompiler implements CompileUnit {
 						FileUtils.copy(f, fldir);
 					}
 				}
-				FLASAssembler asm = new FLASAssembler(fos, "flascklib");
+				FLASAssembler asm = new FLASAssembler(fos);
 				if (!config.includeFrom.isEmpty()) {
 					File incdir = new File("includes/js");
 					File ct = new File(config.root, incdir.getPath());
@@ -584,7 +584,7 @@ public class FLASCompiler implements CompileUnit {
 			}
 			
 			@Override
-			public void includePackageFile(String s) {
+			public void includePackageFile(String pkg, String s) {
 				// TODO: this should probably search all of them and find the right one where it actually is
 				File f = new File(config.readFlims.get(0), s + ".js");
 				logger.debug("included " + s);

@@ -14,7 +14,7 @@ public interface AssemblyVisitor {
 	void visitAssembly(ApplicationAssembly a);
 	void leaveAssembly(ApplicationAssembly a) throws IOException;
 	void compiledPackageFile(File f);
-	void includePackageFile(String s);
+	void includePackageFile(String pkg, String s);
 	void visitPackage(String pkg);
 	void uploadJar(ByteCodeEnvironment bce, String s);
 	void visitCardTemplate(String cardName, InputStream is, long length) throws IOException;

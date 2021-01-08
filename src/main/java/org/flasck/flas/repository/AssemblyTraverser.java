@@ -84,6 +84,10 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		try {
 			visitAssembly(a);
 			logger.info("have files: " + jse);
+			// Always include the runtime lib
+			for (String s : new String[] { "ziwsh", "flas-runtime", "flas-container", "flas-live" } ) {
+				includePackageFile("runtime", s);
+			}
 			for (String s : jse.packages()) {
 				if (s.contains("_ut_") || s.contains("_st_") || s.endsWith("_ut") || s.endsWith("_st"))
 					continue;
@@ -93,7 +97,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 				if (f != null)
 					compiledPackageFile(f);
 				else
-					includePackageFile(s);
+					includePackageFile(s, s);
 				uploadJar(bce, s);
 			}
 			Iterable<SplitMetaData> allWebs = repository.allWebs();
@@ -118,8 +122,8 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		v.compiledPackageFile(f);
 	}
 
-	public void includePackageFile(String s) {
-		v.includePackageFile(s);
+	public void includePackageFile(String pkg, String s) {
+		v.includePackageFile(pkg, s);
 	}
 
 	@Override

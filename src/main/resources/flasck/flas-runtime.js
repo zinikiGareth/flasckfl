@@ -571,7 +571,8 @@ FLContext.prototype.localCard = function(cardClz, eltName) {
 	// which needs to be a feature, but I'm unclear on how and where to express it.
 	const self = this;
 	const elt = document.getElementById(eltName);
-	if (!this.broker.server && typeof(zinikiLogin) != 'undefined' && typeof(zinikiServer) != 'undefined' && zinikiLogin && zinikiServer) {
+	const card = new cardClz(this);
+	if (this.broker.awaitingServerConnection()) {
 		// we can't do anything yet that needs the server, so put a login button in the elt
 		const login = document.createElement("button");
 		login.innerText = "Log In";
@@ -579,16 +580,20 @@ FLContext.prototype.localCard = function(cardClz, eltName) {
 			console.log("want to log in");
 			window.haveit = function(token, secret) {
 				console.log("have credentials:", token, secret);
-				env.broker.connectToServer(zinikiServer + '/' + token + '/' + secret);
+				env.broker.updateConnection(zinikiServer + '/' + token + '/' + secret);
 				elt.innerHTML = '';
-				self.localCard(cardClz, eltName);
+				self.startCard(card, elt);
 			}
 			window.open(zinikiLogin);
 		}
 		elt.appendChild(login);
-		return;
+	} else {
+		this.startCard(card, elt);
 	}
-	const card = new cardClz(this);
+	return card;
+}
+
+FLContext.prototype.startCard = function(card, elt) {
 	card._renderInto(cx, elt);
 	var lc = this.findContractOnCard(card, "Lifecycle");
 	if (lc && lc.init) {
@@ -2246,6 +2251,10 @@ Assign.prototype.dispatch = function(cx) {
 		this.expr = ResponseWithMessages.response(cx, this.expr);
 	}
 	target.state.set(this.slot, this.expr);
+	if (this.obj._updateDisplay)
+		cx.env.queueMessages(cx, [new UpdateDisplay(cx, this.obj)]);
+	else if (this.obj._card && this.obj._card._updateDisplay)
+		cx.env.queueMessages(cx, [new UpdateDisplay(cx, this.obj._card)]);
 	return msgs;
 }
 Assign.prototype.toString = function() {

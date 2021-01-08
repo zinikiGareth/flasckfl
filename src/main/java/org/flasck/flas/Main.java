@@ -105,38 +105,43 @@ public class Main {
 	}
 
 	public static void setLogLevels() {
-		StaticLoggerBinder.setLevel("Compiler", Level.WARN);
-		StaticLoggerBinder.setLevel("Traverser", Level.WARN);
-		StaticLoggerBinder.setLevel("Resolver", Level.WARN);
-		StaticLoggerBinder.setLevel("Lifter", Level.WARN);
-		StaticLoggerBinder.setLevel("Patterns", Level.WARN);
-		StaticLoggerBinder.setLevel("TOPatterns", Level.WARN);
-		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);
-		StaticLoggerBinder.setLevel("TCUnification", Level.WARN);
-		StaticLoggerBinder.setLevel("HSI", Level.WARN);
-		StaticLoggerBinder.setLevel("Generator", Level.WARN);
-		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);
-		StaticLoggerBinder.setLevel("io.webfolder.ui4j", Level.WARN);
-		StaticLoggerBinder.setLevel("IdemHandler", Level.WARN);
-		StaticLoggerBinder.setLevel("TestStages", Level.WARN);
-		StaticLoggerBinder.setLevel("Dispatcher", Level.WARN);
-		StaticLoggerBinder.setLevel("Send", Level.WARN);
-		StaticLoggerBinder.setLevel("GLS", Level.WARN);
-		StaticLoggerBinder.setLevel("TxManagerThreading", Level.WARN);
-		StaticLoggerBinder.setLevel("assembler", Level.WARN);
-		StaticLoggerBinder.setLevel("awstxstore", Level.WARN);
-		StaticLoggerBinder.setLevel("org.ziniki.awstxstore", Level.WARN);
+		Level level = Level.WARN;
+		String arg = System.getProperty("org.flas.compiler.tracing");
+		if (arg != null) {
+			level = Level.valueOf(arg.toUpperCase());
+		}
+		StaticLoggerBinder.setLevel("Compiler", level);
+		StaticLoggerBinder.setLevel("Traverser", level);
+		StaticLoggerBinder.setLevel("Resolver", level);
+		StaticLoggerBinder.setLevel("Lifter", level);
+		StaticLoggerBinder.setLevel("Patterns", level);
+		StaticLoggerBinder.setLevel("TOPatterns", level);
+		StaticLoggerBinder.setLevel("TypeChecker", level);
+		StaticLoggerBinder.setLevel("TCUnification", level);
+		StaticLoggerBinder.setLevel("HSI", level);
+		StaticLoggerBinder.setLevel("Generator", level);
+		StaticLoggerBinder.setLevel("TestRunner", level);
+		StaticLoggerBinder.setLevel("io.webfolder.ui4j", level);
+		StaticLoggerBinder.setLevel("IdemHandler", level);
+		StaticLoggerBinder.setLevel("TestStages", level);
+		StaticLoggerBinder.setLevel("Dispatcher", level);
+		StaticLoggerBinder.setLevel("Send", level);
+		StaticLoggerBinder.setLevel("GLS", level);
+		StaticLoggerBinder.setLevel("TxManagerThreading", level);
+		StaticLoggerBinder.setLevel("assembler", level);
+		StaticLoggerBinder.setLevel("awstxstore", level);
+		StaticLoggerBinder.setLevel("org.ziniki.awstxstore", level);
 		
-		StaticLoggerBinder.setLevel("ZiWSH", Level.WARN);
-		StaticLoggerBinder.setLevel("ZiwshClient", Level.WARN);
-		StaticLoggerBinder.setLevel("Ziniki", Level.WARN);
-		StaticLoggerBinder.setLevel("ZinikiTI", Level.WARN);
-		StaticLoggerBinder.setLevel("IMUnitOfWork", Level.WARN);
-		StaticLoggerBinder.setLevel("Broker", Level.WARN);
-		StaticLoggerBinder.setLevel("Utils", Level.WARN);
-		StaticLoggerBinder.setLevel("BrokerDelegate", Level.WARN);
-		StaticLoggerBinder.setLevel("BTResponder", Level.WARN);
-		StaticLoggerBinder.setLevel("ZinDelivery", Level.WARN);
-		StaticLoggerBinder.setLevel("DoGet", Level.WARN);
+		StaticLoggerBinder.setLevel("ZiWSH", level);
+		StaticLoggerBinder.setLevel("ZiwshClient", level);
+		StaticLoggerBinder.setLevel("Ziniki", level);
+		StaticLoggerBinder.setLevel("ZinikiTI", level);
+		StaticLoggerBinder.setLevel("IMUnitOfWork", level);
+		StaticLoggerBinder.setLevel("Broker", level);
+		StaticLoggerBinder.setLevel("Utils", level);
+		StaticLoggerBinder.setLevel("BrokerDelegate", level);
+		StaticLoggerBinder.setLevel("BTResponder", level);
+		StaticLoggerBinder.setLevel("ZinDelivery", level);
+		StaticLoggerBinder.setLevel("DoGet", level);
 	}
 }
