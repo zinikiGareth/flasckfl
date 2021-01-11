@@ -401,16 +401,20 @@ public class FLASCompiler implements CompileUnit {
 					}
 				}
 				FLASAssembler asm = new FLASAssembler(fos);
-				if (!config.includeFrom.isEmpty()) {
-					File incdir = new File("includes/js");
-					File ct = new File(config.root, incdir.getPath());
-					FileUtils.cleanDirectory(ct);
-					FileUtils.assertDirectory(ct);
-					for (File f : config.includeFrom) {
-						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
-							FileUtils.copy(i, ct);
-							asm.includeJS(new File(incdir, i.getName()));
-						}
+				File incdir = new File("includes/js");
+				File ct = new File(config.root, incdir.getPath());
+				FileUtils.cleanDirectory(ct);
+				FileUtils.assertDirectory(ct);
+				for (File f : config.readFlims) {
+					for (File i : FileUtils.findFilesMatching(f, "*.js")) {
+						FileUtils.copy(i, ct);
+						asm.includeJS(new File(incdir, i.getName()));
+					}
+				}
+				for (File f : config.includeFrom) {
+					for (File i : FileUtils.findFilesMatching(f, "*.js")) {
+						FileUtils.copy(i, ct);
+						asm.includeJS(new File(incdir, i.getName()));
 					}
 				}
 				generateHTML(asm);
@@ -513,6 +517,10 @@ public class FLASCompiler implements CompileUnit {
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
 		if (config.generateJVM && config.unitjvm) {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
+			for (File f : config.readFlims) {
+				for (File g : FileUtils.findFilesMatching(f, "*.jar"))
+					bcl.addClassesFrom(g);
+			}
 			for (File f : config.includeFrom)
 				bcl.addClassesFrom(f);
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
@@ -534,6 +542,10 @@ public class FLASCompiler implements CompileUnit {
 		BCEClassLoader bcl = null;
 		if (config.generateJVM && config.systemjvm) {
 			bcl = new BCEClassLoader(bce);
+			for (File f : config.readFlims) {
+				for (File g : FileUtils.findFilesMatching(f, "*.jar"))
+					bcl.addClassesFrom(g);
+			}
 			for (File f : config.includeFrom)
 				bcl.addClassesFrom(f);
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);

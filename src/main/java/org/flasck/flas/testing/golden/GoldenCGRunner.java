@@ -292,6 +292,12 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 				}
 				if (!any)
 					throw new RuntimeException("No .flim files found in " + g);
+				for (File z : FileUtils.findFilesMatching(g, "*.js")) {
+					FileUtils.copy(z, flimstoreTo);
+				}
+				for (File z : FileUtils.findFilesMatching(g, "*.jar")) {
+					FileUtils.copy(z, flimstoreTo);
+				}
 			}
 		}
 	}
