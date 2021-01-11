@@ -19,7 +19,6 @@ public class Configuration {
 	public boolean systemjvm = true, systemjs = true;
 	public boolean dumpTypes;
 	public final List<File> readFlims = new ArrayList<>();
-	private File flimDir;
 	public File root;
 	public boolean doTypeCheck = true;
 	public boolean generateJS = true;
@@ -134,7 +133,7 @@ public class Configuration {
 						System.out.println("--flim <dir>");
 						System.exit(1);
 					}
-					flimDir = new File(args[++i]);
+					File flimDir = new File(args[++i]);
 					readFlims.add(flimDir);
 				} else if (arg.equals("--incl")) {
 					if (hasMore == 0) {
@@ -239,7 +238,9 @@ public class Configuration {
 	}
 
 	public File flimdir() {
-		return flimDir;
+		if (readFlims.isEmpty())
+			return null;
+		return readFlims.get(0);
 	}
 
 	public File dumprepo() {

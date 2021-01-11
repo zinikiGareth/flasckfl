@@ -15,6 +15,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
@@ -496,6 +498,7 @@ public class FLASCompiler implements CompileUnit {
 
 		if (config.generateJS) {
 			saveJSE(config.jsDir(), jse, bce);
+			jse.generate(bce);
 			saveBCE(config.jvmDir(), bce);
 		}
 
@@ -696,9 +699,9 @@ public class FLASCompiler implements CompileUnit {
 
 	public void saveBCE(File jvmDir, ByteCodeEnvironment bce) {
 //		bce.dumpAll(true);
-		if (jvmDir != null) {
-			FileUtils.assertDirectory(jvmDir);
-			try {
+		try {
+			if (jvmDir != null) {
+				FileUtils.assertDirectory(jvmDir);
 				// Doing this makes things clean, but stops you putting multiple things in the
 				// same directory
 				// FileUtils.cleanDirectory(writeJVM);
@@ -706,24 +709,54 @@ public class FLASCompiler implements CompileUnit {
 					File wto = new File(jvmDir, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
 					bcc.writeTo(wto);
 				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				errors.message((InputPosition) null, ex.toString());
+				if (config.flimdir() != null) {
+					Comparator<String> invertor = (x,y) -> -x.compareTo(y);
+					Set<String> pkgs = new TreeSet<>(invertor);
+					for (File s : config.inputs) {
+						pkgs.add(s.getName());
+					}
+					Map<String, ZipOutputStream> streams = new TreeMap<>();
+					for (ByteCodeCreator c : bce.all()) {
+						String clname = c.getCreatedName();
+						String pkg = null;
+						for (String s : pkgs) {
+							if (clname.startsWith(s)) {
+								pkg = s;
+								break;
+							}
+						}
+						if (pkg != null && clname.startsWith(pkg) && !clname.contains("_st_") && !clname.contains("_ut_")) {
+							ZipOutputStream zos = streams.get(pkg);
+							if (zos == null) {
+								File f = new File(config.flimdir(), pkg + ".jar");
+								zos = new ZipOutputStream(new FileOutputStream(f));
+								streams.put(pkg, zos);
+							}
+							zos.putNextEntry(new ZipEntry(FileUtils.convertDottedToPath(clname).getPath()));
+							zos.write(c.generate());
+						}
+					}
+					for (ZipOutputStream zos : streams.values()) 
+						zos.close();
+				}
 			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			errors.message((InputPosition) null, ex.toString());
 		}
 	}
 
 	public void saveJSE(File jsDir, JSEnvironment jse, ByteCodeEnvironment bce) {
-		if (jsDir != null) {
-			try {
+		try {
+			if (jsDir != null) {
 				jse.writeAllTo(jsDir);
-//				jse.asivm();
-				jse.generate(bce);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				errors.message((InputPosition) null, ex.toString());
 			}
-//			jse.dumpAll(true);
+			if (config.flimdir() != null) {
+				jse.writeAllTo(config.flimdir());
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			errors.message((InputPosition) null, ex.toString());
 		}
 	}
 

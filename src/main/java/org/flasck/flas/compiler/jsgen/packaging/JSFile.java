@@ -58,8 +58,8 @@ public class JSFile {
 	}
 
 	// untested
-	public void write() throws FileNotFoundException {
-		PrintWriter pw = new PrintWriter(file);
+	public void write(File jsDir) throws FileNotFoundException {
+		PrintWriter pw = new PrintWriter(new File(jsDir, file.getName()));
 		IndentWriter iw = new IndentWriter(pw);
 		writeTo(iw);
 		pw.close();

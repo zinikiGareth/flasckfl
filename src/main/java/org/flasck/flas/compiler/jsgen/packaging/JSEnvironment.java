@@ -191,7 +191,7 @@ public class JSEnvironment implements JSStorage {
 	public void writeAllTo(File jsDir) throws FileNotFoundException {
 		FileUtils.assertDirectory(jsDir);
 		for (JSFile jsf : files.values()) {
-			jsf.write();
+			jsf.write(jsDir);
 		}
 	}
 
