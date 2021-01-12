@@ -66,21 +66,21 @@ JsonBeachhead.prototype.handleArg = function(ux, o) {
 
 JsonBeachhead.prototype.idem = function(uow, jo, replyTo) {
     const ih = this.broker.currentIdem(jo.idem);
-    const um = new UnmarshalTraverser(uow, new CollectingState());
-    // const om = new ObjectMarshaller(uow, um);
-    for (var i=0;i<jo.args.length-1;i++) {
-        this.handleArg(um, jo.args[i]);
-        // om.marshal(jo.args[i]);
+    const um = new UnmarshallerDispatcher(null, ih);
+    const dispatcher = um.begin(uow, jo.method);
+    uow.log("jo.args =", jo.args);
+    var cnt = jo.args.length;
+    var wantHandler = false;
+    if (jo.method != "success" && jo.method != "failure") {
+        wantHandler = true;
+        cnt--;
     }
-    if (jo.method == "success")
-        ;
-    else if (jo.method == "failure")
-        this.handleArg(um, jo.args[0]);
-        // om.marshal(jo.args[0]);
-    else
-        um.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
-    uow.log("have args for", jo.method, "as", um.ret);
-    return ih[jo.method].apply(ih, um.ret);
+    for (var i=0;i<cnt;i++) {
+        this.handleArg(dispatcher, jo.args[i]);
+    }
+    if (wantHandler)
+        dispatcher.handler(this.makeIdempotentHandler(replyTo, jo.args[cnt-1]));
+    return dispatcher.dispatch();
 }
 
 JsonBeachhead.prototype.makeIdempotentHandler = function(replyTo, ihinfo) {
