@@ -66,10 +66,16 @@ public class LoadBuiltins {
 	 * Deal & Offer feel like they would come up in conversations about Commerce
 	 * Countables, Currency and ValueStore need to go here too
 	 */
-	public static final Primitive entity = any;
+	public static final Primitive entity = new Primitive(pos, "Entity");
 	public static final TypeReference entityTR = new TypeReference(pos, "Entity");
 	static {
 		entityTR.bind(entity);
+	}
+	
+	public static final Primitive co = new Primitive(pos, "ContentObject");
+	public static final TypeReference coTR = new TypeReference(pos, "ContentObject");
+	static {
+		coTR.bind(co);
 	}
 
 	//   -> number
@@ -665,6 +671,7 @@ public class LoadBuiltins {
 		repository.addEntry(errors, new SolidName(null, "Entity"), entity);
 		repository.addEntry(errors, contract.name(), contract);
 		repository.newStruct(errors, error);
+		repository.addEntry(errors, co.name(), co);
 		repository.addEntry(errors, number.name(), number);
 		repository.addEntry(errors, string.name(), string);
 		repository.addEntry(errors, uri.name(), uri);

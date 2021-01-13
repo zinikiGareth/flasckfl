@@ -62,11 +62,16 @@ public class TDAMultiParser implements TDAParsing {
 
 	public static TDAParsing topLevelUnit(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer sb, Iterable<ParserModule> modules) {
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb, null);
-		TDAMultiParser ret = new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb, null), TDATupleDeclarationParser.constructor(namer, sb, null));
+		TDAMultiParser ret = new TDAMultiParser(errors,
+			TDAIntroParser.constructor(namer, sb),
+			TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb, null),
+			TDATupleDeclarationParser.constructor(namer, sb, null));
 		for (ParserModule m : modules) {
 			TDAParsing r = m.introParser(errors, namer, sb);
-			if (r != null)
-				ret.parsers.add(r);
+			if (r != null) {
+				// add it at the front because TDAFunctionParser swallows up everything
+				ret.parsers.add(0, r);
+			}
 		}
 		return ret;
 	}

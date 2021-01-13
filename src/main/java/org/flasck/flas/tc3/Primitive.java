@@ -7,7 +7,9 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -70,6 +72,8 @@ public class Primitive implements RepositoryEntry, NamedType, NamedThing {
 			return true;
 		if (this.name.uniqueName().equals("Any"))
 			return true;
+		if (this.name.uniqueName().equals("Entity"))
+			return other instanceof StructDefn && ((StructDefn)other).type == FieldsType.ENTITY;
 		if (this.name.uniqueName().equals("Contract") && (other instanceof ContractDecl || other instanceof HandlerImplements))
 			return true;
 		return false;

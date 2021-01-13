@@ -631,7 +631,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 					List<TypeReference> nu = ref.polys();
 					int ndp = nd.size();
 					if (ndp != nu.size()) {
-						errors.message(ref.location(), "expected " + ndp + " poly vars");
+						errors.message(ref.location().locAtEnd(), "expected " + ndp + " poly vars");
 						return;
 					}
 					ErrorMark mark = errors.mark();

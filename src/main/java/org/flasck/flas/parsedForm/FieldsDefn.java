@@ -12,11 +12,14 @@ public abstract class FieldsDefn implements AsString, Locatable, PolyHolder, Fie
 	public enum FieldsType { 
 		STRUCT,
 		ENTITY,
+		STATE,
+		
+		// TODO: all of these should be in Ziniki
+		ENVELOPE,
+		WRAPS,
 		DEAL,
 		OFFER,
-		STATE,
-		ENVELOPE,
-		WRAPS;
+		ARENA;
 	}
 
 	public final boolean generate;

@@ -1,8 +1,8 @@
 invalidtypes  2.0:     _ Undefined foo
                           cannot resolve 'Undefined'
-invalidtypes  3.0:     _ List nopolys
+invalidtypes  3.4:    List _  nopolys
                           expected 1 poly vars
-invalidtypes  4.0:     _ List[String, String] tooManyPolys
+invalidtypes  4.4:    List _ [String, String] tooManyPolys
                           expected 1 poly vars
 invalidtypes  5.5:    List[ _ Undefined] invalidPolys
                           cannot resolve 'Undefined'

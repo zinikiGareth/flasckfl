@@ -118,6 +118,8 @@ public class TypeHelpers {
 		if (arg instanceof StructDefn) {
 			StructDefn s = (StructDefn) arg;
 			return s.type == FieldsType.ENTITY;
+		} else if (arg instanceof Primitive) {
+			return ((Primitive)arg).name().uniqueName().equals("Entity");
 		} else
 			return false;
 	}
