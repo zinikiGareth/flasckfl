@@ -143,5 +143,6 @@ public class Main {
 		StaticLoggerBinder.setLevel("BTResponder", level);
 		StaticLoggerBinder.setLevel("ZinDelivery", level);
 		StaticLoggerBinder.setLevel("DoGet", level);
+		StaticLoggerBinder.setLevel("Uploader", level);
 	}
 }
