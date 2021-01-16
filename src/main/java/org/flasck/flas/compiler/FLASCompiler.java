@@ -430,6 +430,10 @@ public class FLASCompiler implements CompileUnit {
 			}
 		}
 
+		for (CompilerComplete cc : completeModules) {
+			cc.complete(errors, config, bce, jse);
+		}
+
 		return false;
 	}
 
@@ -506,10 +510,6 @@ public class FLASCompiler implements CompileUnit {
 			saveBCE(config.jvmDir(), bce);
 		}
 
-		for (CompilerComplete cc : completeModules) {
-			cc.complete(errors, config, bce, jse);
-		}
-		
 		return errors.hasErrors();
 	}
 
