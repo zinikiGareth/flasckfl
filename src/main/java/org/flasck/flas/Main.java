@@ -94,7 +94,7 @@ public class Main {
 			return null;
 		}
 		for (File input : config.inputs)
-			compiler.processInput(input);
+			compiler.processInputFromDirectory(input);
 		for (File web : config.webs)
 			compiler.splitWeb(web);
 

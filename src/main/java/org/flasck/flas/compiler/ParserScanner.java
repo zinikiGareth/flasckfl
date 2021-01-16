@@ -1,9 +1,9 @@
 package org.flasck.flas.compiler;
 
-import java.io.File;
+import org.flasck.jvm.ziniki.ContentObject;
 
 public interface ParserScanner {
 
-	void process(File f);
+	void process(ContentObject co);
 
 }

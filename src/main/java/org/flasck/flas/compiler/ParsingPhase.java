@@ -1,10 +1,9 @@
 package org.flasck.flas.compiler;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.io.StringReader;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
@@ -19,6 +18,7 @@ import org.flasck.flas.parser.st.SystemTestPackageNamer;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.jvm.ziniki.ContentObject;
 
 public class ParsingPhase implements ParserScanner {
 	private final ErrorReporter errors;
@@ -49,22 +49,22 @@ public class ParsingPhase implements ParserScanner {
 	}
 
 	@Override
-	public void process(File f) {
-		try (LineNumberReader lnr = new LineNumberReader(new FileReader(f))) {
+	public void process(ContentObject co) {
+		try (LineNumberReader lnr = new LineNumberReader(new StringReader(co.asString()))) {
 			String s;
 			try {
 				blocker.newFile();
 				while ((s = lnr.readLine()) != null)
-					blocker.present(f.getName(), lnr.getLineNumber(), s);
+					blocker.present(co.key(), lnr.getLineNumber(), s);
 				blocker.flush();
 			} catch (IOException ex) {
-				errors.message(new InputPosition(f.getName(), lnr.getLineNumber(), -1, null, null), ex.toString());
+				errors.message(new InputPosition(co.key(), lnr.getLineNumber(), -1, null, null), ex.toString());
 				return;
 			}
 		} catch (FileNotFoundException ex) {
-			errors.message(new InputPosition(f.getName(), -1, -1, null, null), "file does not exist");
+			errors.message(new InputPosition(co.key(), -1, -1, null, null), "file does not exist");
 		} catch (IOException ex) {
-			errors.message(new InputPosition(f.getName(), -1, -1, null, null), ex.toString());
+			errors.message(new InputPosition(co.key(), -1, -1, null, null), ex.toString());
 		} catch (Throwable t) {
 			errors.reportException(t);
 		}

@@ -65,6 +65,8 @@ import org.flasck.jvm.J;
 import org.flasck.jvm.assembly.CardInitializer;
 import org.flasck.jvm.assembly.FLASAssembler;
 import org.flasck.jvm.ziniki.ContentObject;
+import org.flasck.jvm.ziniki.FileContentObject;
+import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.SplitMetaData;
@@ -74,7 +76,6 @@ import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.graphs.DirectedAcyclicGraph;
-import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 
 public class FLASCompiler implements CompileUnit {
@@ -134,9 +135,14 @@ public class FLASCompiler implements CompileUnit {
 		return false;
 	}
 
-	public void processInput(File input) {
+	public void processInputFromDirectory(File input) {
+		if (!input.isDirectory()) {
+			errors.message((InputPosition) null, "there is no input directory " + input);
+			return;
+		}
 		try {
-			parse(input);
+			PackageSources sources = new FileBasedSources(input);
+			parse(sources);
 		} catch (Throwable ex) {
 			reportException(ex);
 		}
@@ -155,50 +161,37 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
-	public void parse(File dir) {
-		if (!dir.isDirectory()) {
-			errors.message((InputPosition) null, "there is no input directory " + dir);
-			return;
-		}
-		
-
-		String inPkg = dir.getName();
+	// TODO: need to abstract the System.out as well
+	public void parse(PackageSources sources) {
+		String inPkg = sources.getPackageName();
 		checkPackageName(inPkg);
 		System.out.println(" |" + inPkg);
 		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository, modules);
-		List<File> files = FileUtils.findFilesMatching(dir, "*.fl");
-		files.sort(new FileNameComparator());
 		logger.info("parsing fl");
-		for (File f : files) {
-			System.out.println("    " + f.getName());
+		for (ContentObject f : sources.sources()) {
+			System.out.println("    " + f.key());
 			flp.process(f);
 		}
-		List<File> utfiles = FileUtils.findFilesMatching(dir, "*.ut");
-		utfiles.sort(new FileNameComparator());
 		logger.info("parsing ut");
-		for (File f : utfiles) {
-			System.out.println("    " + f.getName());
-			String file = FileUtils.dropExtension(f.getName());
+		for (ContentObject f : sources.unitTests()) {
+			System.out.println("    " + f.key());
+			String file = FileUtils.dropExtension(f.key());
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
 			UnitTestPackage utp = new UnitTestPackage(new InputPosition(file, 1, 0, null, ""), utfn);
 			repository.unitTestPackage(errors, utp);
 			ParsingPhase parser = new ParsingPhase(errors, utfn, new ConsumeDefinitions(errors, repository, utp));
 			parser.process(f);
 		}
-		List<File> fafiles = FileUtils.findFilesMatching(dir, "*.fa");
-		fafiles.sort(new FileNameComparator());
 		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
 		logger.info("parsing fa");
-		for (File f : fafiles) {
-			System.out.println("    " + f.getName());
+		for (ContentObject f : sources.assemblies()) {
+			System.out.println("    " + f.key());
 			fap.process(f);
 		}
-		List<File> stfiles = FileUtils.findFilesMatching(dir, "*.st");
-		stfiles.sort(new FileNameComparator());
 		logger.info("parsing st");
-		for (File f : stfiles) {
-			System.out.println("    " + f.getName());
-			String file = FileUtils.dropExtension(f.getName());
+		for (ContentObject f : sources.systemTests()) {
+			System.out.println("    " + f.key());
+			String file = FileUtils.dropExtension(f.key());
 			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
 			SystemTest st = new SystemTest(stfn);
 			repository.systemTest(errors, st);
@@ -248,13 +241,13 @@ public class FLASCompiler implements CompileUnit {
 	private void parseFL(File file, String inPkg, String name) {
 		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository, modules);
 		errors.logMessage("compiling " + name + " in " + inPkg);
-		flp.process(file);
+		flp.process(new FileContentObject(file));
 	}
 
 	private void parseFA(File file, String inPkg, String name) {
 		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
 		errors.logMessage("compiling " + file.getName() + " in " + inPkg);
-		fap.process(file);
+		fap.process(new FileContentObject(file));
 	}
 
 	public void attemptRest(URI uri) {
