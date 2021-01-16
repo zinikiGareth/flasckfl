@@ -135,16 +135,18 @@ public class FLASCompiler implements CompileUnit {
 		return false;
 	}
 
-	public void processInputFromDirectory(File input) {
+	public PackageSources processInputFromDirectory(File input) {
 		if (!input.isDirectory()) {
 			errors.message((InputPosition) null, "there is no input directory " + input);
-			return;
+			return null;
 		}
 		try {
 			PackageSources sources = new FileBasedSources(input);
 			parse(sources);
+			return sources;
 		} catch (Throwable ex) {
 			reportException(ex);
+			return null;
 		}
 	}
 
@@ -269,13 +271,13 @@ public class FLASCompiler implements CompileUnit {
 //		sendRepo();
 		errors.beginProcessing(uri);
 		repository.clean();
-		if (stage2()) {
+		if (stage2(null)) { // I don't think this should upload, so it won't need the package sources per se ...
 			// worked
 		}
 		errors.doneProcessing(this.brokenUris);
 	}
 
-	public boolean stage2() {
+	public boolean stage2(List<PackageSources> packages) {
 		File dump = config.dumprepo();
 		if (dump != null) {
 			try {
@@ -424,7 +426,7 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		for (CompilerComplete cc : completeModules) {
-			cc.complete(errors, config, bce, jse);
+			cc.complete(errors, config, packages, bce, jse);
 		}
 
 		return false;

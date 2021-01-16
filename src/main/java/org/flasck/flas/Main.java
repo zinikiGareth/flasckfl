@@ -8,10 +8,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.Repository;
+import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
@@ -93,12 +97,13 @@ public class Main {
 			errors.message((InputPosition)null, "there are no input packages");
 			return null;
 		}
+		List<PackageSources> packages = new ArrayList<>();
 		for (File input : config.inputs)
-			compiler.processInputFromDirectory(input);
+			packages.add(compiler.processInputFromDirectory(input));
 		for (File web : config.webs)
 			compiler.splitWeb(web);
 
-		if (compiler.stage2())
+		if (compiler.stage2(packages))
 			return null;
 		else
 			return compiler;
