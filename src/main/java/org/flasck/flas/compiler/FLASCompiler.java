@@ -620,6 +620,11 @@ public class FLASCompiler implements CompileUnit {
 					}
 					
 					@Override
+					public String writeUrl() {
+						return null;
+					}
+
+					@Override
 					public byte[] asByteArray() {
 						return null;
 					}
