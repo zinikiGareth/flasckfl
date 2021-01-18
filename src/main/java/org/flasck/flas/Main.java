@@ -9,11 +9,13 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.repository.AssemblyVisitor;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
@@ -54,6 +56,7 @@ public class Main {
 	}
 	
 	// If we are the embedded Ziniki compiler, store the resulting package in S3
+	@Deprecated // the old hack one
 	public static boolean uploader(ErrorResult errors, Configuration config) throws IOException {
 		FLASCompiler compiler = commonCompiler(errors, config);
 		if (errors.hasErrors())
@@ -67,31 +70,51 @@ public class Main {
 		return errors.hasErrors();
 	}
 	
+	// If we are the embedded Ziniki compiler, store the resulting package in S3
+	public static boolean uploader(ErrorResult errors, Configuration config, PackageSources cpv, AssemblyVisitor storer) throws IOException {
+//		FLASCompiler compiler = commonCompiler(errors, config);
+		Repository repository = new Repository();
+		FLASCompiler compiler = new FLASCompiler(config, errors, repository);
+		compiler.loadFLIMFromContentStore();
+		compiler.parse(cpv);
+		if (errors.hasErrors())
+			return true;
+		// TODO: split webs
+		if (errors.hasErrors())
+			return true;
+
+		compiler.stage2(Arrays.asList(cpv));
+		if (errors.hasErrors())
+			return true;
+
+		compiler.storeAssemblies(storer);
+		
+		return errors.hasErrors();
+	}
 
 	private static FLASCompiler commonCompiler(ErrorResult errors, Configuration config) throws IOException, FileNotFoundException {
-		Writer osw;
-		File f = config.writeErrorsTo();
-		if (f != null)
-			osw = new FileWriter(f);
-		else
-			osw = new OutputStreamWriter(System.out, StandardCharsets.UTF_8);
-		PrintWriter ew = new PrintWriter(osw, true);
-		FLASCompiler compiler = doCompilation(errors, config, ew);
+		FLASCompiler compiler = doCompilation(errors, config);
 		if (errors.hasErrors()) {
-			errors.showTo(ew, 0);
+			Writer osw;
+			File f = config.writeErrorsTo();
+			if (f != null)
+				osw = new FileWriter(f);
+			else
+				osw = new OutputStreamWriter(System.out, StandardCharsets.UTF_8);
+			errors.showTo(new PrintWriter(osw, true), 0);
 			return null;
 		}
 		return compiler;
 	}
 
-	private static FLASCompiler doCompilation(ErrorResult errors, Configuration config, PrintWriter ew) throws IOException, FileNotFoundException {
+	private static FLASCompiler doCompilation(ErrorResult errors, Configuration config) throws IOException, FileNotFoundException {
 		if (errors.hasErrors()) {
 			return null;
 		}
 
 		Repository repository = new Repository();
 		FLASCompiler compiler = new FLASCompiler(config, errors, repository);
-		if (compiler.loadFLIM())
+		if (compiler.loadFLIMFromFiles())
 			return null;
 		if (config.inputs.isEmpty()) {
 			errors.message((InputPosition)null, "there are no input packages");

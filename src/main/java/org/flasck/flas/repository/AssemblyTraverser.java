@@ -37,6 +37,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		try {
 			traversalDone();
 		} catch (Exception ex) {
+			logger.error("Error uploading", ex);
 			errors.message((InputPosition)null, "error uploading assembly: " + ex);
 		}
 	}

@@ -114,11 +114,11 @@ public class FLASCompiler implements CompileUnit {
 
 	public void lspLoadFLIM(URI uri) {
 		errors.beginProcessing(uri);
-		loadFLIM();
+		loadFLIMFromFiles();
 		errors.doneProcessing(brokenUris);
 	}
 
-	public boolean loadFLIM() {
+	public boolean loadFLIMFromFiles() {
 		LoadBuiltins.applyTo(errors, repository);
 		pkgs = new DirectedAcyclicGraph<>();
 		FlimReader reader = new FlimReader(errors, repository);
@@ -133,6 +133,11 @@ public class FLASCompiler implements CompileUnit {
 				return true;
 		}
 		return false;
+	}
+
+	public void loadFLIMFromContentStore() {
+		LoadBuiltins.applyTo(errors, repository);
+		pkgs = new DirectedAcyclicGraph<>();
 	}
 
 	public PackageSources processInputFromDirectory(File input) {

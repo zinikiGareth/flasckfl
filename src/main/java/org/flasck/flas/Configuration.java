@@ -35,6 +35,7 @@ public class Configuration {
 	public File writeTypesTo;
 	private String jstestdir;
 	public String specifiedTestName;
+	@Deprecated
 	public AssemblyVisitor storer;
 	public String flascklib; // needs a default relative to me
 	public boolean openHTML;
