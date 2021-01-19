@@ -239,7 +239,7 @@ public class Traverser implements RepositoryVisitor {
 		}
 		Set<RepositoryEntry> entriesInSomeOrder = new TreeSet<RepositoryEntry>(RepositoryEntry.preferredOrder);
 		entriesInSomeOrder.addAll(repository.dict.values());
-		logger.info("about to visit " + entriesInSomeOrder);
+		logger.debug("about to visit " + entriesInSomeOrder);
 		for (RepositoryEntry e : entriesInSomeOrder) {
 			logger.debug("visiting " + e);
 			visitEntry(e);
