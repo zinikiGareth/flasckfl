@@ -176,13 +176,15 @@ public class FLASCompiler implements CompileUnit {
 		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository, modules);
 		logger.info("parsing fl");
 		for (ContentObject f : sources.sources()) {
-			System.out.println("    " + f.key());
+			File fi = new File(f.key());
+			System.out.println("    " + fi.getName());
 			flp.process(f);
 		}
 		logger.info("parsing ut");
 		for (ContentObject f : sources.unitTests()) {
-			System.out.println("    " + f.key());
-			String file = FileUtils.dropExtension(f.key());
+			File fi = new File(f.key());
+			System.out.println("    " + fi.getName());
+			String file = FileUtils.dropExtension(fi.getName());
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
 			UnitTestPackage utp = new UnitTestPackage(new InputPosition(file, 1, 0, null, ""), utfn);
 			repository.unitTestPackage(errors, utp);
@@ -192,13 +194,15 @@ public class FLASCompiler implements CompileUnit {
 		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
 		logger.info("parsing fa");
 		for (ContentObject f : sources.assemblies()) {
-			System.out.println("    " + f.key());
+			File fi = new File(f.key());
+			System.out.println("    " + fi.getName());
 			fap.process(f);
 		}
 		logger.info("parsing st");
 		for (ContentObject f : sources.systemTests()) {
-			System.out.println("    " + f.key());
-			String file = FileUtils.dropExtension(f.key());
+			File fi = new File(f.key());
+			System.out.println("    " + fi.getName());
+			String file = FileUtils.dropExtension(fi.getName());
 			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
 			SystemTest st = new SystemTest(stfn);
 			repository.systemTest(errors, st);

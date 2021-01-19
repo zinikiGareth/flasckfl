@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -50,21 +51,23 @@ public class ParsingPhase implements ParserScanner {
 
 	@Override
 	public void process(ContentObject co) {
+		String name = new File(co.key()).getName();
 		try (LineNumberReader lnr = new LineNumberReader(new StringReader(co.asString()))) {
 			String s;
 			try {
 				blocker.newFile();
-				while ((s = lnr.readLine()) != null)
-					blocker.present(co.key(), lnr.getLineNumber(), s);
+				while ((s = lnr.readLine()) != null) {
+					blocker.present(name, lnr.getLineNumber(), s);
+				}
 				blocker.flush();
 			} catch (IOException ex) {
-				errors.message(new InputPosition(co.key(), lnr.getLineNumber(), -1, null, null), ex.toString());
+				errors.message(new InputPosition(name, lnr.getLineNumber(), -1, null, null), ex.toString());
 				return;
 			}
 		} catch (FileNotFoundException ex) {
-			errors.message(new InputPosition(co.key(), -1, -1, null, null), "file does not exist");
+			errors.message(new InputPosition(name, -1, -1, null, null), "file does not exist");
 		} catch (IOException ex) {
-			errors.message(new InputPosition(co.key(), -1, -1, null, null), ex.toString());
+			errors.message(new InputPosition(name, -1, -1, null, null), ex.toString());
 		} catch (Throwable t) {
 			errors.reportException(t);
 		}
