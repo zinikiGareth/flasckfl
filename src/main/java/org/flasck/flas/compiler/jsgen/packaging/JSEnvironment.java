@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -24,6 +25,8 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.jvm.ziniki.ContentObject;
+import org.flasck.jvm.ziniki.FileContentObject;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.graphs.Node;
@@ -217,6 +220,63 @@ public class JSEnvironment implements JSStorage {
 		return ret;
 	}
 
+	@Override
+	public Iterable<ContentObject> jsIncludes(Configuration config, String testDirJS) {
+		List<ContentObject> ret = new ArrayList<>();
+		List<String> inlib = new ArrayList<>();
+		if (config.flascklib != null) {
+			List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
+			for (File f : library) {
+				includeFile(ret, testDirJS, f);
+				inlib.add(f.getName());
+			}
+		}
+		for (File mld : config.modules) {
+			List<File> l = FileUtils.findFilesMatching(mld, "*");
+			for (File f : l) {
+				includeFile(ret, testDirJS, f);
+				inlib.add(f.getName());
+			}
+		}
+
+		for (String s : packages()) {
+			File f = fileFor(s);
+			if (f != null) {
+				includeFile(ret, testDirJS, f);
+				inlib.add(f.getName());
+			} else {
+				for (File q : config.readFlims) {
+					File i = new File(q, s + ".js");
+					if (i.exists()) {
+						if (!inlib.contains(i.getName())) {
+							includeFile(ret, testDirJS, i);
+							inlib.add(i.getName());
+						}
+					}
+				}
+				for (File q : config.includeFrom) {
+					for (File i : FileUtils.findFilesMatching(q, s + ".js")) {
+						if (!inlib.contains(i.getName())) {
+							includeFile(ret, testDirJS, i);
+							inlib.add(i.getName());
+						}
+					}
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	private void includeFile(List<ContentObject> ret, String testDir, File f) {
+		if (!f.isAbsolute())
+			f = new File(new File(System.getProperty("user.dir")), f.getPath());
+		ret.add(new FileContentObject(f));
+		if (testDir != null) {
+			FileUtils.copy(f, new File(testDir, f.getName()));
+		}
+	}
+	
 	public void asivm() {
 		for (JSFile f : files.values()) {
 			f.asivm();

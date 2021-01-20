@@ -3,7 +3,6 @@ package org.flasck.flas.testrunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,7 @@ import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
+import org.flasck.jvm.ziniki.ContentObject;
 import org.ziniki.ziwsh.intf.JsonSender;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
@@ -240,54 +240,16 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			for (Entry<String, String> e : templates.entrySet())
 				renderTemplate(pw, e.getKey(), e.getValue());
 
-			List<String> inlib = new ArrayList<>();
-			if (config.flascklib != null) {
-				List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
-				for (File f : library) {
-					includeFileAsScript(pw, f, testDirJS);
-					inlib.add(f.getName());
-				}
-			}
-			for (File mld : config.modules) {
-				List<File> l = FileUtils.findFilesMatching(mld, "*");
-				for (File f : l) {
-					includeFileAsScript(pw, f, testDirJS);
-					inlib.add(f.getName());
-				}
-			}
-
-			for (String s : jse.packages()) {
-				File f = jse.fileFor(s);
-				if (f != null) {
-					includeFileAsScript(pw, f, testDirJS);
-					inlib.add(f.getName());
-				} else {
-					for (File q : config.readFlims) {
-						File i = new File(q, s + ".js");
-						if (i.exists()) {
-							if (!inlib.contains(i.getName())) {
-								includeFileAsScript(pw, i, testDirJS);
-								inlib.add(i.getName());
-							}
-						}
-					}
-					for (File q : config.includeFrom) {
-						for (File i : FileUtils.findFilesMatching(q, s + ".js")) {
-							if (!inlib.contains(i.getName())) {
-								includeFileAsScript(pw, i, testDirJS);
-								inlib.add(i.getName());
-							}
-						}
-					}
-				}
+			for (ContentObject incl : jse.jsIncludes(config, testDirJS)) {
+				includeAsScript(pw, incl);
 			}
 			pw.println("</head>");
 			pw.println("<body>");
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();
-//			System.out.println("Loading " + html);
-//			FileUtils.cat(html);
+			System.out.println("Loading " + html);
+			FileUtils.cat(html);
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);
 		}
@@ -299,15 +261,11 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		pw.println("</template>");
 	}
 
-	protected void includeFileAsScript(PrintWriter pw, File f, String testDir) {
-		File to = new File(testDir, f.getName());
-		if (!f.isAbsolute())
-			f = new File(new File(System.getProperty("user.dir")), f.getPath());
-		FileUtils.copy(f, to);
-		String path = to.getPath();
+	private void includeAsScript(PrintWriter pw, ContentObject co) {
+		String path = co.url();
 		if (useCachebuster)
 			path += "?cachebuster=" + System.currentTimeMillis();
-		pw.println("<script src='file:" + path + "' type='text/javascript'></script>");
+		pw.println("<script src='" + path + "' type='text/javascript'></script>");
 	}
 
 	protected JSObject getVar(String var) {
