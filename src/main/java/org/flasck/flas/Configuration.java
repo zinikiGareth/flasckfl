@@ -10,6 +10,7 @@ import org.flasck.flas.compiler.OptionModule;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.AssemblyVisitor;
+import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.utils.FileUtils;
 
 public class Configuration {
@@ -37,7 +38,8 @@ public class Configuration {
 	public String specifiedTestName;
 	@Deprecated
 	public AssemblyVisitor storer;
-	public String flascklib; // needs a default relative to me
+	public String flascklibDir;
+	public PackageSources flascklibCPV;
 	public boolean openHTML;
 	public final List<File> includeFrom = new ArrayList<File>();
 	public final List<File> modules = new ArrayList<>();
@@ -78,7 +80,7 @@ public class Configuration {
 						System.out.println("--flascklib <dir>");
 						System.exit(1);
 					}
-					this.flascklib = args[++i]; // definitely NOT under root 
+					this.flascklibDir = args[++i]; // definitely NOT under root 
 				} else if (arg.equals("--modulelib")) {
 					if (hasMore == 0) {
 						System.out.println("--modulelib <dir>");
@@ -186,7 +188,7 @@ public class Configuration {
 				inputs.add(new File(root, arg));
 			}
 		}
-		if (html != null && flascklib == null) {
+		if (html != null && flascklibDir == null) {
 			errors.message((InputPosition)null, "Use of --html requires --flascklib");
 		}
 		if (openHTML && html == null) {

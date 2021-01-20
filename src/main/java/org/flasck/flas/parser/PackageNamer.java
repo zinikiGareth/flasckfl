@@ -33,6 +33,9 @@ public class PackageNamer extends InnerPackageNamer implements TopLevelNamer {
 	
 	@Override
 	public AssemblyName assemblyName(String name) {
-		return new AssemblyName(pkg, name);
+		if (pkg.uniqueName() == null && name == null)
+			return new AssemblyName(new PackageName("root.package"), name);
+		else
+			return new AssemblyName(pkg, name);
 	}
 }

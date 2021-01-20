@@ -405,7 +405,7 @@ public class FLASCompiler implements CompileUnit {
 					}
 					zoo.close();
 				}
-				List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
+				List<File> library = FileUtils.findFilesMatching(new File(config.flascklibDir), "*");
 				for (File f : library) {
 					FileUtils.copy(f, fldir);
 				}
@@ -580,11 +580,11 @@ public class FLASCompiler implements CompileUnit {
 
 	public void storeAssemblies(AssemblyVisitor storer) {
 		if (jse != null)
-			repository.traverseAssemblies(errors, jse, bce, storer);
+			repository.traverseAssemblies(config, errors, jse, bce, storer);
 	}
 
 	public void generateHTML(FLASAssembler asm) {
-		repository.traverseAssemblies(errors, jse, bce, new AssemblyVisitor() {
+		repository.traverseAssemblies(config, errors, jse, bce, new AssemblyVisitor() {
 			private List<String> inits = new ArrayList<>();
 			private List<String> css = new ArrayList<>();
 			private List<String> js = new ArrayList<>();
@@ -606,23 +606,10 @@ public class FLASCompiler implements CompileUnit {
 			@Override
 			public void uploadJar(ByteCodeEnvironment bce, String s) {
 			}
-
-			@Override
-			public void compiledPackageFile(File f) {
-				logger.debug("compiled " + f);
-				js.add(FileUtils.figureRelativePathFrom(config.root, f).getPath());
-			}
 			
 			@Override
-			public void includePackageFile(String pkg, String s) {
-				// TODO: this should probably search all of them and find the right one where it actually is
-				File f;
-				if ("runtime".equals(pkg)) {
-					f = new File("compiler/flascklib", s + ".js");
-				} else
-					f = new File(config.readFlims.get(0), s + ".js");
-				logger.debug("included " + s);
-				js.add(FileUtils.figureRelativePathFrom(config.root, f).getPath());
+			public void includePackageFile(ContentObject co) {
+				js.add(co.url());
 			}
 
 			@Override

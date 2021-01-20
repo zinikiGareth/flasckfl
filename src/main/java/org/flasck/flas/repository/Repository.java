@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.CardName;
@@ -477,8 +478,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.doTraversal(this);
 	}
 
-	public void traverseAssemblies(ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v) {
-		AssemblyTraverser t = new AssemblyTraverser(errors, jse, bce, v);
+	public void traverseAssemblies(Configuration config, ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v) {
+		AssemblyTraverser t = new AssemblyTraverser(config, errors, jse, bce, v);
 		t.doTraversal(this);
 	}
 

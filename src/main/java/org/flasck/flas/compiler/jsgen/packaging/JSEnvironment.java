@@ -224,11 +224,18 @@ public class JSEnvironment implements JSStorage {
 	public Iterable<ContentObject> jsIncludes(Configuration config, String testDirJS) {
 		List<ContentObject> ret = new ArrayList<>();
 		List<String> inlib = new ArrayList<>();
-		if (config.flascklib != null) {
-			List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
+		if (config.flascklibDir != null) {
+			List<File> library = FileUtils.findFilesMatching(new File(config.flascklibDir), "*");
 			for (File f : library) {
 				includeFile(ret, testDirJS, f);
 				inlib.add(f.getName());
+			}
+		} else if (config.flascklibCPV != null) {
+			for (ContentObject co : config.flascklibCPV.livejs()) {
+				ret.add(co);
+			}
+			for (ContentObject co : config.flascklibCPV.testjs()) {
+				ret.add(co);
 			}
 		}
 		for (File mld : config.modules) {
