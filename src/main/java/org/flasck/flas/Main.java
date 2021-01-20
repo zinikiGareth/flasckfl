@@ -17,6 +17,8 @@ import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.AssemblyVisitor;
 import org.flasck.flas.repository.Repository;
+import org.flasck.jvm.ziniki.ContentObject;
+import org.flasck.jvm.ziniki.FileContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +81,8 @@ public class Main {
 		compiler.parse(cpv);
 		if (errors.hasErrors())
 			return true;
-		// TODO: split webs
+		for (ContentObject web : cpv.webs())
+			compiler.splitWeb(web);
 		if (errors.hasErrors())
 			return true;
 
@@ -123,8 +126,17 @@ public class Main {
 		List<PackageSources> packages = new ArrayList<>();
 		for (File input : config.inputs)
 			packages.add(compiler.processInputFromDirectory(input));
-		for (File web : config.webs)
-			compiler.splitWeb(web);
+		for (File web : config.webs) {
+			if (!web.canRead()) {
+				errors.message((InputPosition) null, "there is no web input: " + web);
+				continue;
+			}
+			if (web.isDirectory()) {
+				compiler.splitWeb(web);
+			} else { // assume it is a zip
+				compiler.splitWeb(new FileContentObject(web));
+			}
+		}
 
 		if (compiler.stage2(packages))
 			return null;

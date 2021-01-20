@@ -16,13 +16,17 @@ public class FileBasedSources implements PackageSources {
 	private final List<ContentObject> uts = new ArrayList<>();
 	private final List<ContentObject> fas = new ArrayList<>();
 	private final List<ContentObject> sts = new ArrayList<>();
+	private final List<ContentObject> webs = new ArrayList<>();
 
-	public FileBasedSources(File dir) {
+	public FileBasedSources(File dir, List<File> webs) {
 		this.dir = dir;
 		collect(fls, dir, "*.fl");
 		collect(uts, dir, "*.ut");
 		collect(fas, dir, "*.fa");
 		collect(sts, dir, "*.st");
+		for (File f : webs) {
+			this.webs.add(new FileContentObject(f));
+		}
 	}
 
 	@Override
@@ -36,6 +40,11 @@ public class FileBasedSources implements PackageSources {
 		for (File f : files) {
 			into.add(new FileContentObject(f));
 		}
+	}
+	
+	@Override
+	public List<ContentObject> webs() {
+		return webs;
 	}
 
 	@Override

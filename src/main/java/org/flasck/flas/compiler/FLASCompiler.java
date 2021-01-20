@@ -70,6 +70,7 @@ import org.flasck.jvm.ziniki.FileContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ziniki.splitter.ConcreteMetaData;
 import org.ziniki.splitter.SplitMetaData;
 import org.ziniki.splitter.Splitter;
 import org.zinutils.bytecode.BCEClassLoader;
@@ -147,7 +148,7 @@ public class FLASCompiler implements CompileUnit {
 			return null;
 		}
 		try {
-			PackageSources sources = new FileBasedSources(input);
+			PackageSources sources = new FileBasedSources(input, config.webs);
 			parse(sources);
 			return sources;
 		} catch (Throwable ex) {
@@ -156,16 +157,25 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
-	public void splitWeb(File web) {
-		if (!web.canRead()) {
-			errors.message((InputPosition) null, "there is no web input: " + web);
-			return;
-		}
+	public void splitWeb(File dir) {
 		try {
-			SplitMetaData md = splitter.split(web);
+			SplitMetaData md = splitter.split(dir);
 			repository.webData(md);
 		} catch (IOException ex) {
-			errors.message((InputPosition) null, "error splitting: " + web);
+			errors.message((InputPosition) null, "error splitting: " + dir);
+		}
+	}
+
+	public void splitWeb(ContentObject co) {
+		try {
+			// TODO: We should probably allow users to specify this file
+			File tmp = File.createTempFile("webdata", ".zip");
+			FileOutputStream baos = new FileOutputStream(tmp);
+			SplitMetaData md = splitter.split(baos, co.asStream());
+			((ConcreteMetaData) md).stream(tmp);
+			repository.webData(md);
+		} catch (IOException ex) {
+			errors.message((InputPosition) null, "error splitting: " + co.key());
 		}
 	}
 
@@ -636,6 +646,11 @@ public class FLASCompiler implements CompileUnit {
 
 					@Override
 					public byte[] asByteArray() {
+						return null;
+					}
+
+					@Override
+					public InputStream asStream() {
 						return null;
 					}
 
