@@ -40,6 +40,7 @@ import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
+import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -580,7 +581,7 @@ public class FLASCompiler implements CompileUnit {
 			private List<ContentObject> temps = new ArrayList<>();
 
 			@Override
-			public void visitAssembly(ApplicationAssembly a) {
+			public void visitAssembly(Assembly a) {
 			}
 			
 			@Override
@@ -652,9 +653,10 @@ public class FLASCompiler implements CompileUnit {
 			}
 			
 			@Override
-			public void leaveAssembly(ApplicationAssembly a) throws IOException {
+			public void leaveAssembly(Assembly a) throws IOException {
+				ApplicationAssembly aa = (ApplicationAssembly) a;
 				asm.begin();
-				asm.title(a.getTitle());
+				asm.title(aa.getTitle());
 				asm.afterTitle();
 				for (ContentObject co : temps)
 					asm.templates(co);
@@ -676,7 +678,7 @@ public class FLASCompiler implements CompileUnit {
 					
 					@Override
 					public String mainCard() {
-						return a.mainCard();
+						return aa.mainCard();
 					}
 				});
 				asm.endInit();
@@ -753,7 +755,7 @@ public class FLASCompiler implements CompileUnit {
 								zos = new ZipOutputStream(new FileOutputStream(f));
 								streams.put(pkg, zos);
 							}
-							zos.putNextEntry(new ZipEntry(FileUtils.convertDottedToPath(clname).getPath()));
+							zos.putNextEntry(new ZipEntry(FileUtils.convertDottedToPath(clname).getPath() + ".class"));
 							zos.write(c.generate());
 						}
 					}

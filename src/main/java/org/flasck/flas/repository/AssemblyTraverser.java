@@ -9,7 +9,6 @@ import java.util.zip.ZipInputStream;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,10 +77,10 @@ public class AssemblyTraverser implements AssemblyVisitor {
 
 	private void visitEntry(Repository repository, RepositoryEntry e) {
 		if (e instanceof Assembly)
-			traverseAssemblyWithWebs(repository, (ApplicationAssembly) e);
+			traverseAssemblyWithWebs(repository, (Assembly) e);
 	}
 
-	public void traverseAssemblyWithWebs(Repository repository, ApplicationAssembly a) {
+	public void traverseAssemblyWithWebs(Repository repository, Assembly a) {
 		try {
 			visitAssembly(a);
 			logger.info("have files: " + jse);
@@ -115,7 +114,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		v.uploadJar(bce, s);
 	}
 
-	public void visitAssembly(ApplicationAssembly a) {
+	public void visitAssembly(Assembly a) {
 		v.visitAssembly(a);
 	}
 
@@ -145,7 +144,8 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		v.visitResource(name, zis);
 	}
 
-	public void leaveAssembly(ApplicationAssembly a) throws IOException {
+	@Override
+	public void leaveAssembly(Assembly a) throws IOException {
 		v.leaveAssembly(a);
 	}
 

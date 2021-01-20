@@ -5,17 +5,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipInputStream;
 
-import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
+import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class AssemblyLeaves implements AssemblyVisitor {
 
 	@Override
-	public void visitAssembly(ApplicationAssembly a) {
+	public void visitAssembly(Assembly a) {
 	}
 
 	@Override
-	public void leaveAssembly(ApplicationAssembly a) throws IOException {
+	public void leaveAssembly(Assembly a) throws IOException {
 	}
 
 	@Override

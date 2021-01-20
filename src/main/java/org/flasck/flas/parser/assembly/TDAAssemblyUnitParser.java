@@ -3,7 +3,9 @@ package org.flasck.flas.parser.assembly;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
+import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -34,8 +36,13 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 			adc.assembly(consumer);
 			return new ApplicationElementParser(errors, kw.location, consumer);
 		}
+		case "library": {
+			LibraryAssembly consumer = new LibraryAssembly(kw.location, namer.assemblyName(null));
+			adc.assembly(consumer);
+			return new NoNestingParser(errors);
+		}
 		default: {
-			errors.message(toks, "expected 'application' or 'card'");
+			errors.message(toks, "expected 'application', 'card' or 'library'");
 			return new IgnoreNestedParser();
 		}
 		}
