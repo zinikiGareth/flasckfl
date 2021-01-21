@@ -17,6 +17,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -55,6 +56,7 @@ import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.flim.FlimReader;
+import org.flasck.flas.repository.flim.FlimTop;
 import org.flasck.flas.repository.flim.FlimWriter;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
@@ -146,6 +148,23 @@ public class FLASCompiler implements CompileUnit {
 	public void loadFLIMFromContentStore() {
 		LoadBuiltins.applyTo(errors, repository);
 		pkgs = new DirectedAcyclicGraph<>();
+		Set<FlimTop> importers = new HashSet<>();
+		FlimReader reader = new FlimReader(errors, repository);
+		if (config.dependencies != null) {
+			for (PackageSources ps : config.dependencies) {
+				if (ps.flims() != null) {
+					for (ContentObject co : ps.flims()) {
+						importers.add(reader.read(pkgs, ps.getPackageName(), co));
+					}
+				}
+			}
+		}
+		if (errors.hasErrors())
+			return;
+		
+		for (FlimTop ft : importers) {
+			ft.resolve();
+		}
 	}
 
 	public PackageSources processInputFromDirectory(File input) {

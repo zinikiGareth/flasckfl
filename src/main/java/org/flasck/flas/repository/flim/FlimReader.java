@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +17,7 @@ import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.blocker.TDANester;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.Repository;
+import org.flasck.jvm.ziniki.ContentObject;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.utils.FileUtils;
 
@@ -64,17 +67,39 @@ public class FlimReader {
 		}
 	}
 
+
+	public FlimTop read(DirectedAcyclicGraph<String> pkgs, String pkg, ContentObject co) {
+		FlimTop importer = importFlim(new InputStreamReader(co.asStream()), pkg, pkg);
+		pkgs.ensure(pkg);
+		for (String s : importer.uses) {
+			pkgs.ensure(s);
+			pkgs.ensureLink(pkg, s);
+		}
+		return importer;
+	}
+
 	private FlimTop importFlim(File f, String name) {
 		String fn = f.getName();
+		try {
+			FileReader r = new FileReader(f);
+			return importFlim(r, name, fn);
+		} catch (FileNotFoundException ex) {
+			errors.message(new InputPosition(fn, -1, -1, null, null), "file does not exist");
+			return null;
+		}
+	}
+
+	private FlimTop importFlim(Reader r, String name, String fn) {
 		FlimTop ret = new FlimTop(errors, repository, name);
 		Blocker blocker = new Blocker(errors, new TDANester(ret));
-		try (LineNumberReader lnr = new LineNumberReader(new FileReader(f))) {
+		try (LineNumberReader lnr = new LineNumberReader(r)) {
 			String s;
 			try {
 				blocker.newFile();
 				while ((s = lnr.readLine()) != null)
 					blocker.present(fn, lnr.getLineNumber(), s);
 				blocker.flush();
+				return ret;
 			} catch (IOException ex) {
 				errors.message(new InputPosition(fn, lnr.getLineNumber(), -1, null, null), ex.toString());
 			}
@@ -85,6 +110,6 @@ public class FlimReader {
 		} catch (Throwable t) {
 			errors.reportException(t);
 		}
-		return ret;
+		return null;
 	}
 }

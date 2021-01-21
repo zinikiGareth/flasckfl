@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.flasck.jvm.ziniki.FileContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 
@@ -78,4 +79,9 @@ public class FileBasedSources implements PackageSources {
 	public List<ContentObject> testjs() {
 		return tjs;
 	}
+
+	@Override
+	public List<ContentObject> flims() {
+		throw new NotImplementedException("I don't think this makes sense in this context");
+	} 
 }

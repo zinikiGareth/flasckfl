@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.flasck.jvm.ziniki.FileContentObject;
+import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.graphs.Node;
@@ -291,6 +292,14 @@ public class JSEnvironment implements JSStorage {
 		}
 		for (ContentObject co : config.flascklibCPV.testjs()) {
 			ret.add(co);
+		}
+		if (config.dependencies != null) {
+			for (PackageSources d : config.dependencies) {
+				for (ContentObject co : d.livejs())
+					ret.add(co);
+				for (ContentObject co : d.testjs())
+					ret.add(co);
+			}
 		}
 		for (ContentObject co : gencos.values()) {
 			ret.add(co);
