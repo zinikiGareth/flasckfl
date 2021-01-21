@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.compiler.jsgen.packaging.JSUploader;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.AssemblyVisitor;
 import org.flasck.flas.repository.Repository;
@@ -77,6 +78,7 @@ public class Main {
 //		FLASCompiler compiler = commonCompiler(errors, config);
 		Repository repository = new Repository();
 		FLASCompiler compiler = new FLASCompiler(config, errors, repository);
+		compiler.uploader((JSUploader) storer);
 		compiler.loadFLIMFromContentStore();
 		compiler.parse(cpv);
 		if (errors.hasErrors())

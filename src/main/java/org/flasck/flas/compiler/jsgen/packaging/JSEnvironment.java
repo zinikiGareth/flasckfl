@@ -47,10 +47,14 @@ public class JSEnvironment implements JSStorage {
 	private final List<ObjectDefn> objects = new ArrayList<>();
 	private final List<HandlerImplements> handlers = new ArrayList<>();
 	private final DirectedAcyclicGraph<String> pkgdag;
+	private final JSUploader uploader;
+	private final Map<String, ContentObject> gencos = new TreeMap<>();
+	private final List<File> localOnly = new ArrayList<>();
 
-	public JSEnvironment(File root, DirectedAcyclicGraph<String> pkgs) {
+	public JSEnvironment(File root, DirectedAcyclicGraph<String> pkgs, JSUploader uploader) {
 		this.root = root;
 		this.pkgdag = pkgs;
+		this.uploader = uploader;
 	}
 	
 	public Iterable<File> files() {
@@ -194,7 +198,14 @@ public class JSEnvironment implements JSStorage {
 	public void writeAllTo(File jsDir) throws FileNotFoundException {
 		FileUtils.assertDirectory(jsDir);
 		for (JSFile jsf : files.values()) {
-			jsf.write(jsDir);
+			File tof = jsf.write(jsDir);
+			if (uploader != null) {
+				ContentObject co = uploader.uploadJs(tof);
+				if (co != null)
+					gencos.put(jsf.file().getName(), co);
+				else
+					localOnly .add(tof);
+			}
 		}
 	}
 
@@ -223,20 +234,21 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public Iterable<ContentObject> jsIncludes(Configuration config, String testDirJS) {
 		List<ContentObject> ret = new ArrayList<>();
-		List<String> inlib = new ArrayList<>();
 		if (config.flascklibDir != null) {
-			List<File> library = FileUtils.findFilesMatching(new File(config.flascklibDir), "*");
-			for (File f : library) {
-				includeFile(ret, testDirJS, f);
-				inlib.add(f.getName());
-			}
+			figureJSFilesOnDisk(ret, config, testDirJS);
 		} else if (config.flascklibCPV != null) {
-			for (ContentObject co : config.flascklibCPV.livejs()) {
-				ret.add(co);
-			}
-			for (ContentObject co : config.flascklibCPV.testjs()) {
-				ret.add(co);
-			}
+			figureJSFilesFromContentStore(ret, config, testDirJS);
+		}
+		System.out.println("includes = " + ret);
+		return ret;
+	}
+
+	private void figureJSFilesOnDisk(List<ContentObject> ret, Configuration config, String testDirJS) {
+		List<String> inlib = new ArrayList<>();
+		List<File> library = FileUtils.findFilesMatching(new File(config.flascklibDir), "*");
+		for (File f : library) {
+			includeFile(ret, testDirJS, f);
+			inlib.add(f.getName());
 		}
 		for (File mld : config.modules) {
 			List<File> l = FileUtils.findFilesMatching(mld, "*");
@@ -271,8 +283,21 @@ public class JSEnvironment implements JSStorage {
 				}
 			}
 		}
+	}
 
-		return ret;
+	private void figureJSFilesFromContentStore(List<ContentObject> ret, Configuration config, String testDir) {
+		for (ContentObject co : config.flascklibCPV.livejs()) {
+			ret.add(co);
+		}
+		for (ContentObject co : config.flascklibCPV.testjs()) {
+			ret.add(co);
+		}
+		for (ContentObject co : gencos.values()) {
+			ret.add(co);
+		}
+		for (File f : localOnly) {
+			includeFile(ret, testDir, f);
+		}
 	}
 
 	private void includeFile(List<ContentObject> ret, String testDir, File f) {

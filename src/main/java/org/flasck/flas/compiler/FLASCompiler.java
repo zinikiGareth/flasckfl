@@ -33,6 +33,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
+import org.flasck.flas.compiler.jsgen.packaging.JSUploader;
 import org.flasck.flas.compiler.templates.EventBuilder;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.errors.ErrorReporter;
@@ -96,6 +97,7 @@ public class FLASCompiler implements CompileUnit {
 	private JSEnvironment jse;
 	private Map<EventHolder, EventTargetZones> eventMap;
 	private ByteCodeEnvironment bce;
+	private JSUploader uploader;
 
 	public FLASCompiler(Configuration config, ErrorReporter errors, Repository repository) {
 		this.config = config;
@@ -104,6 +106,10 @@ public class FLASCompiler implements CompileUnit {
 		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
 		this.modules = ServiceLoader.load(ParserModule.class);
 		this.completeModules = ServiceLoader.load(CompilerComplete.class);
+	}
+	
+	public void uploader(JSUploader loader) {
+		this.uploader = loader;
 	}
 
 	public void taskQueue(TaskQueue tasks) {
@@ -387,7 +393,7 @@ public class FLASCompiler implements CompileUnit {
 		} finally {
 			testWriters.values().forEach(w -> w.close());
 		}
-
+		
 		if (config.html != null) {
 			try (FileWriter fos = new FileWriter(config.html)) {
 				File fldir = new File(config.root, "flascklib/js");
@@ -505,7 +511,7 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public boolean generateCode(Configuration config, DirectedAcyclicGraph<String> pkgs) {
-		jse = new JSEnvironment(config.jsDir(), pkgs);
+		jse = new JSEnvironment(config.jsDir(), pkgs, uploader);
 		bce = new ByteCodeEnvironment();
 		populateBCE(bce);
 
