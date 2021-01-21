@@ -37,6 +37,7 @@ public class Configuration {
 	public String specifiedTestName;
 	public String flascklibDir;
 	public PackageSources flascklibCPV;
+	public List<PackageSources> moduleCOs;
 	public List<PackageSources> dependencies;
 	public boolean openHTML;
 	public final List<File> includeFrom = new ArrayList<File>();
@@ -60,9 +61,10 @@ public class Configuration {
 				}
 			}
 		}
+		File moduledir = new File(".");
 		for (int i=0;i<args.length;i++) {
 			String arg = args[i];
-			if (arg == null)
+			if (arg == null || arg.length() == 0)
 				continue;
 			int hasMore = args.length-i-1;
 			if (arg.startsWith("-")) {
@@ -79,12 +81,14 @@ public class Configuration {
 						System.exit(1);
 					}
 					this.flascklibDir = args[++i]; // definitely NOT under root 
-				} else if (arg.equals("--modulelib")) {
+				} else if (arg.equals("--moduledir")) {
 					if (hasMore == 0) {
-						System.out.println("--modulelib <dir>");
+						System.out.println("--moduledir <dir>");
 						System.exit(1);
 					}
-					this.modules.add(new File(args[++i])); // definitely NOT under root 
+					moduledir = new File(args[++i]); // definitely NOT under root
+				} else if (arg.equals("--module")) {
+					this.modules.add(new File(moduledir, args[++i])); 
 				} else if (arg.equals("--phase"))
 					upto = PhaseTo.valueOf(args[++i]);
 				else if (arg.equals("--dumprepo"))

@@ -236,8 +236,11 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		}
 		if (modules.exists()) {
 			for (String fi : FileUtils.readFileAsLines(modules)) {
-				args.add("--modulelib");
-				args.add(fi);
+				File f = new File(fi);
+				args.add("--moduledir");
+				args.add(f.getParent());
+				args.add("--module");
+				args.add(f.getName());
 			}
 		}
 		if (interceptor != null)

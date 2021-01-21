@@ -293,6 +293,14 @@ public class JSEnvironment implements JSStorage {
 		for (ContentObject co : config.flascklibCPV.testjs()) {
 			ret.add(co);
 		}
+		if (config.moduleCOs != null) {
+			for (PackageSources d : config.moduleCOs) {
+				for (ContentObject co : d.livejs())
+					ret.add(co);
+				for (ContentObject co : d.testjs())
+					ret.add(co);
+			}
+		}
 		if (config.dependencies != null) {
 			for (PackageSources d : config.dependencies) {
 				for (ContentObject co : d.livejs())
