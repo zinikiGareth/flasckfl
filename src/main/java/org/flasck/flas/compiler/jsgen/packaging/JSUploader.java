@@ -6,4 +6,5 @@ import org.flasck.jvm.ziniki.ContentObject;
 
 public interface JSUploader {
 	ContentObject uploadJs(File f);
+	ContentObject uploadFlim(File file);
 }

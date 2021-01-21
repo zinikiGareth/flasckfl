@@ -351,11 +351,18 @@ public class FLASCompiler implements CompileUnit {
 			return true;
 
 		Set<String> usedrefs = new TreeSet<>();
+		FlimWriter writer = null;
+		List<String> process = new ArrayList<>();
 		if (config.flimdir() != null) {
-			FlimWriter writer = new FlimWriter(repository, config.flimdir());
-			List<String> process = new ArrayList<>();
+			writer = new FlimWriter(repository, config.flimdir());
 			for (File f : config.inputs)
 				process.add(f.getName());
+		} else if (uploader != null) {
+			writer = new FlimWriter(repository, uploader);
+			for (PackageSources p : packages)
+				process.add(p.getPackageName());
+		}
+		if (writer != null) {
 			while (!process.isEmpty()) {
 				String input = process.remove(0);
 				Set<String> refs = writer.export(input);

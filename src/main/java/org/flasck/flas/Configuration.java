@@ -37,6 +37,7 @@ public class Configuration {
 	public String specifiedTestName;
 	public String flascklibDir;
 	public PackageSources flascklibCPV;
+	public List<PackageSources> dependencies;
 	public boolean openHTML;
 	public final List<File> includeFrom = new ArrayList<File>();
 	public final List<File> modules = new ArrayList<>();
