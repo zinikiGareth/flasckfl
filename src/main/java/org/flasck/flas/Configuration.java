@@ -9,7 +9,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.OptionModule;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.repository.AssemblyVisitor;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.utils.FileUtils;
 
@@ -36,8 +35,6 @@ public class Configuration {
 	public File writeTypesTo;
 	private String jstestdir;
 	public String specifiedTestName;
-	@Deprecated
-	public AssemblyVisitor storer;
 	public String flascklibDir;
 	public PackageSources flascklibCPV;
 	public boolean openHTML;

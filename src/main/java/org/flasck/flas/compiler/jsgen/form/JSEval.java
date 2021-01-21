@@ -22,13 +22,6 @@ public class JSEval implements JSExpr {
 		this.args = new ArrayList<>();
 	}
 
-	@Deprecated
-	public JSEval(String name, List<JSExpr> args) {
-		this.name = null;
-		this.clz = name;
-		this.args = args;
-	}
-
 	public JSEval(NameOfThing name, List<JSExpr> list) {
 		this.name = name;
 		this.clz = name.jsName();

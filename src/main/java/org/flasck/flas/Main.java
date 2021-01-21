@@ -59,23 +59,7 @@ public class Main {
 	}
 	
 	// If we are the embedded Ziniki compiler, store the resulting package in S3
-	@Deprecated // the old hack one
-	public static boolean uploader(ErrorResult errors, Configuration config) throws IOException {
-		FLASCompiler compiler = commonCompiler(errors, config);
-		if (errors.hasErrors())
-			return true;
-
-		// TODO: check that all the hashes and signatures match
-		if (config.storer != null) {
-			compiler.storeAssemblies(config.storer);
-		}
-		
-		return errors.hasErrors();
-	}
-	
-	// If we are the embedded Ziniki compiler, store the resulting package in S3
 	public static boolean uploader(ErrorResult errors, Configuration config, PackageSources cpv, AssemblyVisitor storer) throws IOException {
-//		FLASCompiler compiler = commonCompiler(errors, config);
 		Repository repository = new Repository();
 		FLASCompiler compiler = new FLASCompiler(config, errors, repository);
 		compiler.uploader((JSUploader) storer);
