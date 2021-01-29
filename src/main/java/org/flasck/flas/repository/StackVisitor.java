@@ -15,7 +15,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.ModuleExtensible;
-import org.flasck.flas.compiler.TraversalProcessor;
+import org.flasck.flas.compiler.modules.TraversalProcessor;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;

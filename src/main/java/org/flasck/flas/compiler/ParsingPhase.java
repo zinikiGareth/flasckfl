@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.blocker.TDANester;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
+import org.flasck.flas.compiler.modules.ParserModule;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;

@@ -2,7 +2,7 @@ package org.flasck.flas.parser.st;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SystemTestName;
-import org.flasck.flas.compiler.ParserModule;
+import org.flasck.flas.compiler.modules.ParserModule;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.st.SystemTestCleanup;
 import org.flasck.flas.parsedForm.st.SystemTestConfiguration;

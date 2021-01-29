@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler;
 
+import org.flasck.flas.compiler.modules.TraversalProcessor;
 import org.flasck.flas.repository.RepositoryVisitor;
 
 public interface ModuleExtensible {

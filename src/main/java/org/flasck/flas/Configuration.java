@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.compiler.OptionModule;
 import org.flasck.flas.compiler.PhaseTo;
+import org.flasck.flas.compiler.modules.OptionModule;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.utils.FileUtils;

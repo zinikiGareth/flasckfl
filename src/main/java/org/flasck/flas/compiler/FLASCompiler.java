@@ -35,6 +35,8 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.packaging.JSUploader;
+import org.flasck.flas.compiler.modules.CompilerComplete;
+import org.flasck.flas.compiler.modules.ParserModule;
 import org.flasck.flas.compiler.templates.EventBuilder;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.errors.ErrorReporter;

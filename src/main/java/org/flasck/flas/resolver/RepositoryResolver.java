@@ -16,7 +16,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.compiler.ModuleExtensible;
-import org.flasck.flas.compiler.TraversalProcessor;
+import org.flasck.flas.compiler.modules.TraversalProcessor;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessRestrictions;

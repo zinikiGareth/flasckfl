@@ -2,12 +2,14 @@ package org.flasck.flas.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ServiceLoader;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.compiler.modules.ProvideBuiltins;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
@@ -775,5 +777,10 @@ public class LoadBuiltins {
 		
 		// not probe_state
 		// not underlying
+		
+		// Look at any modules that might exist
+		ServiceLoader<ProvideBuiltins> modules = ServiceLoader.load(ProvideBuiltins.class);
+		for (ProvideBuiltins pb : modules)
+			pb.applyTo(errors, repository);
 	}
 }

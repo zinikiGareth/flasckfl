@@ -1,4 +1,4 @@
-package org.flasck.flas.compiler;
+package org.flasck.flas.compiler.modules;
 
 import org.flasck.flas.errors.ErrorReporter;
 

@@ -29,6 +29,7 @@ import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DeferMeException;
+import org.flasck.flas.compiler.modules.TraverserModule;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
