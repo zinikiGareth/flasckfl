@@ -103,7 +103,11 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 				// in the simplest case, this is obviously "just fine": you can do this and the check to get here *is* the typecheck
 				// we just need to remove it so that we can test the rest.
 				results.remove(results.size()-1);
-				// TODO: we should look into the hash itself if possible and determine what keys it has ... 
+				// TODO: we should look into the hash itself if possible and determine what keys it has ...
+			} else if (fn.argCount() == results.size() -1 && results.get(results.size()-1).type instanceof HandlerImplements) {
+				errors.message(pfn.pos, "use -> to provide handlers");
+				nv.result(new ErrorType());
+				return;
 			} else {
 				errors.message(pfn.pos, expr.fn + " expects: " + fn.argCount() + " has: " + results.size());
 				nv.result(new ErrorType());
@@ -112,7 +116,11 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		}
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
-		int max = fn.argCount();
+		int max;
+		if (fn instanceof Apply)
+			max = ((Apply)fn).argCountConsideringHandler();
+		else
+			max = fn.argCount();
 		while (!results.isEmpty() && pos < max) {
 			PosType pai = results.remove(0);
 			Type ai = pai.type;
@@ -139,12 +147,14 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			PosType pai = results.remove(0);
 			if (pai.type instanceof HandlerImplements) {
 				errors.message(expr.location(), "unexpected handler as argument; did you forget '->' ?");
+				nv.result(new ErrorType());
 				return;
 			} else {
 				String name = "function '" + expr.fn;
 				if (expr.fn instanceof MemberExpr)
 					name = "method '" + ((MemberExpr)expr.fn).fld;
 				errors.message(expr.location(), "excess arguments to " + name + "'");
+				nv.result(new ErrorType());
 				return;
 			}
 		}
@@ -156,7 +166,10 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		// if we have any curried args, we need to make an apply
 		if (!tocurry.isEmpty()) {
 			tocurry.add(fn.get(pos));
-			nv.result(new Apply(tocurry));
+			boolean wh = false;
+			if (fn instanceof Apply)
+				wh = ((Apply)fn).withHandler();
+			nv.result(new Apply(tocurry).withHandler(wh));
 		} else
 			nv.result(fn.get(pos));
 	}

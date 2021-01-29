@@ -240,7 +240,6 @@ public class JSEnvironment implements JSStorage {
 		} else if (config.flascklibCPV != null) {
 			figureJSFilesFromContentStore(ret, config, testDirJS);
 		}
-		System.out.println("includes = " + ret);
 		return ret;
 	}
 

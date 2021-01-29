@@ -1,2 +1,4 @@
 checklambda.  5.16:   h = WantsNumber  _ "hello"
                           function 'WantsNumber' was expecting Number not String
+handlehasarr 10.3:    <-  _ gr.askFor MyReply // requires ->
+                          unexpected handler as argument; did you forget '->' ?

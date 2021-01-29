@@ -1,0 +1,13 @@
+	contract service GiveReply
+		askFor -> (RepliesTo r)
+	contract handler RepliesTo
+		message (String msg)
+		
+	card MustUseAnArrow
+		requires GiveReply gr
+
+		event action (ClickEvent ev)
+			<- gr.askFor MyReply // requires ->
+			
+	handler RepliesTo MyReply
+		message msg 

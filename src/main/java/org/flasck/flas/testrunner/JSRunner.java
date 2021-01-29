@@ -248,8 +248,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();
-			System.out.println("Loading " + html);
-			FileUtils.cat(html);
+//			System.out.println("Loading " + html);
+//			FileUtils.cat(html);
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);
 		}

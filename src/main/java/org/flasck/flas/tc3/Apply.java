@@ -11,6 +11,7 @@ import org.zinutils.exceptions.ShouldBeError;
 public class Apply implements Type, SignatureNeedsParensType {
 	public final static InputPosition unknown = new InputPosition("unknown", 1, 0, null, "unknown");
 	public final List<Type> tys;
+	private boolean withHandler;
 
 	public Apply(Type... types) {
 		if (types.length < 2)
@@ -92,6 +93,10 @@ public class Apply implements Type, SignatureNeedsParensType {
 		}
 	}
 
+	public int argCountConsideringHandler() {
+		return tys.size()-1 - (withHandler?1:0);
+	}
+
 	@Override
 	public int argCount() {
 		return tys.size()-1;
@@ -141,5 +146,14 @@ public class Apply implements Type, SignatureNeedsParensType {
 				sb.append("(" + t.toString() + ")");
 		}
 		return sb.toString();
+	}
+
+	public Type withHandler(boolean withHandler) {
+		this.withHandler = withHandler;
+		return this;
+	}
+	
+	public boolean withHandler() {
+		return withHandler;
 	}
 }

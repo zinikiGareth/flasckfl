@@ -271,7 +271,7 @@ public class TypeChecker extends LeafAdapter {
 			List<Type> types = new ArrayList<>();
 			for (Type t : a.tys)
 				types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t), true).type);
-			return logit(new PosType(pos, new Apply(types)));
+			return logit(new PosType(pos, new Apply(types).withHandler(a.withHandler())));
 		} else if (type instanceof PolyHolder && ((PolyHolder) type).hasPolys()) {
 			PolyHolder sd = (PolyHolder) type;
 			List<Type> polys = new ArrayList<>();

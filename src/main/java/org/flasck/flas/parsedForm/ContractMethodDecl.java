@@ -49,13 +49,15 @@ public class ContractMethodDecl implements Locatable, RepositoryEntry, Comparabl
 				return;
 			types.add(ty);
 		}
+		boolean withHandler = false;
 		if (handler != null) {
 			if (handler.type() == null)
 				return;
 			types.add(handler.type());
+			withHandler = true;
 		} else
 			types.add(LoadBuiltins.idempotentHandler);
-		this.type = new Apply(types, LoadBuiltins.send);
+		this.type = new Apply(types, LoadBuiltins.send).withHandler(withHandler);
 	}
 
 	public Type type() {
