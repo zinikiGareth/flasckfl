@@ -174,13 +174,41 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 
 	private Expr resolveCastExpr(Expr t0, int from, int to) {
+		if (errors.hasErrors())
+			return null;
 		if (to != from+3) {
 			errors.message(t0.location(), "cast must have exactly two arguments");
 			return null;
 		}
 		Expr type = terms.get(from+1);
 		Expr val = terms.get(from+2);
-		return new CastExpr(t0.location().copySetEnd(type.location().pastEnd()), type.location(), val.location(), (TypeReference) type, val);
+		TypeReference tr;
+		if (type instanceof TypeReference)
+			tr = (TypeReference) type;
+		else if (type instanceof MemberExpr) {
+			MemberExpr me = (MemberExpr) type;
+			tr = resolveMemberExprToTypeReference(me);
+			if (tr == null)
+				return null;
+		} else {
+			errors.message(type.location(), "syntax error in cast");
+			return null;
+		}
+		return new CastExpr(t0.location().copySetEnd(type.location().pastEnd()), type.location(), val.location(), tr, val);
+	}
+
+	private TypeReference resolveMemberExprToTypeReference(MemberExpr me) {
+		String prefix;
+		if (me.from instanceof MemberExpr) {
+			TypeReference inner = resolveMemberExprToTypeReference((MemberExpr) me.from);
+			if (inner == null)
+				return null;
+			prefix = inner.name();
+		} else if (me.from instanceof UnresolvedVar) {
+			prefix = ((UnresolvedVar)me.from).var;
+		} else
+			return null;
+		return new TypeReference(me.location(), prefix + "." + me.fld);
 	}
 
 	private Expr resolveTypeExpr(Expr t0, int from, int to) {
