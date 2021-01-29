@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -87,6 +88,10 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		logger.debug("attempting to check application of " + expr.fn + " " + fn + " to " + results);
 		if (fn instanceof ErrorType) {
 			nv.result(fn);
+			return;
+		} else if (fn instanceof ContractDecl) {
+			errors.message(pfn.location(), "cannot use a contract as a function");
+			nv.result(new ErrorType());
 			return;
 		} else if (fn instanceof UnifiableType) {
 			UnifiableType ut = (UnifiableType)fn;

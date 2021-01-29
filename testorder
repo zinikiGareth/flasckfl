@@ -13,6 +13,7 @@ src/golden/cards/templates/styles/errors
 src/golden/cards/typeerrors
 src/golden/cards/templates/typeerrors
 src/golden/contracts/errs
+src/golden/contracts/typeerrors
 src/golden/contracts/mismatches
 src/golden/functions/errors
 src/golden/functions/typeerrors

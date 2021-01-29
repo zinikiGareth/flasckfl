@@ -10,6 +10,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -194,8 +195,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		NamedType defn = var.defn();
 		if (defn instanceof StructDefn || defn instanceof ObjectDefn || defn instanceof HandlerImplements || defn instanceof Primitive) {
 			announce(pos, defn);
+		} else if (defn instanceof ContractDecl) {
+			errors.message(pos, "cannot pass a contract to a function");
+			announce(pos, new ErrorType());
 		} else
-			throw new RuntimeException("Cannot handle " + var.defn());
+			throw new CantHappenException("Cannot handle " + var.defn());
 	}
 	
 	@Override

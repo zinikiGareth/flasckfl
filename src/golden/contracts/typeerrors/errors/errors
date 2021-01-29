@@ -1,0 +1,8 @@
+cannotpass.f 10.6:    g = f  _ Handler
+                          cannot pass a contract to a function
+cannotpass.f 16.3:    <-  _ svc Handler
+                          cannot use a contract as a function
+cannotpass.f 16.7:    <- svc  _ Handler
+                          cannot pass a contract to a function
+cannotpass.f 17.3:    <-  _ svc HandlerImpl
+                          cannot use a contract as a function

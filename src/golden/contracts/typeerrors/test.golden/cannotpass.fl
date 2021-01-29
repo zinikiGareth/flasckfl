@@ -1,0 +1,17 @@
+	contract service Svc
+	contract handler Handler
+
+	handler Handler HandlerImpl
+		
+	f (String s) = 0
+	
+You cannot instantiate a contract like this
+
+	g = f Handler
+	
+	card OrLikeThis
+		requires Svc svc
+		
+		event non (ClickEvent ev)
+			<- svc Handler
+			<- svc HandlerImpl
