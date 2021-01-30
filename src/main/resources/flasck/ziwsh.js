@@ -53,7 +53,11 @@ JsonBeachhead.prototype.handleArg = function(ux, o) {
     } else if (o._wireable) {
         debugger;
     } else if (o._clz) {
-        const fm = ux.beginFields(o._clz);
+        var fm;
+        if (ux.cx.structNamed(o._clz))
+            fm = ux.beginFields(o._clz);
+        else
+            fm = ux.beginFields(o._type);
         ux.unpack(fm.collectingAs());
         const ks = Object.keys(o);
         for (var k=0;k<ks.length;k++) {
@@ -644,6 +648,7 @@ CollectingTraverser.prototype.handler = function(h) {
 const FieldsTraverser = function(cx, collector, clz) {
     CollectingTraverser.call(this, cx, collector);
     const czz = cx.structNamed(clz);
+    cx.log("creating " + clz + ": " + czz);
     this.creation = new czz(cx);
     this.creation.state._wrapper = this.creation;
 }

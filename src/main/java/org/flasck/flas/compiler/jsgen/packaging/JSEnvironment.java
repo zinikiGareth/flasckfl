@@ -17,6 +17,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
+import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -183,6 +184,7 @@ public class JSEnvironment implements JSStorage {
 				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().jsName()));
 			for (StructDefn hi : structs)
 				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().jsName()));
+			ifn.ifTrue(new JSLiteral(pkg + "._builtin_init")).trueCase().callMethod("void", null, pkg + "._builtin_init");
 			p.getValue().addFunction(ifn);
 		}
 	}
