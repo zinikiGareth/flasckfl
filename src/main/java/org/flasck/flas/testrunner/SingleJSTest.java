@@ -140,6 +140,6 @@ public class SingleJSTest {
 	}
 
 	public boolean ok() {
-		return !error;
+		return !error && state.failed == 0;
 	}
 }
