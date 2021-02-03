@@ -426,7 +426,6 @@ ObjectMarshaller.prototype.marshal = function(o) {
 }
 
 ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
-    this.logger.log("marshal " + o + " " + (typeof o));
     if (ux.handleCycle(o))
         ;
     else if (typeof o === "string")

@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.flasck.flas.Configuration;
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
@@ -185,7 +184,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			for (SystemTest st : jse.systemTests()) {
 				pw.println(st.name().jsName()  + ".manual = function(host, port) {");
 				pw.println("  var runner = new UTRunner(new WSBridge(host, port));");
-				pw.println("  runner.runRemote(" + st.name().jsName() + ", {");
+				pw.println("  runner.runRemote(" + st.name().jsName() + ", 'ws://' + host + ':' + port + '/wsapi/token/secret', {");
 				String comma = "";
 				if (st.configure != null) {
 					pw.print("    configure: " + st.configure.name.jsPName());

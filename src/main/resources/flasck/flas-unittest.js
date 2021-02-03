@@ -26,6 +26,10 @@ UTRunner.prototype.constructor = UTRunner;
 
 UTRunner.modules = {};
 
+UTRunner.prototype.bindModule = function(name, jm) {
+	this.moduleInstances[name] = new UTRunner.modules[name](this, jm);
+}
+
 UTRunner.prototype.makeReady = function() {
 	CommonEnv.prototype.makeReady.call(this);
     this.broker.register("Ajax", new MockAjaxService());
@@ -276,7 +280,7 @@ UTRunner.prototype.deliver = function(json) {
 	this.queueMessages(cx, msgs);
 }
 
-UTRunner.prototype.runRemote = function(testClz, spec) {
+UTRunner.prototype.runRemote = function(testClz, wsapi, spec) {
 	var cxt = this.newContext();
 	var st = new testClz(this, cxt);
 	var allSteps = [];
@@ -297,7 +301,8 @@ UTRunner.prototype.runRemote = function(testClz, spec) {
 		for (var j=0;j<steps.length;j++)
 			allSteps.push(steps[j]);
 	}
-	this.logger.executeSync(this, st, cxt, allSteps); // logger is really "bridge"
+	var bridge = this.logger; // what it really is
+	bridge.executeSync(this, st, cxt, allSteps);
 }
 
 	window.UTRunner = UTRunner;
@@ -608,8 +613,13 @@ MockAjaxService.prototype.subscribe = function(_cxt, uri, options, handler) {
 
 
 function WSBridge(host, port) {
+	var self = this;
 	this.ws = new WebSocket("ws://" + host + ":" + port + "/bridge");
+	this.waitcount = 1;
+	this.requestId = 1;
 	this.sending = [];
+	this.lockedOut = [];
+	this.responders = {};
 	this.ws.addEventListener("open", ev => {
 		console.log("connected", ev);
 		while (this.sending.length > 0) {
@@ -618,17 +628,45 @@ function WSBridge(host, port) {
 		}
 	});
 	this.ws.addEventListener("message", ev => {
-		console.log("message", ev);
+		console.log("message", ev.data);
+		var msg = JSON.parse(ev.data);
+		var action = msg.action;
+		if (action == "response") {
+			var rid = msg.respondingTo;
+			if (!this.responders[rid]) {
+				console.log("there is nobody willing to handle response " + rid);
+				return;
+			}
+			this.responders[rid].call(this, msg);
+			delete this.responders[rid];
+		} else {
+			if (!WSBridge.handlers[action]) {
+				console.log("there is no handler for " + action);
+				return;
+			}
+			WSBridge.handlers[action].call(self, msg);
+		}
 	});
 }
+WSBridge.handlers = {};
 
 WSBridge.prototype.log = function(...args) {
-	console.log(args);
+	console.log.apply(console.log, args);
 }
 
 WSBridge.prototype.module = function(moduleName) {
 	this.send({action: "module", "name": moduleName });
-	return new WSBridgeModule(this, moduleName);
+	this.lock("bindModule");
+}
+
+WSBridge.handlers['haveModule'] = function(msg) {
+	var name = msg.name;
+	var clz = window[msg.clz];
+	var conn = msg.conn;
+
+	console.log("have connection for module", this, name, clz);
+	this.runner.bindModule(name, new clz(this, conn));
+	this.unlock("haveModule");
 }
 
 WSBridge.prototype.send = function(json) {
@@ -639,12 +677,38 @@ WSBridge.prototype.send = function(json) {
 		this.sending.push(text)
 }
 
+WSBridge.prototype.connectToZiniki = function(wsapi, cb) {
+	runner.broker.connectToServer('ws://' + host + ':' + port + '/wsapi/token/secret');
+}
+
 WSBridge.prototype.executeSync = function(runner, st, cxt, steps) {
 	this.runner = runner;
 	this.st = st;
 	this.runcxt = cxt;
 	this.readysteps = steps;
-	this.gotime();
+	this.unlock("ready to go"); // unlocks the initial "1" we set in constructor
+}
+
+WSBridge.prototype.nextRequestId = function(hdlr) {
+	this.responders[this.requestId] = hdlr;
+	return this.requestId++;
+}
+
+WSBridge.prototype.lock = function(msg) {
+	this.waitcount++;
+	console.log("lock   waitcount = " + this.waitcount, msg);
+}
+
+WSBridge.prototype.unlock = function(msg) {
+	--this.waitcount;
+	console.log("unlock waitcount = " + this.waitcount, msg);
+	if (this.waitcount == 0) {
+		this.gotime();
+	}
+}
+
+WSBridge.prototype.onUnlock = function(f) {
+	this.lockedOut.push(f);
 }
 
 WSBridge.prototype.gotime = function() {
@@ -652,12 +716,15 @@ WSBridge.prototype.gotime = function() {
 		return; // we're done
 	if (this.waitcount > 0)
 		return; // we are in a holding pattern
+	if (this.lockedOut.length  > 0) {
+		this.lock("a callback");
+		this.lockedOut.shift().call(this);
+		return;
+	}
 	var s = this.readysteps.shift();
+	console.log("executing step", s);
+	this.lock("around step");
 	this.st[s].call(this.st, this.runcxt);
+	this.unlock("around step");
 }
 
-// we have to create this before we get the response because of syncrhonization issues
-// but then when the response comes we need to tie the two together
-function WSBridgeModule(bridge, name) {
-
-}

@@ -16,9 +16,10 @@ const CommonEnv = function(bridge, broker) {
 	this.evid = 1;
     this.cards = [];
     this.queue = [];
-    this.locker = { lock: function() {}, unlock: function() {} };
-    if (typeof(window) !== 'undefined' && typeof(window.callJava) !== 'undefined' && typeof(window.callJava.lock) !== null)
-        this.locker = window.callJava;
+    if (bridge.lock)
+        this.locker = bridge;
+    else
+        this.locker = { lock: function() {}, unlock: function() {} };
 }
 
 CommonEnv.prototype.makeReady = function() {
