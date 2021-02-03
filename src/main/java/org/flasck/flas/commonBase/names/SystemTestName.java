@@ -1,9 +1,9 @@
 package org.flasck.flas.commonBase.names;
 
-public class SystemTestName extends SolidName implements JavaMethodNameProvider {
+public class SystemTestName extends FunctionName implements JavaMethodNameProvider {
 
 	public SystemTestName(UnitTestFileName container, String special) {
-		super(container, special);
+		super(null, container, special);
 	}
 	
 	public SystemTestName(UnitTestFileName container, int cnt) {

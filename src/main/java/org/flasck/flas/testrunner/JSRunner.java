@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.flasck.flas.Configuration;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
@@ -31,7 +32,7 @@ import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner<JSTestState> {
 	private final JSStorage jse;
-	private final JSJavaBridge st = new FXJSJavaBridge(this);
+	private final JSJavaBridge bridge = new FXJSJavaBridge(this);
 	private final BrowserEngine browser;
 	final Map<Class<?>, Object> modules = new HashMap<>();
 	final ClassLoader classloader;
@@ -60,7 +61,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		page = browser.navigate("file:" + html.getPath());
 		boolean await = uiThread(cdl -> {
 			JSObject win = (JSObject)page.executeScript("window");
-			win.setMember("callJava", st);
+			win.setMember("callJava", bridge);
 			cdl.countDown();
 		});
 		if (!await)
@@ -180,6 +181,37 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			}
 			pw.println("</head>");
 			pw.println("<body>");
+			pw.println("<script>");
+			for (SystemTest st : jse.systemTests()) {
+				pw.println(st.name().jsName()  + ".manual = function(host, port) {");
+				pw.println("  var runner = new UTRunner(new WSBridge(host, port));");
+				pw.println("  runner.runRemote(" + st.name().jsName() + ", {");
+				String comma = "";
+				if (st.configure != null) {
+					pw.print("    configure: " + st.configure.name.jsPName());
+					comma = ",\n";
+				}
+				if (st.stages != null) {
+					pw.print(comma + "    stages: [");
+					comma = "\n      ";
+					String other = "";
+					for (SystemTestStage e : st.stages) {
+						pw.print(comma + e.name.jsPName());
+						comma = ",      \n";
+						other = "\n    ";
+					}
+					pw.println(other + "]");
+					comma = ",\n";
+				}
+				if (st.cleanup != null) {
+					pw.println(comma + "    cleanup: " + st.cleanup.name.jsPName());
+					comma = ",\n";
+				}
+				pw.println("  });");
+//				pw.println("  st.configure_step_1(cxt);");
+				pw.println("}");
+			}
+			pw.println("</script>");
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();

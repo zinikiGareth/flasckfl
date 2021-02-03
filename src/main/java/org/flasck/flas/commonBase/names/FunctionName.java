@@ -17,7 +17,7 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing>, JavaM
 		bimap.put("++", "strAppend");
 	}
 	
-	private FunctionName(InputPosition location, NameOfThing cxt, String name) {
+	protected FunctionName(InputPosition location, NameOfThing cxt, String name) {
 		this.location = location;
 		this.name = name;
 		this.inContext = cxt;
