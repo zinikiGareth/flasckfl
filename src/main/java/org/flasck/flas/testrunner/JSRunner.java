@@ -18,10 +18,8 @@ import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.ContentObject;
-import org.ziniki.ziwsh.intf.JsonSender;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
-import org.zinutils.reflection.Reflection;
 import org.zinutils.sync.LockingCounter;
 import org.zinutils.utils.FileUtils;
 
@@ -29,83 +27,20 @@ import io.webfolder.ui4j.api.browser.BrowserEngine;
 import io.webfolder.ui4j.api.browser.BrowserFactory;
 import io.webfolder.ui4j.api.browser.Page;
 import javafx.application.Platform;
-import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner<JSTestState> {
-	public class JSJavaBridge {
-		public void error(String s) {
-			errors.add(s);
-		}
-		
-		public void log(String s) {
-			logger.info(s);
-		}
-		
-		public Object module(String s) {
-			try {
-				Class<?> clz = Class.forName(s);
-				if (!modules.containsKey(clz)) {
-					modules.put(clz, Reflection.callStatic(clz, "createJS", this, classloader, config.root));
-				}
-				return modules.get(clz);
-			} catch (IllegalArgumentException | ClassNotFoundException e) {
-				throw WrappedException.wrap(e);
-			}
-		}
-
-		public void transport(JsonSender toZiniki) {
-			if (Platform.isFxApplicationThread()) {
-				JSObject runner = (JSObject) page.executeScript("window.utrunner");
-				runner.call("transport", toZiniki);
-			} else
-				throw new RuntimeException("Could not pass transport to JS: not in FX thread");
-		}
-
-		public void sendJson(String json) {
-			if (Platform.isFxApplicationThread()) {
-				doSend(json);
-			} else {
-				uiThread(cdl -> {
-					doSend(json);
-					cdl.countDown();
-				});
-			}
-		}
-
-		private void doSend(String json) {
-			JSObject runner = (JSObject) page.executeScript("window.utrunner");
-			try {
-				runner.call("deliver", json);
-			} catch (JSException ex) {
-				logger.error("JSException " + ex);
-			}
-		}
-		
-		public void lock() {
-			counter.lock("lock");
-		}
-		
-		public void unlock() {
-			counter.release("unlock");
-		}
-
-		public LockingCounter getTestCounter() {
-			return counter;
-		}
-	}
-
 	private final JSStorage jse;
-	private final JSJavaBridge st = new JSJavaBridge();
+	private final JSJavaBridge st = new FXJSJavaBridge(this);
 	private final BrowserEngine browser;
-	private final Map<Class<?>, Object> modules = new HashMap<>();
-	private final ClassLoader classloader;
-	private Page page;
+	final Map<Class<?>, Object> modules = new HashMap<>();
+	final ClassLoader classloader;
+	Page page;
 	private File html;
 	private boolean useCachebuster = false;
 	private String jstestdir;
 	private String specifiedTestName;
-	private final LockingCounter counter = new LockingCounter();
+	final LockingCounter counter = new LockingCounter();
 	
 	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates, ClassLoader cl) {
 		super(config, repository);
@@ -132,7 +67,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			throw new RuntimeException("Whole test failed to initialize");
 	}
 
-	private boolean uiThread(Consumer<CountDownLatch> doit) {
+	boolean uiThread(Consumer<CountDownLatch> doit) {
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
 			try {
