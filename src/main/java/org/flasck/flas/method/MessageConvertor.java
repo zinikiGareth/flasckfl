@@ -73,6 +73,8 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
+		if (expr.boundEarly())
+			return true;
 		if (mode == Mode.SLOT) {
 			mode = Mode.NESTEDSLOT;
 			if (!(expr.from instanceof MemberExpr))
@@ -151,6 +153,8 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
+		if (expr.boundEarly())
+			return;
 		if (mode == Mode.NESTEDSLOT) {
 //			if (stack.size() != 1)
 //				throw new CantHappenException("stack should have one element");

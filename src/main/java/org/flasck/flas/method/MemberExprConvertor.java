@@ -27,7 +27,6 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
@@ -86,14 +85,14 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 			throw new ShouldBeError("I don't think " + var + " can be a method");
 		}
 		obj = var;
-		figureDestinationType((RepositoryEntry) var.defn());
+		figureDestinationType();
 	}
 	
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		if (obj == null) {
 			obj = var;
-			figureDestinationType(var.defn());
+			figureDestinationType();
 		} else if (sendMeth == null) {
 			if (cd != null) {
 				ContractMethodDecl cmd = this.cd.getMethod(var.var);
@@ -147,7 +146,7 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 		this.results.add(r);
 	}
 	
-	private void figureDestinationType(RepositoryEntry defn) {
+	private void figureDestinationType() {
 		Type ct = containerType;
 		if (ct instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) ct;
@@ -162,7 +161,7 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 		else if (ct instanceof HandlerImplements)
 			this.hi = (HandlerImplements) ct;
 		else
-			throw new NotImplementedException("cannot handle svc defn of type " + (ct == null ? "NULL" : ct.getClass()) + " for " + defn);
+			throw new NotImplementedException("cannot handle svc defn of type " + (ct == null ? "NULL" : ct.getClass()));
 	}
 
 	@Override
@@ -190,7 +189,7 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 		if (expr.boundEarly()) {
 			if (obj == null) {
 				obj = expr;
-				figureDestinationType(expr.defn());
+				figureDestinationType();
 			} else
 				throw new CantHappenException("this suggests the field is a member expr");
 		} else if (odctor != null) {
