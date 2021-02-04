@@ -703,6 +703,7 @@ WSBridge.prototype.unlock = function(msg) {
 	--this.waitcount;
 	console.log("unlock waitcount = " + this.waitcount, msg);
 	if (this.waitcount == 0) {
+		console.log(new Date() + " ready to go");
 		this.gotime();
 	}
 }
@@ -712,19 +713,28 @@ WSBridge.prototype.onUnlock = function(f) {
 }
 
 WSBridge.prototype.gotime = function() {
-	if (this.readysteps.length == 0)
-		return; // we're done
-	if (this.waitcount > 0)
+	if (this.readysteps.length == 0) {
+		// we're done
+		console.log("test complete");
+		return;
+	}
+	if (this.waitcount > 0) {
+		console.log("cannot go because lock count is", this.waitcount);
 		return; // we are in a holding pattern
+	}
 	if (this.lockedOut.length  > 0) {
+		console.log("handling locked out callback");
 		this.lock("a callback");
 		this.lockedOut.shift().call(this);
 		return;
 	}
 	var s = this.readysteps.shift();
-	console.log("executing step", s);
+	console.log(new Date() + " executing step", s);
 	this.lock("around step");
 	this.st[s].call(this.st, this.runcxt);
-	this.unlock("around step");
+	this.send({action: "step"});
 }
 
+WSBridge.handlers["stepdone"] = function(msg) {
+	this.unlock("around step");
+}

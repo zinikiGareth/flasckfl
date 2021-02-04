@@ -108,6 +108,8 @@ public class FlimTop implements TDAParsing {
 	public void resolve() {
 		for (FlimStruct ps : structs)
 			ps.resolve();
+		for (FlimUnion ps : unions)
+			ps.resolve();
 		for (FlimFunction pf : functions)
 			pf.bindType();
 		for (FlimContract fc : contracts)
