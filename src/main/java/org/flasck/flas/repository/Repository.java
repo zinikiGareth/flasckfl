@@ -60,6 +60,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.NoMetaDataException;
@@ -357,7 +358,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		Set<Type> collect = new HashSet<Type>();
 		Set<PolyType> polys = new HashSet<PolyType>();
 		for (Type t : ms) {
-			if (t == LoadBuiltins.any || t == LoadBuiltins.entity)
+			if (t instanceof Primitive && ((Primitive)t).willAcceptAll(ms))
 				return t;
 			else if (t == LoadBuiltins.error)
 				continue;

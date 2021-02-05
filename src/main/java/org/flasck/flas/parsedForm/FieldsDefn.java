@@ -14,12 +14,13 @@ public abstract class FieldsDefn implements AsString, Locatable, PolyHolder, Fie
 		ENTITY,
 		STATE,
 		
-		// TODO: all of these should be in Ziniki
+		// TODO: all of these should be in Ziniki; I think this means this class basically needs to become some kind of (wrapped) "String"
 		ENVELOPE,
 		WRAPS,
 		DEAL,
 		OFFER,
-		ARENA;
+		ARENA,
+		PERSONA;
 	}
 
 	public final boolean generate;

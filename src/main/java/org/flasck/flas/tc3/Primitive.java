@@ -1,6 +1,9 @@
 package org.flasck.flas.tc3;
 
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -16,6 +19,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class Primitive implements RepositoryEntry, NamedType, NamedThing {
 	private final InputPosition loc;
 	private final SolidName name;
+	private Predicate<Set<Type>> accepting;
 
 	public Primitive(InputPosition loc, String name) {
 		this.loc = loc;
@@ -76,6 +80,16 @@ public class Primitive implements RepositoryEntry, NamedType, NamedThing {
 			return other instanceof StructDefn && ((StructDefn)other).type == FieldsType.ENTITY;
 		if (this.name.uniqueName().equals("Contract") && (other instanceof ContractDecl || other instanceof HandlerImplements))
 			return true;
-		return false;
+		Set<Type> os = new HashSet<>();
+		os.add(other);
+		return willAcceptAll(os);
+	}
+	
+	public void accept(Predicate<Set<Type>> fn) {
+		accepting = fn;
+	}
+
+	public boolean willAcceptAll(Set<Type> ms) {
+		return accepting != null && accepting.test(ms);
 	}
 }

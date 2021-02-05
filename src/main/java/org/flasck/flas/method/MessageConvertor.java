@@ -73,8 +73,12 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
-		if (expr.boundEarly())
+		if (expr.boundEarly()) {
+			UnresolvedVar uv = new UnresolvedVar(expr.location, expr.asName());
+			uv.bind(expr.defn());
+			stack.add(uv);
 			return true;
+		}
 		if (mode == Mode.SLOT) {
 			mode = Mode.NESTEDSLOT;
 			if (!(expr.from instanceof MemberExpr))

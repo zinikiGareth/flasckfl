@@ -60,6 +60,7 @@ public class LoadBuiltins {
 	public static final TypeReference anyTR = new TypeReference(pos, "Any");
 	static {
 		anyTR.bind(any);
+		any.accept(ms -> { return true; });
 	}
 	
 	/* TODO: I think we want subclasses of Any called "Entity", "Deal", "Offer", etc
@@ -72,6 +73,8 @@ public class LoadBuiltins {
 	public static final TypeReference entityTR = new TypeReference(pos, "Entity");
 	static {
 		entityTR.bind(entity);
+		// TODO: this should be more precise in what it accepts
+		entity.accept(ms -> { return true; });
 	}
 	
 	public static final Primitive co = new Primitive(pos, "ContentObject");
