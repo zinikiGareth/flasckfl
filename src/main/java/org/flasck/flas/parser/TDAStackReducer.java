@@ -72,7 +72,7 @@ public class TDAStackReducer implements ExprTermConsumer {
 				errors.message(lineStart, "syntax error");
 			return;
 		}
-		this.stack.get(0).done();
+		this.stack.remove(0).done();
 	}
 
 	@Override

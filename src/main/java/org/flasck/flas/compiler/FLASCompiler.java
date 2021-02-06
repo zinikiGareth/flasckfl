@@ -139,8 +139,8 @@ public class FLASCompiler implements CompileUnit {
 			if (errors.hasErrors())
 				return true;
 		}
-		if (config.flimdir() != null) {
-			reader.read(pkgs, config.flimdir(), config.inputs);
+		for (File f : config.readFlims) {
+			reader.read(pkgs, f, config.inputs);
 			if (errors.hasErrors())
 				return true;
 		}

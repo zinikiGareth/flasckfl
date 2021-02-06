@@ -117,6 +117,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		}
 		if (!steps.isEmpty() && desc != null && t1.ok())
 			pw.pass("JS", desc);
+		else if (!t1.ok() && errors.isEmpty())
+			errors.add("JS ERROR " + (desc == null ? "configure" : desc));
 	}
 
 	@Override
