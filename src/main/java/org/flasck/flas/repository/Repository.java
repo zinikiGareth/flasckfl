@@ -352,15 +352,42 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	@Override
+	public RepositoryEntry findNested(ErrorReporter errors, InputPosition loc, String scope, String tn) {
+		RepositoryEntry have = null;
+		for (Entry<String, RepositoryEntry> e : dict.entrySet()) {
+			String key = e.getKey();
+			if (key.startsWith(scope + ".") && e.getValue().name().baseName().equals(tn)) {
+				if (have == null)
+					have = e.getValue();
+				else
+					errors.message(loc, "ambiguous reference to " + tn + " inside " + scope);
+			}
+			
+		}
+		return have;
+	}
+
+	@Override
 	public Type findUnionWith(ErrorReporter errors, InputPosition pos, Set<Type> ms, boolean needAll) {
 		if (ms.isEmpty())
 			throw new NotImplementedException();
 		Set<Type> collect = new HashSet<Type>();
 		Set<PolyType> polys = new HashSet<PolyType>();
 		for (Type t : ms) {
-			if (t instanceof Primitive && ((Primitive)t).willAcceptAll(ms))
+			if (t instanceof Primitive && ((Primitive)t).willAcceptAll(ms)) {
+				// If t is a 'special' union (eg Any), and is only unified with one other type,
+				// then consider that what we are talking about here is a case of a more-specific type being passed
+				// to a function expecting a general type.
+				
+				// Of course, there may be other more subtle cases in here, so be careful.  We need to be precise about
+				// what the roles are.
+				if (ms.size() == 2 && !needAll) {
+					HashSet<Type> foo = new HashSet<>(ms);
+					foo.remove(t);
+					return foo.iterator().next();
+				}
 				return t;
-			else if (t == LoadBuiltins.error)
+			} else if (t == LoadBuiltins.error)
 				continue;
 			else if (t instanceof PolyType)
 				polys.add((PolyType) t);

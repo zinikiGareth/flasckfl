@@ -6,6 +6,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractImplementor;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractProvider;
@@ -38,7 +39,10 @@ public class UTSendChecker extends LeafAdapter implements ResultAware {
 	public void result(Object r) {
 		PosType type = (PosType) r;
 		Type ty = type.type;
-		if (!(ty instanceof ContractImplementor) && !(ty instanceof ContractProvider)) {
+		boolean isAllowed = ty instanceof ContractImplementor || ty instanceof ContractProvider;
+		if (!isAllowed && ty instanceof ContractDecl && ((ContractDecl)ty).type == ContractType.HANDLER)
+			isAllowed = true;
+		if (!isAllowed) {
 			errors.message(send.card.location(), "cannot send contract messages to " + send.card.var);
 			return;
 		}
@@ -53,6 +57,9 @@ public class UTSendChecker extends LeafAdapter implements ResultAware {
 			Provides ic = ((ContractProvider)ty).providesContract(cn);
 			if (ic != null)
 				cd = ic.actualType();
+		}
+		if (ty instanceof ContractDecl) {
+			cd = (ContractDecl) ty; 
 		}
 		if (cd != null) {
 			int nargs;

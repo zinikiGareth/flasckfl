@@ -54,6 +54,11 @@ public class JSFunctionStateStore implements JSFunctionState {
 	}
 
 	@Override
+	public boolean hasContainer(NameOfThing name) {
+		return containers.containsKey(name);
+	}
+
+	@Override
 	public void container(NameOfThing name, JSExpr expr) {
 		if (containers.containsKey(name))
 			throw new CantHappenException("should not offer multiple definitions for " + name);

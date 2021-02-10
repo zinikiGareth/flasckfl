@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.flasck.flas.parsedForm.st.SystemTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,12 @@ public class TestResultWriter {
 		this.writeEverything = writeEverything;
 		this.pw = new PrintWriter(out);
 		this.doClose = true;
+	}
+
+	public void systemTest(String which, SystemTest st) {
+		if (writeEverything) {
+			pw.println(which + " running system test " + st.name().uniqueName());
+		}
 	}
 
 	public void begin(String which, String description) {
@@ -56,6 +63,12 @@ public class TestResultWriter {
 		pw.println(which + " ERROR " + description);
 		t.printStackTrace(pw);
 		pw.flush();
+	}
+
+	public void passedSystemTest(String which, SystemTest st) {
+		if (writeEverything) {
+			pw.println(which + " " + st.name().uniqueName() + " all stages passed");
+		}
 	}
 
 	public void println(String data) {

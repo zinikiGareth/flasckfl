@@ -104,8 +104,14 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (defn instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements)defn;
 			if (hi.getParent() != null) {
-				expArgs++;
-				stack.add(1, state.container(hi.getParent().name()));
+				if (state.hasContainer(hi.getParent().name())) {
+					expArgs++;
+					stack.add(1, state.container(hi.getParent().name()));
+				} else {
+					// turn the mock into the real thing
+					JSExpr mockCard = stack.remove(1);
+					stack.add(1, block.unmock(mockCard));
+				}
 			}
 		} else if (defn instanceof ObjectCtor) {
 			stack.add(1, state.container(new PackageName("_DisplayUpdater")));

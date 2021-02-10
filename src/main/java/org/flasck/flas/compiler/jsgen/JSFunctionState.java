@@ -12,6 +12,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 public interface JSFunctionState {
 	public JSMethodCreator meth();
 	public Map<UnitDataDeclaration, JSExpr> mocks();
+	public boolean hasContainer(NameOfThing name);
 	public void container(NameOfThing name, JSExpr expr);
 	public JSExpr container(NameOfThing name);
 	public void provideTemplateObject(Map<String, JSExpr> tom);

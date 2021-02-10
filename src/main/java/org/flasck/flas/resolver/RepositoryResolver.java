@@ -102,6 +102,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	private RepositoryEntry inside;
 	private boolean assigning;
 	private final Iterable<TraversalProcessor> modules;
+	private boolean lookDownwards;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
@@ -613,11 +614,14 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		if (defn == null) {
 			if (expectPolys && PolyTypeToken.validate(tn) && inside instanceof FunctionDefinition) {
 				defn = ((FunctionDefinition)inside).allocatePoly(ref.location(), tn);
+			} else if (lookDownwards && (defn = findInside(ref.location(), tn)) != null) {
+				;
 			} else {
 				errors.message(ref.location(), "cannot resolve '" + tn + "'");
 				return;
 			}
-		} else if (!(defn instanceof NamedType)) {
+		}
+		if (!(defn instanceof NamedType)) {
 			errors.message(ref.location(), defn.name().uniqueName() + " is not a type");
 			return;
 		}
@@ -659,7 +663,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		
 		ref.bind((NamedType) defn);
 	}
-	
+
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
 		scopeStack.add(0, scope);
@@ -951,10 +955,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		scopeStack.add(0, scope);
 		this.scope = udd.name;
+		this.lookDownwards = true;
 	}
 
 	@Override
 	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
+		this.lookDownwards = false;
 		this.scope = scopeStack.remove(0);
 		checkValidityOfUDDConstruction(udd);
 	}
@@ -1122,6 +1128,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			return defn;
 		else
 			return recfind(s.container(), var);
+	}
+
+	// Try and find an inner nested definition IF we are in a privileged context that can break scoping rules
+	private RepositoryEntry findInside(InputPosition loc, String tn) {
+		String scope = this.scope.packageName().uniqueName();
+		return repository.findNested(errors, loc, scope, tn);
 	}
 
 	@Override

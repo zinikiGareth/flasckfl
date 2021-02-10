@@ -69,7 +69,14 @@ UTRunner.prototype.invoke = function(_cxt, inv) {
 }
 UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	_cxt.log("doing send from runner to " + contract + ":" + msg);
-	var reply = target.sendTo(_cxt, contract, msg, args);
+	var reply;
+	if (target.sendTo) {
+		reply = target.sendTo(_cxt, contract, msg, args);
+	} else {
+		var withArgs = args.slice();
+		withArgs.unshift(_cxt);
+		reply = target[msg].apply(target, withArgs);
+	}
 	reply = _cxt.full(reply);
 	this.queueMessages(_cxt, reply);
 	this.dispatchMessages(_cxt);

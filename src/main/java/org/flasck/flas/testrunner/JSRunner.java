@@ -124,7 +124,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	@Override
 	protected JSTestState createSystemTest(TestResultWriter pw, SystemTest st) {
 		String clz = st.name().jsName();
-		pw.println("JS running system test " + st.name().uniqueName());
+		pw.systemTest("JS", st);
 		SingleJSTest t1 = new SingleJSTest(page, errors, pw, clz, null);
 		t1.create(null);
 		return t1.state;
@@ -140,7 +140,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	@Override
 	protected void cleanupSystemTest(TestResultWriter pw, JSTestState state, SystemTest st) {
 		if (state.failed == 0)
-			pw.println("JS " + st.name().uniqueName() + " all stages passed");
+			pw.passedSystemTest("JS", st);
 		else
 			pw.println("JS " + st.name().uniqueName() + " " + state.failed + " stages failed");
 	}

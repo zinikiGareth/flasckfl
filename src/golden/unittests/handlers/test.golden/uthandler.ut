@@ -1,0 +1,4 @@
+	test that we can call a handler inside a card
+		data NeedsHandler thecard
+		data CallMe callback <- OnCall thecard
+		contract callback CallMe hello "hi, there"

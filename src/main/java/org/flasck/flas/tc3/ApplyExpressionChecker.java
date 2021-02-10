@@ -108,6 +108,15 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 				errors.message(pfn.pos, "use -> to provide handlers");
 				nv.result(new ErrorType());
 				return;
+			} else if (fn instanceof HandlerImplements && fn.argCount() == results.size()-1 && ((HandlerImplements)fn).getParent() != null && !((HandlerImplements) fn).inCard) {
+				// need to check parent is correct
+				PosType parent = results.remove(0);
+				NamedType parentType = ((HandlerImplements) fn).getParent();
+				if (parent.type != parentType) {
+					errors.message(pfn.pos, "handler " + expr.fn + " expects " + parentType.signature() + " not " + parent.type.signature());
+					nv.result(new ErrorType());
+					return;
+				}
 			} else {
 				errors.message(pfn.pos, expr.fn + " expects: " + fn.argCount() + " has: " + results.size());
 				nv.result(new ErrorType());

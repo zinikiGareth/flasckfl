@@ -23,4 +23,5 @@ public interface RepositoryReader extends UnionFinder {
 	Type findUnionWith(ErrorReporter errors, InputPosition pos, Set<Type> ms, boolean needAll);
 	Iterable<SplitMetaData> allWebs();
 	CardData findWeb(String baseName);
+	RepositoryEntry findNested(ErrorReporter errors, InputPosition loc, String scope, String tn);
 }

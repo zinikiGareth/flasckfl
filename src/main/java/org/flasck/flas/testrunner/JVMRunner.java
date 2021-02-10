@@ -74,7 +74,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	
 	@Override
 	protected State createSystemTest(TestResultWriter pw, SystemTest st) {
-		pw.println("JVM running system test " + st.name().uniqueName());
+		pw.systemTest("JVM", st);
 		try {
 			JVMTestHelper helper = new JVMTestHelper(loader, config.root, templates, runtimeErrors, counter);
 			ClientContext cxt = (ClientContext) helper.create();
@@ -107,7 +107,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	@Override
 	protected void cleanupSystemTest(TestResultWriter pw, State state, SystemTest st) {
 		if (state.failed == 0) {
-			pw.println("JVM " + st.name().uniqueName() + " all stages passed");
+			pw.passedSystemTest("JVM", st);
 		} else {
 			pw.println("JVM " + st.name().uniqueName() + " " + state.failed + " stages failed");
 		}

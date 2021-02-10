@@ -1,0 +1,1 @@
+test.golden.NeedsHandler.OnCall.hello :: String->List[Message]

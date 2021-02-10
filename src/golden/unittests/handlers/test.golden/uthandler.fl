@@ -1,0 +1,11 @@
+	contract handler CallMe
+		hello (String msg)
+		
+	card NeedsHandler
+		state
+			String haveMsg
+
+		handler CallMe OnCall
+			hello msg
+				haveMsg <- msg
+			 

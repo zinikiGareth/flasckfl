@@ -77,6 +77,7 @@ import org.flasck.flas.compiler.jsgen.form.JSStoreMock;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSTupleMember;
+import org.flasck.flas.compiler.jsgen.form.JSUnmock;
 import org.flasck.flas.compiler.jsgen.form.JSUpdateContainer;
 import org.flasck.flas.compiler.jsgen.form.JSUpdateContent;
 import org.flasck.flas.compiler.jsgen.form.JSUpdateStyle;
@@ -579,6 +580,11 @@ public class JSBlock implements JSBlockCreator {
 		JSLocal ret = new JSLocal(this.creating, new JSMockService(name));
 		stmts.add(ret);
 		return ret;
+	}
+
+	@Override
+	public JSExpr unmock(JSExpr mock) {
+		return new JSUnmock(mock);
 	}
 
 	@Override
