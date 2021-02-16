@@ -108,7 +108,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			t1.step(desc, s);
 			counter.end(s);
 			try {
-				counter.waitForZero(5000);
+				counter.waitForZero(15000);
 			} catch (Throwable t) {
 				pw.error("JS", desc, t);
 				errors.add("JS ERROR " + (desc == null ? "configure":desc));
