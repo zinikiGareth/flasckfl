@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.Type;
 
 public class TypedPattern implements Pattern, AsString, RepositoryEntry {
@@ -45,6 +46,8 @@ public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 
 	public Type type() {
 		try {
+			if (type == null)
+				return new ErrorType();
 			return (Type) type.defn();
 		} catch (ClassCastException ex) {
 			System.out.println("Error with bound defn of " + type.name());

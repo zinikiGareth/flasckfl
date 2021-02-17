@@ -8,6 +8,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
@@ -35,7 +36,10 @@ public class FlimInstanceReader extends FlimTypeReader implements PendingType {
 
 	@Override
 	public Type resolve(ErrorReporter errors, Repository repository, List<PolyType> polys) {
-		NamedType nt = (NamedType) args.get(0).resolve(errors, repository, polys);
+		Type rt = args.get(0).resolve(errors, repository, polys);
+		if (rt instanceof ErrorType)
+			return rt;
+		NamedType nt = (NamedType) rt;
 		List<Type> inpolys = new ArrayList<>();
 		for (int i=1;i<args.size();i++)
 			inpolys.add(args.get(i).resolve(errors, repository, polys));
@@ -44,7 +48,11 @@ public class FlimInstanceReader extends FlimTypeReader implements PendingType {
 
 	@Override
 	public TypeReference resolveAsRef(ErrorReporter errors, Repository repository, List<PolyType> polys) {
-		PolyInstance pi = (PolyInstance) resolve(errors, repository, polys);
+		Type resolve = resolve(errors, repository, polys);
+		if (resolve instanceof ErrorType) {
+			return null;
+		}
+		PolyInstance pi = (PolyInstance) resolve;
 		List<TypeReference> inpolys = new ArrayList<>();
 		for (int i=1;i<args.size();i++)
 			inpolys.add(args.get(i).resolveAsRef(errors, repository, polys));
