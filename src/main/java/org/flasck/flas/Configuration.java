@@ -33,7 +33,7 @@ public class Configuration {
 	private File writeTestReportsTo;
 	private File writeErrorsTo;
 	public File writeTypesTo;
-	private String jstestdir;
+	public String jstestdir;
 	public String specifiedTestName;
 	public String flascklibDir;
 	public PackageSources flascklibCPV;
@@ -226,7 +226,10 @@ public class Configuration {
 		} else
 			front = new File(System.getProperty("user.dir"));
 		if (jstestdir != null)
-			return new File(front, jstestdir).getPath();
+			if (new File(jstestdir).isAbsolute())
+				return jstestdir;
+			else
+				return new File(front, jstestdir).getPath();
 		else
 			return front.getPath();
 	}
