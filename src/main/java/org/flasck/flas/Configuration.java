@@ -245,7 +245,7 @@ public class Configuration {
 	public File flimdir() {
 		if (readFlims.isEmpty())
 			return null;
-		return readFlims.get(0);
+		return readFlims.get(readFlims.size()-1);
 	}
 
 	public File dumprepo() {

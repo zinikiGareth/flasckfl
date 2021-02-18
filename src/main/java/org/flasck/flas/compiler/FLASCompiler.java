@@ -82,6 +82,7 @@ import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.exceptions.NoSuchDirectoryException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.utils.FileUtils;
 
@@ -455,15 +456,23 @@ public class FLASCompiler implements CompileUnit {
 				FileUtils.cleanDirectory(ct);
 				FileUtils.assertDirectory(ct);
 				for (File f : config.readFlims) {
-					for (File i : FileUtils.findFilesMatching(f, "*.js")) {
-						FileUtils.copy(i, ct);
-						asm.includeJS(new File(incdir, i.getName()));
+					try {
+						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
+							FileUtils.copy(i, ct);
+							asm.includeJS(new File(incdir, i.getName()));
+						}
+					} catch (NoSuchDirectoryException ex) {
+						logger.info("ignoring non-existent directory " + f);
 					}
 				}
 				for (File f : config.includeFrom) {
-					for (File i : FileUtils.findFilesMatching(f, "*.js")) {
-						FileUtils.copy(i, ct);
-						asm.includeJS(new File(incdir, i.getName()));
+					try {
+						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
+							FileUtils.copy(i, ct);
+							asm.includeJS(new File(incdir, i.getName()));
+						}
+					} catch (NoSuchDirectoryException ex) {
+						logger.info("ignoring non-existent directory " + f);
 					}
 				}
 				generateHTML(asm);
@@ -567,8 +576,12 @@ public class FLASCompiler implements CompileUnit {
 		if (config.generateJVM && config.unitjvm) {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
 			for (File f : config.readFlims) {
-				for (File g : FileUtils.findFilesMatching(f, "*.jar"))
-					bcl.addClassesFrom(g);
+				try {
+					for (File g : FileUtils.findFilesMatching(f, "*.jar"))
+						bcl.addClassesFrom(g);
+				} catch (NoSuchDirectoryException ex) {
+					logger.info("ignoring non-existent flim directory " + f);
+				}
 			}
 			for (File f : config.includeFrom)
 				bcl.addClassesFrom(f);
@@ -592,8 +605,12 @@ public class FLASCompiler implements CompileUnit {
 		if (config.generateJVM && config.systemjvm) {
 			bcl = new BCEClassLoader(bce);
 			for (File f : config.readFlims) {
-				for (File g : FileUtils.findFilesMatching(f, "*.jar"))
-					bcl.addClassesFrom(g);
+				try {
+					for (File g : FileUtils.findFilesMatching(f, "*.jar"))
+						bcl.addClassesFrom(g);
+				} catch (NoSuchDirectoryException ex) {
+					logger.info("ignoring non-existent directory " + f);
+				}
 			}
 			for (File f : config.includeFrom)
 				bcl.addClassesFrom(f);
