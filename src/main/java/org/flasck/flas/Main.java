@@ -170,5 +170,6 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("ZinDelivery", level);
 		StaticLoggerBinder.defaultLevel("DoGet", level);
 		StaticLoggerBinder.defaultLevel("Uploader", level);
+		StaticLoggerBinder.defaultLevel("DebugLog", Level.INFO);
 	}
 }

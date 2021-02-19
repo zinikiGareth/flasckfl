@@ -300,6 +300,10 @@ EvalContext.prototype.log = function(...args) {
 	this.env.logger.log.apply(this.env.logger, args);
 }
 
+EvalContext.prototype.debugmsg = function(...args) {
+	this.env.logger.debugmsg.apply(this.env.logger, args);
+}
+
 EvalContext.prototype.registerContract = function(name, ctr) {
 	if (this.broker && !this.broker.contracts[name])
 		this.broker.contracts[name] = ctr;

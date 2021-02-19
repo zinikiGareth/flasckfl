@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.ContentObject;
+import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.sync.LockingCounter;
@@ -41,12 +42,14 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	private String jstestdir;
 	private String specifiedTestName;
 	final LockingCounter counter = new LockingCounter();
+	private boolean haveflascklib;
 	
 	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates, ClassLoader cl) {
 		super(config, repository);
 		if (config != null) {
 			this.jstestdir = config.jsTestDir();
 			this.specifiedTestName = config.specifiedTestName;
+			haveflascklib = config.flascklibDir != null;
 		} else {
 			this.jstestdir = System.getProperty("user.dir");
 			this.specifiedTestName = null;
@@ -89,6 +92,10 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		String clz = utc.name.jsName();
 		String desc = utc.description;
 		
+		if (!haveflascklib) {
+			pw.fail("JS", desc + ": cannot run tests without flascklib");
+			return;
+		}
 		SingleJSTest t1 = new SingleJSTest(page, errors, pw, clz, desc);
 		t1.create(desc);
 		String name = "dotest";

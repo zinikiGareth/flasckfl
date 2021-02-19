@@ -2159,7 +2159,7 @@ Debug.prototype._compare = function(cx, other) {
 }
 Debug.prototype.dispatch = function(cx) {
 	this.msg = cx.full(this.msg);
-	cx.log(this.msg);
+	cx.debugmsg(this.msg);
 	return null;
 }
 Debug.prototype.toString = function() {

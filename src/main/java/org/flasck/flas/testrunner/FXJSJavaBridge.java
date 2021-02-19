@@ -1,5 +1,7 @@
 package org.flasck.flas.testrunner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ziniki.ziwsh.intf.JsonSender;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
@@ -10,6 +12,7 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class FXJSJavaBridge implements JSJavaBridge {
+	protected static Logger logger = LoggerFactory.getLogger("DebugLog");
 	private final JSRunner runner;
 
 	FXJSJavaBridge(JSRunner runner) {
@@ -24,6 +27,11 @@ public class FXJSJavaBridge implements JSJavaBridge {
 	@Override
 	public void log(String s) {
 		JSRunner.logger.info(s);
+	}
+	
+	@Override
+	public void debugmsg(String s) {
+		logger.info(s);
 	}
 	
 	@Override

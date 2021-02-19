@@ -661,6 +661,10 @@ WSBridge.prototype.log = function(...args) {
 	console.log.apply(console.log, args);
 }
 
+WSBridge.prototype.debugmsg = function(...args) {
+	console.log.apply(console.log, args);
+}
+
 WSBridge.prototype.module = function(moduleName) {
 	this.send({action: "module", "name": moduleName });
 	this.lock("bindModule");

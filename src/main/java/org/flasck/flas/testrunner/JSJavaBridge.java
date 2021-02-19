@@ -13,6 +13,8 @@ public interface JSJavaBridge {
 
 	void log(String s);
 
+	void debugmsg(String s);
+
 	void error(String s);
 
 	LockingCounter getTestCounter();
