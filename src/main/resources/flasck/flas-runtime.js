@@ -1819,7 +1819,7 @@ FLBuiltin._probe_state = function(_cxt, mock, v) {
 	else if (mock.agent)
 		sh = mock.agent;
 	if (sh.state.dict[v] === undefined)
-		throw Error("no member " + v + " in " + sh.state.dict);
+		return new FLError("No field '" + v + "' in probe_state");
 	return sh.state.dict[v];
 }
 

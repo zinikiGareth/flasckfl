@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.CurrentContainer;
+import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectAccessor;
@@ -71,6 +72,8 @@ public class LoadBuiltins {
 	 */
 	public static final Primitive entity = new Primitive(pos, "Entity");
 	public static final TypeReference entityTR = new TypeReference(pos, "Entity");
+	public static final FieldAccessor idAccessor = new EntityIdAccessor();
+
 	static {
 		entityTR.bind(entity);
 		// TODO: this should be more precise in what it accepts
@@ -524,6 +527,7 @@ public class LoadBuiltins {
 	// Types
 	public static final TypeReference typeTR = new TypeReference(pos, "Type");
 	public static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
+
 	static {
 		typeTR.bind(type);
 		type.addField(new StructField(pos, type, false, stringTR, "type"));

@@ -45,6 +45,8 @@ UTRunner.prototype.assertSameValue = function(_cxt, e, a) {
 	e = _cxt.full(e);
 	a = _cxt.full(a);
 	if (!_cxt.compare(e, a)) {
+		if (a instanceof FLError)
+			a = a.message;
 		throw new Error("NSV\n  expected: " + e + "\n  actual:   " + a);
 	}
 }

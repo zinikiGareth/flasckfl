@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
@@ -155,6 +156,11 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			announce(expr, ut);
 		} else if (ty instanceof UnionTypeDefn) {
 			errors.message(expr.fld.location(), "cannot access members of unions");
+			announce(expr, new ErrorType());
+		} else if (ty instanceof Primitive && ty.signature().equals("Entity") && fld.var.equals("id")) {
+			announce(expr, LoadBuiltins.string);
+		} else if (ty instanceof Primitive) {
+			errors.message(expr.fld.location(), ty.signature() + " does not have members");
 			announce(expr, new ErrorType());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);

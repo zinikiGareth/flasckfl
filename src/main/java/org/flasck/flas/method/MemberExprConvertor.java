@@ -30,6 +30,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
@@ -54,6 +55,7 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 	private boolean isAcor;
 	private FieldAccessor acorFrom;
 	private final List<Object> results = new ArrayList<>();
+	private Type entity;
 
 	public MemberExprConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah, MemberExpr me) {
 		this.errors = errors;
@@ -128,6 +130,12 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 					acorFrom = acor;
 					expargs = 0;
 				}
+			} else if (entity != null) {
+				if (var.var.equals("id")) {
+					acorFrom = LoadBuiltins.idAccessor;
+					expargs = 0;
+				} else
+					throw new CantHappenException("you can only extract id from entity");
 			} else if (hi != null) {
 				ObjectMethod hm = this.hi.getMethod(var.var);
 				if (hm == null)
@@ -158,6 +166,8 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 			this.od = (ObjectDefn) ct;
 		else if (ct instanceof StructDefn)
 			this.sd = (StructDefn) ct;
+		else if (ct instanceof Primitive && ct.signature().equals("Entity"))
+			this.entity = ct;
 		else if (ct instanceof HandlerImplements)
 			this.hi = (HandlerImplements) ct;
 		else

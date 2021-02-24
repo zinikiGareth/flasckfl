@@ -72,7 +72,7 @@ public class MessageHandlerExpressionChecker extends LeafAdapter implements Resu
 		PosType pai = results.remove(0);
 		Type ai = pai.type;
 		if (ai instanceof ErrorType) {
-			nv.result(pai);
+			nv.result(ai);
 			return;
 		}
 		if (exp > 1) {

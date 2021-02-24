@@ -42,15 +42,20 @@ public class SolidName implements NameOfThing, Comparable<NameOfThing> {
 	
 	@Override
 	public String javaName() {
-		if (container == null || (container instanceof PackageName && ((PackageName)container).baseName() == null))
-			return J.BUILTINPKG + "." + name;
-		else
+		if (container == null || (container instanceof PackageName && ((PackageName)container).baseName() == null)) {
+			if (name.equals("Entity"))
+				return J.JVM_FIELDS_CONTAINER_WRAPPER;
+			else
+				return J.BUILTINPKG + "." + name;
+		} else
 			return uniqueName();
 	}
 
 	@Override
 	public String javaClassName() {
 		if (container == null) {
+			if (name.equals("Entity"))
+				return J.JVM_FIELDS_CONTAINER_WRAPPER;
 			String use = name;
 			if ("Error".equals(name))
 				use = "FLError";
