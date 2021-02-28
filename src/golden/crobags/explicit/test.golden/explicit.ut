@@ -1,0 +1,11 @@
+	test the crobag has two elements
+		data ExplicitCrobagTemplate ecb
+		contract ecb MakeReady prepare
+		assert (ecb.things.size)
+			2
+
+	test the card renders correctly
+		data ExplicitCrobagTemplate ecb
+		contract ecb MakeReady prepare
+		match ecb text
+			hello world			

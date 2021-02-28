@@ -1,0 +1,24 @@
+Test that the correct code is generated for an explicitly named template on a Crobag
+
+	entity Thing
+		String name
+		
+	contract MakeReady
+		prepare
+		
+	card ExplicitCrobagTemplate
+		state
+			Crobag[Thing] things
+		
+		template top
+			list <- things => thing
+			
+		template thing <- (Thing t)
+			name <- name
+
+		implements MakeReady
+			prepare
+				<- ts.put "hello" (Thing "hello")
+				<- ts.put "world" (Thing "world")
+				things <- ts
+					ts = Crobag.new

@@ -891,7 +891,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 				if (st instanceof PolyInstance) {
 					PolyInstance pi = (PolyInstance)st;
 					NamedType pis = pi.struct();
-					if (pis.equals(LoadBuiltins.list))
+					if (pis.equals(LoadBuiltins.list) || pis.equals(LoadBuiltins.crobag))
 						st = pi.polys().get(0);
 				}
 				if (st instanceof StructDefn)

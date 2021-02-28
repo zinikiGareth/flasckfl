@@ -177,3 +177,4 @@ src/golden/dates/gregorian
 src/golden/crobags/put
 src/golden/crobags/scroll
 src/golden/unittests/handlers
+src/golden/crobags/explicit
