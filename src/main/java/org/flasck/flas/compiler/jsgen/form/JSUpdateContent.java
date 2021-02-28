@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.parsedForm.TemplateField;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -12,13 +13,15 @@ public class JSUpdateContent implements JSExpr {
 	private final TemplateField field;
 	private final int option;
 	private final JSExpr source;
+	private final String fromField;
 	private final JSExpr expr;
 
-	public JSUpdateContent(String templateName, TemplateField field, int option, JSExpr source, JSExpr expr) {
+	public JSUpdateContent(String templateName, TemplateField field, int option, JSExpr source, String fromField, JSExpr expr) {
 		this.templateName = templateName;
 		this.field = field;
 		this.option = option;
 		this.source = source;
+		this.fromField = fromField;
 		this.expr = expr;
 	}
 
@@ -39,13 +42,18 @@ public class JSUpdateContent implements JSExpr {
 		w.print(source.asVar());
 		w.print(", ");
 		w.print(expr.asVar());
+		w.print(", ");
+		if (fromField == null)
+			w.print("null");
+		else
+			w.print("\"" + fromField + "\"");
 		w.println(");");
 	}
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		IExpr me = md.callVirtual("void", jvm.argAsIs(new JSThis()), "_updateContent", jvm.cxt(), jvm.argAsIs(new JSVar("_renderTree")), md.stringConst(templateName), md.stringConst(field.text), md.intConst(this.option), jvm.arg(source), jvm.arg(expr));
+		IExpr me = md.callVirtual("void", jvm.argAsIs(new JSThis()), "_updateContent", jvm.cxt(), jvm.argAsIs(new JSVar("_renderTree")), md.stringConst(templateName), md.stringConst(field.text), md.intConst(this.option), jvm.arg(source), jvm.arg(expr), fromField == null ? md.as(md.aNull(), J.STRING) : md.stringConst(fromField));
 		jvm.local(this, me);
 	}
 

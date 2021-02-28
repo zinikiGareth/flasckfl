@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
+import org.flasck.flas.parsedForm.ut.UnitTestInput;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
@@ -126,6 +127,11 @@ public class UnitTestStepGenerator extends LeafAdapter {
 	@Override
 	public void visitUnitTestEvent(UnitTestEvent ute) {
 		new DoUTEventGeneratorJS(state, sv, this.block, this.runner);
+	}
+
+	@Override
+	public void visitUnitTestInput(UnitTestInput ute) {
+		new DoUTInputGeneratorJS(state, sv, this.block, this.runner);
 	}
 
 	@Override

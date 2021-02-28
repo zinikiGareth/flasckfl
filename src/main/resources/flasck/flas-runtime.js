@@ -752,7 +752,7 @@ FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, field, option, s
     }
 }
 
-FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option, source, value) {
+FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option, source, value, fromField) {
     // In general, everything should already be fully evaluated, but we do allow expressions in templates
     value = _cxt.full(value);
     if (typeof value === 'undefined' || value == null)
@@ -763,11 +763,44 @@ FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option
         var ncid = _cxt.nextDocumentId();
         node.id = ncid;
         rt[field] = { _id: ncid };
+        if (source)
+            rt[field].source = source;
+        else
+            rt[field].source = this;
+        rt[field].fromField = fromField;
     }
     node.innerHTML = '';
     node.appendChild(document.createTextNode(value));
     if (this._eventHandlers) {
         this._attachHandlers(_cxt, rt[field], node, templateName, field, option, source);
+    }
+}
+
+FLCard.prototype._updateFromInputs = function() {
+    if (this._renderTree)
+        this._updateFromEachInput(this._renderTree);
+}
+
+FLCard.prototype._updateFromEachInput = function(rt) {
+    if (rt.children) {
+        for (var i=0;i<rt.children.length;i++) {
+            this._updateFromEachInput(rt.children[i]);
+        }
+    }
+    var props = Object.keys(rt);
+    for (var i=0;i<props.length;i++) {
+        if (props[i] == "_id")
+            continue;
+        var sub = rt[props[i]];
+        if (!sub._id)
+            continue;
+        var div = document.getElementById(sub._id);
+        if (div.tagName == "INPUT" && div.hasAttribute("type") && (div.getAttribute("type") == "text" || div.getAttribute("type") == "password")) {
+            debugger;
+            if (sub.fromField) {
+                sub.source.state.set(sub.fromField, div.getAttribute("value"));
+            }
+        }
     }
 }
 
@@ -1827,9 +1860,10 @@ FLBuiltin._probe_state = function(_cxt, mock, v) {
 	var sh = mock;
 	if (mock instanceof FLError)
 		return mock;
-	else if (mock.card)
+	else if (mock.card) {
 		sh = mock.card;
-	else if (mock.agent)
+		sh._updateFromInputs();
+	} else if (mock.agent)
 		sh = mock.agent;
 	if (sh.state.dict[v] === undefined)
 		return new FLError("No field '" + v + "' in probe_state");

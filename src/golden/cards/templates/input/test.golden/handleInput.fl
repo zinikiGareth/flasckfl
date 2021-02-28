@@ -1,0 +1,7 @@
+
+	card InputCard
+		state
+			String text
+			
+		template top
+			box <- text

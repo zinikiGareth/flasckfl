@@ -68,6 +68,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
+import org.flasck.flas.parsedForm.ut.UnitTestInput;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
@@ -190,6 +191,8 @@ public interface RepositoryVisitor {
 	void visitUnitTestRender(UnitTestRender e);
 	void visitUnitTestEvent(UnitTestEvent e);
 	void leaveUnitTestEvent(UnitTestEvent e);
+	void visitUnitTestInput(UnitTestInput e);
+	void leaveUnitTestInput(UnitTestInput e);
 	void leaveUnitTestStep(UnitTestStep s);
 	void visitSendMethod(NamedType defn, UnresolvedVar expr);
 	void visitHandleExpr(InputPosition location, Expr expr, Expr handler);

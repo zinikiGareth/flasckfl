@@ -19,6 +19,10 @@ public class JSLoadField implements JSExpr {
 		this.container = container;
 		this.field = field;
 	}
+	
+	public String field() {
+		return field;
+	}
 
 	@Override
 	public String asVar() {

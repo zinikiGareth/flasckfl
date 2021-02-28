@@ -1,0 +1,8 @@
+Check that we can put text in a text box and have it show up in the card
+
+	test that input is correctly mapped
+		data InputCard c
+		input c box
+			"hello, world"
+		assert (c.text)
+			"hello, world"

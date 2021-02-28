@@ -71,6 +71,9 @@ public class TestStepParser implements TDAParsing {
 		case "event": {
 			return handleEvent(toks);
 		}
+		case "input": {
+			return handleInput(toks);
+		}
 		case "invoke": {
 			return handleInvoke(toks);
 		}
@@ -246,6 +249,23 @@ public class TestStepParser implements TDAParsing {
 		}
 		builder.event(new UnresolvedVar(tok.location, tok.text), targetZone, eventObj.get(0));
 		return new NoNestingParser(errors);
+	}
+
+	protected TDAParsing handleInput(Tokenizable toks) {
+		ValidIdentifierToken tok = VarNameToken.from(toks);
+		if (tok == null) {
+			errors.message(toks, "must specify a card to receive event");
+			return new IgnoreNestedParser();
+		}
+		TargetZone targetZone = parseTargetZone(toks);
+		if (targetZone == null) {
+			return new IgnoreNestedParser();
+		}
+		if (toks.hasMoreContent()) {
+			errors.message(toks, "syntax error");
+			return new IgnoreNestedParser();
+		}
+		return new SingleExpressionParser(errors, "input", text -> { builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text); });
 	}
 
 	protected TDAParsing handleInvoke(Tokenizable toks) {

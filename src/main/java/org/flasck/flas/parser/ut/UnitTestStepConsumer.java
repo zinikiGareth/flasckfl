@@ -16,6 +16,7 @@ public interface UnitTestStepConsumer {
 	void data(UnitDataDeclaration dd);
 	void render(UnresolvedVar unresolvedVar, TemplateReference template);
 	void event(UnresolvedVar card, TargetZone targetZone, Expr event);
+	void input(UnresolvedVar card, TargetZone targetZone, Expr text);
 	void invokeObjectMethod(Expr expr);
 	void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation);
 	void expect(UnresolvedVar ctr, UnresolvedVar meth, Expr[] args, Expr handler);

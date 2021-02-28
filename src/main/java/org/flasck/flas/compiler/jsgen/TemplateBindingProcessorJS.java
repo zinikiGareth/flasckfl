@@ -14,6 +14,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSLoadField;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -144,8 +145,13 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 					}
 					uc.returnVoid();
 					bindingBlock.updateContainer(b.assignsTo, (JSExpr) r, ucidx);
-				} else
-					bindingBlock.updateContent(templateName, b.assignsTo, option, source, (JSExpr) r);
+				} else {
+					String fromField = null;
+					if (r instanceof JSLoadField) {
+						fromField = ((JSLoadField)r).field();
+					}
+					bindingBlock.updateContent(templateName, b.assignsTo, option, source, fromField, (JSExpr) r);
+				}
 			}
 		}
 	}

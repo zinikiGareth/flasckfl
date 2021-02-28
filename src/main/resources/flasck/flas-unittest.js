@@ -137,6 +137,31 @@ UTRunner.prototype.event = function(_cxt, target, zone, event) {
 		this.dispatchMessages(_cxt);
 	}
 }
+UTRunner.prototype.input = function(_cxt, target, zone, text) {
+	var sendTo = this.findMockFor(target);
+	if (!sendTo)
+		throw Error("there is no mock " + target);
+	var receiver;
+	if (sendTo instanceof MockCard)
+		receiver = sendTo.card;
+	else if (sendTo instanceof MockFLObject)
+		receiver = sendTo; // presuming an object
+	else
+		throw Error("cannot send event to " + target);
+	var div = this.findDiv(_cxt, receiver._currentRenderTree(), zone, 0);
+	if (div) {
+		text = _cxt.full(text);
+		if (text instanceof Error) {
+			_cxt.log(text);
+			return;
+		}
+		if (!div.tagName == "INPUT" || !div.hasAttribute("type") || (div.getAttribute("type") != "text" && div.getAttribute("type") != "password")) {
+			_cxt.log("can only set input text on input elements of type text or password");
+			return;
+		}
+		div.setAttribute("value", text);
+	}
+}
 UTRunner.prototype.findDiv = function(_cxt, rt, zone, pos) {
 	if (pos >= zone.length) {
 		return document.getElementById(rt._id);

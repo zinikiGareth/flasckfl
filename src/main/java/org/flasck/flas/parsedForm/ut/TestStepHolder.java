@@ -40,6 +40,11 @@ public class TestStepHolder implements UnitTestStepConsumer {
 	}
 
 	@Override
+	public void input(UnresolvedVar card, TargetZone targetZone, Expr text) {
+		this.steps.add(new UnitTestInput(card, targetZone, text));
+	}
+
+	@Override
 	public void invokeObjectMethod(Expr expr) {
 		this.steps.add(new UnitTestInvoke(expr));
 	}

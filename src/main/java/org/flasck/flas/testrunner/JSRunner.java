@@ -18,7 +18,6 @@ import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.ContentObject;
-import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.sync.LockingCounter;
