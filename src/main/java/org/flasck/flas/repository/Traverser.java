@@ -820,6 +820,9 @@ public class Traverser implements RepositoryVisitor {
 	public void visitFunction(FunctionDefinition fn) {
 		if (fn.intros().isEmpty())
 			return; // not for generation
+		for (FunctionIntro i : fn.intros()) // don't process if broken to avoid cascades
+			if (i.broken())
+				return;
 		currFnHasState = fn.hasState();
 		rememberCaller(fn);
 		visitor.visitFunction(fn);

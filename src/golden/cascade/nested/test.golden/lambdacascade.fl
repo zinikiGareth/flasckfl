@@ -1,0 +1,16 @@
+This is an attempt to stop a cascase where the lambda is not scoped in
+of a (completely unrelated) syntax error
+
+	burble burble Foo
+
+	contract handler DataHandler
+		value (Any v)
+		
+	card Cascade
+		state
+			String val
+			
+		handler DataHandler LoadRestaurants (Any d)
+			value r
+				<- Debug (show d)
+				val <- cast String r

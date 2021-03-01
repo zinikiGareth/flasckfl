@@ -44,6 +44,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 	public void itsNotLegalToHaveNoCases() {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(pos, "no function cases specified");
+			oneOf(consumer).breakIt();
 		}});
 		parser.scopeComplete(pos);
 	}

@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
@@ -31,6 +32,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 
 	private final ErrorReporter errors;
+	private final ErrorMark mark;
 	private final ExprTermConsumer builder;
 	private final List<Expr> terms = new ArrayList<>();
 	private final List<OpPrec> ops = new ArrayList<>();
@@ -40,6 +42,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder, boolean reduceToOne) {
 		this.errors = errors;
+		this.mark = errors.mark();
 		this.builder = builder;
 		this.reduceToOne = reduceToOne;
 	}
@@ -174,7 +177,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 
 	private Expr resolveCastExpr(Expr t0, int from, int to) {
-		if (errors.hasErrors())
+		if (mark.hasMoreNow())
 			return null;
 		if (to != from+3) {
 			errors.message(t0.location(), "cast must have exactly two arguments");

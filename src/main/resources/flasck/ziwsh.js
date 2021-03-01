@@ -650,7 +650,11 @@ CollectingTraverser.prototype.handler = function(h) {
 
 const FieldsTraverser = function(cx, collector, clz) {
     CollectingTraverser.call(this, cx, collector);
-    const czz = cx.structNamed(clz);
+    var czz = cx.structNamed(clz);
+    if (!czz)
+        czz = cx.objectNamed(clz);
+    if (!czz)
+        throw new Error("Could not find a definition for " + clz);
     cx.log("creating " + clz + ": " + czz);
     this.creation = new czz(cx);
     this.creation.state._wrapper = this.creation;

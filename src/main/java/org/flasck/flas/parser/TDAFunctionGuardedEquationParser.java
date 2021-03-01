@@ -92,7 +92,9 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		if (cases.isEmpty() && !errors.hasErrors())
+		if (cases.isEmpty() && !errors.hasErrors()) {
 			errors.message(introStart, "no function cases specified");
+			consumer.breakIt();
+		}
 	}
 }

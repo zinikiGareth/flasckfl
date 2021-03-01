@@ -31,9 +31,9 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aSimpleHandlerCanBeDefined() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(errors), with(any(HandlerImplements.class)));
+			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));
 		assertTrue(nested instanceof TDAImplementationMethodsParser);
 	}
@@ -41,9 +41,9 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerContractNameCanHaveAQualifiedName() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(errors), with(any(HandlerImplements.class)));
+			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName"));
 		assertTrue(nested instanceof TDAImplementationMethodsParser);
 	}
@@ -89,11 +89,11 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerCanContainAMethod() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(errors), with(any(HandlerImplements.class)));
-			oneOf(builder).newObjectMethod(with(errors), with(any(ObjectActionHandler.class)));
-			oneOf(builder).argument(with(errors), (VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.foo.x")));
+			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
+			oneOf(builder).newObjectMethod(with(tracker), with(any(ObjectActionHandler.class)));
+			oneOf(builder).argument(with(tracker), (VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.foo.x")));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));
 		assertTrue(nested instanceof TDAImplementationMethodsParser);
 		nested.tryParsing(TDABasicIntroParsingTests.line("foo x"));

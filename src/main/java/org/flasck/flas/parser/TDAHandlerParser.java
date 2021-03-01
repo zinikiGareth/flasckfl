@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -48,6 +49,7 @@ public class TDAHandlerParser implements TDAParsing {
 	}
 
 	public TDAParsing parseHandler(InputPosition kw, boolean inCard, Tokenizable line) {
+		ErrorMark mark = errors.mark();
 		if (!line.hasMoreContent()) {
 			errors.message(line, "missing contract reference");
 			return new IgnoreNestedParser();
@@ -69,7 +71,7 @@ public class TDAHandlerParser implements TDAParsing {
 		List<HandlerLambda> lambdas = new ArrayList<>();
 		final HandlerName hn = namer.handlerName(named.text);
 		VarNamer vn = new SimpleVarNamer(hn); 
-		while (line.hasMoreContent() && !errors.hasErrors()) {
+		while (line.hasMoreContent() && !mark.hasMoreNow()) {
 			TDAPatternParser pp = new TDAPatternParser(errors, vn, patt -> lambdas.add(new HandlerLambda(patt, false)), topLevel);
 			pp.tryParsing(line);
 		}

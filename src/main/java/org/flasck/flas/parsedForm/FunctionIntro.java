@@ -16,6 +16,7 @@ public class FunctionIntro implements FunctionGuardedEquationConsumer, PatternsH
 	private FunctionName fname;
 	private final List<FunctionCaseDefn> cases = new ArrayList<>();
 	private HSITree hsiTree;
+	private boolean broken;
 
 	public FunctionIntro(FunctionName fname, List<Pattern> args) {
 		this.location = fname.location;
@@ -39,6 +40,15 @@ public class FunctionIntro implements FunctionGuardedEquationConsumer, PatternsH
 		return args;
 	}
 
+	@Override
+	public void breakIt() {
+		this.broken = true;
+	}
+
+	public boolean broken() {
+		return broken;
+	}
+	
 	@Override
 	public void functionCase(FunctionCaseDefn o) {
 		cases.add(o);

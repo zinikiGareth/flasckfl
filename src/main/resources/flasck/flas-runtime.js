@@ -563,6 +563,9 @@ FLContext.prototype.attachEventToCard = function(card, handlerInfo, div, wrapper
 }
 
 FLContext.prototype.handleEvent = function(card, handler, event) {
+	if (card && card._updateFromInputs) {
+		card._updateFromInputs();
+	}
 	var reply = [];
 	if (handler) {
 		reply = handler.call(card, this, event);
@@ -796,9 +799,8 @@ FLCard.prototype._updateFromEachInput = function(rt) {
             continue;
         var div = document.getElementById(sub._id);
         if (div.tagName == "INPUT" && div.hasAttribute("type") && (div.getAttribute("type") == "text" || div.getAttribute("type") == "password")) {
-            debugger;
             if (sub.fromField) {
-                sub.source.state.set(sub.fromField, div.getAttribute("value"));
+                sub.source.state.set(sub.fromField, div.value);
             }
         }
     }
@@ -1352,7 +1354,8 @@ const CroEntry = function(key, val) {
 const Crobag = function(_cxt, _card) {
     FLObject.call(this, _cxt);
     this._card = _card;
-    // this.state = _cxt.fields();
+    // a crobag doesn't have any actual fields, but ZiWSH wants to pretend it does
+    this.state = { dict: {} }; // _cxt.fields();
     this._entries = [];
 }
 
