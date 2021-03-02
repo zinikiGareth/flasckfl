@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -52,6 +53,12 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final JSBlockCreator block;
 	private final boolean isExpectation;
+
+	private static Iterable<ExprGeneratorModule> modules = null;
+
+	static  {
+		modules = ServiceLoader.load(ExprGeneratorModule.class);
+	}
 
 	public ExprGeneratorJS(JSFunctionState state, NestedVisitor nv, JSBlockCreator block, boolean isExpectation) {
 		this.state = state;
@@ -252,8 +259,13 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				sv.result(call);
 			} else
 				sv.result(fn);
-		} else
+		} else {
+			for (ExprGeneratorModule m : modules) {
+				if (m.generateFnOrCtor(sv, state, block, defn, myName, nargs))
+					return;
+			}
 			throw new NotImplementedException("cannot generate fn for " + defn);
+		}
 	}
 
 	private void handleUnitTestData(UnitDataDeclaration udd) {

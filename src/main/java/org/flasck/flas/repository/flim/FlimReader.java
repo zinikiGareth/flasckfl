@@ -51,6 +51,8 @@ public class FlimReader {
 			String name = FileUtils.dropExtension(f.getName());
 			if (!ignore.contains(name)) {
 				FlimTop importer = importFlim(f, name);
+				if (importer == null)
+					continue;
 				importers.add(importer);
 				pkgs.ensure(name);
 				for (String s : importer.uses) {

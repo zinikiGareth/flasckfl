@@ -80,7 +80,7 @@ import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
+public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware, SharesState {
 	private final static Logger logger = LoggerFactory.getLogger("Generator");
 	public static class XCArg {
 		public final int arg;
@@ -157,6 +157,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			sv.push(this);
 		this.state = state;
 		this.eventMap = null;
+	}
+
+	@Override
+	public void shareWith(SystemTestModule module) {
+		module.inject(jse, meth, state, block, runner);
 	}
 
 	@Override

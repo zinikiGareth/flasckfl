@@ -2,6 +2,7 @@ package org.flasck.flas.repository.flim;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -35,8 +36,10 @@ public class FlimTop implements TDAParsing {
 	private final List<FlimUnion> unions = new ArrayList<>();
 	private final List<FlimObject> objects = new ArrayList<>();
 	public final Set<String> uses = new TreeSet<>();
+	private final Iterable<ReadFlimModule> modules;
 
 	public FlimTop(ErrorReporter errors, Repository repository, String pkg) {
+		this.modules = ServiceLoader.load(ReadFlimModule.class);
 		this.errors = errors;
 		this.repository = repository;
 		this.pkg = pkg;
@@ -57,7 +60,7 @@ public class FlimTop implements TDAParsing {
 		else if (inpkg.text.equals(pkg)) {
 			container = new PackageName(pkg);
 		} else {
-			errors.message(pos, "invalid package name");
+			errors.message(inpkg.location, "invalid package name");
 			return new IgnoreNestedParser();
 		}
 		switch (kw.text) {
@@ -97,6 +100,11 @@ public class FlimTop implements TDAParsing {
 			return fs;
 		}
 		default:
+			for (ReadFlimModule m : modules) {
+				TDAParsing inner = null;
+				if ((inner = m.readLine(errors, repository, kw, container, toks)) != null)
+					return inner;
+			}
 			throw new NotImplementedException("cannot handle flim keyword " + kw.text);
 		}
 	}

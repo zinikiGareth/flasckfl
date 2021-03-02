@@ -146,18 +146,15 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("TCUnification", level);
 		StaticLoggerBinder.defaultLevel("HSI", level);
 		StaticLoggerBinder.defaultLevel("Generator", level);
-		StaticLoggerBinder.defaultLevel("TestRunner", level);
 		StaticLoggerBinder.defaultLevel("io.webfolder.ui4j", level);
 		StaticLoggerBinder.defaultLevel("IdemHandler", level);
 		StaticLoggerBinder.defaultLevel("TestStages", level);
-		StaticLoggerBinder.defaultLevel("Dispatcher", level);
-		StaticLoggerBinder.defaultLevel("Send", level);
-		StaticLoggerBinder.defaultLevel("GLS", level);
-		StaticLoggerBinder.defaultLevel("TxManagerThreading", level);
 		StaticLoggerBinder.defaultLevel("assembler", level);
 		StaticLoggerBinder.defaultLevel("awstxstore", level);
 		StaticLoggerBinder.defaultLevel("org.ziniki.awstxstore", level);
 		
+		StaticLoggerBinder.defaultLevel("TestRunner", level);
+		StaticLoggerBinder.defaultLevel("CallTracker", level);
 		StaticLoggerBinder.defaultLevel("ZiWSH", level);
 		StaticLoggerBinder.defaultLevel("ZiwshClient", level);
 		StaticLoggerBinder.defaultLevel("Ziniki", level);
@@ -168,8 +165,13 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("BrokerDelegate", level);
 		StaticLoggerBinder.defaultLevel("BTResponder", level);
 		StaticLoggerBinder.defaultLevel("ZinDelivery", level);
+		StaticLoggerBinder.defaultLevel("Dispatcher", level);
+		StaticLoggerBinder.defaultLevel("Send", level);
+		StaticLoggerBinder.defaultLevel("GLS", level);
+		StaticLoggerBinder.defaultLevel("TxManagerThreading", level);
 		StaticLoggerBinder.defaultLevel("DoGet", level);
 		StaticLoggerBinder.defaultLevel("Uploader", level);
+		
 		StaticLoggerBinder.defaultLevel("DebugLog", Level.INFO);
 	}
 }

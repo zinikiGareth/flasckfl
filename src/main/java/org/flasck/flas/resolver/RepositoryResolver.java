@@ -387,7 +387,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			return;
 		
 		Expr from = expr.from;
-		UnresolvedVar fld = (UnresolvedVar) expr.fld;
+		String var;
+		if (expr.fld instanceof UnresolvedVar) {
+			UnresolvedVar fld = (UnresolvedVar) expr.fld;
+			var = fld.var;
+		} else
+			return;
 		RepositoryEntry defn;
 		if (from instanceof MemberExpr) {
 			defn = expr.defn();
@@ -411,15 +416,15 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			NamedType nt = ce.type.defn();
 			if (nt == null) // some kind of error
 				return;
-			processMemberOfType(expr, nt, fld.var);
+			processMemberOfType(expr, nt, var);
 			return;
 		} else
 			throw new NotImplementedException("cannot handle elt " + expr.from.getClass());
 		if (defn instanceof ObjectDefn) {
 			ObjectDefn od = (ObjectDefn) defn;
-			ObjectCtor ctor = od.getConstructor(fld.var);
+			ObjectCtor ctor = od.getConstructor(var);
 			if (ctor == null) {
-				errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " does not have a ctor " + fld.var);
+				errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " does not have a ctor " + var);
 				return;
 			}
 			NameOfThing card = scope.containingCard();
@@ -430,28 +435,28 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			expr.bind(ctor, false);
 		} else if (defn instanceof UnitDataDeclaration) {
 			NamedType nt = ((UnitDataDeclaration) defn).ofType.defn();
-			processMemberOfType(expr, nt, fld.var);
+			processMemberOfType(expr, nt, var);
 		} else if (defn instanceof TypedPattern) {
-			processMemberOfType(expr, ((TypedPattern)defn).type.defn(), fld.var);
+			processMemberOfType(expr, ((TypedPattern)defn).type.defn(), var);
 		} else if (defn instanceof StructField) {
 			NamedType sft = ((StructField)defn).type.defn();
-			processMemberOfType(expr, sft, fld.var);
+			processMemberOfType(expr, sft, var);
 		} else if (defn instanceof TemplateNestedField) {
 			TemplateNestedField tnf = (TemplateNestedField) defn;
 			if (tnf.type() == null)
 				throw new CantHappenException("cannot handle TNF without type");
-			processMemberOfType(expr, (NamedType) tnf.type(), fld.var);
+			processMemberOfType(expr, (NamedType) tnf.type(), var);
 		} else if (defn instanceof ObjectContract) {
 			ObjectContract oc = (ObjectContract) defn;
 			ContractDecl cd = (ContractDecl) oc.implementsType().defn();
-			processMemberOfType(expr, cd, fld.var);
+			processMemberOfType(expr, cd, var);
 		} else if (defn instanceof RequiresContract) {
 			RequiresContract rc = (RequiresContract) defn;
 			ContractDecl cd = (ContractDecl) rc.implementsType().defn();
-			processMemberOfType(expr, cd, fld.var);
+			processMemberOfType(expr, cd, var);
 		} else if (defn instanceof HandlerLambda) {
 			NamedType sft = ((TypedPattern)((HandlerLambda)defn).patt).type.defn();
-			processMemberOfType(expr, sft, fld.var);
+			processMemberOfType(expr, sft, var);
 		} else if (defn instanceof FunctionDefinition || defn instanceof VarPattern || defn instanceof IntroduceVar) {
 			// there's nothing more we can do here unless we have a return type ... wait until we have a type 
 		} else

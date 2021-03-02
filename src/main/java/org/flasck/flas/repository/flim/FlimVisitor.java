@@ -1,6 +1,7 @@
 package org.flasck.flas.repository.flim;
 
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -8,6 +9,8 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.compiler.ModuleExtensible;
+import org.flasck.flas.compiler.modules.TraversalProcessor;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -26,6 +29,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
@@ -35,7 +39,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class FlimVisitor extends LeafAdapter {
+public class FlimVisitor extends LeafAdapter implements ModuleExtensible {
 	private final String pkg;
 	private final IndentWriter iw;
 	private IndentWriter sfw;
@@ -43,8 +47,10 @@ public class FlimVisitor extends LeafAdapter {
 	private IndentWriter odw;
 	private final Set<String> packagesReferenced = new TreeSet<>();
 	private boolean inctor;
+	private final Iterable<TraversalProcessor> modules;
 
 	public FlimVisitor(String pkg, IndentWriter iw) {
+		this.modules = ServiceLoader.load(TraversalProcessor.class);
 		this.pkg = pkg;
 		this.iw = iw;
 	}
@@ -298,5 +304,18 @@ public class FlimVisitor extends LeafAdapter {
 				showType(iiw, ty.get(i));
 		} else
 			throw new NotImplementedException("cannot handle " + type);
+	}
+
+	@Override
+	public <T extends TraversalProcessor> T forModule(Class<T> extension, Class<? extends RepositoryVisitor> phase) {
+		for (TraversalProcessor tp : modules) {
+			if (tp.is(extension) && phase.isInstance(this))
+				return extension.cast(tp);
+		}
+		return null;
+	}
+
+	public void obtain(FlimModule writer) {
+		writer.inject(iw);
 	}
 }

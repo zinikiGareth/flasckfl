@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSTypeOf;
@@ -29,10 +30,21 @@ public class TypeExprGeneratorJS extends LeafAdapter implements ResultAware {
 	public void visitExpr(Expr expr, int nArgs) {
 		if (expr instanceof TypeReference)
 			return; // handled here directly
+		else if (expr instanceof MemberExpr && ((MemberExpr)expr).boundEarly() && ((MemberExpr)expr).defn() instanceof TypeReference)
+			return; // handled here directly
 		else {
 			ExprGeneratorJS ej = new ExprGeneratorJS(state, sv, block, false);
 			ej.visitExpr(expr, nArgs);
 		}
+	}
+	
+	@Override
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
+		if (!expr.boundEarly())
+			throw new CantHappenException("I think our test above should stop this happening");
+		TypeReference tr = (TypeReference)expr.defn();
+		this.expr = new JSTypeOf(tr.defn());
+		return true;
 	}
 	
 	@Override

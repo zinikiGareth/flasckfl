@@ -50,7 +50,7 @@ public class SystemTestGenerator extends LeafAdapter {
 	}
 	
 	public void shareWith(SystemTestModule module) {
-		module.inject(meth, state, block, runner);
+		module.inject(jse, meth, state, block, runner);
 	}
 
 	private void createClass(SystemTest st) {

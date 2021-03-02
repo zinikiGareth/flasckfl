@@ -35,7 +35,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.JavaInfo.Access;
 
-public class UnitTestStepGenerator extends LeafAdapter {
+public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 	private final NestedVisitor sv;
 	private final JSClassCreator clz;
 	private final JSFunctionState ostate;
@@ -85,8 +85,9 @@ public class UnitTestStepGenerator extends LeafAdapter {
 		this.state = new JSFunctionStateStore(this.meth, mocks, introductions, containers);
 	}
 
+	@Override
 	public void shareWith(SystemTestModule module) {
-		module.inject(meth, state, block, runner);
+		module.inject(null, meth, state, block, runner);
 	}
 
 	@Override
