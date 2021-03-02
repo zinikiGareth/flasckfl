@@ -243,6 +243,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		addEntry(errors, pt.name(), pt);
 	}
 
+	@Override
 	public void addEntry(ErrorReporter errors, final NameOfThing name, final RepositoryEntry entry) {
 		String un = name.uniqueName();
 		if (!checkNoStateConflicts(errors, name, entry)) {

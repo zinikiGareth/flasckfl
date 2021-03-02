@@ -1,5 +1,6 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -17,6 +18,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parser.ut.IntroductionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.repository.RepositoryEntry;
 
 public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer, IntroductionConsumer, ContractConsumer {
 	void newAgent(ErrorReporter errors, AgentDefinition card);
@@ -34,4 +36,5 @@ public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer, I
 	void newObjectContract(ErrorReporter errors, ObjectContract oc);
 	void newTemplate(ErrorReporter errors, Template template);
 	void replaceDefinition(HandlerLambda hl);
+	void addEntry(ErrorReporter errors, NameOfThing name, RepositoryEntry entry);
 }

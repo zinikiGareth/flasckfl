@@ -322,8 +322,16 @@ public class Traverser implements RepositoryVisitor {
 			; // do nothing; added to repository for consistency reasons
 		} else if (e instanceof Assembly) {
 			;
+		} else if (modules != null) {
+			boolean done = false;
+			for (TraverserModule m : modules) {
+				if (done = m.visitEntry(this, visitor, e))
+					break;
+			}
+			if (!done)
+				throw new NotImplementedException("cannot handle " + e.getClass());
 		} else
-			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
+			throw new NotImplementedException("traverser cannot handle " + e.getClass());
 	}
 
 	private boolean isDesiredPackage(RepositoryEntry e) {

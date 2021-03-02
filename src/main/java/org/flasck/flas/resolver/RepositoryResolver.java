@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.compiler.ModuleExtensible;
 import org.flasck.flas.compiler.modules.TraversalProcessor;
@@ -1143,5 +1144,14 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 				return extension.cast(tp);
 		}
 		return null;
+	}
+
+	public void pushScope(NameOfThing name) {
+		this.scopeStack.add(0, scope);
+		scope = name;
+	}
+
+	public void popScope() {
+		this.scopeStack.remove(0);
 	}
 }
