@@ -193,13 +193,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		if (var == null || var.defn() == null)
 			throw new NullPointerException("undefined var: " + var);
 		NamedType defn = var.defn();
-		if (defn instanceof StructDefn || defn instanceof ObjectDefn || defn instanceof HandlerImplements || defn instanceof Primitive) {
-			announce(pos, defn);
-		} else if (defn instanceof ContractDecl) {
+		if (defn instanceof ContractDecl) {
 			errors.message(pos, "cannot pass a contract to a function");
 			announce(pos, new ErrorType());
 		} else
-			throw new CantHappenException("Cannot handle " + var.defn());
+			announce(pos, defn);
 	}
 	
 	@Override
