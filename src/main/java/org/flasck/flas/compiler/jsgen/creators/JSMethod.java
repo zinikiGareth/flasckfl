@@ -214,7 +214,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 			else if (this.prototype)
 				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args, runner, returnsA);
 			else
-				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args, runner);
+				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args, runner, returnsA, null);
 			if (!isInterface || isOptional) {
 				if (isOptional)
 					jvm.version(55);

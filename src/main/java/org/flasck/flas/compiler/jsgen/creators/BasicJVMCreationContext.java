@@ -110,11 +110,6 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		this(figureMemberClassThings(bce, clzName, name, fnName, returnsA), wantArgumentList, as, runner);
 	}
 
-	@Override
-	public void version(int vno) {
-		bcc.version(vno);
-	}
-
 	private static MethodCxt figureMemberClassThings(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, String returnsA) {
 		MethodCxt ret = new MethodCxt();
 		ret.returnsA = returnsA;
@@ -129,13 +124,13 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 	
 	// "static" function
-	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean wantArgumentList, List<JSVar> as, JSExpr runner) {
-		this(figureStaticClassThings(bce, fnName, clzName, name, as.size()-1), wantArgumentList, as, runner);
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean wantArgumentList, List<JSVar> as, JSExpr runner, String returnType, Object isStatic) {
+		this(figureStaticClassThings(bce, fnName, clzName, name, as.size()-1, returnType), wantArgumentList, as, runner);
 	}
 
-	private static MethodCxt figureStaticClassThings(ByteCodeEnvironment bce, NameOfThing fnName, NameOfThing clzName, String name, int nfargs) {
+	private static MethodCxt figureStaticClassThings(ByteCodeEnvironment bce, NameOfThing fnName, NameOfThing clzName, String name, int nfargs, String returnType) {
 		MethodCxt ret = new MethodCxt();
-		ret.returnsA = J.OBJECT;
+		ret.returnsA = returnType;
 		if (fnName == null) {
 			ret.bcc = bce.getOrCreate(clzName.javaName());
 		} else
@@ -198,6 +193,11 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			vars.put(new JSVar("_runner"), this.runner);
 		this.cxt = cxt;
 		this.args = args;
+	}
+
+	@Override
+	public void version(int vno) {
+		bcc.version(vno);
 	}
 
 	@Override
