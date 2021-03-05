@@ -22,20 +22,22 @@ public class StructField implements Locatable, RepositoryEntry, FieldAccessor {
 	public final InputPosition assOp;
 	public final FieldsHolder container;
 	public final boolean accessor;
+	public final boolean generate;
 	public final TypeReference type;
 	public final String name;
 	public final Expr init;
 	private VarName myName;
 
-	public StructField(InputPosition loc, FieldsHolder container, boolean accessor, TypeReference type, String name) {
-		this(loc, null, container, accessor, type, name, null);
+	public StructField(InputPosition loc, FieldsHolder container, boolean accessor, boolean generate, TypeReference type, String name) {
+		this(loc, null, container, accessor, generate, type, name, null);
 	}
 
-	public StructField(InputPosition loc, InputPosition assOp, FieldsHolder container, boolean accessor, TypeReference type, String name, Expr init) {
+	public StructField(InputPosition loc, InputPosition assOp, FieldsHolder container, boolean accessor, boolean generate, TypeReference type, String name, Expr init) {
 		this.loc = loc;
 		this.assOp = assOp;
 		this.container = container;
 		this.accessor = accessor;
+		this.generate = generate;
 		this.type = type;
 		this.name = name;
 		this.init = init;

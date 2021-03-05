@@ -65,6 +65,7 @@ public class FlimStruct implements TDAParsing {
 			StructField sf = pf.resolve(repository, sd, polys);
 			sf.fullName(new VarName(sf.loc, sd.name(), sf.name));
 			sd.addField(sf);
+			repository.newStructField(errors, sf);
 		}
 	}
 

@@ -120,7 +120,7 @@ public class MemberExprConversion {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		TypeReference tr = new TypeReference(pos, "StructDefn");
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructDefn"), true, new ArrayList<>());
-		StructField sf = new StructField(pos, pos, sd, true, LoadBuiltins.stringTR, "fred", null);
+		StructField sf = new StructField(pos, pos, sd, true, true, LoadBuiltins.stringTR, "fred", null);
 		sf.fullName(new VarName(pos, sd.name(), "fred"));
 		sd.addField(sf);
 		tr.bind(sd);

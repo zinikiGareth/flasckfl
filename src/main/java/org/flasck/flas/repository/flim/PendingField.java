@@ -48,6 +48,6 @@ public class PendingField extends FlimTypeReader {
 		if (tys.size() != 1)
 			throw new CantHappenException("there should be exactly one type here");
 		TypeReference tr = tys.get(0).resolveAsRef(errors, repository, polys);
-		return new StructField(tok.location, tok.location, parent, true, tr, tok.text, hasInit?new StringLiteral(tok.location, "initialized"):null);
+		return new StructField(tok.location, tok.location, parent, true, false, tr, tok.text, hasInit?new StringLiteral(tok.location, "initialized"):null);
 	}
 }

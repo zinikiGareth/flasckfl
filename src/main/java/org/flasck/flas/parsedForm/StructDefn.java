@@ -28,7 +28,7 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 	public StructDefn(InputPosition kw, InputPosition location, FieldsDefn.FieldsType structType, SolidName tn, boolean generate, List<PolyType> polys) {
 		super(kw, location, structType, tn, generate, polys);
 		if (structType.equals(FieldsDefn.FieldsType.ENTITY))
-			this.fields.add(new StructField(location, this, true, new TypeReference(location, "Id"), "id"));
+			this.fields.add(new StructField(location, this, true, true, new TypeReference(location, "Id"), "id"));
 	}
 
 	public SolidName name() {

@@ -43,7 +43,7 @@ public class UnitDataDeclTypesTests {
 	@Test
 	public void testThereMustBeAtLeastOneFieldAssignmentInAUTData() {
 		StructDefn sd = new StructDefn(pos, FieldsType.STRUCT, "test.repo", "StructThing", false);
-		sd.ctorfields.add(new StructField(pos, sd, false, LoadBuiltins.stringTR, "fld"));
+		sd.ctorfields.add(new StructField(pos, sd, false, true, LoadBuiltins.stringTR, "fld"));
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(sd));
 			oneOf(errors).message(pos, "either an expression or at least one field assignment must be specified for test.repo.StructThing");
@@ -57,7 +57,7 @@ public class UnitDataDeclTypesTests {
 	@Test
 	public void testOneAssignmentIsEnough() {
 		StructDefn sd = new StructDefn(pos, FieldsType.STRUCT, "test.repo", "StructThing", false);
-		sd.ctorfields.add(new StructField(pos, sd, false, LoadBuiltins.stringTR, "fld"));
+		sd.ctorfields.add(new StructField(pos, sd, false, true, LoadBuiltins.stringTR, "fld"));
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(sd));
 		}});
@@ -71,7 +71,7 @@ public class UnitDataDeclTypesTests {
 	@Test
 	public void noFieldsAreNeededIfThereIsAnAssignment() {
 		StructDefn sd = new StructDefn(pos, FieldsType.STRUCT, "test.repo", "StructThing", false);
-		sd.ctorfields.add(new StructField(pos, sd, false, LoadBuiltins.stringTR, "fld"));
+		sd.ctorfields.add(new StructField(pos, sd, false, true, LoadBuiltins.stringTR, "fld"));
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(sd));
 		}});

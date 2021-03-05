@@ -133,7 +133,7 @@ public class MethodTests {
 	public void weCanHandleAnAssignMessage() {
 		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
 		StateDefinition os = new StateDefinition(pos, s.name());
-		StructField sf = new StructField(pos, os, false, LoadBuiltins.stringTR, "s");
+		StructField sf = new StructField(pos, os, false, true, LoadBuiltins.stringTR, "s");
 		os.addField(sf);
 		s.defineState(os);
 		s.addMethod(meth);
@@ -158,7 +158,7 @@ public class MethodTests {
 		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
 		s.addMethod(meth);
 		UnresolvedVar var = new UnresolvedVar(pos, "x");
-		var.bind(new StructField(pos, null, false, LoadBuiltins.stringTR, "x"));
+		var.bind(new StructField(pos, null, false, true, LoadBuiltins.stringTR, "x"));
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
@@ -175,13 +175,13 @@ public class MethodTests {
 	public void theObjectMustHaveTheLeadVariable() {
 		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
 		StateDefinition os = new StateDefinition(pos);
-		StructField sf = new StructField(pos, os, false, LoadBuiltins.stringTR, "s");
+		StructField sf = new StructField(pos, os, false, true, LoadBuiltins.stringTR, "s");
 		os.addField(sf);
 		s.defineState(os);
 		s.addMethod(meth);
 		UnresolvedVar var = new UnresolvedVar(pos, "x");
 		StructDefn sd = new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Struct", false);
-		var.bind(new StructField(pos, sd, false, LoadBuiltins.stringTR, "x"));
+		var.bind(new StructField(pos, sd, false, true, LoadBuiltins.stringTR, "x"));
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
@@ -198,7 +198,7 @@ public class MethodTests {
 	public void errorsAreSuppressedIfTheExprWasAlreadyBad() {
 		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
 		StateDefinition os = new StateDefinition(pos);
-		os.addField(new StructField(pos, os, false, LoadBuiltins.stringTR, "s"));
+		os.addField(new StructField(pos, os, false, true, LoadBuiltins.stringTR, "s"));
 		s.defineState(os);
 		s.addMethod(meth);
 		UnresolvedVar var = new UnresolvedVar(pos, "x");
@@ -217,7 +217,7 @@ public class MethodTests {
 	public void theFieldMustHaveTheRightType() {
 		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
 		StateDefinition os = new StateDefinition(pos, s.name());
-		StructField sf = new StructField(pos, os, false, LoadBuiltins.stringTR, "s");
+		StructField sf = new StructField(pos, os, false, true, LoadBuiltins.stringTR, "s");
 		os.addField(sf);
 		s.defineState(os);
 		s.addMethod(meth);
@@ -240,7 +240,7 @@ public class MethodTests {
 	public void forNestedPathsTheLeadVariableMustReferToACompoundThing() {
 		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
 		StateDefinition os = new StateDefinition(pos, s.name());
-		StructField sf = new StructField(pos, os, false, LoadBuiltins.stringTR, "s");
+		StructField sf = new StructField(pos, os, false, true, LoadBuiltins.stringTR, "s");
 		os.addField(sf);
 		s.defineState(os);
 		s.addMethod(meth);
@@ -266,7 +266,7 @@ public class MethodTests {
 		StateDefinition os = new StateDefinition(pos, s.name());
 		TypeReference tr = new TypeReference(pos, "NestedObject");
 		tr.bind(nestedObj);
-		StructField sf = new StructField(pos, os, false, tr, "obj");
+		StructField sf = new StructField(pos, os, false, true, tr, "obj");
 		os.addField(sf);
 		s.defineState(os);
 		s.addMethod(meth);
@@ -294,7 +294,7 @@ public class MethodTests {
 		StateDefinition os = new StateDefinition(pos, nestedObj.name());
 		TypeReference tr = new TypeReference(pos, "NestedObject");
 		tr.bind(nestedObj);
-		StructField sf = new StructField(pos, os, false, tr, "obj");
+		StructField sf = new StructField(pos, os, false, true, tr, "obj");
 		os.addField(sf);
 		s.defineState(os);
 		s.addMethod(meth);

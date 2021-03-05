@@ -138,7 +138,7 @@ public class ExpressionVisitation {
 	@Test
 	public void aStructFieldReturnsItsType() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
-		StructField sf = new StructField(pos, null, false, LoadBuiltins.stringTR, "x");
+		StructField sf = new StructField(pos, null, false, true, LoadBuiltins.stringTR, "x");
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
 		}});

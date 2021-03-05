@@ -45,7 +45,7 @@ public class ObjectDefnCheckerTests {
 	public void aFieldWithNoInitIsJustWavedOnThrough() {
 		SolidName on = new SolidName(pkg, "Obj");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, false, new ArrayList<>());
-		StructField sf = new StructField(pos, null, false, LoadBuiltins.stringTR, "x");
+		StructField sf = new StructField(pos, null, false, true, LoadBuiltins.stringTR, "x");
 		sf.fullName(new VarName(pos, on, "x"));
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(ObjectDefnChecker.class)));
@@ -62,7 +62,7 @@ public class ObjectDefnCheckerTests {
 		SolidName on = new SolidName(pkg, "Obj");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, false, new ArrayList<>());
 		StringLiteral sl = new StringLiteral(pos, "hello");
-		StructField sf = new StructField(pos, pos, null, false, LoadBuiltins.stringTR, "x", sl);
+		StructField sf = new StructField(pos, pos, null, false, true, LoadBuiltins.stringTR, "x", sl);
 		sf.fullName(new VarName(pos, on, "x"));
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(ObjectDefnChecker.class)));
@@ -82,7 +82,7 @@ public class ObjectDefnCheckerTests {
 		SolidName on = new SolidName(pkg, "Obj");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, false, new ArrayList<>());
 		StringLiteral sl = new StringLiteral(pos, "hello");
-		StructField sf = new StructField(pos, pos, null, false, LoadBuiltins.numberTR, "x", sl);
+		StructField sf = new StructField(pos, pos, null, false, true, LoadBuiltins.numberTR, "x", sl);
 		sf.fullName(new VarName(pos, on, "x"));
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(ObjectDefnChecker.class)));

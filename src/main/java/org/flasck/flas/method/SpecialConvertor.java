@@ -2,6 +2,7 @@ package org.flasck.flas.method;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
@@ -13,6 +14,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.NamedType;
+import org.zinutils.exceptions.HaventConsideredThisException;
 
 public class SpecialConvertor extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -28,6 +30,11 @@ public class SpecialConvertor extends LeafAdapter implements ResultAware {
 		nv.push(this);
 	}
 
+	@Override
+	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
+		this.ty = var;
+	}
+	
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
 		nv.push(new MessageConvertor(errors, nv, oah, null));
@@ -48,9 +55,12 @@ public class SpecialConvertor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void result(Object r) {
-		if (ty == null)
-			ty = (TypeReference) r;
-		else if (value == null)
+		if (ty == null) {
+			if (r instanceof TypeReference)
+				ty = (TypeReference) r;
+			else
+				throw new HaventConsideredThisException(((r instanceof Locatable) ? ((Locatable)r).location().toString() : "") + r + " is not handled");
+		} else if (value == null)
 			value = (Expr) r;
 	}
 
@@ -64,7 +74,7 @@ public class SpecialConvertor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveCastExpr(CastExpr expr) {
-		if (ty == null)
+		if (ty == null || value == null)
 			nv.result(expr);
 		else
 			nv.result(new CastExpr(expr.location, expr.tyLoc, expr.valLoc, ty, value));

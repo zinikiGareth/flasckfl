@@ -53,7 +53,7 @@ public class LoadBuiltins {
 	//   -> error
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 	static {
-		error.addField(new StructField(pos, error, true, stringTR, "message"));
+		error.addField(new StructField(pos, error, true, true, stringTR, "message"));
 	}
 
 	//   -> any
@@ -184,13 +184,13 @@ public class LoadBuiltins {
 		PolyType cta = new PolyType(pos, new SolidName(cons.name(), "A"));
 		cons.polys().add(cta);
 		consATR_A.bind(cta);
-		StructField head = new StructField(pos, cons, true, consATR_A, "head");
+		StructField head = new StructField(pos, cons, true, true, consATR_A, "head");
 		head.fullName(new VarName(pos, cons.name(), "head"));
 		cons.addField(head);
 		PolyInstance pil = new PolyInstance(pos, list, Arrays.asList(cta));
 		TypeReference piltr = new TypeReference(pos, "List", consATR_A);
 		piltr.bind(pil);
-		StructField tail = new StructField(pos, cons, true, piltr, "tail");
+		StructField tail = new StructField(pos, cons, true, true, piltr, "tail");
 		tail.fullName(new VarName(pos, cons.name(), "tail"));
 		cons.addField(tail);
 		TypeReference lc = new TypeReference(pos, "Cons", listATR_A);
@@ -218,7 +218,7 @@ public class LoadBuiltins {
 		PolyType aip = new PolyType(pos, new SolidName(assignItem.name(), "A"));
 		aitr.bind(aip);
 		assignItem.polys().add(aip);
-		StructField aihead = new StructField(pos, assignItem, true, aitr, "head");
+		StructField aihead = new StructField(pos, assignItem, true, true, aitr, "head");
 		aihead.fullName(new VarName(pos, assignItem.name(), "head"));
 		assignItem.addField(aihead);
 	}
@@ -260,7 +260,7 @@ public class LoadBuiltins {
 	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);
 	static {
 		debugTR.bind(debug);
-		debug.addField(new StructField(pos, debug, true, stringTR, "message"));
+		debug.addField(new StructField(pos, debug, true, true, stringTR, "message"));
 		message.addCase(debugTR);
 	}
 	
@@ -269,9 +269,9 @@ public class LoadBuiltins {
 	public static final StructDefn send = new StructDefn(pos, FieldsType.STRUCT, null, "Send", false);
 	static {
 		sendTR.bind(send);
-		send.addField(new StructField(pos, send, false, contractTR, "sendto"));
-		send.addField(new StructField(pos, send, false, stringTR, "meth"));
-		send.addField(new StructField(pos, send, false, listAnyTR, "args"));
+		send.addField(new StructField(pos, send, false, true, contractTR, "sendto"));
+		send.addField(new StructField(pos, send, false, true, stringTR, "meth"));
+		send.addField(new StructField(pos, send, false, true, listAnyTR, "args"));
 		message.addCase(sendTR);
 	}
 	
@@ -280,17 +280,17 @@ public class LoadBuiltins {
 	public static final StructDefn assign = new StructDefn(pos, FieldsType.STRUCT, null, "Assign", false);
 	static {
 		assignTR.bind(assign);
-		assign.addField(new StructField(pos, assign, false, anyTR, "on"));
-		assign.addField(new StructField(pos, assign, false, stringTR, "fld"));
-		assign.addField(new StructField(pos, assign, false, anyTR, "value"));
+		assign.addField(new StructField(pos, assign, false, true, anyTR, "on"));
+		assign.addField(new StructField(pos, assign, false, true, stringTR, "fld"));
+		assign.addField(new StructField(pos, assign, false, true, anyTR, "value"));
 		message.addCase(assignTR);
 	}
 	
 	//   -> AssignCons (this and assignitem seem somewhat duplicative)
 	public static final StructDefn assignCons = new StructDefn(pos, FieldsType.STRUCT, null, "AssignCons", false);
 	static {
-		assignCons.addField(new StructField(pos, assignCons, false, anyTR, "on"));
-		assignCons.addField(new StructField(pos, assignCons, false, anyTR, "value"));
+		assignCons.addField(new StructField(pos, assignCons, false, true, anyTR, "on"));
+		assignCons.addField(new StructField(pos, assignCons, false, true, anyTR, "value"));
 		// why is this not added to message?
 	}
 	
@@ -305,7 +305,7 @@ public class LoadBuiltins {
 	public static final StructDefn clickEvent = new StructDefn(pos, FieldsType.STRUCT, null, "ClickEvent", false);
 	static {
 		clickEventTR.bind(clickEvent);
-		final StructField source = new StructField(pos, pos, clickEvent, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
+		final StructField source = new StructField(pos, pos, clickEvent, true, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
 		clickEvent.addField(source);
 		source.fullName(new VarName(pos, clickEvent.name(), "source"));
 		event.addCase(clickEventTR);
@@ -317,12 +317,12 @@ public class LoadBuiltins {
 	static {
 		scrollToTR.bind(scrollTo);
 		{
-			final StructField whereTo = new StructField(pos, pos, scrollTo, true, anyTR, "to", null);
+			final StructField whereTo = new StructField(pos, pos, scrollTo, true, true, anyTR, "to", null);
 			scrollTo.addField(whereTo);
 			whereTo.fullName(new VarName(pos, scrollTo.name(), "to"));
 		}
 		{
-			final StructField source = new StructField(pos, pos, scrollTo, true, anyTR, "source", new CurrentContainer(pos, scrollTo));
+			final StructField source = new StructField(pos, pos, scrollTo, true, true, anyTR, "source", new CurrentContainer(pos, scrollTo));
 			scrollTo.addField(source);
 			source.fullName(new VarName(pos, scrollTo.name(), "source"));
 		}
@@ -530,7 +530,7 @@ public class LoadBuiltins {
 
 	static {
 		typeTR.bind(type);
-		type.addField(new StructField(pos, type, false, stringTR, "type"));
+		type.addField(new StructField(pos, type, false, true, stringTR, "type"));
 	}
 
 	
