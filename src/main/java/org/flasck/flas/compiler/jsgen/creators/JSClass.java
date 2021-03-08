@@ -17,6 +17,7 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.FieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.CantHappenException;
 
 public class JSClass implements JSClassCreator {
 	public class Field {
@@ -98,17 +99,36 @@ public class JSClass implements JSClassCreator {
 	
 	@Override
 	public void field(boolean isStatic, Access access, NameOfThing type, String var) {
+		if (hasField(var))
+			throw new CantHappenException("duplicate field " + var);
 		fields.add(new Field(isStatic, access, type, var, null));
 	}
 
 	@Override
 	public void field(boolean isStatic, Access access, NameOfThing type, String var, int value) {
+		if (hasField(var))
+			throw new CantHappenException("duplicate field " + var);
 		fields.add(new Field(isStatic, access, type, var, value));
 	}
 
 	@Override
 	public void inheritsField(boolean isStatic, Access access, NameOfThing type, String var) {
+		if (hasField(var))
+			throw new CantHappenException("duplicate field " + var);
 		ifields.add(new Field(isStatic, access, type, var, null));
+	}
+
+	@Override
+	public boolean hasField(String var) {
+		for (Field f : fields) {
+			if (f.var.equals(var))
+				return true;
+		}
+		for (Field f : ifields) {
+			if (f.var.equals(var))
+				return true;
+		}
+		return false;
 	}
 
 	@Override

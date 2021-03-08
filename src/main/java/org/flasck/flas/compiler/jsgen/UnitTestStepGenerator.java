@@ -178,7 +178,9 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 			if (ostate.introductions().containsKey(e.getKey()))
 				continue;
 			String bn = "_iv_" + e.getKey().var;
-			clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), bn);
+			if (!clz.hasField(bn)) {
+				clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), bn);
+			}
 			this.meth.setField(false, bn, e.getValue());
 			ostate.introductions().put(e.getKey(), this.meth.field(bn));
 		}

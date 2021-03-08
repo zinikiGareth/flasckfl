@@ -16,4 +16,5 @@ public interface JSClassCreator {
 	void inheritsField(boolean isStatic, Access access, NameOfThing type, String var);
 	NameOfThing name();
 	void wantsTypeName();
+	boolean hasField(String var);
 }

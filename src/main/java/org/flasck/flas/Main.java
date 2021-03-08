@@ -164,6 +164,7 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("Utils", level);
 		StaticLoggerBinder.defaultLevel("BrokerDelegate", level);
 		StaticLoggerBinder.defaultLevel("BTResponder", level);
+		StaticLoggerBinder.defaultLevel("ClientContext", level);
 		StaticLoggerBinder.defaultLevel("ZinDelivery", level);
 		StaticLoggerBinder.defaultLevel("Dispatcher", level);
 		StaticLoggerBinder.defaultLevel("Send", level);
