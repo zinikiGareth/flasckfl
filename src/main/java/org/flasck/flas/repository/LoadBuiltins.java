@@ -294,6 +294,14 @@ public class LoadBuiltins {
 		// why is this not added to message?
 	}
 	
+	//   -> UpdateDisplay
+	public static final TypeReference updateDisplayTR = new TypeReference(pos, "UpdateDisplay");
+	public static final StructDefn updateDisplay = new StructDefn(pos, FieldsType.STRUCT, null, "UpdateDisplay", false);
+	static {
+		updateDisplayTR.bind(updateDisplay);
+		message.addCase(updateDisplayTR);
+	}
+	
 
 	/* Events */
 
@@ -727,6 +735,7 @@ public class LoadBuiltins {
 		repository.newStruct(errors, debug);
 		repository.newStruct(errors, send);
 		repository.newStruct(errors, assign);
+		repository.newStruct(errors, updateDisplay);
 		repository.newUnion(errors, message);
 
 		repository.newStruct(errors, clickEvent);

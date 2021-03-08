@@ -169,6 +169,7 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("Send", level);
 		StaticLoggerBinder.defaultLevel("GLS", level);
 		StaticLoggerBinder.defaultLevel("TxManagerThreading", level);
+		StaticLoggerBinder.defaultLevel("Security", level);
 		StaticLoggerBinder.defaultLevel("DoGet", level);
 		StaticLoggerBinder.defaultLevel("Uploader", level);
 		

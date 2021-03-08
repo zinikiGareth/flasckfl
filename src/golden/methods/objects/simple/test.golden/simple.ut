@@ -1,14 +1,14 @@
 	test we can generate a Debug command
 		data Methods m <- Methods.make
 		assert (dispatch (m.kdebug))
-			[]
+			[UpdateDisplay]
 		assert (m.n)
 			420
 
 	test we can call an indirect method
 		data Methods m <- Methods.make
 		assert (dispatch (m.fdebug))
-			[]
+			[UpdateDisplay]
 		assert (m.n)
 			420
 

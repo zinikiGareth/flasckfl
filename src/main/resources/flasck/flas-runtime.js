@@ -52,18 +52,16 @@ CommonEnv.prototype.dispatchMessages = function(_cxt) {
 
 CommonEnv.prototype.handleMessages = function(_cxt, msg) {
     var msg = _cxt.full(msg);
-    var ret = [];
-    this.handleMessagesWith(_cxt, msg, ret);
-    return ret;
+    this.handleMessagesWith(_cxt, msg);
 }
 
-CommonEnv.prototype.handleMessagesWith = function(_cxt, msg, ret) {
+CommonEnv.prototype.handleMessagesWith = function(_cxt, msg) {
     msg = _cxt.full(msg);
     if (!msg)
-        return [];
+        ;
     else if (msg instanceof FLError || typeof(msg) == 'string') {
         this.logger.log(msg);
-        return [];
+        ;
     } else if (msg instanceof Array) {
         for (var i=0;i<msg.length;i++) {
             this.handleMessages(_cxt, msg[i]);
@@ -73,8 +71,6 @@ CommonEnv.prototype.handleMessagesWith = function(_cxt, msg, ret) {
         ic.updateCards = _cxt.updateCards;
         this.logger.log("dispatching message", msg);
         var m = msg.dispatch(ic);
-        // m = _cxt.full(m);
-        // this.addAll(ret, m);
         this.handleMessages(_cxt, m);
     }
 }
@@ -1888,7 +1884,13 @@ FLBuiltin.dispatch = function(_cxt, msgs) {
 	msgs = _cxt.full(msgs);
 	if (msgs instanceof FLError)
 		return msgs;
-	return _cxt.env.handleMessages(_cxt, msgs);
+	var ret = [];
+	var te = _cxt.env;
+	te.queueMessages = function(cx, m) {
+		ret.push(m);
+	}
+	_cxt.env.handleMessages(_cxt, msgs);
+	return ret;
 }
 FLBuiltin.dispatch.nfargs = function() { return 1; }
 
@@ -2258,10 +2260,10 @@ Send.prototype.dispatch = function(cx) {
 	if (!meth)
 		return;
 	var ret = meth.apply(this.obj, args);
-	if (this.obj._updateDisplay)
-		cx.env.queueMessages(cx, [new UpdateDisplay(cx, this.obj)]);
-	else if (this.obj._card && this.obj._card._updateDisplay)
-		cx.env.queueMessages(cx, [new UpdateDisplay(cx, this.obj._card)]);
+	// if (this.obj._updateDisplay)
+	// 	cx.env.queueMessages(cx, new UpdateDisplay(cx, this.obj));
+	// else if (this.obj._card && this.obj._card._updateDisplay)
+	// 	cx.env.queueMessages(cx, new UpdateDisplay(cx, this.obj._card));
 	return ret;
 }
 Send.prototype.toString = function() {
@@ -2303,9 +2305,9 @@ Assign.prototype.dispatch = function(cx) {
 	}
 	target.state.set(this.slot, this.expr);
 	if (this.obj._updateDisplay)
-		cx.env.queueMessages(cx, [new UpdateDisplay(cx, this.obj)]);
+		cx.env.queueMessages(cx, new UpdateDisplay(cx, this.obj));
 	else if (this.obj._card && this.obj._card._updateDisplay)
-		cx.env.queueMessages(cx, [new UpdateDisplay(cx, this.obj._card)]);
+		cx.env.queueMessages(cx, new UpdateDisplay(cx, this.obj._card));
 	return msgs;
 }
 Assign.prototype.toString = function() {
@@ -2380,6 +2382,15 @@ ResponseWithMessages.messages = function(cx, rwm) {
 
 const UpdateDisplay = function(cx, card) {
 	this.card = card;
+}
+UpdateDisplay.prototype._compare = function(cx, other) {
+	if (other instanceof UpdateDisplay) {
+		return (this.card == other.card || this.card == null || other.card == null);
+	} else
+		return false;
+}
+UpdateDisplay.eval = function(cx) {
+	return new UpdateDisplay(cx, null);
 }
 UpdateDisplay.prototype.dispatch = function(cx) {
 	if (this.card._updateDisplay)
