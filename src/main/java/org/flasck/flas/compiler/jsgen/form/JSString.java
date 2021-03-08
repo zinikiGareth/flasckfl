@@ -15,10 +15,21 @@ public class JSString implements JSExpr {
 		w.print(asVar());
 	}
 
-	// TODO: handle nested quotes properly
 	@Override
 	public String asVar() {
-		return "'" + text + "'";
+		StringBuilder ret = new StringBuilder(text);
+		int idx = -1;
+		for(;;) {
+			idx = ret.indexOf("'", idx+1);
+			if (idx != -1) {
+				ret.insert(idx, "\\");
+				idx += 2;
+			} else
+				break;
+		}
+		ret.insert(0, "'");
+		ret.append("'");
+		return ret.toString();
 	}
 
 	public String value() {
