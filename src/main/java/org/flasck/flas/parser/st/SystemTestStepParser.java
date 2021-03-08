@@ -57,6 +57,9 @@ public class SystemTestStepParser extends TestStepParser {
 		case "event": {
 			return handleEvent(toks);
 		}
+		case "input": {
+			return handleInput(toks);
+		}
 //		case "invoke": {
 //			return handleInvoke(toks);
 //		}
