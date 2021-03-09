@@ -136,7 +136,12 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		} else
 			ret.bcc = bce.getOrCreate(fnName.javaName());
 		ret.bcc.generateAssociatedSourceFile();
-		IFieldInfo fi = ret.bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
+		String fieldName;
+		if (fnName != null || name.equals("eval"))
+			fieldName = "nfargs";
+		else
+			fieldName = name + "_nfargs";
+		IFieldInfo fi = ret.bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, fieldName);
 		fi.constValue(nfargs);
 		ret.ann = GenericAnnotator.newMethod(ret.bcc, true, fnName != null || name == null ? "eval" : name);
 		return ret;
