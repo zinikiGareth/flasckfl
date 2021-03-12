@@ -14,7 +14,7 @@ const UTRunner = function(bridge) {
 		if (UTRunner.modules.hasOwnProperty(mn)) {
 			var jm;
 			if (bridge.module) {
-				jm = bridge.module(mn);
+				jm = bridge.module(this, mn);
 			}
 			this.moduleInstances[mn] = new UTRunner.modules[mn](this, jm);
 		}
@@ -646,6 +646,7 @@ MockAjaxService.prototype.subscribe = function(_cxt, uri, options, handler) {
 }
 
 
+// Connect to ChromeTestRunner
 function WSBridge(host, port) {
 	var self = this;
 	this.ws = new WebSocket("ws://" + host + ":" + port + "/bridge");
@@ -692,7 +693,8 @@ WSBridge.prototype.debugmsg = function(...args) {
 	console.log.apply(console.log, args);
 }
 
-WSBridge.prototype.module = function(moduleName) {
+WSBridge.prototype.module = function(runner, moduleName) {
+	this.runner = runner;
 	this.send({action: "module", "name": moduleName });
 	this.lock("bindModule");
 }

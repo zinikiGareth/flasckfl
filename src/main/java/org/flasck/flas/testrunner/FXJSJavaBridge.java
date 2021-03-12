@@ -35,7 +35,7 @@ public class FXJSJavaBridge implements JSJavaBridge {
 	}
 	
 	@Override
-	public Object module(String s) {
+	public Object module(Object r, String s) {
 		try {
 			Class<?> clz = Class.forName(s);
 			if (!runner.modules.containsKey(clz)) {

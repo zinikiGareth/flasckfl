@@ -9,7 +9,7 @@ public interface JSJavaBridge {
 
 	void transport(JsonSender toZiniki);
 
-	Object module(String s);
+	Object module(Object runner, String s);
 
 	void log(String s);
 
