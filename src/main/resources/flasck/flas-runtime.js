@@ -8,6 +8,7 @@ const CommonEnv = function(bridge, broker) {
     this.objects['Random'] = Random;
     this.objects['FLBuiltin'] = FLBuiltin;
     this.objects['Crobag'] = Crobag;
+    this.objects['org.flasck.jvm.builtin.Crobag'] = Crobag; // hack that enables the Java name to be sent on the wire.  It probably shouldn't be.
     this.objects['Calendar'] = Calendar;
     this.logger = bridge;
     this.broker = broker;
@@ -1360,6 +1361,10 @@ Crobag._ctor_new = function(_cxt, _card) {
     return new ResponseWithMessages(_cxt, ret, []);
 }
 Crobag._ctor_new.nfargs = function() { return 1; }
+
+Crobag.fromWire = function(cx, om, fields) {
+    return new Crobag(cx, null);
+}
 
 Crobag.prototype.insert = function(_cxt, key, val) {
     return [CrobagChangeEvent.eval(_cxt, this, "insert", key, null, val)];

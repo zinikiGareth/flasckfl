@@ -214,7 +214,7 @@ public class JSEnvironment implements JSStorage {
 				if (co != null)
 					gencos.put(jsf.file().getName(), co);
 				else
-					localOnly .add(tof);
+					localOnly.add(tof);
 			}
 		}
 	}

@@ -37,13 +37,13 @@ JsonBeachhead.prototype.invoke = function(uow, jo, replyTo) {
     const dispatcher = um.begin(uow, jo.method);
     for (var i=0;i<jo.args.length-1;i++) {
         const o = jo.args[i];
-        this.handleArg(dispatcher, o);
+        this.handleArg(dispatcher, uow, o);
     }
     dispatcher.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
     return dispatcher.dispatch();
 }
 
-JsonBeachhead.prototype.handleArg = function(ux, o) {
+JsonBeachhead.prototype.handleArg = function(ux, uow, o) {
     if (typeof(o) === 'string')
         ux.string(o);
     else if (typeof(o) === 'number')
@@ -51,7 +51,8 @@ JsonBeachhead.prototype.handleArg = function(ux, o) {
     else if (o._cycle) {
         ux.handleCycle(o._cycle);
     } else if (o._wireable) {
-        debugger;
+        var omw = new OMWrapper(this, uow, ux);
+        ux.wireable(omw, uow.fromWire(omw, o));
     } else if (o._clz) {
         var fm;
         if (ux.cx.structNamed(o._clz))
@@ -62,7 +63,7 @@ JsonBeachhead.prototype.handleArg = function(ux, o) {
         const ks = Object.keys(o);
         for (var k=0;k<ks.length;k++) {
             fm.field(ks[k]);
-            this.handleArg(fm, o[ks[k]]);
+            this.handleArg(fm, uow, o[ks[k]]);
         }
     } else
         throw Error("not handled: " + JSON.stringify(o));
@@ -80,7 +81,7 @@ JsonBeachhead.prototype.idem = function(uow, jo, replyTo) {
         cnt--;
     }
     for (var i=0;i<cnt;i++) {
-        this.handleArg(dispatcher, jo.args[i]);
+        this.handleArg(dispatcher, uow, jo.args[i]);
     }
     if (wantHandler)
         dispatcher.handler(this.makeIdempotentHandler(replyTo, jo.args[cnt-1]));
@@ -116,7 +117,7 @@ JsonMarshaller.prototype.boolean = function(b) {
     this.collect(b);
 }
 
-JsonMarshaller.prototype.wireable = function(w) {
+JsonMarshaller.prototype.wireable = function(om, w) {
     var c = { _clz: "_wireable", "_wireable": w._clz };
     w._towire(c);
     this.collect(c);
@@ -208,6 +209,9 @@ JsonListMarshaller.prototype.collect = function(o) {
 }
 
 JsonListMarshaller.prototype.complete = function() {
+}
+
+const OMWrapper = function(cx, ux) {
 }
 
 
@@ -329,6 +333,14 @@ EvalContext.prototype.fields = function() {
 	return new FieldsContainer(this);
 }
 
+EvalContext.prototype.fromWire = function(om, fields) {
+	var clz = this.env.objects[fields["_wireable"]];
+	if (clz == null) {
+		throw Error("could not find a registration for " + fields["_wireable"]);
+	}
+	return clz.fromWire.call(clz, this, om, fields);
+}
+
 
 const FieldsContainer = function(cx) {
 	this.cx = cx;
@@ -448,7 +460,7 @@ ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
         } else if (Array.isArray(o)) {
             this.handleArray(ux, o);
         } else if (o._towire) {
-            ux.wireable(o);
+            ux.wireable(this, o);
         } else {
             this.logger.log("o =", JSON.stringify(o));
             this.logger.log("o.state = ", o.state);
@@ -612,7 +624,7 @@ CollectingTraverser.prototype.boolean = function(b) {
     this.collect(b);
 }
 
-CollectingTraverser.prototype.wireable = function(w) {
+CollectingTraverser.prototype.wireable = function(om, w) {
     this.collect(w);
 }
 
@@ -811,7 +823,7 @@ ZiwshWebClient.prototype.attachBeachhead = function(bh) {
 }
 
 ZiwshWebClient.prototype.send = function(json) {
-    this.logger.log("want to send " + json + " to " + this.bh.name + (this.conn ? (" state = " + this.conn.readyState) : " not connected" ));
+    this.logger.log("want to send " + json + " to " + this.bh.name + (this.conn ? (this.conn.readyState == 1 ? "" : "; not ready; state = " + this.conn.readyState) : " not connected" ));
     if (this.conn && this.conn.readyState == 1)
         this.conn.send(json);
     else
