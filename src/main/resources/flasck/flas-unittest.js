@@ -768,11 +768,13 @@ WSBridge.prototype.gotime = function() {
 		this.lockedOut.shift().call(this);
 		return;
 	}
+	setTimeout(() => {
 	var s = this.readysteps.shift();
 	console.log(new Date() + " executing step", s);
 	this.lock("around step");
 	this.st[s].call(this.st, this.runcxt);
 	this.send({action: "step"});
+	}, 100);
 }
 
 WSBridge.handlers["stepdone"] = function(msg) {

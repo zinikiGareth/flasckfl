@@ -1,4 +1,11 @@
 
+// should this be part of Ziniki?
+const ZiIdURI = function(s) {
+    this.uri = s;
+}
+ZiIdURI.fromWire = function(cx, om, fields) {
+    return new ZiIdURI(fields["uri"]);
+}
 const CommonEnv = function(bridge, broker) {
     if (!bridge) // when used as a constructor
         return;
@@ -8,7 +15,10 @@ const CommonEnv = function(bridge, broker) {
     this.objects['Random'] = Random;
     this.objects['FLBuiltin'] = FLBuiltin;
     this.objects['Crobag'] = Crobag;
+    this.objects['CroEntry'] = CroEntry;
+    this.objects['org.ziniki.common.ZiIdURI'] = ZiIdURI; // hack that enables the Java name to be sent on the wire.  It probably shouldn't be; but should we send just a string or should we recognize ZiIdURI?
     this.objects['org.flasck.jvm.builtin.Crobag'] = Crobag; // hack that enables the Java name to be sent on the wire.  It probably shouldn't be.
+    this.objects['org.flasck.jvm.builtin.CroEntry'] = CroEntry; // hack that enables the Java name to be sent on the wire.  It probably shouldn't be.
     this.objects['Calendar'] = Calendar;
     this.logger = bridge;
     this.broker = broker;
@@ -897,9 +907,13 @@ FLCard.prototype._addItem = function(_cxt, rt, parent, currNode, template, fn, v
         rt._id = ncid;
         parent.appendChild(currNode);
     }
-    fn.call(this, _cxt, rt, value, _tc);
-    if (this._eventHandlers) {
-        this._attachHandlers(_cxt, rt, div, template.id, null, null, value);
+    try {
+        fn.call(this, _cxt, rt, value, _tc);
+        if (this._eventHandlers) {
+            this._attachHandlers(_cxt, rt, div, template.id, null, null, value);
+        }
+    } catch (e) {
+        _cxt.log("cannot add item: ", value, e);
     }
 }
 
@@ -1346,6 +1360,12 @@ const CroEntry = function(key, val) {
     this.val = val;
 }
 
+CroEntry.fromWire = function(cx, om, fields) {
+    var lt = new ListTraverser(cx, om.state);
+    om.marshal(lt, fields["value"]);
+    return new CroEntry(fields["key"], lt.ret[0]);
+}
+
 
 /* CROBAG itself */
 const Crobag = function(_cxt, _card) {
@@ -1363,7 +1383,16 @@ Crobag._ctor_new = function(_cxt, _card) {
 Crobag._ctor_new.nfargs = function() { return 1; }
 
 Crobag.fromWire = function(cx, om, fields) {
-    return new Crobag(cx, null);
+    var ret = new Crobag(cx, null);
+    var os = fields["entries"];
+    if (os.length > 0) {
+        var lt = new ListTraverser(cx, om.state);
+        for (var i=0;i<os.length;i++) {
+            om.marshal(lt, os[i]);
+        }
+        ret._entries = lt.ret;
+    }
+    return ret;
 }
 
 Crobag.prototype.insert = function(_cxt, key, val) {

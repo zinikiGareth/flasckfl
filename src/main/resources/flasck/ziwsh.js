@@ -211,7 +211,15 @@ JsonListMarshaller.prototype.collect = function(o) {
 JsonListMarshaller.prototype.complete = function() {
 }
 
-const OMWrapper = function(cx, ux) {
+const OMWrapper = function(bh, cx, ux) {
+    this.bh = bh;
+    this.cx = cx;
+    this.ux = ux;
+    this.state = ux.state;
+}
+
+OMWrapper.prototype.marshal = function(trav, o) {
+    this.bh.handleArg(trav, this.cx, o);
 }
 
 
@@ -335,7 +343,7 @@ EvalContext.prototype.fields = function() {
 
 EvalContext.prototype.fromWire = function(om, fields) {
 	var clz = this.env.objects[fields["_wireable"]];
-	if (clz == null) {
+	if (!clz) {
 		throw Error("could not find a registration for " + fields["_wireable"]);
 	}
 	return clz.fromWire.call(clz, this, om, fields);
