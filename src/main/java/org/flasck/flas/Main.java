@@ -109,9 +109,6 @@ public class Main {
 			errors.message((InputPosition)null, "there are no input packages");
 			return null;
 		}
-		List<PackageSources> packages = new ArrayList<>();
-		for (File input : config.inputs)
-			packages.add(compiler.processInputFromDirectory(input));
 		for (File web : config.webs) {
 			if (!web.canRead()) {
 				errors.message((InputPosition) null, "there is no web input: " + web);
@@ -123,6 +120,12 @@ public class Main {
 				compiler.splitWeb(new FileContentObject(web));
 			}
 		}
+		if (errors.hasErrors())
+			return null;
+
+		List<PackageSources> packages = new ArrayList<>();
+		for (File input : config.inputs)
+			packages.add(compiler.processInputFromDirectory(input));
 
 		if (compiler.stage2(packages))
 			return null;

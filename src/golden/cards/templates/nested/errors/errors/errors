@@ -4,8 +4,6 @@ cannotUsePri 12.18:   hold <- thing1 =>  _ inner
                           cannot send to internal template inner for Thing
 firstMustBeC  2.9:    template  _ inner
                           first web template must be a card template, not item inner
-index.html:   0.0:    
-                          duplicate entry name dupl
 noduplicate. 10.9:    template  _ inner
                           test.golden.NoDuplicate.inner is defined multiple times: noduplicate.  8.9
 nostatevalue  3.8:    hold <-  _ x

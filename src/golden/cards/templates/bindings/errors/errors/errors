@@ -1,5 +1,3 @@
-cards/label.  0.0:     _ <div id="flas-style-dupl">
-                          duplicate field in 'cards/label': dupl
 fieldneedsso  3.0:     _ show-message
                           content field must be assigned to
 fieldneedsso  3.0:     _ show-message
