@@ -388,6 +388,45 @@ public class LoadBuiltins {
 		random.addMethod(randomUsed);
 	}
 
+	// Image
+
+	public static final TypeReference imageTR = new TypeReference(pos, "Image");
+	public static final ObjectDefn image = new ObjectDefn(pos, pos, new ObjectName(null, "Image"), false, new ArrayList<>());
+	static {
+		imageTR.bind(image);
+	}
+	
+	//   -> ctor Image.from
+	private static ObjectCtor imageFrom;
+	static {
+		FunctionName ctorFrom = FunctionName.objectCtor(pos, random.name(), "from");
+		imageFrom = new ObjectCtor(pos, image, ctorFrom, Arrays.asList(new TypedPattern(pos, coTR, new VarName(pos, ctorFrom, "co"))));
+		imageFrom.dontGenerate();
+		imageFrom.bindType(new Apply(co, image));
+		image.addConstructor(imageFrom);
+	}
+
+	//   -> ctor Image.asset
+	private static ObjectCtor imageAsset;
+	static {
+		FunctionName ctorFrom = FunctionName.objectCtor(pos, random.name(), "asset");
+		imageAsset = new ObjectCtor(pos, image, ctorFrom, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, ctorFrom, "asset"))));
+		imageAsset.dontGenerate();
+		imageAsset.bindType(new Apply(string, image));
+		image.addConstructor(imageAsset);
+	}
+
+	//   -> ctor Image.uri
+	private static ObjectCtor imageUri;
+	static {
+		FunctionName ctorFrom = FunctionName.objectCtor(pos, random.name(), "uri");
+		imageUri = new ObjectCtor(pos, image, ctorFrom, Arrays.asList(new TypedPattern(pos, uriTR, new VarName(pos, ctorFrom, "uri"))));
+		imageUri.dontGenerate();
+		imageUri.bindType(new Apply(uri, image));
+		image.addConstructor(imageUri);
+	}
+
+
 	// SlideWindow (how we know to move forwards & backwards
 	public static final ContractDecl crobagSlideWindow = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "SlideWindow"), false);
 	// TODO: previous
@@ -715,6 +754,11 @@ public class LoadBuiltins {
 		repository.newObjectMethod(errors, randomUnseeded);
 		repository.newObjectAccessor(errors, randomNext);
 		repository.newObjectMethod(errors, randomUsed);
+
+		repository.newObject(errors, image);
+		repository.newObjectMethod(errors, imageFrom);
+		repository.newObjectMethod(errors, imageAsset);
+		repository.newObjectMethod(errors, imageUri);
 
 		repository.newObject(errors, crobag);
 		repository.newObjectMethod(errors, crobagNew);
