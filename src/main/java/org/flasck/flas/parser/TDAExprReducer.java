@@ -48,6 +48,11 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 
 	@Override
+	public boolean isTop() {
+		return false;
+	}
+
+	@Override
 	public void term(Expr term) {
 		if (haveErrors)
 			return;

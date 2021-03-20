@@ -6,6 +6,10 @@ const ZiIdURI = function(s) {
 ZiIdURI.fromWire = function(cx, om, fields) {
     return new ZiIdURI(fields["uri"]);
 }
+ZiIdURI.prototype._towire = function(wf) {
+    wf._wireable = "org.ziniki.common.ZiIdURI";
+    wf.uri = this.uri;
+}
 const CommonEnv = function(bridge, broker) {
     if (!bridge) // when used as a constructor
         return;

@@ -88,7 +88,11 @@ public class TDAExprParser implements TDAParsing {
 			case ExprToken.PUNC:
 				if (tok.text.equals("."))
 					builder.term(new DotOperator(tok.location));
-				else
+				else if (tok.text.equals(")") && builder.isTop()) {
+					line.reset(mark);
+					builder.done();
+					return null;
+				} else
 					builder.term(new Punctuator(tok.location, tok.text));
 				break;
 			default:

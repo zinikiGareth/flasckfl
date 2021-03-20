@@ -144,7 +144,38 @@ public class TDAParseTemplateElements {
 				styles.add(new UnresolvedVar(var.location, var.text));
 				continue;
 			}
-			errors.message(toks, "invalid style");
+			ExprToken et = ExprToken.from(errors, toks);
+			if (et != null) {
+				if (!et.text.equals("(")) {
+					errors.message(et.location, "valid style expected");
+					return null;
+				}
+				List<Expr> ret = new ArrayList<>();
+				Consumer<Expr> handler = new Consumer<Expr>() {
+					@Override
+					public void accept(Expr t) {
+						ret.add(t);
+					}
+				};
+				// then it's an expression, we can allow that ...
+				TDAExpressionParser ep = new TDAExpressionParser(errors, handler);
+				ep.tryParsing(toks);
+				if (ret.size() != 1) {
+					errors.message(et.location, "valid style expected");
+					return null;
+				}
+				ExprToken crb = ExprToken.from(errors, toks);
+				if (crb == null) {
+					errors.message(toks, "expected )");
+					return null;
+				} else if (!crb.text.equals(")")) {
+					errors.message(crb.location, "expected )");
+					return null;
+				}
+				styles.add(ret.get(0));
+				continue;
+			}
+			errors.message(toks, "valid style expected");
 			return null;
 		}
 		return new TemplateStylingOption(expr, styles);

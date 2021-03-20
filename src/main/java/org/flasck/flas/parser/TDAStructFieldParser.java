@@ -71,6 +71,8 @@ public class TDAStructFieldParser implements TDAParsing {
 					builder.addField(new StructField(field.location, assOp, builder.holder(), createAsAccessors, true, ft, field.text, expr));
 				}
 			}).tryParsing(toks);
+			if (toks.hasMoreContent())
+				errors.message(toks, "invalid tokens after expression");
 			if (errors.hasErrors())
 				return new IgnoreNestedParser();
 		}

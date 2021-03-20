@@ -11,6 +11,10 @@ import org.flasck.flas.errors.ErrorReporter;
 // TODO: introduce a "just one" error reporter that we can use to make sure we don't overly complain about missing parens, etc.
 public class TDAStackReducer implements ExprTermConsumer {
 	public class ParentConsumer implements ExprTermConsumer {
+		@Override
+		public boolean isTop() {
+			return stack.size() == 1;
+		}
 
 		@Override
 		public void term(Expr term) {
@@ -46,6 +50,11 @@ public class TDAStackReducer implements ExprTermConsumer {
 	}
 
 	@Override
+	public boolean isTop() {
+		return stack.size() == 1;
+	}
+
+	@Override
 	public void term(Expr term) {
 		if (lineStart == null)
 			lineStart = term.location();
@@ -64,7 +73,7 @@ public class TDAStackReducer implements ExprTermConsumer {
 		}
 		this.stack.get(0).term(term);
 	}
-
+	
 	@Override
 	public void done() {
 		if (this.stack.size() != 1) {

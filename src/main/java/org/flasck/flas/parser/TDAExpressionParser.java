@@ -18,6 +18,11 @@ public class TDAExpressionParser implements TDAParsing {
 		}
 
 		@Override
+		public boolean isTop() {
+			return false;
+		}
+
+		@Override
 		public void term(Expr term) {
 			handler.accept(term);
 		}

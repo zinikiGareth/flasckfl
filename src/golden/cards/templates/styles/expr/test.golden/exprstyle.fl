@@ -1,0 +1,9 @@
+	card Styling
+		state
+			String msg <- 'hello'
+
+		template message
+			styleme <- msg
+				| => (foo 'me')
+				
+		foo x = "notice-" ++ x

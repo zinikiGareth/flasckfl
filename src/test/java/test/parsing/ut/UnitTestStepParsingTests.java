@@ -88,7 +88,7 @@ public class UnitTestStepParsingTests {
 	public void testThatThereIsOnlyOneExpressionOnTheLine() {
 		final Tokenizable line = UnitTestTopLevelParsingTests.line("assert 42)");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(with(any(InputPosition.class)), with("invalid tokens after expression"));
+			oneOf(errors).message(with(line), with("syntax error"));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(line);

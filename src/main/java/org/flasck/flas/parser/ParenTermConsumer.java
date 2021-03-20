@@ -22,6 +22,11 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			this.from = from;
 			this.op = op;
 		}
+
+		@Override
+		public boolean isTop() {
+			return false;
+		}
 		
 		public void endAt(Expr term) {
 			end = term.location().pastEnd();
@@ -95,6 +100,11 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		curr = new TDAExprReducer(errors, closer, true);
 	}
 	
+	@Override
+	public boolean isTop() {
+		return false;
+	}
+
 	@Override
 	public void term(Expr term) {
 		if (term instanceof Punctuator) {

@@ -16,6 +16,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.ExprMatcher;
 import flas.matchers.StringLiteralMatcher;
 import flas.matchers.StructFieldMatcher;
 
@@ -107,7 +108,9 @@ public class TDAStructFieldParsingTests {
 	public void junkIsNotPermittedAfterAnAssignment() {
 		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg <- 13)");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(with(any(InputPosition.class)), with("invalid tokens after expression"));
+			oneOf(builder).holder(); will(returnValue(null));
+			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").assign(11, ExprMatcher.number(13))));
+			oneOf(errors).message(with(toks), with("invalid tokens after expression"));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true);
 		TDAParsing nested = parser.tryParsing(toks);

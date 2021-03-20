@@ -5,6 +5,7 @@ src/golden/agents/typeerrors
 src/golden/cards/errors
 src/golden/cards/events/errors
 src/golden/cards/templates/bindings/errors
+src/golden/cards/templates/bindings/template-errors
 src/golden/cards/templates/spliterrors
 src/golden/cards/templates/errors
 src/golden/cards/templates/nested/errors
@@ -128,6 +129,7 @@ src/golden/cards/templates/nested/struct
 src/golden/cards/templates/render/minimal
 src/golden/cards/templates/splitter/embeddedDivs
 src/golden/cards/templates/styles/basic
+src/golden/cards/templates/styles/expr
 src/golden/cards/templates/styles/blankname
 src/golden/cards/templates/styles/complex
 src/golden/cards/templates/styles/cond

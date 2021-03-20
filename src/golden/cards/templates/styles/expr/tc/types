@@ -1,0 +1,1 @@
+test.golden.Styling.foo :: test.golden.Styling->String->String
