@@ -50,6 +50,9 @@ public class DoUTMatchGeneratorJS extends LeafAdapter implements ResultAware {
 		case SCROLL:
 			block.assertable(runner, "matchScroll", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.literal(Double.toString(Double.parseDouble(m.text))));
 			break;
+		case IMAGE_URI:
+			block.assertable(runner, "matchImageUri", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.string(m.text));
+			break;
 		default:
 			throw new HaventConsideredThisException("cannot handle match " + m);
 		}

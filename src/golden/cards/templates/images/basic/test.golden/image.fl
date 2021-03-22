@@ -1,0 +1,14 @@
+	contract Setup
+		now
+		
+	card WithImage
+		state
+			Image show
+		
+		template root
+			show-in <- show
+			
+		implements Setup
+			now
+				show <- Image.asset '../cross.img'	
+		

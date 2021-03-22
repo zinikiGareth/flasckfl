@@ -67,7 +67,7 @@ public class RepoChecker {
 	private static boolean ignoreInternalNames(String name) {
 		if (name.equals("Cons.A") || name.equals("List.A"))
 			return true;
-		if (name.startsWith("Random.") || name.startsWith("Crobag.") || name.startsWith("Calendar."))
+		if (name.startsWith("Random.") || name.startsWith("Crobag.") || name.startsWith("Calendar.") || name.startsWith("Image."))
 			return true;
 		return false;
 	}

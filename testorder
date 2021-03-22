@@ -110,13 +110,14 @@ src/golden/stdlib/objects/shuffle
 src/golden/tuples/assignment
 src/golden/functions/eventnv
 src/golden/cards/events/calltop
+src/golden/cards/templates/hello
+src/golden/cards/templates/images/basic
 src/golden/cards/templates/apply
 src/golden/cards/templates/bindEvents
 src/golden/cards/templates/bindexpr
 src/golden/cards/templates/bindings/cond
 src/golden/cards/templates/eventsoncard
 src/golden/cards/templates/functions/card
-src/golden/cards/templates/hello
 src/golden/cards/templates/listlist
 src/golden/cards/templates/message
 src/golden/cards/templates/multipleTargets

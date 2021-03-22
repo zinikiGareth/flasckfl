@@ -20,6 +20,7 @@ const CommonEnv = function(bridge, broker) {
     this.objects['FLBuiltin'] = FLBuiltin;
     this.objects['Crobag'] = Crobag;
     this.objects['CroEntry'] = CroEntry;
+    this.objects['Image'] = Image;
     this.objects['org.ziniki.common.ZiIdURI'] = ZiIdURI; // hack that enables the Java name to be sent on the wire.  It probably shouldn't be; but should we send just a string or should we recognize ZiIdURI?
     this.objects['org.flasck.jvm.builtin.Crobag'] = Crobag; // hack that enables the Java name to be sent on the wire.  It probably shouldn't be.
     this.objects['org.flasck.jvm.builtin.CroEntry'] = CroEntry; // hack that enables the Java name to be sent on the wire.  It probably shouldn't be.
@@ -788,6 +789,29 @@ FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option
     if (this._eventHandlers) {
         this._attachHandlers(_cxt, rt[field], node, templateName, field, option, source);
     }
+}
+
+FLCard.prototype._updateImage = function(_cxt, rt, templateName, field, option, source, value, fromField) {
+    // In general, everything should already be fully evaluated, but we do allow expressions in templates
+    value = _cxt.full(value);
+    // it should be an Image object
+    if (typeof value === 'undefined' || value == null || !(value instanceof Image))
+        value = '';
+    else
+        value = value.getUri();
+    var div = document.getElementById(rt._id);
+    const node = div.querySelector("[data-flas-image='" + field + "']");
+    if (!node.id) {
+        var ncid = _cxt.nextDocumentId();
+        node.id = ncid;
+        rt[field] = { _id: ncid };
+        if (source)
+            rt[field].source = source;
+        else
+            rt[field].source = this;
+        rt[field].fromField = fromField;
+    }
+    node.src = value;
 }
 
 FLCard.prototype._updateFromInputs = function() {
@@ -1574,6 +1598,25 @@ _ActualSlideHandler.prototype._card = function() {
 }
 _ActualSlideHandler.prototype._card.nfargs = function() { return -1; }
   
+
+
+const Image = function(_cxt, _uri) {
+    FLObject.call(this, _cxt);
+    this.state = _cxt.fields();
+	this.state.set("uri", _uri);
+}
+
+Image._ctor_asset = function(_cxt, _card, _uri) {
+	debugger;
+    const ret = new Image(_cxt, _uri);
+    return new ResponseWithMessages(_cxt, ret, []);
+}
+Image._ctor_asset.nfargs = function() { return 2; }
+
+Image.prototype.getUri = function() {
+	return this.state.get("uri");
+}
+
 
 
 /* istanbul ignore next */

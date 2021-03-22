@@ -1,0 +1,6 @@
+
+	test that we have the correct image displayed
+		data WithImage card
+		contract card Setup now
+		match card image show-in
+			../cross.img

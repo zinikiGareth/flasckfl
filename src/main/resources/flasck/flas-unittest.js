@@ -213,6 +213,19 @@ UTRunner.prototype.matchText = function(_cxt, target, zone, contains, expected) 
 			throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
 	}
 }
+UTRunner.prototype.matchImageUri = function(_cxt, target, zone, expected) {
+	var matchOn = this.findMockFor(target);
+	if (!matchOn)
+		throw Error("there is no mock " + target);
+	var div = this.getZoneDiv(_cxt, matchOn, zone);
+	if (div.tagName != "IMG")
+		throw new Error("MATCH\n  expected: IMG\n  actual:   " + div.tagName);
+
+	var abs = new URL(expected, window.location).toString()
+	var actual = div.src;
+	if (actual != abs)
+		throw new Error("MATCH\n  expected: " + abs + "\n  actual:   " + actual);
+}
 UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected) {
 	var matchOn = this.findMockFor(target);
 	if (!matchOn)

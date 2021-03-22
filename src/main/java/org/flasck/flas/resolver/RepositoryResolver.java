@@ -762,6 +762,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 				errors.message(slotLoc, "style field cannot be assigned to");
 			break;
 		case CONTENT:
+		case IMAGE:
 			if (!b.doesAssignment())
 				errors.message(slotLoc, "content field must be assigned to");
 			break;

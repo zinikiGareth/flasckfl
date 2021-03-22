@@ -149,6 +149,15 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 					errors.message(option.sendsTo.location(), msg);
 			} 
 			break;
+		case IMAGE:
+			if (etype instanceof ObjectDefn && etype.signature().equals("Image")) {
+				if (option.sendsTo != null) {
+					errors.message(pos, "cannot use templates to render images");
+				}
+			} else {
+				errors.message(pos, "can only assign images to image content");
+			}
+			break;
 		case CONTAINER:
 			if (option.sendsTo != null) {
 				CardData card = option.sendsTo.template().webinfo();

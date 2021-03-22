@@ -182,7 +182,7 @@ public class TypeChecker extends LeafAdapter {
 					types.add(curr);
 				}
 			}
-			if (curr != FieldType.CONTENT && curr != FieldType.STYLE
+			if (curr != FieldType.CONTENT && curr != FieldType.IMAGE && curr != FieldType.STYLE
 					&& (!allowContainer || curr != FieldType.CONTAINER)) {
 				errors.message(tz.location, "element " + curr + " '" + tz + "' is not a valid " + type + " target");
 				return;

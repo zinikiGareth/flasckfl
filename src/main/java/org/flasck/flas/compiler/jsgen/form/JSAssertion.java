@@ -40,11 +40,13 @@ public class JSAssertion implements IVForm {
  		as.add(jvm.cxt());
  		int ai = 0;
 		for (JSExpr e : args) {
-			if (("event".equals(meth) || "input".equals(meth) || "matchText".equals(meth) || "matchStyle".equals(meth) || "matchScroll".equals(meth)) && ai == 1)
+			if (("event".equals(meth) || "input".equals(meth) || "matchText".equals(meth) || "matchStyle".equals(meth) || "matchScroll".equals(meth) || "matchImageUri".equals(meth)) && ai == 1)
 				as.add(jvm.argAs(e, new JavaType(List.class.getName())));
 			else if (("matchText".equals(meth) || "matchStyle".equals(meth) || "matchScroll".equals(meth)) && ai == 2)
 				as.add(jvm.argAs(e, JavaType.boolean_));
 			else if (("matchText".equals(meth) || "matchStyle".equals(meth)) && ai == 3)
+				as.add(jvm.argAs(e, JavaType.string));
+			else if (("matchImageUri".equals(meth)) && ai == 2)
 				as.add(jvm.argAs(e, JavaType.string));
 			else if ("matchScroll".equals(meth) && ai == 3)
 				as.add(jvm.argAs(e, new JavaType(Double.class.getName())));

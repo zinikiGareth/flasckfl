@@ -2,7 +2,6 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parser.IgnoreNestedParser;

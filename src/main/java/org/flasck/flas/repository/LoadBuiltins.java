@@ -399,7 +399,7 @@ public class LoadBuiltins {
 	//   -> ctor Image.from
 	private static ObjectCtor imageFrom;
 	static {
-		FunctionName ctorFrom = FunctionName.objectCtor(pos, random.name(), "from");
+		FunctionName ctorFrom = FunctionName.objectCtor(pos, image.name(), "from");
 		imageFrom = new ObjectCtor(pos, image, ctorFrom, Arrays.asList(new TypedPattern(pos, coTR, new VarName(pos, ctorFrom, "co"))));
 		imageFrom.dontGenerate();
 		imageFrom.bindType(new Apply(co, image));
@@ -409,7 +409,7 @@ public class LoadBuiltins {
 	//   -> ctor Image.asset
 	private static ObjectCtor imageAsset;
 	static {
-		FunctionName ctorFrom = FunctionName.objectCtor(pos, random.name(), "asset");
+		FunctionName ctorFrom = FunctionName.objectCtor(pos, image.name(), "asset");
 		imageAsset = new ObjectCtor(pos, image, ctorFrom, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, ctorFrom, "asset"))));
 		imageAsset.dontGenerate();
 		imageAsset.bindType(new Apply(string, image));

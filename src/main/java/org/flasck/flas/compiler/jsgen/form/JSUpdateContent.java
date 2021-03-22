@@ -3,9 +3,11 @@ package org.flasck.flas.compiler.jsgen.form;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.jvm.J;
+import org.ziniki.splitter.FieldType;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSUpdateContent implements JSExpr {
@@ -32,7 +34,12 @@ public class JSUpdateContent implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("this._updateContent(_cxt, _renderTree, '");
+		if (field.type() == FieldType.CONTENT)
+			w.print("this._updateContent(_cxt, _renderTree, '");
+		else if (field.type() == FieldType.IMAGE)
+			w.print("this._updateImage(_cxt, _renderTree, '");
+		else
+			throw new HaventConsideredThisException(field.type().name());
 		w.print(templateName);
 		w.print("', '");
 		w.print(field.text);
@@ -53,7 +60,14 @@ public class JSUpdateContent implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		IExpr me = md.callVirtual("void", jvm.argAsIs(new JSThis()), "_updateContent", jvm.cxt(), jvm.argAsIs(new JSVar("_renderTree")), md.stringConst(templateName), md.stringConst(field.text), md.intConst(this.option), jvm.arg(source), jvm.arg(expr), fromField == null ? md.as(md.aNull(), J.STRING) : md.stringConst(fromField));
+		String fn;
+		if (field.type() == FieldType.CONTENT)
+			fn = "_updateContent";
+		else if (field.type() == FieldType.IMAGE)
+			fn = "_updateImage";
+		else
+			throw new HaventConsideredThisException(field.type().name());
+		IExpr me = md.callVirtual("void", jvm.argAsIs(new JSThis()), fn, jvm.cxt(), jvm.argAsIs(new JSVar("_renderTree")), md.stringConst(templateName), md.stringConst(field.text), md.intConst(this.option), jvm.arg(source), jvm.arg(expr), fromField == null ? md.as(md.aNull(), J.STRING) : md.stringConst(fromField));
 		jvm.local(this, me);
 	}
 
