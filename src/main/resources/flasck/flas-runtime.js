@@ -63,7 +63,10 @@ CommonEnv.prototype.dispatchMessages = function(_cxt) {
         }
     }
     delete _cxt.updateCards;
-    set.forEach(card => card._updateDisplay(_cxt, card._renderTree));
+    set.forEach(card => {
+        card._updateDisplay(_cxt, card._renderTree);
+        card._resizeDisplayElements(_cxt, card._renderTree);
+    });
 }
 
 CommonEnv.prototype.handleMessages = function(_cxt, msg) {
@@ -102,6 +105,13 @@ CommonEnv.prototype.addAll = function(ret, m) {
 
 CommonEnv.prototype.newContext = function() {
 	return new FLContext(this, this.broker);
+}
+
+if (typeof(window) !== 'undefined') {
+    window.addEventListener('resize', function(ev) {
+        if (window.maincard)
+            window.maincard._resizeDisplayElements(env.newContext(), window.maincard._renderTree);
+    });
 }
 
 
@@ -711,6 +721,7 @@ FLCard.prototype._renderInto = function(_cxt, div) {
             this._renderTree['_id'] = ncid;
             div.appendChild(cloned);
             this._updateDisplay(_cxt, this._renderTree);
+            this._resizeDisplayElements(_cxt, this._renderTree);
         }
     }
     // attach the default handlers to the card
@@ -718,6 +729,77 @@ FLCard.prototype._renderInto = function(_cxt, div) {
         this._attachHandlers(_cxt, this._renderTree, div, "_", null, 1, this); // unbound ones
     }
 }
+
+FLCard.prototype._resizeDisplayElements = function(_cxt, _rt) {
+    if (!_rt)
+        return;
+    var container = document.getElementById(_rt._id);
+    var cw = container.clientWidth;
+    var ch = container.clientHeight;
+    var nodes = document.querySelectorAll("#" + _rt._id + " .flas-sizing");
+    for (var i=0;i<nodes.length;i++) {
+        var n = nodes[i];
+        var cl = n.classList;
+        for (var j=0;j<cl.length;j++) {
+            var cle = cl[j];
+            if (cle.startsWith("flas-sizing-")) {
+                this._setSizeOf(_cxt, n, cw, ch, cle.replace("flas-sizing-", ""));
+                break;
+            }
+        }
+    }
+}
+
+FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
+    var parent = img.parentElement;
+    if (alg.startsWith("target-center-")) {
+        var props = alg.replace("target-center-", "");
+        var idx = props.indexOf("-");
+        var xp = parseFloat(props.substring(0, idx));
+        var yp = parseFloat(props.substring(idx+1));
+        var vprat = cw/ch;
+        var imgrat = img.width/img.height;
+        if (isNaN(imgrat))
+            return;
+        if (vprat < imgrat) { // portrait
+            // 1. Figure the desired height of the image to appear in the container and make that thing.height
+            parent.style.height = ch;
+            img.style.height = ch;
+            parent.style.width = "auto";
+            img.style.width = "auto";
+
+            // 2. Figure out the new left
+            var newImgWid = ch * imgrat;
+            var left = -(newImgWid*xp/100-cw/2);
+            if (left + newImgWid < cw) {
+                left = cw - newImgWid;
+                if (left > 0)
+                    left /= 2;
+            }
+            parent.style.left = left;
+        } else { // landscape
+            // 1. Figure the desired width of the image to appear in the container and make that thing.width
+            parent.style.width = cw;
+            img.style.width = cw;
+            parent.style.height = "auto";
+            img.style.height = "auto";
+            parent.style.left = 0;
+
+            // 2. Figure out the new top
+            var newImgHt = cw / imgrat;
+            var top = -(newImgHt*yp/100-ch/2)
+            if (top + newImgHt < ch) {
+                top = ch - newImgHt;
+                if (top > 0)
+                    top /= 2;
+            }
+            parent.style.top = top;
+        }
+    } else {
+        _cxt.log("do not know sizing algorithm " + alg);
+    }
+}
+
 
 FLCard.prototype._currentDiv = function(cx) {
     if (this._renderTree)
@@ -812,6 +894,12 @@ FLCard.prototype._updateImage = function(_cxt, rt, templateName, field, option, 
         rt[field].fromField = fromField;
     }
     node.src = value;
+    var self = this;
+    node.onload = function(ev) { self._imageLoaded(_cxt); };
+}
+
+FLCard.prototype._imageLoaded = function(_cxt) {
+    this._resizeDisplayElements(_cxt, this._renderTree);
 }
 
 FLCard.prototype._updateFromInputs = function() {
@@ -1256,6 +1344,7 @@ FLObject.prototype._updateStyle = FLCard.prototype._updateStyle;
 FLObject.prototype._updateList = FLCard.prototype._updateList;
 FLObject.prototype._diffLists = FLCard.prototype._diffLists;
 FLObject.prototype._attachHandlers = FLCard.prototype._attachHandlers;
+FLObject.prototype._resizeDisplayElements = FLCard.prototype._resizeDisplayElements;
 
 
 
@@ -1607,7 +1696,6 @@ const Image = function(_cxt, _uri) {
 }
 
 Image._ctor_asset = function(_cxt, _card, _uri) {
-	debugger;
     const ret = new Image(_cxt, _uri);
     return new ResponseWithMessages(_cxt, ret, []);
 }

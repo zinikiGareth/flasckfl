@@ -612,6 +612,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		updateDisplay.argument(J.RENDERTREE, "_renderTree");
 		updateDisplay.returnsType("void");
 		updateDisplay.returnVoid();
+		JSMethodCreator resizeDisplay = agentCreator.createMethod("_resizeDisplayElements", true);
+		resizeDisplay.argument(J.FLEVALCONTEXT, "_cxt");
+		resizeDisplay.argument(J.RENDERTREE, "_renderTree");
+		resizeDisplay.returnsType("void");
+		resizeDisplay.returnVoid();
 		JSMethodCreator meth = agentCreator.createMethod("name", true);
 		meth.argument("_cxt");
 		meth.returnObject(new JSString(ad.name().uniqueName()));
