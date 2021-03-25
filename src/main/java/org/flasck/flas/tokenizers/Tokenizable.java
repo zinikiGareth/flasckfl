@@ -20,6 +20,12 @@ public class Tokenizable {
 		this.line = l;
 	}
 
+	public Tokenizable(ContinuedLine l, StringBuilder in, int pos) {
+		this.line = l;
+		this.input = in;
+		this.pos = pos;
+	}
+
 	// This is really only for testing
 	public Tokenizable(String input) {
 		this.input = new StringBuilder(input);
@@ -116,5 +122,18 @@ public class Tokenizable {
 
 	public int actualLine() {
 		return line.actualLine(pos);
+	}
+
+	public int find(String sub) {
+		for (int i=pos;i<input.length();i++) {
+			if (input.substring(i).startsWith(sub))
+				return i;
+		}
+		return -1;
+	}
+
+	public Tokenizable cropAt(int k) {
+		StringBuilder in2 = new StringBuilder(input.substring(0, k));
+		return new Tokenizable(line, in2, pos);
 	}
 }

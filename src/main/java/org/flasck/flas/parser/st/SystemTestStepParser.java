@@ -2,21 +2,28 @@ package org.flasck.flas.parser.st;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
+import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.ConsumeDefinitions;
+import org.flasck.flas.parser.ut.IntroductionConsumer;
 import org.flasck.flas.parser.ut.TestStepParser;
 import org.flasck.flas.parser.ut.UnitDataNamer;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -71,6 +78,9 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		case "ajax": {
 			return handleAjax(toks);
+		}
+		case "route": {
+			return handleRoute(toks);
 		}
 		default: {
 			toks.reset(mark);
@@ -129,6 +139,52 @@ public class SystemTestStepParser extends TestStepParser {
 			return new IgnoreNestedParser();
 		}
 		}
+	}
+
+	private TDAParsing handleRoute(Tokenizable toks) {
+		int k = toks.find("->");
+		if (k == -1) {
+			errors.message(toks.locationAtText(toks.length()), "expected ->");
+			return new NoNestingParser(errors);
+		}
+		Tokenizable ec = toks.cropAt(k);
+		List<Expr> expr = new ArrayList<>();
+		new TDAExpressionParser(errors, e -> {
+			expr.add(e);
+		}).tryParsing(ec);
+
+		toks.reset(k);
+		if (expr.size() != 1) {
+			errors.message(toks, "expression expected");
+			return new NoNestingParser(errors);
+		}
+		Expr route = expr.get(0);
+		ExprToken arrow = ExprToken.from(errors, toks);
+		if (arrow == null) {
+			errors.message(toks, "expected ->");
+			return new NoNestingParser(errors);
+		}
+		ExprToken name = ExprToken.from(errors, toks);
+		if (name == null) {
+			errors.message(toks, "expected var to store in");
+			return new NoNestingParser(errors);
+		}
+		if (name.type != ExprToken.IDENTIFIER) {
+			errors.message(name.location, "expected var");
+			return new NoNestingParser(errors);
+		}
+		if (!name.text.startsWith("_")) {
+			errors.message(name.location, "introduce vars must start with _");
+			return new NoNestingParser(errors);
+		}
+		IntroduceVar iv = new IntroduceVar(name.location, namer, name.text.substring(1));
+		((IntroductionConsumer)builder).newIntroduction(errors, iv);
+		((SystemTestStage)builder).gotoRoute(errors, route, iv);
+
+		if (toks.hasMoreContent()) {
+			errors.message(toks, "junk at end of line");
+		}
+		return new NoNestingParser(errors);
 	}
 
 	@Override

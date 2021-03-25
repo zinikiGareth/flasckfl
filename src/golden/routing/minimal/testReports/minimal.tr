@@ -1,0 +1,6 @@
+JVM running system test test.golden._st_minimal
+JVM PASS that we can initialize a card using the router
+JVM test.golden._st_minimal all stages passed
+JS running system test test.golden._st_minimal
+JS PASS that we can initialize a card using the router
+JS test.golden._st_minimal all stages passed

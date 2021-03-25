@@ -95,6 +95,7 @@ import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
+import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -1847,6 +1848,8 @@ public class Traverser implements RepositoryVisitor {
 			visitAjaxCreate((AjaxCreate)s);
 		else if (s instanceof AjaxPump)
 			visitAjaxPump((AjaxPump)s);
+		else if (s instanceof GotoRoute)
+			visitGotoRoute((GotoRoute)s);
 		else if (modules != null) {
 			boolean done = false;
 			for (TraverserModule m : modules) {
@@ -2153,6 +2156,18 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitAjaxPump(AjaxPump ac) {
 		visitor.visitAjaxPump(ac);
+	}
+
+	@Override
+	public void visitGotoRoute(GotoRoute gr) {
+		visitor.visitGotoRoute(gr);
+		visitExpr(gr.route, 0);
+		visitExpr(gr.iv, 0);
+		leaveGotoRoute(gr);
+	}
+
+	public void leaveGotoRoute(GotoRoute gr) {
+		visitor.leaveGotoRoute(gr);
 	}
 
 	@Override

@@ -1,16 +1,21 @@
 package org.flasck.flas.parsedForm.st;
 
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.SystemTestName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
+import org.flasck.flas.parser.ut.IntroductionConsumer;
 
-public class SystemTestStage extends TestStepHolder {
+public class SystemTestStage extends TestStepHolder implements IntroductionConsumer {
 	public final SystemTestName name;
 	public final String desc;
+	private final IntroductionConsumer topLevel;
 
-	public SystemTestStage(SystemTestName name, String desc) {
+	public SystemTestStage(SystemTestName name, String desc, IntroductionConsumer topLevel) {
 		this.name = name;
 		this.desc = desc;
+		this.topLevel = topLevel;
 	}
 	
 	public void ajaxCreate(ErrorReporter errors, AjaxCreate ac) {
@@ -27,6 +32,15 @@ public class SystemTestStage extends TestStepHolder {
 			return;
 		}
 		this.steps.add(pump);
+	}
+
+	@Override
+	public void newIntroduction(ErrorReporter errors, IntroduceVar var) {
+		topLevel.newIntroduction(errors, var);
+	}
+	
+	public void gotoRoute(ErrorReporter errors, Expr route, IntroduceVar iv) {
+		this.steps.add(new GotoRoute(route, iv));
 	}
 	
 	@Override

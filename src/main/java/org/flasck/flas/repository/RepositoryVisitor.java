@@ -60,6 +60,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
+import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -248,6 +249,8 @@ public interface RepositoryVisitor {
 	void visitAjaxExpectSubscribe(AjaxSubscribe as);
 	void leaveAjaxExpectSubscribe(AjaxSubscribe as);
 	void visitAjaxPump(AjaxPump ac);
+	void visitGotoRoute(GotoRoute gr);
+	void leaveGotoRoute(GotoRoute gr);
 	void visitTypeExpr(TypeExpr expr);
 	void leaveTypeExpr(TypeExpr expr);
 	void visitCastExpr(CastExpr expr);

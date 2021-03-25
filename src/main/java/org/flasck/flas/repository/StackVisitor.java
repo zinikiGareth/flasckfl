@@ -73,6 +73,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
+import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -810,6 +811,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitTypeExpr(TypeExpr expr) {
 		top.visitTypeExpr(expr);
+	}
+
+	public void visitGotoRoute(GotoRoute gr) {
+		top.visitGotoRoute(gr);
+	}
+
+	public void leaveGotoRoute(GotoRoute gr) {
+		top.leaveGotoRoute(gr);
 	}
 
 	public void leaveTypeExpr(TypeExpr expr) {

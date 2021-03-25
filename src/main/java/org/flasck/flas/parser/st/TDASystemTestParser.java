@@ -45,7 +45,7 @@ public class TDASystemTestParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			SystemTestName stn = namer.special("configure");
-			final SystemTestConfiguration stg = new SystemTestConfiguration(stn);
+			final SystemTestConfiguration stg = new SystemTestConfiguration(stn, topLevel);
 			builder.configure(stg);
 			return TDAMultiParser.systemTestStep(errors, new TestStepNamer(stn.container()), stg, topLevel, modules);
 		}
@@ -56,7 +56,7 @@ public class TDASystemTestParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			SystemTestName stn = namer.nextStep();
-			final SystemTestStage stage = new SystemTestStage(stn, desc);
+			final SystemTestStage stage = new SystemTestStage(stn, desc, topLevel);
 			builder.test(stage);
 			return TDAMultiParser.systemTestStep(errors, new TestStepNamer(stn), stage, topLevel, modules);
 		}
@@ -66,7 +66,7 @@ public class TDASystemTestParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			SystemTestName stn = namer.special("finally");
-			final SystemTestCleanup stg = new SystemTestCleanup(stn);
+			final SystemTestCleanup stg = new SystemTestCleanup(stn, topLevel);
 			builder.cleanup(stg);
 			return TDAMultiParser.systemTestStep(errors, new TestStepNamer(stn), stg, topLevel, modules);
 		}
