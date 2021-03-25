@@ -1,0 +1,68 @@
+package org.flasck.flas.parser.assembly;
+
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.NoNestingParser;
+import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
+
+public class TDARoutingParser implements TDAParsing {
+	private final ErrorReporter errors;
+	private final ApplicationElementParser top;
+	private final boolean expectMain;
+
+	public TDARoutingParser(ErrorReporter errors, ApplicationElementParser top, boolean expectMain) {
+		this.errors = errors;
+		this.top = top;
+		this.expectMain = expectMain;
+	}
+
+	@Override
+	public TDAParsing tryParsing(Tokenizable toks) {
+		KeywordToken kw = KeywordToken.from(toks);
+		if (kw == null) {
+			errors.message(toks, "expected assembly keyword");
+			return new IgnoreNestedParser();
+		}
+		
+		switch (kw.text) {
+		case "main": {
+			if (!expectMain) {
+				errors.message(kw.location, "main cannot be set here");
+				return new IgnoreNestedParser();
+			}
+			ExprToken op = ExprToken.from(errors, toks);
+			if (op == null) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
+			if (!"<-".equals(op.text)) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
+			TypeNameToken card = TypeNameToken.qualified(toks);
+			if (card == null) {
+				errors.message(toks, "card name required");
+				return new IgnoreNestedParser();
+			}
+			top.provideMainCard(card);
+			return new NoNestingParser(errors);
+		}
+		default: {
+			errors.message(toks, "expected 'main', 'enter', 'at', 'exit' or 'route'");
+			return new IgnoreNestedParser();
+		}
+		}
+	}
+
+	@Override
+	public void scopeComplete(InputPosition location) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

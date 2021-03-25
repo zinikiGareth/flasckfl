@@ -795,6 +795,33 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
             }
             parent.style.top = top;
         }
+    } else if (alg.startsWith("min-aspect-")) {
+        var props = alg.replace("min-aspect-", "");
+        var idx = props.indexOf("-");
+        var idx2 = props.indexOf("-", idx+1);
+        var idx3 = props.indexOf("-", idx2+1);
+        var idx4 = props.indexOf("-", idx3+1);
+        var xc = parseFloat(props.substring(0, idx)) * cw / 100;
+        var yc = parseFloat(props.substring(idx+1, idx2)) * ch / 100;
+        var pct = parseFloat(props.substring(idx2+1, idx3)) / 100;
+        var xr = parseFloat(props.substring(idx3+1, idx4));
+        var yr = parseFloat(props.substring(idx4+1));
+        var xp = cw * pct;
+        var yp = ch * pct;
+        var mp = Math.min(xp, yp);
+        xr = xr * mp;
+        yr = yr * mp;
+        img.style.width = xr;
+        img.style.height = yr;
+        img.style.left = xc - xr/2;
+        img.style.top = yc - yr/2;
+    } else if (alg.startsWith("text-")) {
+        var props = alg.replace("text-", "");
+        var rs = parseFloat(props) / 100;
+        var parent = img.parentElement;
+        var ps = Math.min(parent.clientWidth, parent.clientHeight);
+        var sz = rs * ps;
+        parent.style.fontSize = sz;
     } else {
         _cxt.log("do not know sizing algorithm " + alg);
     }

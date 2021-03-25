@@ -36,21 +36,28 @@ public class ApplicationElementParser implements TDAParsing {
 			consumer.title(s);
 			return new NoNestingParser(errors);
 		}
-		case "main": {
-			sawMainCard = true;
-			TypeNameToken main = TypeNameToken.unqualified(toks);
-			if (main == null) {
-				errors.message(toks, "no main card was specified");
+		case "routes": {
+			if (toks.hasMoreContent()) {
+				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser();
 			}
-			consumer.mainCard(main.text);
-			return new NoNestingParser(errors);
+			return new TDARoutingParser(errors, this, true);
 		}
 		default: {
 			errors.message(toks, "expected 'title' or 'main'");
 			return new IgnoreNestedParser();
 		}
 		}
+	}
+
+
+	public void provideMainCard(TypeNameToken main) {
+		if (sawMainCard) {
+			errors.message(main.location, "duplicate assignment to main card");
+			return;
+		}
+		sawMainCard = true;
+		consumer.mainCard(main.text);
 	}
 
 	@Override

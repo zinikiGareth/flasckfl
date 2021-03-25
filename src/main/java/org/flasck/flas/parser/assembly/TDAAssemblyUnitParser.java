@@ -10,6 +10,7 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAAssemblyUnitParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -26,7 +27,7 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		KeywordToken kw = KeywordToken.from(toks);
 		if (kw == null) {
-			errors.message(toks, "expected 'application' or 'card'");
+			errors.message(toks, "expected 'application', 'card' or 'library'");
 			return new IgnoreNestedParser();
 		}
 		
@@ -35,6 +36,9 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 			ApplicationAssembly consumer = new ApplicationAssembly(kw.location, namer.assemblyName(null));
 			adc.assembly(consumer);
 			return new ApplicationElementParser(errors, kw.location, consumer);
+		}
+		case "card": {
+			throw new NotImplementedException();
 		}
 		case "library": {
 			LibraryAssembly consumer = new LibraryAssembly(kw.location, namer.assemblyName(null));
