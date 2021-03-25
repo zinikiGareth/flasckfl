@@ -2,6 +2,7 @@ package org.flasck.flas.parser.assembly;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -12,13 +13,11 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class TDARoutingParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final ApplicationElementParser top;
-	private final boolean expectMain;
+	private final RoutingActionConsumer consumer;
 
-	public TDARoutingParser(ErrorReporter errors, ApplicationElementParser top, boolean expectMain) {
+	public TDARoutingParser(ErrorReporter errors, RoutingActionConsumer consumer) {
 		this.errors = errors;
-		this.top = top;
-		this.expectMain = expectMain;
+		this.consumer = consumer;
 	}
 
 	@Override
@@ -30,8 +29,22 @@ public class TDARoutingParser implements TDAParsing {
 		}
 		
 		switch (kw.text) {
+		case "enter": {
+			if (toks.hasMoreContent()) {
+				errors.message(toks, "junk at end of line");
+				return new IgnoreNestedParser();
+			}
+			return new TDAEnterExitParser(errors, consumer);
+		}
+		case "exit": {
+			if (toks.hasMoreContent()) {
+				errors.message(toks, "junk at end of line");
+				return new IgnoreNestedParser();
+			}
+			return new TDAEnterExitParser(errors, consumer);
+		}
 		case "main": {
-			if (!expectMain) {
+			if (!(consumer instanceof MainRoutingActionConsumer)) {
 				errors.message(kw.location, "main cannot be set here");
 				return new IgnoreNestedParser();
 			}
@@ -49,7 +62,11 @@ public class TDARoutingParser implements TDAParsing {
 				errors.message(toks, "card name required");
 				return new IgnoreNestedParser();
 			}
-			top.provideMainCard(card);
+			((MainRoutingActionConsumer) consumer).provideMainCard(new TypeReference(card.location, card.text));
+			if (toks.hasMoreContent()) {
+				errors.message(toks, "junk at end of line");
+				return new IgnoreNestedParser();
+			}
 			return new NoNestingParser(errors);
 		}
 		default: {

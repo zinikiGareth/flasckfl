@@ -2,19 +2,19 @@ package org.flasck.flas.parser.assembly;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class ApplicationElementParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final InputPosition startPos;
 	private final ApplicationElementConsumer consumer;
-	private boolean sawMainCard;
+	private ApplicationRouting routing;
 
 	public ApplicationElementParser(ErrorReporter errors, InputPosition startPos, ApplicationElementConsumer consumer) {
 		this.errors = errors;
@@ -41,28 +41,25 @@ public class ApplicationElementParser implements TDAParsing {
 				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser();
 			}
-			return new TDARoutingParser(errors, this, true);
+			if (this.routing != null) {
+				errors.message(kw.location, "cannot specify routing table twice");
+				return new IgnoreNestedParser();
+			}
+			routing = new ApplicationRouting(errors, consumer);
+			return new TDARoutingParser(errors, routing);
 		}
 		default: {
-			errors.message(toks, "expected 'title' or 'main'");
+			errors.message(toks, "expected 'title' or 'routes'");
 			return new IgnoreNestedParser();
 		}
 		}
 	}
 
-
-	public void provideMainCard(TypeNameToken main) {
-		if (sawMainCard) {
-			errors.message(main.location, "duplicate assignment to main card");
-			return;
-		}
-		sawMainCard = true;
-		consumer.mainCard(main.text);
-	}
-
 	@Override
 	public void scopeComplete(InputPosition location) {
-		if (!sawMainCard)
+		if (routing == null)
+			errors.message(startPos, "assembly must declare routing");
+		else if (!routing.sawMainCard)
 			errors.message(startPos, "assembly must identify a main card");
 	}
 
