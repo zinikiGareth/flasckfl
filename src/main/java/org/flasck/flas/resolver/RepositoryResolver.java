@@ -61,6 +61,8 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -457,7 +459,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		} else if (defn instanceof HandlerLambda) {
 			NamedType sft = ((TypedPattern)((HandlerLambda)defn).patt).type.defn();
 			processMemberOfType(expr, sft, var);
-		} else if (defn instanceof FunctionDefinition || defn instanceof VarPattern || defn instanceof IntroduceVar) {
+		} else if (defn instanceof IntroduceVar) {
+			IntroduceVar iv = (IntroduceVar) defn;
+			if (iv.introducedAs() != null)
+				processMemberOfType(expr, (NamedType) iv.introducedAs(), var);
+		} else if (defn instanceof FunctionDefinition || defn instanceof VarPattern) {
 			// there's nothing more we can do here unless we have a return type ... wait until we have a type 
 		} else
 			throw new NotImplementedException("cannot handle " + defn.getClass());
@@ -556,6 +562,14 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 				errors.message(expr.location, "there is no method '" + var + "' on '" + cd.name().uniqueName() + "'");
 			} else
 				expr.bind((RepositoryEntry) method, false);
+		} else if (nt instanceof ApplicationRouting) {
+			ApplicationRouting ar = (ApplicationRouting) nt;
+			RepositoryEntry card = ar.getCard(var);
+			if (card == null) {
+				errors.message(expr.fld.location(), "there is no routing entry for " + var);
+			} else {
+				expr.bind(card, false);
+			}
 		} else if (nt instanceof UnionTypeDefn) {
 			errors.message(expr.fld.location(), "cannot access members of unions");
 		} else
@@ -699,6 +713,17 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
+		this.scope = scopeStack.remove(0);
+	}
+
+	@Override
+	public void visitApplicationRouting(ApplicationRouting e) {
+		scopeStack.add(0, scope);
+		scope = e.packageName();
+	}
+	
+	@Override
+	public void leaveApplicationRouting(ApplicationRouting e) {
 		this.scope = scopeStack.remove(0);
 	}
 	
@@ -1041,6 +1066,16 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			return;
 		}
 		r.template.bindTo(otd);
+	}
+
+	@Override
+	public void visitGotoRoute(GotoRoute gr) {
+		ApplicationRouting ar = repository.get(scope.packageName().uniqueName() + "_Routing");
+		if (ar != null) {
+			gr.iv.bindType(ar);
+		} else {
+			errors.message(gr.iv.location, "there is no routing table for " + scope.packageName().uniqueName());
+		}
 	}
 	
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {

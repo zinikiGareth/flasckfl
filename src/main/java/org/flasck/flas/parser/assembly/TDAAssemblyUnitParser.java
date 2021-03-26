@@ -33,9 +33,9 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 		
 		switch (kw.text) {
 		case "application": {
-			ApplicationAssembly consumer = new ApplicationAssembly(kw.location, namer.assemblyName(null));
+			ApplicationAssembly consumer = new ApplicationAssembly(kw.location, namer.assemblyName(null), adc);
 			adc.assembly(consumer);
-			return new ApplicationElementParser(errors, kw.location, consumer);
+			return new ApplicationElementParser(errors, kw.location, namer, consumer);
 		}
 		case "card": {
 			throw new NotImplementedException();

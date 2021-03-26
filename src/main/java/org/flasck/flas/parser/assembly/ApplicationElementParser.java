@@ -6,6 +6,7 @@ import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -13,12 +14,14 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class ApplicationElementParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final InputPosition startPos;
+	private final TopLevelNamer namer;
 	private final ApplicationElementConsumer consumer;
 	private ApplicationRouting routing;
 
-	public ApplicationElementParser(ErrorReporter errors, InputPosition startPos, ApplicationElementConsumer consumer) {
+	public ApplicationElementParser(ErrorReporter errors, InputPosition startPos, TopLevelNamer namer, ApplicationElementConsumer consumer) {
 		this.errors = errors;
 		this.startPos = startPos;
+		this.namer = namer;
 		this.consumer = consumer;
 	}
 
@@ -45,7 +48,8 @@ public class ApplicationElementParser implements TDAParsing {
 				errors.message(kw.location, "cannot specify routing table twice");
 				return new IgnoreNestedParser();
 			}
-			routing = new ApplicationRouting(errors, consumer);
+			routing = new ApplicationRouting(errors, kw.location, namer.assemblyName(null), namer.assemblyName("Routing"), consumer);
+			consumer.routes(routing);
 			return new TDARoutingParser(errors, routing);
 		}
 		default: {

@@ -66,9 +66,9 @@ public class StructField implements Locatable, RepositoryEntry, FieldAccessor {
 	@Override
 	public String toString() {
 		if (type == null)
-			return name + " (/" + loc.off + ")";
+			return "?? " + name;
 		else
-			return type + " " + name + " (" + type.location().off + "/" + loc.off + ")";
+			return type + " " + name;
 	}
 
 	public void fullName(VarName nameVar) {

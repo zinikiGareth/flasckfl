@@ -3,6 +3,7 @@ package org.flasck.flas.parser.assembly;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -62,7 +63,9 @@ public class TDARoutingParser implements TDAParsing {
 				errors.message(toks, "card name required");
 				return new IgnoreNestedParser();
 			}
-			((MainRoutingActionConsumer) consumer).provideMainCard(new TypeReference(card.location, card.text));
+			TypeReference tr = new TypeReference(card.location, card.text);
+			((MainRoutingActionConsumer) consumer).provideMainCard(tr);
+			consumer.assignCard(new UnresolvedVar(kw.location, kw.text), tr);
 			if (toks.hasMoreContent()) {
 				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser();

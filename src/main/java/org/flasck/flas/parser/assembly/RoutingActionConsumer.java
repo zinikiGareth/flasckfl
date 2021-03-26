@@ -6,7 +6,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 
 public interface RoutingActionConsumer {
 
-	void init(UnresolvedVar card, Expr expr);
+	void load(UnresolvedVar card, Expr expr);
 
 	void next(UnresolvedVar card, Expr expr);
 

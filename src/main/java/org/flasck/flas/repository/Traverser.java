@@ -91,6 +91,8 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
@@ -315,6 +317,8 @@ public class Traverser implements RepositoryVisitor {
 //				visitUnitDataDeclaration(udd);
 		} else if (e instanceof StructField) {
 			visitStructFieldAccessor((StructField) e);
+		} else if (e instanceof ApplicationRouting) {
+			visitApplicationRouting((ApplicationRouting) e);
 		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof IntroduceVar || e instanceof HandlerLambda ||
 				   e instanceof PolyType || e instanceof RequiresContract || e instanceof ObjectContract || e instanceof ImplementsContract ||
 				   e instanceof Template) {
@@ -488,6 +492,26 @@ public class Traverser implements RepositoryVisitor {
 //		for (HandlerImplements ic : s.handlers)
 //			visitHandlerImplements(ic, s);
 		leaveAgentDefn(s);
+	}
+
+	public void visitApplicationRouting(ApplicationRouting e) {
+		visitor.visitApplicationRouting(e);
+		visitCardAssignment(e.getCard("main"));
+		leaveApplicationRouting(e);
+	}
+
+	public void visitCardAssignment(CardBinding card) {
+		visitor.visitCardAssignment(card);
+		visitTypeReference(card.cardType, false, 0);
+		leaveCardBinding(card);
+	}
+
+	public void leaveCardBinding(CardBinding card) {
+		visitor.leaveCardBinding(card);
+	}
+
+	public void leaveApplicationRouting(ApplicationRouting e) {
+		visitor.leaveApplicationRouting(e);
 	}
 
 	@Override

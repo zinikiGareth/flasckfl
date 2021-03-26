@@ -57,6 +57,8 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
@@ -767,6 +769,22 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void leaveCastExpr(CastExpr expr) {
+	}
+
+	@Override
+	public void visitApplicationRouting(ApplicationRouting e) {
+	}
+
+	@Override
+	public void leaveApplicationRouting(ApplicationRouting e) {
+	}
+
+	@Override
+	public void visitCardAssignment(CardBinding card) {
+	}
+
+	@Override
+	public void leaveCardBinding(CardBinding card) {
 	}
 
 	@Override

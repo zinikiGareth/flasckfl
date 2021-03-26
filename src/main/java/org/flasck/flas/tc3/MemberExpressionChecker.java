@@ -30,6 +30,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -140,6 +141,8 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			}
 			
 			errors.message(expr.fld.location(), "object " + od.name() + " does not have a method, ctor or acor " + fld.var);
+			announce(expr, new ErrorType());
+		} else if (ty instanceof ApplicationRouting) {
 			announce(expr, new ErrorType());
 		} else if (ty instanceof CardDefinition || ty instanceof AgentDefinition) {
 			if (expr.from instanceof UnresolvedVar && ((UnresolvedVar)expr.from).defn() instanceof UnitDataDeclaration)

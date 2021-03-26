@@ -50,7 +50,7 @@ public class TDAEnterExitParser implements TDAParsing {
 				return new NoNestingParser(errors);
 			}
 			switch (meth.text) {
-			case "init":
+			case "load":
 			case "nest": {
 				List<Expr> expr = new ArrayList<>();
 				new TDAExpressionParser(errors, e -> {
@@ -63,8 +63,8 @@ public class TDAEnterExitParser implements TDAParsing {
 					errors.message(expr.get(1).location(), "syntax error");
 					return new IgnoreNestedParser();
 				}
-				if ("init".equals(meth.text))
-					consumer.init(card, expr.get(0));
+				if ("load".equals(meth.text))
+					consumer.load(card, expr.get(0));
 				else
 					consumer.next(card, expr.get(0));
 				break;

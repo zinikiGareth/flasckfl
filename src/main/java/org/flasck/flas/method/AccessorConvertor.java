@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -25,6 +26,8 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -104,6 +107,9 @@ public class AccessorConvertor extends LeafAdapter {
 			defn = (RepositoryEntry) expr.containerType(); // the TypeChecker figured out what the containing type is already
 		} else
 			throw new NotImplementedException("cannot handle member of " + from.getClass());
+		if (defn == null) {
+			throw new CantHappenException("defn is null from " + from + " " + from.getClass());
+		}
 //		List<Type> polys;
 		if (defn instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) defn;
@@ -113,8 +119,11 @@ public class AccessorConvertor extends LeafAdapter {
 		}
 		UnresolvedVar meth = (UnresolvedVar) expr.fld;
 		AccessorHolder ah;
-		if (defn instanceof IntroduceVar)
+		if (defn instanceof IntroduceVar) {
 			defn = (RepositoryEntry) ((IntroduceVar)defn).introducedAs();
+			if (defn == null)
+				throw new CantHappenException("defn is null from " + defn);
+		}
 		if (defn instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) defn;
 			NamedType td = udd.ofType.defn();
@@ -196,6 +205,20 @@ public class AccessorConvertor extends LeafAdapter {
 			ah = (AccessorHolder) ((StructField)defn).type();
 		} else if (defn instanceof TemplateNestedField) {
 			ah = (AccessorHolder) ((TemplateNestedField)defn).type();
+		} else if (defn instanceof CardBinding) {
+			StateHolder sh = ((CardBinding)defn).type();
+			if (sh.state() != null && sh.state().hasMember(meth.var)) {
+				expr.conversion(new ApplyExpr(expr.location, LoadBuiltins.probeState, expr.from, new StringLiteral(meth.location, meth.var)));
+				return ret;
+			} else {
+				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on " + sh.name().uniqueName());
+				return ret;
+			}
+		} else if (defn instanceof ApplicationRouting) {
+			ApplicationRouting ar = (ApplicationRouting) defn;
+			CardBinding cb = ar.getCard(meth.var);
+			expr.conversion(new ApplyExpr(expr.location, LoadBuiltins.probeState, expr.from, new StringLiteral(meth.location, meth.var)));
+			return ret;
 		} else
 			throw new NotImplementedException("cannot extract object from " + defn.getClass());
 		FieldAccessor acc = ah.getAccessor(meth.var);
