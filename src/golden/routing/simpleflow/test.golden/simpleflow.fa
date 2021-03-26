@@ -1,7 +1,0 @@
-	application
-		routes
-			main <- Simple
-			enter
-				main.init "loaded"
-			exit
-				main.done

@@ -1,3 +1,0 @@
-	application
-		routes
-			main <- Minimal // main is the special name for the bottommost card and must be assigned exactly once in routes.enter
