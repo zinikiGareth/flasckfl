@@ -63,6 +63,7 @@ import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parsedForm.st.GotoRoute;
+import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -745,6 +746,10 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void visitAjaxPump(AjaxPump ac) {
+	}
+
+	@Override
+	public void visitMockApplication(CreateMockApplication s) {
 	}
 
 	@Override

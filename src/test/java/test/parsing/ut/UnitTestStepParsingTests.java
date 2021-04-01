@@ -378,7 +378,7 @@ public class UnitTestStepParsingTests {
 	public void testWeCanHandleADataDefinitionStep() {
 		context.checking(new Expectations() {{
 			oneOf(namer).dataName(with(any(InputPosition.class)), with("x")); will(returnValue(FunctionName.function(pos, pkg, "x")));
-			oneOf(builder).data(with(any(UnitDataDeclaration.class)));
+			oneOf(builder).data(errors, with(any(UnitDataDeclaration.class)));
 			oneOf(topLevel).nestedData(with(any(UnitDataDeclaration.class)));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);

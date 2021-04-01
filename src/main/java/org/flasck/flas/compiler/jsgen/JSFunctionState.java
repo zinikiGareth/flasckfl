@@ -26,4 +26,7 @@ public interface JSFunctionState {
 	public JSExpr ocmsgs();
 	public Map<IntroduceVar, JSExpr> introductions();
 	public Map<NameOfThing, JSExpr> containers();
+	public Map<String, JSExpr> applications();
+	public void application(String name, JSExpr field);
+	public JSExpr application(String asVar);
 }

@@ -41,6 +41,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -259,6 +260,10 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				sv.result(call);
 			} else
 				sv.result(fn);
+		} else if (defn instanceof MockApplication) {
+			MockApplication ma = (MockApplication)defn;
+			JSExpr from = state.application(ma.asVar());
+			sv.result(from);
 		} else {
 			for (ExprGeneratorModule m : modules) {
 				if (m.generateFnOrCtor(sv, state, block, defn, myName, nargs))

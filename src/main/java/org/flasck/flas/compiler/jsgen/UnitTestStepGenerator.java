@@ -18,6 +18,7 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
+import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -50,6 +51,7 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 	private final TreeMap<UnitDataDeclaration, JSExpr> mocks;
 	private final TreeMap<IntroduceVar, JSExpr> introductions;
 	private final HashMap<NameOfThing, JSExpr> containers;
+	private final Map<String, JSExpr> applications;
 	private final String baseName;
 
 	public UnitTestStepGenerator(NestedVisitor sv, JSStorage jse, JSClassCreator clz, JSMethodCreator meth, JSFunctionState state, JSBlockCreator block, JSExpr runner, Set<UnitDataDeclaration> globalMocks, List<JSExpr> explodingMocks, boolean includeJs, NameOfThing testName, int stepNum) {
@@ -83,7 +85,8 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 		introductions.putAll(ostate.introductions());
 		containers = new HashMap<>();
 		containers.putAll(ostate.containers());
-		this.state = new JSFunctionStateStore(this.meth, mocks, introductions, containers);
+		applications = ostate.applications();
+		this.state = new JSFunctionStateStore(this.meth, mocks, introductions, containers, applications);
 	}
 
 	@Override
@@ -157,6 +160,13 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 		block.callMethod("void", member, "pump");
 	}
 
+	@Override
+	public void visitMockApplication(CreateMockApplication cma) {
+		clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), cma.name());
+		block.setField(false, cma.name(), block.createMockApplication(runner));
+		state.application(cma.name(), block.field(cma.name()));
+	}
+	
 	@Override
 	public void visitGotoRoute(GotoRoute gr) {
 		new DoRouteGenerator(state, sv, this.block, this.runner);

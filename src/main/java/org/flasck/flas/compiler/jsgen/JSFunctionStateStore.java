@@ -17,20 +17,22 @@ public class JSFunctionStateStore implements JSFunctionState {
 	public final Map<UnitDataDeclaration, JSExpr> mocks;
 	public final Map<IntroduceVar, JSExpr> introductions;
 	private final Map<NameOfThing, JSExpr> containers;
+	private final Map<String, JSExpr> applications;
 	private Map<String, JSExpr> templateObj;
 	private final JSMethodCreator meth;
 	private JSExpr ocret;
 	private JSExpr ocmsgs;
 
 	public JSFunctionStateStore(JSMethodCreator meth) {
-		this(meth, new TreeMap<>(), new TreeMap<>(IntroduceVar.comparator), new HashMap<>());
+		this(meth, new TreeMap<>(), new TreeMap<>(IntroduceVar.comparator), new HashMap<>(), new HashMap<>());
 	}
 
-	public JSFunctionStateStore(JSMethodCreator meth, Map<UnitDataDeclaration, JSExpr> mocks, Map<IntroduceVar, JSExpr> introductions, Map<NameOfThing, JSExpr> containers) {
+	public JSFunctionStateStore(JSMethodCreator meth, Map<UnitDataDeclaration, JSExpr> mocks, Map<IntroduceVar, JSExpr> introductions, Map<NameOfThing, JSExpr> containers, Map<String, JSExpr> applications) {
 		this.meth = meth;
 		this.mocks = mocks;
 		this.introductions = introductions;
 		this.containers = containers;
+		this.applications = applications;
 	}
 
 	@Override
@@ -54,6 +56,11 @@ public class JSFunctionStateStore implements JSFunctionState {
 	}
 
 	@Override
+	public Map<String, JSExpr> applications() {
+		return applications;
+	}
+
+	@Override
 	public boolean hasContainer(NameOfThing name) {
 		return containers.containsKey(name);
 	}
@@ -68,10 +75,24 @@ public class JSFunctionStateStore implements JSFunctionState {
 	@Override
 	public JSExpr container(NameOfThing name) {
 		if (!containers.containsKey(name))
-			throw new CantHappenException("There is no container for " + name.uniqueName() + " in " + meth.jsName());
+			throw new CantHappenException("There is no container for " + (name == null ? "NULL": name.uniqueName()) + " in " + meth.jsName() + "; have " + containers);
 		return containers.get(name);
 	}
 	
+	@Override
+	public void application(String name, JSExpr expr) {
+		if (applications.containsKey(name))
+			throw new CantHappenException("should not offer multiple definitions for " + name);
+		applications.put(name, expr);
+	}
+
+	@Override
+	public JSExpr application(String name) {
+		if (!applications.containsKey(name))
+			throw new CantHappenException("There is no application for " + (name == null ? "NULL": name) + " in " + meth.jsName() + "; have " + applications);
+		return applications.get(name);
+	}
+
 	public void provideTemplateObject(Map<String, JSExpr> tc) {
 		this.templateObj = tc;
 	}

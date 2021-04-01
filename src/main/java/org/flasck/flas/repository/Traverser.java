@@ -98,6 +98,8 @@ import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parsedForm.st.GotoRoute;
+import org.flasck.flas.parsedForm.st.MockApplication;
+import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -325,7 +327,7 @@ public class Traverser implements RepositoryVisitor {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof ContractMethodDecl) {
 			; // do nothing; added to repository for consistency reasons
-		} else if (e instanceof Assembly) {
+		} else if (e instanceof Assembly || e instanceof MockApplication) {
 			;
 		} else if (modules != null) {
 			boolean done = false;
@@ -1872,6 +1874,8 @@ public class Traverser implements RepositoryVisitor {
 			visitAjaxCreate((AjaxCreate)s);
 		else if (s instanceof AjaxPump)
 			visitAjaxPump((AjaxPump)s);
+		else if (s instanceof CreateMockApplication)
+			visitMockApplication((CreateMockApplication)s);
 		else if (s instanceof GotoRoute)
 			visitGotoRoute((GotoRoute)s);
 		else if (modules != null) {
@@ -2183,8 +2187,14 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitMockApplication(CreateMockApplication s) {
+		visitor.visitMockApplication(s);
+	}
+
+	@Override
 	public void visitGotoRoute(GotoRoute gr) {
 		visitor.visitGotoRoute(gr);
+		visitExpr(gr.app, 0);
 		visitExpr(gr.route, 0);
 		visitExpr(gr.iv, 0);
 		leaveGotoRoute(gr);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -25,7 +26,7 @@ public class TestStepHolder implements UnitTestStepConsumer {
 	}
 
 	@Override
-	public void data(UnitDataDeclaration dd) {
+	public void data(ErrorReporter errors, UnitDataDeclaration dd) {
 		this.steps.add(dd);
 	}
 

@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -25,16 +26,20 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.ExprMatcher;
 import flas.matchers.TypeReferenceMatcher;
 
 public class UnitTestBuilding {
+	public @Rule JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
 	private PackageName pkg = new PackageName("test.pkg");
 	private UnitTestFileName utfn = new UnitTestFileName(pkg, "unit");
 	private UnitTestName name = new UnitTestName(utfn, 4);
+	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Test
 	public void addingAFieldToADataDecl() {
@@ -68,7 +73,7 @@ public class UnitTestBuilding {
 	public void addingADataStep() {
 		UnitTestCase utc = new UnitTestCase(name, "this is a test");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, new TypeReference(pos, "Unit"), FunctionName.function(pos, utc.name, "x"), new StringLiteral(pos, "expr"));
-		utc.data(udd);
+		utc.data(errors, udd);
 		assertEquals(1, utc.steps.size());
 		assertEquals(udd, utc.steps.get(0));
 	}
@@ -78,7 +83,7 @@ public class UnitTestBuilding {
 		UnitTestCase utc = new UnitTestCase(name, "this is a test");
 		utc.assertion(new StringLiteral(pos, "hello"), new StringLiteral(pos, "goodbye"));
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, new TypeReference(pos, "Unit"), FunctionName.function(pos, utc.name, "x"), new StringLiteral(pos, "expr"));
-		utc.data(udd);
+		utc.data(errors, udd);
 		assertEquals(2, utc.steps.size());
 		assertTrue(utc.steps.get(0) instanceof UnitTestAssert);
 		UnitTestAssert a = (UnitTestAssert) utc.steps.get(0);

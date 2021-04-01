@@ -3,6 +3,7 @@ package org.flasck.flas.parser.ut;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -13,7 +14,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 public interface UnitTestStepConsumer {
 	void assertion(Expr expr, Expr value);
 	void shove(List<UnresolvedVar> slots, Expr value);
-	void data(UnitDataDeclaration dd);
+	void data(ErrorReporter errors, UnitDataDeclaration dd);
 	void render(UnresolvedVar unresolvedVar, TemplateReference template);
 	void event(UnresolvedVar card, TargetZone targetZone, Expr event);
 	void input(UnresolvedVar card, TargetZone targetZone, Expr text);

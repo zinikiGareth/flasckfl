@@ -174,7 +174,7 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	protected TDAParsing handleDataDecl(Tokenizable toks) {
-		return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
+		return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(errors, dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
 	}
 
 	protected TDAParsing handleNewdiv(Tokenizable toks) {

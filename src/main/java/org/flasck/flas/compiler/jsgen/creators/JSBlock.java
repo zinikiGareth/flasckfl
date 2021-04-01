@@ -593,6 +593,11 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr createMockApplication(JSExpr runner) {
+		return new JSMockAppl(runner);
+	}
+
+	@Override
 	public JSExpr fieldObject(String field, NameOfThing clz) {
 		JSSetField ret = new JSSetField(false, field, new JSNew(clz));
 		stmts.add(ret);

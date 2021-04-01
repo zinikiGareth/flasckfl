@@ -11,8 +11,10 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.IntroduceVar;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
+import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
@@ -31,8 +33,11 @@ import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
 public class SystemTestStepParser extends TestStepParser {
+	private final TopLevelDefinitionConsumer topLevel;
+
 	public SystemTestStepParser(ErrorReporter errors, UnitDataNamer namer, SystemTestStage stage, TopLevelDefinitionConsumer topLevel) {
 		super(errors, namer, stage, new ConsumeDefinitions(errors, topLevel, null)); // null would have to be stage through an interface
+		this.topLevel = topLevel;
 	}
 
 	@Override
@@ -78,6 +83,9 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		case "ajax": {
 			return handleAjax(toks);
+		}
+		case "application": {
+			return handleApplication(toks);
 		}
 		case "route": {
 			return handleRoute(toks);
@@ -141,7 +149,33 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 	}
 
+	private TDAParsing handleApplication(Tokenizable toks) {
+		ValidIdentifierToken tok = VarNameToken.from(toks);
+		if (tok == null) {
+			errors.message(toks, "no application name provided");
+			return new IgnoreNestedParser();
+		}
+		if (toks.hasMoreContent()) {
+			errors.message(toks, "syntax error");
+			return new IgnoreNestedParser();
+		}
+		VarName vn = namer.nameVar(tok.location, tok.text);
+		MockApplication ma = new MockApplication(vn);
+		topLevel.mockApplication(errors, ma);
+		((SystemTestStage)builder).mockApplication(errors, vn, ma);
+
+		// TODO: theoretically, it should be possible to have a nested parser
+		// this would allow you to say "package <name>" rather than the default
+		return new NoNestingParser(errors);
+	}
+
 	private TDAParsing handleRoute(Tokenizable toks) {
+		ValidIdentifierToken tok = VarNameToken.from(toks);
+		if (tok == null) {
+			errors.message(toks, "no application name provided");
+			return new IgnoreNestedParser();
+		}
+		UnresolvedVar app = new UnresolvedVar(tok.location, tok.text);
 		int k = toks.find("->");
 		if (k == -1) {
 			errors.message(toks.locationAtText(toks.length()), "expected ->");
@@ -179,7 +213,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		IntroduceVar iv = new IntroduceVar(name.location, namer, name.text.substring(1));
 		((IntroductionConsumer)builder).newIntroduction(errors, iv);
-		((SystemTestStage)builder).gotoRoute(errors, route, iv);
+		((SystemTestStage)builder).gotoRoute(errors, app, route, iv);
 
 		if (toks.hasMoreContent()) {
 			errors.message(toks, "junk at end of line");

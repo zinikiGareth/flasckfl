@@ -116,6 +116,7 @@ public interface JSBlockCreator {
 	JSExpr createCard(CardName cardName);
 	JSExpr createService(CardName name);
 	JSExpr createAjax(JSExpr runner, StringLiteral url);
+	JSExpr createMockApplication(JSExpr runner);
 	JSExpr unmock(JSExpr mock);
 
 	// support module commands
