@@ -8,6 +8,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.IntroduceVar;
@@ -160,7 +161,9 @@ public class SystemTestStepParser extends TestStepParser {
 			return new IgnoreNestedParser();
 		}
 		VarName vn = namer.nameVar(tok.location, tok.text);
-		MockApplication ma = new MockApplication(vn);
+		// TODO: this is the thing that we can configure using the (hypothetical) nested parser
+		PackageName pn = vn.packageName();
+		MockApplication ma = new MockApplication(vn, pn);
 		topLevel.mockApplication(errors, ma);
 		((SystemTestStage)builder).mockApplication(errors, vn, ma);
 

@@ -57,6 +57,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
@@ -259,6 +260,8 @@ public interface RepositoryVisitor {
 	void leaveTypeExpr(TypeExpr expr);
 	void visitCastExpr(CastExpr expr);
 	void leaveCastExpr(CastExpr expr);
+	void visitAssembly(ApplicationAssembly e);
+	void leaveAssembly(ApplicationAssembly e);
 	void visitApplicationRouting(ApplicationRouting e);
 	void leaveApplicationRouting(ApplicationRouting e);
 	void visitCardAssignment(CardBinding card);

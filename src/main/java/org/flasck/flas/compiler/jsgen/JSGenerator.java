@@ -24,6 +24,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSCompare;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
+import org.flasck.flas.compiler.jsgen.form.JSClassName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
@@ -39,6 +40,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.EventHolder;
@@ -916,6 +918,17 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	@Override
 	public void visitSystemTest(SystemTest st) {
 		new SystemTestGenerator(sv, jse, st);
+	}
+
+	@Override
+	public void visitAssembly(ApplicationAssembly e) {
+		JSClassCreator clz = jse.newClass(e.name().uniqueName(), new SolidName(e.name(), "_Application"));
+		clz.inheritsFrom(new PackageName("Application"), J.FLAPPLICATION);
+		clz.constructor().argument(J.FLEVALCONTEXT, "_cxt");
+		clz.inheritsField(false, Access.PROTECTED, new PackageName(J.CLASS), "mainCard");
+		JSMethodCreator ctor = clz.constructor();
+		ctor.setField(new JSThis(), "mainCard", new JSClassName(e.mainCard()));
+		ctor.returnVoid();
 	}
 	
 	@Override

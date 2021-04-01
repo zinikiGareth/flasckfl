@@ -70,6 +70,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
@@ -838,6 +839,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveCastExpr(CastExpr expr) {
 		top.leaveCastExpr(expr);
+	}
+
+	public void visitAssembly(ApplicationAssembly e) {
+		top.visitAssembly(e);
+	}
+
+	public void leaveAssembly(ApplicationAssembly e) {
+		top.leaveAssembly(e);
 	}
 
 	public void visitApplicationRouting(ApplicationRouting e) {

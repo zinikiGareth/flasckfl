@@ -9,7 +9,7 @@ import org.flasck.flas.parser.assembly.AssemblyDefinitionConsumer;
 
 public class ApplicationAssembly extends Assembly implements ApplicationElementConsumer {
 	private String title;
-	private String mainCard;
+	private CardName mainCard;
 	private ApplicationRouting routing;
 	private AssemblyDefinitionConsumer consumer;
 
@@ -24,7 +24,7 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 	}
 	
 	public void mainCard(String s) {
-		this.mainCard = new CardName((PackageName) assemblyName.container(), s).uniqueName();
+		this.mainCard = new CardName((PackageName) assemblyName.container(), s);
 	}
 	
 	@Override
@@ -37,7 +37,11 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 		return title;
 	}
 
-	public String mainCard() {
+	public CardName mainCard() {
 		return mainCard;
+	}
+
+	public ApplicationRouting routing() {
+		return routing;
 	}
 }

@@ -6,6 +6,7 @@ const UTRunner = function(bridge) {
 	this.errors = [];
 	this.mocks = {};
 	this.ajaxen = [];
+	this.appls = [];
 	this.activeSubscribers = [];
 	if (typeof(window) !== 'undefined')
 		window.utrunner = this;
@@ -259,8 +260,9 @@ UTRunner.prototype.matchScroll = function(_cxt, target, zone, contains, expected
 	if (actual != expected)
 		throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
 }
-UTRunner.prototype.route = function(_cxt, route, storeCards) {
-	
+UTRunner.prototype.route = function(_cxt, app, route, storeCards) {
+	app.route(_cxt, route);
+	app.bindCards(_cxt, storeCards);
 }
 UTRunner.prototype.updateCard = function(_cxt, card) {
 	if (!(card instanceof MockCard))
@@ -292,6 +294,11 @@ UTRunner.prototype.mockCard = function(_cxt, name, card) {
 UTRunner.prototype.newAjax = function(cxt, baseUri) {
 	var ma = new MockAjax(cxt, baseUri);
 	this.ajaxen.push(ma);
+	return ma;
+}
+UTRunner.prototype.newMockAppl = function(cxt, clz) {
+	var ma = new MockAppl(cxt, clz);
+	this.appls.push(ma);
 	return ma;
 }
 UTRunner.prototype._updateDisplay = function(_cxt, rt) {
@@ -661,6 +668,17 @@ MockAjaxService.prototype.subscribe = function(_cxt, uri, options, handler) {
 	_cxt.env.activeSubscribers.push({ uri, options, handler });
 }
 
+const MockAppl = function(_cxt, clz) {
+	this.appl = new clz._Application(_cxt);
+}
+MockAppl.prototype.route = function(_cxt, r) {
+	this.appl.gotoRoute(_cxt, r);
+}
+MockAppl.prototype.bindCards = function(_cxt, iv) {
+	var binding = {};
+	binding["main"] = this.appl.cards["main"];
+	iv.bindActual({ routes: binding });
+}
 
 // Connect to ChromeTestRunner
 function WSBridge(host, port) {

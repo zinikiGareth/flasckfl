@@ -163,7 +163,7 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 	@Override
 	public void visitMockApplication(CreateMockApplication cma) {
 		clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), cma.name());
-		block.setField(false, cma.name(), block.createMockApplication(runner));
+		block.setField(false, cma.name(), block.createMockApplication(runner, cma.pkg()));
 		state.application(cma.name(), block.field(cma.name()));
 	}
 	

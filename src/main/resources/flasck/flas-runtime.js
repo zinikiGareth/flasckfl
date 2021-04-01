@@ -2052,14 +2052,18 @@ FLBuiltin.lessThan.nfargs = function() { return 2; }
 
 FLBuiltin._probe_state = function(_cxt, mock, v) {
 	// mock should be a MockCard or MockAgent (or MockObject or something?)
-	var sh = mock;
-	if (mock instanceof FLError)
-		return mock;
-	else if (mock.card) {
-		sh = mock.card;
+	var sh = _cxt.full(mock);
+	if (sh instanceof FLError)
+		return sh;
+	else if (sh.routes) {
+		if (sh.routes[v] === undefined)
+			return new FLError("there is no card bound to route var '" + v + "'");
+		return sh.routes[v];
+	} else if (sh.card) {
+		sh = sh.card;
 		sh._updateFromInputs();
-	} else if (mock.agent)
-		sh = mock.agent;
+	} else if (sh.agent)
+		sh = sh.agent;
 	if (sh.state.dict[v] === undefined)
 		return new FLError("No field '" + v + "' in probe_state");
 	return sh.state.dict[v];

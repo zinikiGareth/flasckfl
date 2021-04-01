@@ -25,13 +25,15 @@ public class JSClass implements JSClassCreator {
 		private final Access access;
 		private final NameOfThing type;
 		private final String var;
-		private final Integer value;
+		private final boolean isClassName;
+		private final Object value;
 
-		public Field(boolean isFinal, Access access, NameOfThing type, String var, Integer value) {
+		public Field(boolean isFinal, Access access, NameOfThing type, String var, boolean isClassName, Object value) {
 			this.isFinal = isFinal;
 			this.access = access;
 			this.type = type;
 			this.var = var;
+			this.isClassName = isClassName;
 			this.value = value;
 		}
 	}
@@ -101,21 +103,21 @@ public class JSClass implements JSClassCreator {
 	public void field(boolean isStatic, Access access, NameOfThing type, String var) {
 		if (hasField(var))
 			throw new CantHappenException("duplicate field " + var);
-		fields.add(new Field(isStatic, access, type, var, null));
+		fields.add(new Field(isStatic, access, type, var, false, (String)null));
 	}
 
 	@Override
 	public void field(boolean isStatic, Access access, NameOfThing type, String var, int value) {
 		if (hasField(var))
 			throw new CantHappenException("duplicate field " + var);
-		fields.add(new Field(isStatic, access, type, var, value));
+		fields.add(new Field(isStatic, access, type, var, false, value));
 	}
 
 	@Override
 	public void inheritsField(boolean isStatic, Access access, NameOfThing type, String var) {
 		if (hasField(var))
 			throw new CantHappenException("duplicate field " + var);
-		ifields.add(new Field(isStatic, access, type, var, null));
+		ifields.add(new Field(isStatic, access, type, var, false, (String)null));
 	}
 
 	@Override
@@ -163,6 +165,20 @@ public class JSClass implements JSClassCreator {
 			iw.println("\n");
 			iw.println(name.jsName() + "._typename = '" + name.uniqueName() + "'");
 		}
+		for (Field f : fields) {
+			if (!f.isFinal || f.value == null)
+				continue;
+			iw.print(name.jsName() + "." + f.var + " = ");
+			if (f.value instanceof Integer)
+				iw.print(Integer.toString((int) f.value));
+			else if (f.value instanceof String && f.isClassName) {
+				iw.print((String)f.value);
+			} else if (f.value instanceof String) {
+				iw.print("'" + (String)f.value + "'");
+			} else if (f.value != null)
+				throw new CantHappenException("value is a " + f.value.getClass());
+			iw.println(";");
+		}
 		for (JSMethod m : methods)
 			m.write(iw, names);
 	}
@@ -187,8 +203,14 @@ public class JSClass implements JSClassCreator {
 		bcc.generateAssociatedSourceFile();
 		for (Field f : fields) {
 			FieldInfo fi = bcc.defineField(f.isFinal, f.access, f.type.javaName(), f.var);
-			if (f.value != null)
-				fi.constValue(f.value);
+			if (!f.isFinal || f.value == null)
+				continue;
+			if (f.value instanceof Integer)
+				fi.constValue((Integer)f.value);
+			else if (f.value instanceof String) {
+				fi.constValue((String)f.value);
+			} else
+				throw new CantHappenException("value is a " + f.value.getClass());
 		}
 		for (Field f : ifields) {
 			bcc.inheritsField(f.isFinal, f.access, f.type.javaName(), f.var);

@@ -91,9 +91,10 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
-import org.flasck.flas.parsedForm.assembly.Assembly;
+import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
@@ -319,16 +320,20 @@ public class Traverser implements RepositoryVisitor {
 //				visitUnitDataDeclaration(udd);
 		} else if (e instanceof StructField) {
 			visitStructFieldAccessor((StructField) e);
+		} else if (e instanceof ApplicationAssembly) {
+			visitAssembly((ApplicationAssembly) e);
+		} else if (e instanceof LibraryAssembly) {
+			;
+		} else if (e instanceof MockApplication) {
+			;
 		} else if (e instanceof ApplicationRouting) {
-			visitApplicationRouting((ApplicationRouting) e);
+			; 
 		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof IntroduceVar || e instanceof HandlerLambda ||
 				   e instanceof PolyType || e instanceof RequiresContract || e instanceof ObjectContract || e instanceof ImplementsContract ||
 				   e instanceof Template) {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof ContractMethodDecl) {
 			; // do nothing; added to repository for consistency reasons
-		} else if (e instanceof Assembly || e instanceof MockApplication) {
-			;
 		} else if (modules != null) {
 			boolean done = false;
 			for (TraverserModule m : modules) {
@@ -494,6 +499,16 @@ public class Traverser implements RepositoryVisitor {
 //		for (HandlerImplements ic : s.handlers)
 //			visitHandlerImplements(ic, s);
 		leaveAgentDefn(s);
+	}
+
+	public void visitAssembly(ApplicationAssembly e) {
+		visitor.visitAssembly(e);
+		visitApplicationRouting(e.routing());
+		leaveAssembly(e);
+	}
+
+	public void leaveAssembly(ApplicationAssembly e) {
+		visitor.leaveAssembly(e);
 	}
 
 	public void visitApplicationRouting(ApplicationRouting e) {

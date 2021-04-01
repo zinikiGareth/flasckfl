@@ -43,7 +43,7 @@ public class DoRouteGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveGotoRoute(GotoRoute gr) {
-		block.assertable(runner, "route", args.get(0), args.get(1));
+		block.assertable(runner, "route", args.get(0), args.get(1), args.get(2));
 		sv.result(null);
 	}
 }

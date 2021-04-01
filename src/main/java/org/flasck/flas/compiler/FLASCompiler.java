@@ -731,7 +731,7 @@ public class FLASCompiler implements CompileUnit {
 					
 					@Override
 					public String mainCard() {
-						return aa.mainCard();
+						return aa.mainCard().uniqueName();
 					}
 				});
 				asm.endInit();

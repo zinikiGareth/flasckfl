@@ -26,12 +26,12 @@ public class AssemblyName implements NameOfThing {
 
 	@Override
 	public String jsName() {
-		throw new NotImplementedException();
+		return pkg.jsName();
 	}
 
 	@Override
 	public String javaName() {
-		throw new NotImplementedException();
+		return pkg.javaName();
 	}
 
 	@Override
