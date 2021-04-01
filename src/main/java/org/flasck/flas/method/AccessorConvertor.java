@@ -15,7 +15,6 @@ import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -215,8 +214,8 @@ public class AccessorConvertor extends LeafAdapter {
 				return ret;
 			}
 		} else if (defn instanceof ApplicationRouting) {
-			ApplicationRouting ar = (ApplicationRouting) defn;
-			CardBinding cb = ar.getCard(meth.var);
+//			ApplicationRouting ar = (ApplicationRouting) defn;
+//			CardBinding cb = ar.getCard(meth.var);
 			expr.conversion(new ApplyExpr(expr.location, LoadBuiltins.probeState, expr.from, new StringLiteral(meth.location, meth.var)));
 			return ret;
 		} else

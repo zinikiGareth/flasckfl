@@ -183,5 +183,3 @@ src/golden/unittests/handlers
 src/golden/crobags/explicit
 src/golden/cards/templates/input
 src/golden/cascade/nested
-src/golden/routing/minimal
-src/golden/routing/simpleflow
