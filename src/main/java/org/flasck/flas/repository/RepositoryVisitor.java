@@ -60,6 +60,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
+import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
@@ -264,6 +265,8 @@ public interface RepositoryVisitor {
 	void leaveAssembly(ApplicationAssembly e);
 	void visitApplicationRouting(ApplicationRouting e);
 	void leaveApplicationRouting(ApplicationRouting e);
+	void visitSubRouting(SubRouting r);
+	void leaveSubRouting(SubRouting r);
 	void visitCardAssignment(CardBinding card);
 	void leaveCardBinding(CardBinding card);
 }

@@ -3,13 +3,13 @@ package org.flasck.flas.parsedForm.assembly;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.AssemblyName;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.assembly.ApplicationElementConsumer;
 import org.flasck.flas.parser.assembly.AssemblyDefinitionConsumer;
 
 public class ApplicationAssembly extends Assembly implements ApplicationElementConsumer {
 	private String title;
-	private CardName mainCard;
+	private TypeReference mainCard;
 	private ApplicationRouting routing;
 	private AssemblyDefinitionConsumer consumer;
 
@@ -23,8 +23,9 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 		this.title = s;
 	}
 	
-	public void mainCard(String s) {
-		this.mainCard = new CardName((PackageName) assemblyName.container(), s);
+	@Override
+	public void mainCard(TypeReference main) {
+		this.mainCard = main;
 	}
 	
 	@Override
@@ -38,7 +39,7 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 	}
 
 	public CardName mainCard() {
-		return mainCard;
+		return (CardName) mainCard.defn().name();
 	}
 
 	public ApplicationRouting routing() {

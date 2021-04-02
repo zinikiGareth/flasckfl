@@ -95,12 +95,13 @@ import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
+import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
+import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.MockApplication;
-import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
@@ -513,8 +514,26 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitApplicationRouting(ApplicationRouting e) {
 		visitor.visitApplicationRouting(e);
-		visitCardAssignment(e.getCard("main"));
+		CardBinding main = e.getCard("main");
+		if (main == null)
+			throw new CantHappenException("there is no binding for main");
+		visitCardAssignment(main);
+		for (SubRouting r : e.routes) {
+			visitSubRouting(r);
+		}
 		leaveApplicationRouting(e);
+	}
+
+	public void visitSubRouting(SubRouting r) {
+		visitor.visitSubRouting(r);
+		for (CardBinding cb : r.assignments) {
+			visitCardAssignment(cb);
+		}
+		leaveSubRouting(r);
+	}
+
+	public void leaveSubRouting(SubRouting r) {
+		visitor.leaveSubRouting(r);
 	}
 
 	public void visitCardAssignment(CardBinding card) {

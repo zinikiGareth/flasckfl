@@ -5,11 +5,13 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.assembly.RoutingActions;
+import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
@@ -49,18 +51,31 @@ public class TDARoutingParser implements TDAParsing {
 			consumer.exit(exit);
 			return new TDAEnterExitParser(errors, exit);
 		}
-		case "main": {
-			if (!(consumer instanceof MainRoutingGroupConsumer)) {
+		case "route": {
+			String s = StringToken.from(errors, toks);
+			if (s == null) {
+				errors.message(toks, "must specify a route path");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMoreContent()) {
+				errors.message(toks, "junk at end of line");
+				return new IgnoreNestedParser();
+			}
+			RoutingGroupConsumer group = new SubRouting(errors, s, consumer);
+			consumer.route(group);
+			return new TDARoutingParser(errors, group);
+		}
+		default: {
+			ExprToken op = ExprToken.from(errors, toks);
+			if (op == null || !"<-".equals(op.text)) {
+				errors.message(toks, "expected 'enter', 'at', 'exit', 'route' or card assignment");
+				return new IgnoreNestedParser();
+			}
+			if (kw.text.equals("main") && !(consumer instanceof MainRoutingGroupConsumer)) {
 				errors.message(kw.location, "main cannot be set here");
 				return new IgnoreNestedParser();
-			}
-			ExprToken op = ExprToken.from(errors, toks);
-			if (op == null) {
-				errors.message(toks, "syntax error");
-				return new IgnoreNestedParser();
-			}
-			if (!"<-".equals(op.text)) {
-				errors.message(toks, "syntax error");
+			} else if (!kw.text.equals("main") && (consumer instanceof MainRoutingGroupConsumer)) {
+				errors.message(kw.location, "top level card must be called main");
 				return new IgnoreNestedParser();
 			}
 			TypeNameToken card = TypeNameToken.qualified(toks);
@@ -68,18 +83,15 @@ public class TDARoutingParser implements TDAParsing {
 				errors.message(toks, "card name required");
 				return new IgnoreNestedParser();
 			}
-			TypeReference tr = new TypeReference(card.location, card.text);
-			((MainRoutingGroupConsumer) consumer).provideMainCard(tr);
-			consumer.assignCard(new UnresolvedVar(kw.location, kw.text), tr);
 			if (toks.hasMoreContent()) {
 				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser();
 			}
+			TypeReference tr = new TypeReference(card.location, card.text);
+			consumer.assignCard(new UnresolvedVar(kw.location, kw.text), tr);
+			if (consumer instanceof MainRoutingGroupConsumer)
+				((MainRoutingGroupConsumer) consumer).provideMainCard(tr);
 			return new NoNestingParser(errors);
-		}
-		default: {
-			errors.message(toks, "expected 'main', 'enter', 'at', 'exit' or 'route'");
-			return new IgnoreNestedParser();
 		}
 		}
 	}

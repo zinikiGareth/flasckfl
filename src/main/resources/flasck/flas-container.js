@@ -16,9 +16,10 @@ Application.prototype.gotoRoute = function(_cxt, r) {
 			var m = a.action;
 			if (ctr[m]) {
 				var msgs;
-				if (a.value)
-					msgs = ctr[m](_cxt, a.value);
+				if (a.str)
+					msgs = ctr[m](_cxt, a.str);
 				// TODO: else if (a.parameter)
+				// TODO: else if (a.ref) // a card ref
 				else
 					msgs = ctr[m](_cxt);
 				_cxt.env.queueMessages(_cxt, msgs);

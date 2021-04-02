@@ -51,19 +51,15 @@ public class ApplicationRouting extends SubRouting implements MainRoutingGroupCo
 		}
 	}
 
-	private final ErrorReporter errors;
 	private final InputPosition location;
 	private final NameOfThing packageName;
 	private final NameOfThing name;
 	private final ApplicationElementConsumer consumer;
 	private final Map<String, CardBinding> cards = new HashMap<>();
 	public boolean sawMainCard;
-	public RoutingActions enter;
-	public RoutingActions exit;
 
 	public ApplicationRouting(ErrorReporter errors, InputPosition location, NameOfThing packageName, AssemblyName name, ApplicationElementConsumer consumer) {
-		super(null);
-		this.errors = errors;
+		super(errors, null, null);
 		this.location = location;
 		this.packageName = packageName;
 		this.name = name;
@@ -85,46 +81,25 @@ public class ApplicationRouting extends SubRouting implements MainRoutingGroupCo
 	}
 
 	@Override
-	public void assignCard(UnresolvedVar var, TypeReference cardType) {
-		main.nameCard(var, cardType);
-	}
-
-	@Override
 	public void provideMainCard(TypeReference main) {
 		if (sawMainCard) {
 			errors.message(main.location(), "duplicate assignment to main card");
 			return;
 		}
 		sawMainCard = true;
-		consumer.mainCard(main.name());
+		consumer.mainCard(main);
 	}
 
 	@Override
-	public void nameCard(UnresolvedVar var, TypeReference cardType) {
+	public CardBinding nameCard(UnresolvedVar var, TypeReference cardType) {
 		String s = var.var;
+		CardBinding ret = new CardBinding(var, cardType);
 		if (cards.containsKey(s)) {
 			errors.message(var.location(), "duplicate card binding of " + s);
-			return;
+			return ret;
 		}
-		cards.put(s, new CardBinding(var, cardType));
-	}
-
-	@Override
-	public void enter(RoutingActions actions) {
-		if (this.enter != null) {
-			errors.message(actions.location(), "duplicate specification of enter");
-			return;
-		}
-		this.enter = actions;
-	}
-
-	@Override
-	public void exit(RoutingActions actions) {
-		if (this.exit != null) {
-			errors.message(actions.location(), "duplicate specification of exit");
-			return;
-		}
-		this.exit = actions;
+		cards.put(s, ret);
+		return ret;
 	}
 
 	public CardBinding getCard(String var) {

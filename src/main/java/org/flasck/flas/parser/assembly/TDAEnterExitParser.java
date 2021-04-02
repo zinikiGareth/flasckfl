@@ -64,7 +64,7 @@ public class TDAEnterExitParser implements TDAParsing {
 				if ("load".equals(meth.text))
 					consumer.load(card, expr.get(0));
 				else
-					consumer.next(card, expr.get(0));
+					consumer.nest(card, expr.get(0));
 				break;
 			}
 			case "done": {

@@ -7,9 +7,12 @@ import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.assembly.RoutingAction;
 import org.flasck.flas.parsedForm.assembly.RoutingActions;
+import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -17,6 +20,7 @@ import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class ApplRoutingTable {
 	private final NameOfThing applName;
@@ -32,36 +36,80 @@ public class ApplRoutingTable {
 		IndentWriter jw = iw.indent();
 		jw.println("return {");
 		IndentWriter kw = jw.indent();
-		kw.println("enter: [");
-		handleActions(kw.indent(), routes.enter);
-		kw.println("],");
-		kw.println("exit: [");
-		handleActions(kw.indent(), routes.enter);
-		kw.println("],");
-		kw.println("routes: [");
-		kw.println("]");
+		common(kw, routes);
 		jw.println("};");
 		iw.println("};");
+	}
+
+	private void common(IndentWriter kw, SubRouting r) {
+		kw.println("enter: [");
+		handleActions(kw.indent(), r.enter);
+		kw.println("],");
+		kw.println("exit: [");
+		handleActions(kw.indent(), r.exit);
+		kw.println("],");
+		kw.println("routes: [");
+		handleRoutes(kw.indent(), r.routes);
+		kw.println("]");
 	}
 
 	private void handleActions(IndentWriter lw, RoutingActions actions) {
 		if (actions == null)
 			return;
-		String sep = "";
+		boolean sep = false;
 		for (RoutingAction ra : actions.actions) {
+			if (sep)
+				lw.println(",");
+			sep = true;
 			lw.print("{ ");
 			lw.print("action: '" + ra.action + "', ");
-			lw.print("card: '" + ra.card.var +"', ");
+			lw.print("card: '" + ra.card.var + "'");
 			if (ra.expr != null) {
-				// I think, in principle, we should be able to support expressions, not just strings
-				// but this is all hard enough without dealing with that right now, and they have turingness inside load
-				StringLiteral sl = (StringLiteral) ra.expr;
-				// TODO: if string starts with {, it is a parameter and should be parameter: name without {} instead
-				lw.print("value: '" + sl.text + "'");
+				if (ra.expr instanceof StringLiteral) {
+					StringLiteral sl = (StringLiteral) ra.expr;
+					// TODO: if string starts with {, it is a parameter and should be parameter: name without {} instead
+					lw.print(", str: '" + sl.text + "'");
+				} else if (ra.expr instanceof UnresolvedVar) {
+					// for now assume it's a card in the current card list thing
+					UnresolvedVar uv = (UnresolvedVar) ra.expr;
+					lw.print(", ref: '" + uv.var + "'");
+				}
 			}
-			lw.println(" }" + sep);
-			sep = ",";
+			lw.print(" }");
 		}
+		lw.println("");
+	}
+
+	private void handleRoutes(IndentWriter lw, List<SubRouting> routes) {
+		if (routes.isEmpty())
+			return;
+		boolean sep = false;
+		for (SubRouting r : routes) {
+			if (sep)
+				lw.println(",");
+			sep = true;
+			lw.println("{");
+			IndentWriter mw = lw.indent();
+			mw.println("path: '" + r.path + "', ");
+			mw.println("cards: [");
+			boolean s2 = false;
+			IndentWriter nw = mw.indent();
+			for (CardBinding ca : r.assignments) {
+				if (s2)
+					nw.println(",");
+				nw.print("{ ");
+				nw.print("name: '" + ca.var.var + "', ");
+				nw.print("card: " + ca.cardType.defn().name().jsName());
+				nw.print(" }");
+			}
+			nw.println("");
+			mw.println("],");
+			
+			common(mw, r);
+			
+			lw.print("}");
+		}
+		lw.println("");
 	}
 
 	public void generate(ByteCodeEnvironment bce) {
@@ -76,9 +124,14 @@ public class ApplRoutingTable {
 		Var v = meth.avar(Map.class.getName(), "ret");
 		meth.assign(v, meth.makeNew(TreeMap.class.getName())).flush();
 
-		genActions(meth, v, "enter", routes.enter);
-		genActions(meth, v, "exit", routes.exit);
+		jvmcommon(meth, v, routes);
 		meth.returnObject(v).flush();
+	}
+
+	private void jvmcommon(NewMethodDefiner meth, Var v, SubRouting r) {
+		genActions(meth, v, "enter", r.enter);
+		genActions(meth, v, "exit", r.exit);
+		genRoutes(meth, v, r.routes);
 	}
 	
 	private void genActions(NewMethodDefiner meth, Var v, String label, RoutingActions actions) {
@@ -87,14 +140,45 @@ public class ApplRoutingTable {
 		Var list = meth.avar(List.class.getName(), "actions");
 		meth.assign(list, meth.makeNew(ArrayList.class.getName())).flush();
 		for (RoutingAction ra : actions.actions) {
-			StringLiteral sl = (StringLiteral) ra.expr;
-			if (sl != null) { // also consider parameters
-				meth.voidExpr(meth.callInterface(J.OBJECT, list, "add", meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), meth.stringConst(sl.text)))).flush();
-			} else {
+			if (ra.expr == null) {
 				meth.voidExpr(meth.callInterface(J.OBJECT, list, "add", meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var)))).flush();
-			}
+			} else if (ra.expr instanceof StringLiteral) {
+				StringLiteral sl = (StringLiteral) ra.expr;
+				meth.voidExpr(meth.callInterface(J.OBJECT, list, "add", meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), meth.stringConst(sl.text)))).flush();
+			} else if (ra.expr instanceof UnresolvedVar) {
+				UnresolvedVar uv = (UnresolvedVar) ra.expr;
+				meth.voidExpr(meth.callInterface(J.OBJECT, list, "add", meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), meth.stringConst(uv.var)))).flush();
+			} else
+				throw new NotImplementedException();
 		}
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(label), J.OBJECT), meth.as(list, J.OBJECT))).flush();
+	}
+
+	private void genRoutes(NewMethodDefiner meth, Var v, List<SubRouting> routes) {
+		Var list = meth.avar(List.class.getName(), "routes");
+		meth.assign(list, meth.makeNew(ArrayList.class.getName())).flush();
+		for (SubRouting r : routes) {
+			Var inner = meth.avar(Map.class.getName(), "inner");
+			meth.assign(inner, meth.makeNew(TreeMap.class.getName())).flush();
+			meth.voidExpr(meth.callInterface(J.OBJECT, list, "add", inner)).flush();
+			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("path"), J.OBJECT), meth.as(meth.stringConst(r.path), J.OBJECT))).flush();
+			Var cards = meth.avar(List.class.getName(), "cards");
+			meth.assign(cards, meth.makeNew(ArrayList.class.getName())).flush();
+			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("cards"), J.OBJECT), meth.as(cards, J.OBJECT))).flush();
+			
+			for (CardBinding ca : r.assignments) {
+				meth.voidExpr(meth.callInterface(J.OBJECT, cards, "add", meth.makeNew(J.FLCARDASSIGNMENT, meth.stringConst(ca.var.var), meth.stringConst(ca.cardType.defn().name().javaName())))).flush();
+//				if (s2)
+//					nw.println(",");
+//				nw.print("{ ");
+//				nw.print("name: '" + ca.var.var + "', ");
+//				nw.print("card: " + ca.cardType.defn().name().jsName());
+//				nw.print(" }");
+			}
+			
+			jvmcommon(meth, inner, r);
+		}
+		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("routes"), J.OBJECT), meth.as(list, J.OBJECT))).flush();
 	}
 
 		/*

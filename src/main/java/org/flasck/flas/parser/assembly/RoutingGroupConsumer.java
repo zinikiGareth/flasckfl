@@ -8,5 +8,5 @@ public interface RoutingGroupConsumer {
 	void assignCard(UnresolvedVar var, TypeReference cardType);
 	void enter(RoutingActions actions);
 	void exit(RoutingActions actions);
-	// sub route
+	void route(RoutingGroupConsumer group);
 }
