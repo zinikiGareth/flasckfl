@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
@@ -14,7 +13,6 @@ import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
@@ -76,15 +74,15 @@ public class TDAEnterExitParser implements TDAParsing {
 			}
 			break;
 		}
-		case "<-": {
-			TypeNameToken cardName = TypeNameToken.qualified(toks);
-			if (cardName == null) {
-				errors.message(toks, "card name required");
-				return new IgnoreNestedParser();
-			}
-			consumer.assignCard(card, new TypeReference(cardName.location, cardName.text));
-			break;
-		}
+//		case "<-": {
+//			TypeNameToken cardName = TypeNameToken.qualified(toks);
+//			if (cardName == null) {
+//				errors.message(toks, "card name required");
+//				return new IgnoreNestedParser();
+//			}
+//			consumer.assignCard(card, new TypeReference(cardName.location, cardName.text));
+//			break;
+//		}
 		default: {
 			errors.message(toks, "expected . or <-");
 			return new NoNestingParser(errors);

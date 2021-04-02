@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -14,9 +15,9 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class TDARoutingParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final RoutingActionConsumer consumer;
+	private final RoutingGroupConsumer consumer;
 
-	public TDARoutingParser(ErrorReporter errors, RoutingActionConsumer consumer) {
+	public TDARoutingParser(ErrorReporter errors, RoutingGroupConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
 	}
@@ -35,17 +36,21 @@ public class TDARoutingParser implements TDAParsing {
 				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser();
 			}
-			return new TDAEnterExitParser(errors, consumer);
+			RoutingActions enter = new RoutingActions(kw.location);
+			consumer.enter(enter);
+			return new TDAEnterExitParser(errors, enter);
 		}
 		case "exit": {
 			if (toks.hasMoreContent()) {
 				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser();
 			}
-			return new TDAEnterExitParser(errors, consumer);
+			RoutingActions exit = new RoutingActions(kw.location);
+			consumer.exit(exit);
+			return new TDAEnterExitParser(errors, exit);
 		}
 		case "main": {
-			if (!(consumer instanceof MainRoutingActionConsumer)) {
+			if (!(consumer instanceof MainRoutingGroupConsumer)) {
 				errors.message(kw.location, "main cannot be set here");
 				return new IgnoreNestedParser();
 			}
@@ -64,7 +69,7 @@ public class TDARoutingParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			TypeReference tr = new TypeReference(card.location, card.text);
-			((MainRoutingActionConsumer) consumer).provideMainCard(tr);
+			((MainRoutingGroupConsumer) consumer).provideMainCard(tr);
 			consumer.assignCard(new UnresolvedVar(kw.location, kw.text), tr);
 			if (toks.hasMoreContent()) {
 				errors.message(toks, "junk at end of line");

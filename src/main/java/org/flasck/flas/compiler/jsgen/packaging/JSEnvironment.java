@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.jvm.ziniki.ContentObject;
@@ -140,6 +141,12 @@ public class JSEnvironment implements JSStorage {
 	public void eventMap(NameOfThing name, EventTargetZones eventMethods) {
 		JSFile inpkg = getPackage(name.packageName().uniqueName());
 		inpkg.eventMap(name, eventMethods);
+	}
+
+	@Override
+	public void applRouting(NameOfThing name, ApplicationRouting routes) {
+		JSFile inpkg = getPackage(name.packageName().uniqueName());
+		inpkg.applRouting(name, routes);
 	}
 
 	public JSFile getPackage(String pkg) {

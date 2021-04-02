@@ -13,13 +13,13 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.assembly.ApplicationElementConsumer;
-import org.flasck.flas.parser.assembly.MainRoutingActionConsumer;
+import org.flasck.flas.parser.assembly.MainRoutingGroupConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ApplicationRouting extends SubRouting implements MainRoutingActionConsumer, NamedType {
+public class ApplicationRouting extends SubRouting implements MainRoutingGroupConsumer, NamedType {
 	public class CardBinding implements RepositoryEntry {
 		public final UnresolvedVar var;
 		public final TypeReference cardType;
@@ -58,6 +58,8 @@ public class ApplicationRouting extends SubRouting implements MainRoutingActionC
 	private final ApplicationElementConsumer consumer;
 	private final Map<String, CardBinding> cards = new HashMap<>();
 	public boolean sawMainCard;
+	public RoutingActions enter;
+	public RoutingActions exit;
 
 	public ApplicationRouting(ErrorReporter errors, InputPosition location, NameOfThing packageName, AssemblyName name, ApplicationElementConsumer consumer) {
 		super(null);
@@ -83,6 +85,11 @@ public class ApplicationRouting extends SubRouting implements MainRoutingActionC
 	}
 
 	@Override
+	public void assignCard(UnresolvedVar var, TypeReference cardType) {
+		main.nameCard(var, cardType);
+	}
+
+	@Override
 	public void provideMainCard(TypeReference main) {
 		if (sawMainCard) {
 			errors.message(main.location(), "duplicate assignment to main card");
@@ -100,6 +107,24 @@ public class ApplicationRouting extends SubRouting implements MainRoutingActionC
 			return;
 		}
 		cards.put(s, new CardBinding(var, cardType));
+	}
+
+	@Override
+	public void enter(RoutingActions actions) {
+		if (this.enter != null) {
+			errors.message(actions.location(), "duplicate specification of enter");
+			return;
+		}
+		this.enter = actions;
+	}
+
+	@Override
+	public void exit(RoutingActions actions) {
+		if (this.exit != null) {
+			errors.message(actions.location(), "duplicate specification of exit");
+			return;
+		}
+		this.exit = actions;
 	}
 
 	public CardBinding getCard(String var) {

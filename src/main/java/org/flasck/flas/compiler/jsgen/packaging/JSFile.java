@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.templates.EventTargetZones;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.collections.ListMap;
@@ -27,6 +28,7 @@ public class JSFile {
 	private final List<JSMethod> functions = new ArrayList<>();
 	private final List<MethodList> methodLists = new ArrayList<>();
 	private final List<EventMap> eventMaps = new ArrayList<>();
+	private final List<ApplRoutingTable> routes = new ArrayList<>();
 
 	public JSFile(String pkg, File file) {
 		this.pkg = pkg;
@@ -55,6 +57,10 @@ public class JSFile {
 
 	public void eventMap(NameOfThing name, EventTargetZones etz) {
 		eventMaps.add(new EventMap(name, etz));
+	}
+
+	public void applRouting(NameOfThing name, ApplicationRouting routes) {
+		this.routes.add(new ApplRoutingTable(name, routes));
 	}
 
 	// untested
@@ -93,6 +99,8 @@ public class JSFile {
 			m.write(iw);
 		for (EventMap m : eventMaps)
 			m.write(iw);
+		for (ApplRoutingTable r : routes)
+			r.write(iw);
 	}
 
 	public void generate(ByteCodeEnvironment bce) {
@@ -106,6 +114,8 @@ public class JSFile {
 //			m.write(iw);
 		for (EventMap m : eventMaps)
 			m.generate(bce);
+		for (ApplRoutingTable r : routes)
+			r.generate(bce);
 	}
 
 	private void declareContainingPackage(IndentWriter iw, JSMethod f) {

@@ -1,17 +1,16 @@
 package org.flasck.flas.parsedForm.assembly;
 
 import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.parser.assembly.MainRoutingActionConsumer;
+import org.flasck.flas.parser.assembly.MainRoutingGroupConsumer;
 import org.flasck.flas.parser.assembly.RoutingActionConsumer;
 
 public class SubRouting implements RoutingActionConsumer {
-	private final MainRoutingActionConsumer main;
+	protected final MainRoutingGroupConsumer main;
 
-	public SubRouting(MainRoutingActionConsumer main) {
+	public SubRouting(MainRoutingGroupConsumer main) {
 		if (main == null)
-			this.main = (MainRoutingActionConsumer) this;
+			this.main = (MainRoutingGroupConsumer) this;
 		else
 			this.main = main;
 	}
@@ -19,18 +18,13 @@ public class SubRouting implements RoutingActionConsumer {
 	@Override
 	public void load(UnresolvedVar card, Expr expr) {
 		// TODO Auto-generated method stub
-
+System.out.println("hello");
 	}
 
 	@Override
 	public void next(UnresolvedVar card, Expr expr) {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public void assignCard(UnresolvedVar var, TypeReference cardType) {
-		main.nameCard(var, cardType);
 	}
 
 	@Override

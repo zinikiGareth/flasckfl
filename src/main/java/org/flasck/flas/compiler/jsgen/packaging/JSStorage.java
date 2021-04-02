@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.jvm.ziniki.ContentObject;
@@ -28,6 +29,7 @@ public interface JSStorage {
 	JSMethodCreator newFunction(NameOfThing fnName, String pkg, NameOfThing cxt, boolean inPrototype, String name);
 	void methodList(NameOfThing name, List<FunctionName> methods);
 	void eventMap(NameOfThing name, EventTargetZones eventMethods);
+	void applRouting(NameOfThing name, ApplicationRouting routes);
 
 	Iterable<File> files();
 	File fileFor(String s);
