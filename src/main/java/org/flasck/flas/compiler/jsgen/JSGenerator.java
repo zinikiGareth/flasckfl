@@ -77,6 +77,7 @@ import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.jvm.J;
+import org.flasck.jvm.fl.ClientContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.JavaInfo.Access;
@@ -924,9 +925,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	public void visitAssembly(ApplicationAssembly e) {
 		JSClassCreator clz = jse.newClass(e.name().uniqueName(), new SolidName(e.name(), "_Application"));
 		clz.inheritsFrom(new PackageName("Application"), J.FLAPPLICATION);
-		clz.constructor().argument(J.FLEVALCONTEXT, "_cxt");
-		clz.inheritsField(false, Access.PROTECTED, new PackageName(J.CLASS), "mainCard");
 		JSMethodCreator ctor = clz.constructor();
+		JSVar cc = ctor.argument(ClientContext.class.getName(), "_cxt");
+		JSVar div = ctor.argument(J.ELEMENT, "div");
+		ctor.superArg(cc);
+		ctor.superArg(div);
+		clz.inheritsField(false, Access.PROTECTED, new PackageName(J.CLASS), "mainCard");
 		ctor.setField(new JSThis(), "mainCard", new JSClassName(e.mainCard()));
 		ctor.returnVoid();
 		if (e.routing() != null)

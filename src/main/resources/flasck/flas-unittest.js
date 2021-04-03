@@ -108,7 +108,7 @@ UTRunner.prototype.render = function(_cxt, target, fn, template) {
 	sendTo.redraw(_cxt);
 }
 UTRunner.prototype.findMockFor = function(obj) {
-	if (obj instanceof MockFLObject || obj instanceof MockCard)
+	if (obj instanceof MockFLObject || obj instanceof MockCard || obj instanceof MockAppl)
 		return obj;
 	var ks = Object.keys(this.mocks);
 	for (var i=0;i<ks.length;i++) {
@@ -669,15 +669,22 @@ MockAjaxService.prototype.subscribe = function(_cxt, uri, options, handler) {
 }
 
 const MockAppl = function(_cxt, clz) {
-	this.appl = new clz._Application(_cxt);
+	const newdiv = document.createElement("div");
+	newdiv.setAttribute("id", _cxt.nextDocumentId());
+	document.body.appendChild(newdiv);
+	this.appl = new clz._Application(_cxt, newdiv);
 }
 MockAppl.prototype.route = function(_cxt, r) {
 	this.appl.gotoRoute(_cxt, r);
+	this.appl._updateDisplay(_cxt, this.appl._currentRenderTree());
 }
 MockAppl.prototype.bindCards = function(_cxt, iv) {
 	var binding = {};
 	binding["main"] = this.appl.cards["main"];
 	iv.bindActual({ routes: binding });
+}
+MockAppl.prototype._currentRenderTree = function() {
+	return this.appl._currentRenderTree();
 }
 
 // Connect to ChromeTestRunner

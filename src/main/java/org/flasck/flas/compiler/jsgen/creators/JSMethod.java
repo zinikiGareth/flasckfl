@@ -33,7 +33,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	private int nextVar = 1;
 	private boolean wantArgumentList = false;
 	private String returnsA = J.OBJECT;
-	private List<JSExpr> superArgs = new ArrayList<>();
+	public List<JSExpr> superArgs = new ArrayList<>();
 	private boolean hasHandler;
 	private boolean genJS = true;
 	private boolean genJVM = true;
@@ -118,7 +118,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 	
 	public void inheritFrom(NameOfThing baseClass) {
-		stmts.add(new JSInheritFrom(baseClass));
+		stmts.add(new JSInheritFrom(this, baseClass));
 	}
 
 	@Override

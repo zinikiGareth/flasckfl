@@ -17,6 +17,8 @@ public class JSString implements JSExpr {
 
 	@Override
 	public String asVar() {
+		if (text == null)
+			return null;
 		StringBuilder ret = new StringBuilder(text);
 		int idx = -1;
 		for(;;) {

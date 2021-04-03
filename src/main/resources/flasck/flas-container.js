@@ -1,6 +1,7 @@
 
 
-const Application = function(_cxt) {
+const Application = function(_cxt, topdiv) {
+	this.topdiv = topdiv;
 	this.cards = {};
 }
 
@@ -8,6 +9,7 @@ Application.prototype.gotoRoute = function(_cxt, r) {
 	var routing = this._routing();
 	console.log("routing ", routing);
 	var card = new this.mainCard(_cxt);
+	card._renderInto(_cxt, this.topdiv);
 
 	var ctr = _cxt.findContractOnCard(card, "Lifecycle");
 	if (ctr) {
@@ -29,6 +31,20 @@ Application.prototype.gotoRoute = function(_cxt, r) {
 
 	// the main card is always called "main"
 	this.cards.main = card;
+}
+
+Application.prototype._currentRenderTree = function() {
+	var card = this.cards.main;
+	if (card == null)
+		return null;
+	return card._currentRenderTree();
+}
+
+Application.prototype._updateDisplay = function(_cxt, rt) {
+	var card = this.cards.main;
+	if (card == null)
+		return;
+	card._updateDisplay(_cxt, rt);
 }
 
 	window.Application = Application;
