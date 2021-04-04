@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -17,6 +18,7 @@ import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.GenericAnnotator;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -124,109 +126,58 @@ public class ApplRoutingTable {
 		Var v = meth.avar(Map.class.getName(), "ret");
 		meth.assign(v, meth.makeNew(TreeMap.class.getName())).flush();
 
-		jvmcommon(meth, v, routes);
+		AtomicInteger rn = new AtomicInteger(0);
+		jvmcommon(meth, v, routes, rn);
 		meth.returnObject(v).flush();
 	}
 
-	private void jvmcommon(NewMethodDefiner meth, Var v, SubRouting r) {
-		genActions(meth, v, "enter", r.enter);
-		genActions(meth, v, "exit", r.exit);
-		genRoutes(meth, v, r.routes);
+	private void jvmcommon(NewMethodDefiner meth, Var v, SubRouting r, AtomicInteger rn) {
+		genActions(meth, v, "enter", r.enter, rn);
+		genActions(meth, v, "exit", r.exit, rn);
+		genRoutes(meth, v, r.routes, rn);
 	}
 	
-	private void genActions(NewMethodDefiner meth, Var v, String label, RoutingActions actions) {
+	private void genActions(NewMethodDefiner meth, Var v, String label, RoutingActions actions, AtomicInteger rn) {
 		if (actions == null)
 			return;
-		Var list = meth.avar(List.class.getName(), "actions");
+		Var list = meth.avar(List.class.getName(), "actions_" + rn.incrementAndGet());
 		meth.assign(list, meth.makeNew(ArrayList.class.getName())).flush();
 		for (RoutingAction ra : actions.actions) {
+			IExpr mn;
 			if (ra.expr == null) {
-				meth.voidExpr(meth.callInterface(J.OBJECT, list, "add", meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var)))).flush();
+				mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var));
 			} else if (ra.expr instanceof StringLiteral) {
 				StringLiteral sl = (StringLiteral) ra.expr;
-				meth.voidExpr(meth.callInterface(J.OBJECT, list, "add", meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), meth.stringConst(sl.text)))).flush();
+				mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), meth.as(meth.stringConst(sl.text), J.OBJECT));
 			} else if (ra.expr instanceof UnresolvedVar) {
 				UnresolvedVar uv = (UnresolvedVar) ra.expr;
-				meth.voidExpr(meth.callInterface(J.OBJECT, list, "add", meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), meth.stringConst(uv.var)))).flush();
+				mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), meth.as(meth.stringConst(uv.var), J.OBJECT));
 			} else
 				throw new NotImplementedException();
+			meth.voidExpr(meth.callInterface("boolean", list, "add", meth.as(mn, J.OBJECT))).flush();
 		}
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(label), J.OBJECT), meth.as(list, J.OBJECT))).flush();
 	}
 
-	private void genRoutes(NewMethodDefiner meth, Var v, List<SubRouting> routes) {
-		Var list = meth.avar(List.class.getName(), "routes");
+	private void genRoutes(NewMethodDefiner meth, Var v, List<SubRouting> routes, AtomicInteger rn) {
+		Var list = meth.avar(List.class.getName(), "routes_" + rn.incrementAndGet());
 		meth.assign(list, meth.makeNew(ArrayList.class.getName())).flush();
 		for (SubRouting r : routes) {
-			Var inner = meth.avar(Map.class.getName(), "inner");
+			Var inner = meth.avar(Map.class.getName(), "inner_" + rn.incrementAndGet());
 			meth.assign(inner, meth.makeNew(TreeMap.class.getName())).flush();
-			meth.voidExpr(meth.callInterface(J.OBJECT, list, "add", inner)).flush();
-			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("path"), J.OBJECT), meth.as(meth.stringConst(r.path), J.OBJECT))).flush();
-			Var cards = meth.avar(List.class.getName(), "cards");
+			meth.voidExpr(meth.callInterface("boolean", list, "add", meth.as(inner, J.OBJECT))).flush();
+			meth.voidExpr(meth.callInterface(J.OBJECT, inner, "put", meth.as(meth.stringConst("path"), J.OBJECT), meth.as(meth.stringConst(r.path), J.OBJECT))).flush();
+			Var cards = meth.avar(List.class.getName(), "cards_" + rn.incrementAndGet());
 			meth.assign(cards, meth.makeNew(ArrayList.class.getName())).flush();
-			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("cards"), J.OBJECT), meth.as(cards, J.OBJECT))).flush();
+			meth.voidExpr(meth.callInterface(J.OBJECT, inner, "put", meth.as(meth.stringConst("cards"), J.OBJECT), meth.as(cards, J.OBJECT))).flush();
 			
 			for (CardBinding ca : r.assignments) {
-				meth.voidExpr(meth.callInterface(J.OBJECT, cards, "add", meth.makeNew(J.FLCARDASSIGNMENT, meth.stringConst(ca.var.var), meth.stringConst(ca.cardType.defn().name().javaName())))).flush();
-//				if (s2)
-//					nw.println(",");
-//				nw.print("{ ");
-//				nw.print("name: '" + ca.var.var + "', ");
-//				nw.print("card: " + ca.cardType.defn().name().jsName());
-//				nw.print(" }");
+				IExpr mn = meth.makeNew(J.FLCARDASSIGNMENT, meth.stringConst(ca.var.var), meth.stringConst(ca.cardType.defn().name().javaName()));
+				meth.voidExpr(meth.callInterface("boolean", cards, "add", meth.as(mn, J.OBJECT))).flush();
 			}
 			
-			jvmcommon(meth, inner, r);
+			jvmcommon(meth, inner, r, rn);
 		}
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("routes"), J.OBJECT), meth.as(list, J.OBJECT))).flush();
 	}
-
-		/*
-		for (String t : methods.templateNames()) {
-			Var hl = meth.avar(List.class.getName(), "hl");
-			meth.assign(hl, meth.makeNew(ArrayList.class.getName())).flush();
-			for (TemplateTarget tt : methods.targets(t)) {
-				HandlerInfo hi = methods.getHandler(tt.handler);
-				IExpr classArgs = meth.arrayOf(Class.class.getName(), meth.classConst(J.FLEVALCONTEXT),
-						meth.classConst("[L" + J.OBJECT + ";"));
-				IExpr ehm = meth.callVirtual(Method.class.getName(),
-						meth.classConst(cardName.javaName()), "getDeclaredMethod",
-						meth.stringConst(hi.name.name), classArgs);
-
-				IExpr ety, esl;
-				if (tt.type != null) {
-					ety = meth.stringConst(tt.type);
-					esl = meth.stringConst(tt.slot);
-				} else {
-					ety = meth.as(meth.aNull(), J.STRING);
-					esl = meth.as(meth.aNull(), J.STRING);
-				}
-				IExpr icond;
-				if (tt.evcond != null) {
-					icond = meth.box(meth.intConst(tt.evcond));
-				} else
-					icond = meth.as(meth.aNull(), J.INTEGER);
-				IExpr ghi = meth.makeNew(J.HANDLERINFO, ety, esl, meth.box(meth.intConst(tt.option)), meth.stringConst(hi.event), ehm, icond);
-				meth.voidExpr(meth.callInterface("boolean", hl, "add", meth.as(ghi, J.OBJECT))).flush();
-			}
-			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(t), J.OBJECT), meth.as(hl, J.OBJECT))).flush();
-		}
-
-		if (!methods.unboundHandlers().isEmpty()) {
-			Var hl = meth.avar(List.class.getName(), "hl");
-			meth.assign(hl, meth.makeNew(ArrayList.class.getName())).flush();
-			for (HandlerInfo hi : methods.unboundHandlers()) {
-				IExpr classArgs = meth.arrayOf(Class.class.getName(), meth.classConst(J.FLEVALCONTEXT),
-						meth.classConst("[L" + J.OBJECT + ";"));
-				IExpr ehm = meth.callVirtual(Method.class.getName(), meth.classConst(cardName.javaName()),
-						"getDeclaredMethod", meth.stringConst(hi.name.name), classArgs);
-				IExpr ghi = meth.makeNew(J.HANDLERINFO, meth.as(meth.aNull(), J.STRING),
-						meth.as(meth.aNull(), J.STRING), meth.as(meth.aNull(), J.INTEGER),
-						meth.stringConst(hi.event), ehm, meth.as(meth.aNull(), J.INTEGER));
-				meth.voidExpr(meth.callInterface("boolean", hl, "add", meth.as(ghi, J.OBJECT))).flush();
-			}
-			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("_"), J.OBJECT), meth.as(hl, J.OBJECT))).flush();
-		}
-
-		*/
 }
