@@ -2230,7 +2230,8 @@ public class Traverser implements RepositoryVisitor {
 		visitor.visitGotoRoute(gr);
 		visitExpr(gr.app, 0);
 		visitExpr(gr.route, 0);
-		visitExpr(gr.iv, 0);
+		if (gr.iv != null)
+			visitExpr(gr.iv, 0);
 		leaveGotoRoute(gr);
 	}
 

@@ -6,7 +6,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.parsedForm.IntroduceVar;
+import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -33,17 +33,18 @@ public class DoRouteGenerator extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void visitIntroduceVar(IntroduceVar var) {
-	}
-
-	@Override
 	public void result(Object r) {
 		args.add((JSExpr)r);
 	}
 	
 	@Override
 	public void leaveGotoRoute(GotoRoute gr) {
-		block.assertable(runner, "route", args.get(0), args.get(1), args.get(2));
+		JSExpr bv;
+		if (args.size() > 2)
+			bv = args.get(2);
+		else
+			bv = new JSLiteral("null");
+		block.assertable(runner, "route", args.get(0), args.get(1), bv);
 		sv.result(null);
 	}
 }

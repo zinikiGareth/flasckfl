@@ -1070,6 +1070,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 
 	@Override
 	public void visitGotoRoute(GotoRoute gr) {
+		if (gr.iv == null)
+			return;
+		
 		ApplicationRouting ar = repository.get(scope.packageName().uniqueName() + "_Routing");
 		if (ar != null) {
 			gr.iv.bindType(ar);

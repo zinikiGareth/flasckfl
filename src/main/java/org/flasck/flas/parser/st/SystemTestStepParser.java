@@ -179,43 +179,47 @@ public class SystemTestStepParser extends TestStepParser {
 			return new IgnoreNestedParser();
 		}
 		UnresolvedVar app = new UnresolvedVar(tok.location, tok.text);
+		Tokenizable ec;
 		int k = toks.find("->");
 		if (k == -1) {
-			errors.message(toks.locationAtText(toks.length()), "expected ->");
-			return new NoNestingParser(errors);
-		}
-		Tokenizable ec = toks.cropAt(k);
+			ec = toks;
+		} else
+			ec = toks.cropAt(k);
 		List<Expr> expr = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
 			expr.add(e);
 		}).tryParsing(ec);
-
-		toks.reset(k);
+		
 		if (expr.size() != 1) {
 			errors.message(toks, "expression expected");
 			return new NoNestingParser(errors);
 		}
+
 		Expr route = expr.get(0);
-		ExprToken arrow = ExprToken.from(errors, toks);
-		if (arrow == null) {
-			errors.message(toks, "expected ->");
-			return new NoNestingParser(errors);
+		IntroduceVar iv = null;
+		if (k != -1) {
+			toks.reset(k);
+			ExprToken arrow = ExprToken.from(errors, toks);
+			if (arrow == null) {
+				errors.message(toks, "expected ->");
+				return new NoNestingParser(errors);
+			}
+			ExprToken name = ExprToken.from(errors, toks);
+			if (name == null) {
+				errors.message(toks, "expected var to store in");
+				return new NoNestingParser(errors);
+			}
+			if (name.type != ExprToken.IDENTIFIER) {
+				errors.message(name.location, "expected var");
+				return new NoNestingParser(errors);
+			}
+			if (!name.text.startsWith("_")) {
+				errors.message(name.location, "introduce vars must start with _");
+				return new NoNestingParser(errors);
+			}
+			iv = new IntroduceVar(name.location, namer, name.text.substring(1));
+			((IntroductionConsumer)builder).newIntroduction(errors, iv);
 		}
-		ExprToken name = ExprToken.from(errors, toks);
-		if (name == null) {
-			errors.message(toks, "expected var to store in");
-			return new NoNestingParser(errors);
-		}
-		if (name.type != ExprToken.IDENTIFIER) {
-			errors.message(name.location, "expected var");
-			return new NoNestingParser(errors);
-		}
-		if (!name.text.startsWith("_")) {
-			errors.message(name.location, "introduce vars must start with _");
-			return new NoNestingParser(errors);
-		}
-		IntroduceVar iv = new IntroduceVar(name.location, namer, name.text.substring(1));
-		((IntroductionConsumer)builder).newIntroduction(errors, iv);
 		((SystemTestStage)builder).gotoRoute(errors, app, route, iv);
 
 		if (toks.hasMoreContent()) {

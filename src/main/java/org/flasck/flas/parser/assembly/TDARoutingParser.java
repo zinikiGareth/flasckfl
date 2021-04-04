@@ -28,7 +28,7 @@ public class TDARoutingParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		KeywordToken kw = KeywordToken.from(toks);
 		if (kw == null) {
-			errors.message(toks, "expected assembly keyword");
+			errors.message(toks, "expected routing keyword");
 			return new IgnoreNestedParser();
 		}
 		

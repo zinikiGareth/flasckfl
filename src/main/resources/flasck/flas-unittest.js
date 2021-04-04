@@ -262,7 +262,8 @@ UTRunner.prototype.matchScroll = function(_cxt, target, zone, contains, expected
 }
 UTRunner.prototype.route = function(_cxt, app, route, storeCards) {
 	app.route(_cxt, route);
-	app.bindCards(_cxt, storeCards);
+	if (storeCards)
+		app.bindCards(_cxt, storeCards);
 }
 UTRunner.prototype.updateCard = function(_cxt, card) {
 	if (!(card instanceof MockCard))
