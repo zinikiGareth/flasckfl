@@ -70,10 +70,12 @@ Application.prototype._enterRoute = function(_cxt, enter) {
 			var m = a.action;
 			if (ctr[m]) {
 				var msgs;
-				if (a.str)
+				if (a.str) {
 					msgs = ctr[m](_cxt, a.str);
+				} else if (a.ref) {
+					msgs = ctr[m](_cxt, this.cards[a.ref]);
+				}
 				// TODO: else if (a.parameter)
-				// TODO: else if (a.ref) // a card ref
 				else
 					msgs = ctr[m](_cxt);
 				_cxt.env.queueMessages(_cxt, msgs);

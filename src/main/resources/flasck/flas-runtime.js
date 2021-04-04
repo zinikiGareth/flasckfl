@@ -1103,7 +1103,32 @@ FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value, fn
     }
 }
 
-FLCard.prototype._updatePunnet = function(_cxt /*, _renderTree, field, value, fn */) {
+FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
+    value = _cxt.full(value);
+    var div = document.getElementById(_renderTree._id);
+    const node = div.querySelector("[data-flas-punnet='" + field + "']");
+    if (!node.id) {
+        var ncid = _cxt.nextDocumentId();
+        node.id = ncid;
+        _renderTree[field] = { _id: ncid, children: [] };
+    }
+    var crt = _renderTree[field];
+    if (!value) {
+        node.innerHTML = ''; // clear it out
+        crt.children = [];
+        return;
+    } else if (value instanceof FLCard) {
+        if (crt.children.length == 1 && crt.children[0].value == value)
+            return;
+        // TODO: clear out all extant children that are not "value"
+        var inid = _cxt.nextDocumentId();
+        crt.children.push({ value });
+        const pe = document.createElement("div");
+        pe.setAttribute("id", inid);
+        node.appendChild(pe);
+        value._renderInto(_cxt, pe);
+    } else
+        throw new Error("what is this? " + value);
 }
 
 FLCard.prototype._updateList = function(parent, rts, values, cb) {
