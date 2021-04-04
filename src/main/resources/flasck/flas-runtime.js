@@ -1103,6 +1103,9 @@ FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value, fn
     }
 }
 
+FLCard.prototype._updatePunnet = function(_cxt /*, _renderTree, field, value, fn */) {
+}
+
 FLCard.prototype._updateList = function(parent, rts, values, cb) {
     var sw = this._diffLists(rts, values);
     if (sw === true) {
@@ -1367,6 +1370,7 @@ FLObject.prototype._updateTemplate = FLCard.prototype._updateTemplate;
 FLObject.prototype._addItem = FLCard.prototype._addItem;
 FLObject.prototype._updateContent = FLCard.prototype._updateContent;
 FLObject.prototype._updateContainer = FLCard.prototype._updateContainer;
+FLObject.prototype._updatePunnet = FLCard.prototype._updatePunnet;
 FLObject.prototype._updateStyle = FLCard.prototype._updateStyle;
 FLObject.prototype._updateList = FLCard.prototype._updateList;
 FLObject.prototype._diffLists = FLCard.prototype._diffLists;

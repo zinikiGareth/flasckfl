@@ -179,7 +179,10 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 		case PUNNET:
 			// basically you should have to use a Crobag, but it may be possible to have one card or even a list of cards
 			// but any such thing would have to be a "card handle" and I don't think we have a type for that
-			if (!LoadBuiltins.crobag.equals(etype)) {
+			if (!(
+				LoadBuiltins.crobag.equals(etype) ||
+				LoadBuiltins.card.equals(etype)
+			)) {
 				errors.message(pos, "cannot render " + etype.signature() + " in punnet");
 				break;
 			}

@@ -301,7 +301,14 @@ public class LoadBuiltins {
 		updateDisplayTR.bind(updateDisplay);
 		message.addCase(updateDisplayTR);
 	}
-	
+
+	/* Card is a primitive */
+
+	public static final TypeReference cardTR = new TypeReference(pos, "Card");
+	public static final Primitive card = new Primitive(pos, "Card");
+	static {
+		cardTR.bind(card);
+	}
 
 	/* Events */
 
@@ -781,6 +788,8 @@ public class LoadBuiltins {
 		repository.newStruct(errors, assign);
 		repository.newStruct(errors, updateDisplay);
 		repository.newUnion(errors, message);
+
+		repository.addEntry(errors, card.name(), card);
 
 		repository.newStruct(errors, clickEvent);
 		repository.newStruct(errors, scrollTo);

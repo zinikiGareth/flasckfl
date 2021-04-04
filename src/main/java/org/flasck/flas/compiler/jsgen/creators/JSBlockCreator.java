@@ -104,6 +104,7 @@ public interface JSBlockCreator {
 	void updateStyle(String templateName, TemplateField field, int option, JSExpr source, JSExpr constant, List<JSStyleIf> styles);
 	void updateTemplate(TemplateField field, int posn, boolean isOtherObject, String templateName, JSExpr expr, JSExpr tc);
 	void updateContainer(TemplateField field, JSExpr expr, int ucidx);
+	void updatePunnet(TemplateField field, JSExpr expr, int ucidx);
 	void addItem(int position, String templateName, JSExpr expr, JSExpr makeArray);
 	
 	// unit testing

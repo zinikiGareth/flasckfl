@@ -145,6 +145,19 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 					}
 					uc.returnVoid();
 					bindingBlock.updateContainer(b.assignsTo, (JSExpr) r, ucidx);
+				} else if (currentTBO.assignsTo.type() == FieldType.PUNNET) {
+					int ucidx = containerIdx.getAndIncrement();
+					JSMethodCreator uc = templateCreator.createMethod("_updatePunnet" + ucidx, true);
+					uc.argument(J.FLEVALCONTEXT, "_cxt");
+//					uc.argument(J.RENDERTREE, "_renderTree");
+//					uc.argument(J.ELEMENT, "parent");
+//					uc.argument(J.ELEMENT, "currNode");
+//					uc.argument("e");
+					uc.returnsType("void");
+					uc.returnVoid();
+					System.out.println("punnet impl");
+					bindingBlock.updatePunnet(b.assignsTo, (JSExpr) r, ucidx);
+//					throw new NotImplementedException();
 				} else {
 					String fromField = null;
 					if (r instanceof JSLoadField) {
