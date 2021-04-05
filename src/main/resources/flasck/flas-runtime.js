@@ -1120,7 +1120,11 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
     } else if (value instanceof FLCard) {
         if (crt.children.length == 1 && crt.children[0].value == value)
             return;
-        // TODO: clear out all extant children that are not "value"
+        // clear out all extant children that are not "value"
+        crt.children = [];
+        node.innerHTML = '';
+
+        // create a new nested element
         var inid = _cxt.nextDocumentId();
         crt.children.push({ value });
         const pe = document.createElement("div");

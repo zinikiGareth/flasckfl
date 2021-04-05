@@ -32,6 +32,13 @@ Application.prototype.parseRoute = function(_cxt, r) {
 	if (r instanceof Location) {
 		r = r.href;
 	}
+	try {
+		if (this.currentPath)
+			r = new URL(r, this.currentPath).href;
+		else 
+			r = new URL(r, this.baseUri()).href;
+	} catch (e) {}
+	this.currentPath = r;
 	var url = r.replace(this.baseUri(), '').replace(/^#*/, '').replace(/^\/*/, '');
 	var parts = url.split("/").filter(x => !!x);
 	return parts;
