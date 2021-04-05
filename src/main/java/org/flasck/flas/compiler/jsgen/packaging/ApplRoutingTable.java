@@ -44,6 +44,9 @@ public class ApplRoutingTable {
 	}
 
 	private void common(IndentWriter kw, SubRouting r) {
+		if (r.hasTitle()) {
+			kw.println("title: '" + r.getTitle() + "',");
+		}
 		kw.println("enter: [");
 		handleActions(kw.indent(), r.enter);
 		kw.println("],");
@@ -132,6 +135,9 @@ public class ApplRoutingTable {
 	}
 
 	private void jvmcommon(NewMethodDefiner meth, Var v, SubRouting r, AtomicInteger rn) {
+		if (r.hasTitle()) {
+			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("title"), J.OBJECT), meth.as(meth.stringConst(r.getTitle()), J.OBJECT))).flush();
+		}
 		genActions(meth, v, "enter", r.enter, rn);
 		genActions(meth, v, "exit", r.exit, rn);
 		genRoutes(meth, v, r.routes, rn);

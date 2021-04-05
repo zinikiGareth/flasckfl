@@ -65,10 +65,24 @@ public class TDARoutingParser implements TDAParsing {
 			consumer.route(group);
 			return new TDARoutingParser(errors, group);
 		}
+		case "title": {
+			InputPosition pos = toks.realinfo();
+			String s = StringToken.from(errors, toks);
+			if (s == null) {
+				errors.message(toks, "must specify a title");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMoreContent()) {
+				errors.message(toks, "junk at end of line");
+				return new IgnoreNestedParser();
+			}
+			consumer.title(pos, s);
+			return new NoNestingParser(errors);
+		}
 		default: {
 			ExprToken op = ExprToken.from(errors, toks);
 			if (op == null || !"<-".equals(op.text)) {
-				errors.message(toks, "expected 'enter', 'at', 'exit', 'route' or card assignment");
+				errors.message(toks, "expected 'enter', 'at', 'exit', 'route', 'title' or card assignment");
 				return new IgnoreNestedParser();
 			}
 			if (kw.text.equals("main") && !(consumer instanceof MainRoutingGroupConsumer)) {

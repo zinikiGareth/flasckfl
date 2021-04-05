@@ -931,7 +931,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		ctor.superArg(cc);
 		ctor.superArg(div);
 		clz.inheritsField(false, Access.PROTECTED, new PackageName(J.CLASS), "mainCard");
+		clz.inheritsField(false, Access.PROTECTED, new PackageName(J.STRING), "title");
 		ctor.setField(new JSThis(), "mainCard", new JSClassName(e.mainCard()));
+		ctor.setField(new JSThis(), "title", new JSString(e.getTitle()));
 		ctor.returnVoid();
 		JSMethodCreator bu = clz.createMethod("baseUri", true);
 		bu.returnsType(J.STRING);

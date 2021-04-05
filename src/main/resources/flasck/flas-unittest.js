@@ -214,6 +214,28 @@ UTRunner.prototype.matchText = function(_cxt, target, zone, contains, expected) 
 			throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
 	}
 }
+UTRunner.prototype.matchTitle = function(_cxt, target, zone, contains, expected) {
+	var matchOn = this.findMockFor(target);
+	if (!matchOn)
+		throw Error("there is no mock " + target);
+	if (!(matchOn instanceof MockAppl))
+		throw Error("can only test title on Appl");
+	var titles = document.head.getElementsByTagName("title");
+	var actual = "";
+	for (var i=0;i<titles.length;i++) {
+		actual += titles[i].innerText.trim() + " ";
+	}
+	actual = actual.trim();
+	actual = actual.replace(/\n/g, ' ');
+	actual = actual.replace(/ +/, ' ');
+	if (contains) {
+		if (!actual.includes(expected))
+			throw new Error("MATCH\n  expected to contain: " + expected + "\n  actual:   " + actual);
+	} else {
+		if (actual != expected)
+			throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
+	}
+}
 UTRunner.prototype.matchImageUri = function(_cxt, target, zone, expected) {
 	var matchOn = this.findMockFor(target);
 	if (!matchOn)
@@ -674,6 +696,7 @@ const MockAppl = function(_cxt, clz) {
 	newdiv.setAttribute("id", _cxt.nextDocumentId());
 	document.body.appendChild(newdiv);
 	this.appl = new clz._Application(_cxt, newdiv);
+	this.appl._updateDisplay(_cxt, this.appl._currentRenderTree());
 }
 MockAppl.prototype.route = function(_cxt, r) {
 	this.appl.gotoRoute(_cxt, r);

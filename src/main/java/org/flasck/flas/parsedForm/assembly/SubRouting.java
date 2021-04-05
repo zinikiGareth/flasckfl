@@ -3,6 +3,7 @@ package org.flasck.flas.parsedForm.assembly;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -14,6 +15,7 @@ public class SubRouting implements RoutingGroupConsumer {
 	protected final ErrorReporter errors;
 	protected final MainRoutingGroupConsumer main;
 	public final String path;
+	private String title;
 	public RoutingActions enter;
 	public RoutingActions exit;
 	public final List<SubRouting> routes = new ArrayList<>();
@@ -37,6 +39,15 @@ public class SubRouting implements RoutingGroupConsumer {
 	}
 
 	@Override
+	public void title(InputPosition pos, String s) {
+		if (this.title != null) {
+			errors.message(pos, "cannot set title more than once");
+			return;
+		}
+		this.title = s;
+	}
+
+	@Override
 	public void enter(RoutingActions actions) {
 		if (this.enter != null) {
 			errors.message(actions.location(), "duplicate specification of enter");
@@ -57,5 +68,13 @@ public class SubRouting implements RoutingGroupConsumer {
 	@Override
 	public void route(RoutingGroupConsumer group) {
 		routes.add((SubRouting)group);
+	}
+
+	public boolean hasTitle() {
+		return title != null;
+	}
+
+	public String getTitle() {
+		return title;
 	}
 }

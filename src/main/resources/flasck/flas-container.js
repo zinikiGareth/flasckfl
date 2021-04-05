@@ -12,7 +12,6 @@ Application.prototype.baseUri = function(_cxt) {
 
 Application.prototype.gotoRoute = function(_cxt, r) {
 	var routing = this._routing();
-	console.log("routing ", routing);
 	if (this.currentRoute == null) {
 		this.currentRoute = [];
 		this._createCards(_cxt, [{ name: 'main', card: this.mainCard }]);
@@ -20,7 +19,6 @@ Application.prototype.gotoRoute = function(_cxt, r) {
 		this.cards.main._renderInto(_cxt, this.topdiv);
 	}
 	var path = this.parseRoute(_cxt, r);
-	console.log("have", this.currentRoute, "want", path);
 
 	// remove and ignore any common elements
 	// move "up" if current has anything left
@@ -45,13 +43,19 @@ Application.prototype.parseRoute = function(_cxt, r) {
 }
 
 Application.prototype.moveDown = function(_cxt, table, path) {
-	if (path.length == 0)
+	if (path.length == 0) {
+		if (table.title != null)
+			this.title = table.title;
 		return;
+	}
 
 	var first = path[0];
 	for (var i=0;i<table.routes.length;i++) {
 		var rr = table.routes[i];
 		if (rr.path == first) {
+			if (rr.title != null) {
+				this.title = rr.title;
+			}
 			this.currentRoute.push({ action: rr });
 			this._createCards(_cxt, rr.cards);
 			this._enterRoute(_cxt, rr.enter);
@@ -99,6 +103,15 @@ Application.prototype._currentRenderTree = function() {
 }
 
 Application.prototype._updateDisplay = function(_cxt, rt) {
+	if (this.title) {
+		var titles = document.head.getElementsByTagName("title");
+		if (titles.length == 0) {
+			var t = document.createElement("title");
+			document.head.appendChild(t);
+			titles = [t];
+		}
+		titles[0].innerText = this.title;
+	}
 	var card = this.cards.main;
 	if (card == null)
 		return;

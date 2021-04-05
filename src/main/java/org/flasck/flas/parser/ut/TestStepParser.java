@@ -338,6 +338,9 @@ public class TestStepParser implements TDAParsing {
 		case "text":
 			what = MatchedItem.TEXT;
 			break;
+		case "title":
+			what = MatchedItem.TITLE;
+			break;
 		case "style":
 			what = MatchedItem.STYLE;
 			break;
