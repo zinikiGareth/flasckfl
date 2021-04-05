@@ -73,6 +73,8 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
+import org.flasck.flas.parsedForm.assembly.RoutingAction;
+import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
@@ -870,8 +872,24 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitCardAssignment(card);
 	}
 
-	public void leaveCardBinding(CardBinding card) {
-		top.leaveCardBinding(card);
+	public void leaveCardAssignment(CardBinding card) {
+		top.leaveCardAssignment(card);
+	}
+
+	public void visitActions(RoutingActions actions) {
+		top.visitActions(actions);
+	}
+
+	public void leaveActions(RoutingActions actions) {
+		top.leaveActions(actions);
+	}
+
+	public void visitRoutingAction(RoutingAction a) {
+		top.visitRoutingAction(a);
+	}
+
+	public void leaveRoutingAction(RoutingAction a) {
+		top.leaveRoutingAction(a);
 	}
 
 	public void traversalDone() {

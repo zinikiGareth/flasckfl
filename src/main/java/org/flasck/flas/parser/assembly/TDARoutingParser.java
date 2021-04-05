@@ -61,6 +61,7 @@ public class TDARoutingParser implements TDAParsing {
 			return new TDAEnterExitParser(errors, exit);
 		}
 		case "route": {
+			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
 			if (s == null) {
 				errors.message(toks, "must specify a route path");
@@ -70,7 +71,7 @@ public class TDARoutingParser implements TDAParsing {
 				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser();
 			}
-			RoutingGroupConsumer group = new SubRouting(errors, s, consumer);
+			RoutingGroupConsumer group = new SubRouting(errors, pos, s, consumer);
 			consumer.route(group);
 			return new TDARoutingParser(errors, group);
 		}

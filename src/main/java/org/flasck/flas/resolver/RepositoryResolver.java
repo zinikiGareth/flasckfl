@@ -62,6 +62,8 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.parsedForm.assembly.SubRouting;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
@@ -105,6 +107,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	private boolean assigning;
 	private final Iterable<TraversalProcessor> modules;
 	private boolean lookDownwards;
+	private ApplicationRoutingResolver applicationRouting;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
@@ -585,12 +588,15 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	public void leaveAssignMessage(AssignMessage msg) {
 		assigning = false;
 	}
-	
+
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		RepositoryEntry defn = null;
 		if (templateNestingChain != null) {
 			defn = templateNestingChain.resolve(this, var);
+		}
+		if (applicationRouting != null) {
+			defn = applicationRouting.resolve(this, var);
 		}
 		if (defn == null)
 			defn = find(var.location, scope, var.var);
@@ -720,11 +726,30 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	public void visitApplicationRouting(ApplicationRouting e) {
 		scopeStack.add(0, scope);
 		scope = e.packageName();
+		applicationRouting = new ApplicationRoutingResolver(e);
+	}
+	
+	@Override
+	public void visitSubRouting(SubRouting r) {
+		applicationRouting.nest();
+		if (r.path.startsWith("{") && r.path.endsWith("}"))
+			applicationRouting.parameter(r.location(), r.path.substring(1, r.path.length()-1));
+	}
+	
+	@Override
+	public void leaveCardAssignment(CardBinding card) {
+		applicationRouting.leaveCardAssignment(card);
+	}
+	
+	@Override
+	public void leaveSubRouting(SubRouting r) {
+		applicationRouting.unnest();
 	}
 	
 	@Override
 	public void leaveApplicationRouting(ApplicationRouting e) {
 		this.scope = scopeStack.remove(0);
+		applicationRouting = null;
 	}
 	
 	@Override

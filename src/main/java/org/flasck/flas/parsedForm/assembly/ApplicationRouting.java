@@ -59,7 +59,7 @@ public class ApplicationRouting extends SubRouting implements MainRoutingGroupCo
 	public boolean sawMainCard;
 
 	public ApplicationRouting(ErrorReporter errors, InputPosition location, NameOfThing packageName, AssemblyName name, ApplicationElementConsumer consumer) {
-		super(errors, null, null);
+		super(errors, null, null, null);
 		this.location = location;
 		this.packageName = packageName;
 		this.name = name;

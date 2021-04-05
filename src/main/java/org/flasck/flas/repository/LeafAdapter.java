@@ -60,6 +60,8 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
+import org.flasck.flas.parsedForm.assembly.RoutingAction;
+import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
@@ -807,7 +809,23 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void leaveCardBinding(CardBinding card) {
+	public void leaveCardAssignment(CardBinding card) {
+	}
+
+	@Override
+	public void visitActions(RoutingActions actions) {
+	}
+
+	@Override
+	public void leaveActions(RoutingActions actions) {
+	}
+
+	@Override
+	public void visitRoutingAction(RoutingAction a) {
+	}
+
+	@Override
+	public void leaveRoutingAction(RoutingAction a) {
 	}
 
 	@Override

@@ -95,6 +95,8 @@ import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
+import org.flasck.flas.parsedForm.assembly.RoutingAction;
+import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
@@ -514,41 +516,73 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitApplicationRouting(ApplicationRouting e) {
 		visitor.visitApplicationRouting(e);
-		visitCardAssignments(e);
-		for (SubRouting r : e.routes) {
-			visitSubRouting(r);
-		}
+		visitRoutingCommon(e);
 		leaveApplicationRouting(e);
 	}
 
-	private void visitCardAssignments(SubRouting r) {
-		for (CardBinding cb : r.assignments) {
-			visitCardAssignment(cb);
-		}
+	public void leaveApplicationRouting(ApplicationRouting e) {
+		visitor.leaveApplicationRouting(e);
 	}
 
 	public void visitSubRouting(SubRouting r) {
 		visitor.visitSubRouting(r);
-		visitCardAssignments(r);
+		visitRoutingCommon(r);
 		leaveSubRouting(r);
 	}
 
 	public void leaveSubRouting(SubRouting r) {
 		visitor.leaveSubRouting(r);
 	}
+	
+	private void visitRoutingCommon(SubRouting r) {
+		for (CardBinding cb : r.assignments) {
+			visitCardAssignment(cb);
+		}
+		visitActions(r.enter);
+		visitActions(r.at);
+		visitActions(r.exit);
+		for (SubRouting sr : r.routes) {
+			visitSubRouting(sr);
+		}
+	}
+	
+	@Override
+	public void visitActions(RoutingActions actions) {
+		if (actions == null)
+			return;
+		visitor.visitActions(actions);
+		if (actions.actions != null) {
+			for (RoutingAction a : actions.actions)
+				visitRoutingAction(a);
+		}
+		leaveActions(actions);
+	}
+
+	public void visitRoutingAction(RoutingAction a) {
+		visitor.visitRoutingAction(a);
+		visitExpr(a.card, 0);
+		if (a.expr != null)
+			visitExpr(a.expr, 0);
+		leaveRoutingAction(a);
+	}
+
+	public void leaveRoutingAction(RoutingAction a) {
+		visitor.leaveRoutingAction(a);
+	}
+
+	@Override
+	public void leaveActions(RoutingActions actions) {
+		visitor.leaveActions(actions);
+	}
 
 	public void visitCardAssignment(CardBinding card) {
 		visitor.visitCardAssignment(card);
 		visitTypeReference(card.cardType, false, 0);
-		leaveCardBinding(card);
+		leaveCardAssignment(card);
 	}
 
-	public void leaveCardBinding(CardBinding card) {
-		visitor.leaveCardBinding(card);
-	}
-
-	public void leaveApplicationRouting(ApplicationRouting e) {
-		visitor.leaveApplicationRouting(e);
+	public void leaveCardAssignment(CardBinding card) {
+		visitor.leaveCardAssignment(card);
 	}
 
 	@Override

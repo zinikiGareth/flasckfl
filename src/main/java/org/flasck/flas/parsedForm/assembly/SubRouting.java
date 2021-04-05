@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -11,9 +12,10 @@ import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parser.assembly.MainRoutingGroupConsumer;
 import org.flasck.flas.parser.assembly.RoutingGroupConsumer;
 
-public class SubRouting implements RoutingGroupConsumer {
+public class SubRouting implements RoutingGroupConsumer, Locatable {
 	protected final ErrorReporter errors;
 	protected final MainRoutingGroupConsumer main;
+	private final InputPosition pos;
 	public final String path;
 	private String title;
 	public RoutingActions enter;
@@ -22,8 +24,9 @@ public class SubRouting implements RoutingGroupConsumer {
 	public final List<SubRouting> routes = new ArrayList<>();
 	public final List<CardBinding> assignments = new ArrayList<>();
 
-	public SubRouting(ErrorReporter errors, String path, RoutingGroupConsumer main) {
+	public SubRouting(ErrorReporter errors, InputPosition pos, String path, RoutingGroupConsumer main) {
 		this.errors = errors;
+		this.pos = pos;
 		this.path = path;
 		if (main == null)
 			this.main = (MainRoutingGroupConsumer) this;
@@ -31,6 +34,10 @@ public class SubRouting implements RoutingGroupConsumer {
 			this.main = (MainRoutingGroupConsumer) main;
 		else
 			this.main = ((SubRouting)main).main;
+	}
+
+	public InputPosition location() {
+		return pos;
 	}
 
 	@Override
