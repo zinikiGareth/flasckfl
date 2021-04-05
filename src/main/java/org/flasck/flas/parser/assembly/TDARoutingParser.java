@@ -42,6 +42,15 @@ public class TDARoutingParser implements TDAParsing {
 			consumer.enter(enter);
 			return new TDAEnterExitParser(errors, enter);
 		}
+		case "at": {
+			if (toks.hasMoreContent()) {
+				errors.message(toks, "junk at end of line");
+				return new IgnoreNestedParser();
+			}
+			RoutingActions at = new RoutingActions(kw.location);
+			consumer.at(at);
+			return new TDAEnterExitParser(errors, at);
+		}
 		case "exit": {
 			if (toks.hasMoreContent()) {
 				errors.message(toks, "junk at end of line");
@@ -88,9 +97,6 @@ public class TDARoutingParser implements TDAParsing {
 			if (kw.text.equals("main") && !(consumer instanceof MainRoutingGroupConsumer)) {
 				errors.message(kw.location, "main cannot be set here");
 				return new IgnoreNestedParser();
-			} else if (!kw.text.equals("main") && (consumer instanceof MainRoutingGroupConsumer)) {
-				errors.message(kw.location, "top level card must be called main");
-				return new IgnoreNestedParser();
 			}
 			TypeNameToken card = TypeNameToken.qualified(toks);
 			if (card == null) {
@@ -103,7 +109,7 @@ public class TDARoutingParser implements TDAParsing {
 			}
 			TypeReference tr = new TypeReference(card.location, card.text);
 			consumer.assignCard(new UnresolvedVar(kw.location, kw.text), tr);
-			if (consumer instanceof MainRoutingGroupConsumer)
+			if (kw.text.equals("main"))
 				((MainRoutingGroupConsumer) consumer).provideMainCard(tr);
 			return new NoNestingParser(errors);
 		}

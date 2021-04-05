@@ -47,8 +47,25 @@ public class ApplRoutingTable {
 		if (r.hasTitle()) {
 			kw.println("title: '" + r.getTitle() + "',");
 		}
+		kw.println("cards: [");
+		boolean s2 = false;
+		IndentWriter lw = kw.indent();
+		for (CardBinding ca : r.assignments) {
+			if (s2)
+				lw.println(",");
+			lw.print("{ ");
+			lw.print("name: '" + ca.var.var + "', ");
+			lw.print("card: " + ca.cardType.defn().name().jsName());
+			lw.print(" }");
+			s2 = true;
+		}
+		lw.println("");
+		kw.println("],");
 		kw.println("enter: [");
 		handleActions(kw.indent(), r.enter);
+		kw.println("],");
+		kw.println("at: [");
+		handleActions(kw.indent(), r.at);
 		kw.println("],");
 		kw.println("exit: [");
 		handleActions(kw.indent(), r.exit);
@@ -96,19 +113,6 @@ public class ApplRoutingTable {
 			lw.println("{");
 			IndentWriter mw = lw.indent();
 			mw.println("path: '" + r.path + "', ");
-			mw.println("cards: [");
-			boolean s2 = false;
-			IndentWriter nw = mw.indent();
-			for (CardBinding ca : r.assignments) {
-				if (s2)
-					nw.println(",");
-				nw.print("{ ");
-				nw.print("name: '" + ca.var.var + "', ");
-				nw.print("card: " + ca.cardType.defn().name().jsName());
-				nw.print(" }");
-			}
-			nw.println("");
-			mw.println("],");
 			
 			common(mw, r);
 			
@@ -138,7 +142,16 @@ public class ApplRoutingTable {
 		if (r.hasTitle()) {
 			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("title"), J.OBJECT), meth.as(meth.stringConst(r.getTitle()), J.OBJECT))).flush();
 		}
+		Var cards = meth.avar(List.class.getName(), "cards_" + rn.incrementAndGet());
+		meth.assign(cards, meth.makeNew(ArrayList.class.getName())).flush();
+		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("cards"), J.OBJECT), meth.as(cards, J.OBJECT))).flush();
+		
+		for (CardBinding ca : r.assignments) {
+			IExpr mn = meth.makeNew(J.FLCARDASSIGNMENT, meth.stringConst(ca.var.var), meth.stringConst(ca.cardType.defn().name().javaName()));
+			meth.voidExpr(meth.callInterface("boolean", cards, "add", meth.as(mn, J.OBJECT))).flush();
+		}
 		genActions(meth, v, "enter", r.enter, rn);
+		genActions(meth, v, "at", r.at, rn);
 		genActions(meth, v, "exit", r.exit, rn);
 		genRoutes(meth, v, r.routes, rn);
 	}
@@ -173,14 +186,6 @@ public class ApplRoutingTable {
 			meth.assign(inner, meth.makeNew(TreeMap.class.getName())).flush();
 			meth.voidExpr(meth.callInterface("boolean", list, "add", meth.as(inner, J.OBJECT))).flush();
 			meth.voidExpr(meth.callInterface(J.OBJECT, inner, "put", meth.as(meth.stringConst("path"), J.OBJECT), meth.as(meth.stringConst(r.path), J.OBJECT))).flush();
-			Var cards = meth.avar(List.class.getName(), "cards_" + rn.incrementAndGet());
-			meth.assign(cards, meth.makeNew(ArrayList.class.getName())).flush();
-			meth.voidExpr(meth.callInterface(J.OBJECT, inner, "put", meth.as(meth.stringConst("cards"), J.OBJECT), meth.as(cards, J.OBJECT))).flush();
-			
-			for (CardBinding ca : r.assignments) {
-				IExpr mn = meth.makeNew(J.FLCARDASSIGNMENT, meth.stringConst(ca.var.var), meth.stringConst(ca.cardType.defn().name().javaName()));
-				meth.voidExpr(meth.callInterface("boolean", cards, "add", meth.as(mn, J.OBJECT))).flush();
-			}
 			
 			jvmcommon(meth, inner, r, rn);
 		}

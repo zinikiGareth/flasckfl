@@ -514,21 +514,22 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitApplicationRouting(ApplicationRouting e) {
 		visitor.visitApplicationRouting(e);
-		CardBinding main = e.getCard("main");
-		if (main == null)
-			throw new CantHappenException("there is no binding for main");
-		visitCardAssignment(main);
+		visitCardAssignments(e);
 		for (SubRouting r : e.routes) {
 			visitSubRouting(r);
 		}
 		leaveApplicationRouting(e);
 	}
 
-	public void visitSubRouting(SubRouting r) {
-		visitor.visitSubRouting(r);
+	private void visitCardAssignments(SubRouting r) {
 		for (CardBinding cb : r.assignments) {
 			visitCardAssignment(cb);
 		}
+	}
+
+	public void visitSubRouting(SubRouting r) {
+		visitor.visitSubRouting(r);
+		visitCardAssignments(r);
 		leaveSubRouting(r);
 	}
 

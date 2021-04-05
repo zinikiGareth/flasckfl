@@ -9,6 +9,7 @@ public interface RoutingGroupConsumer {
 	void assignCard(UnresolvedVar var, TypeReference cardType);
 	void title(InputPosition pos, String s);
 	void enter(RoutingActions actions);
+	void at(RoutingActions at);
 	void exit(RoutingActions actions);
 	void route(RoutingGroupConsumer group);
 }

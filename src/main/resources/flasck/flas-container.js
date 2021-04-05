@@ -14,8 +14,9 @@ Application.prototype.gotoRoute = function(_cxt, r) {
 	var routing = this._routing();
 	if (this.currentRoute == null) {
 		this.currentRoute = [];
-		this._createCards(_cxt, [{ name: 'main', card: this.mainCard }]);
+		this._createCards(_cxt, routing.cards);
 		this._enterRoute(_cxt, routing.enter);
+		this._enterRoute(_cxt, routing.at);
 		this.cards.main._renderInto(_cxt, this.topdiv);
 	}
 	var path = this.parseRoute(_cxt, r);
@@ -59,6 +60,7 @@ Application.prototype.moveDown = function(_cxt, table, path) {
 			this.currentRoute.push({ action: rr });
 			this._createCards(_cxt, rr.cards);
 			this._enterRoute(_cxt, rr.enter);
+			this._enterRoute(_cxt, rr.at);
 			return; // don't consider any other matches or fall through to parameter logic
 		}
 	}

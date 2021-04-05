@@ -17,6 +17,7 @@ public class SubRouting implements RoutingGroupConsumer {
 	public final String path;
 	private String title;
 	public RoutingActions enter;
+	public RoutingActions at;
 	public RoutingActions exit;
 	public final List<SubRouting> routes = new ArrayList<>();
 	public final List<CardBinding> assignments = new ArrayList<>();
@@ -54,6 +55,15 @@ public class SubRouting implements RoutingGroupConsumer {
 			return;
 		}
 		this.enter = actions;
+	}
+
+	@Override
+	public void at(RoutingActions actions) {
+		if (this.at != null) {
+			errors.message(actions.location(), "duplicate specification of at");
+			return;
+		}
+		this.at = actions;
 	}
 
 	@Override
