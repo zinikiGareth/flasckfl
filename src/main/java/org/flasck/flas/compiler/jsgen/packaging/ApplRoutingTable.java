@@ -14,9 +14,12 @@ import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.assembly.RoutingAction;
 import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
+import org.flasck.flas.resolver.ApplicationRoutingResolver.ParameterRepositoryEntry;
 import org.flasck.jvm.J;
+import org.flasck.jvm.container.ArgType;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.ByteCodeSink;
+import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
@@ -89,12 +92,14 @@ public class ApplRoutingTable {
 			if (ra.expr != null) {
 				if (ra.expr instanceof StringLiteral) {
 					StringLiteral sl = (StringLiteral) ra.expr;
-					// TODO: if string starts with {, it is a parameter and should be parameter: name without {} instead
 					lw.print(", str: '" + sl.text + "'");
 				} else if (ra.expr instanceof UnresolvedVar) {
 					// for now assume it's a card in the current card list thing
 					UnresolvedVar uv = (UnresolvedVar) ra.expr;
-					lw.print(", ref: '" + uv.var + "'");
+					if (uv.defn() instanceof ParameterRepositoryEntry)
+						lw.print(", param: '" + uv.var + "'");
+					else
+						lw.print(", ref: '" + uv.var + "'");
 				}
 			}
 			lw.print(" }");
@@ -112,7 +117,10 @@ public class ApplRoutingTable {
 			sep = true;
 			lw.println("{");
 			IndentWriter mw = lw.indent();
-			mw.println("path: '" + r.path + "', ");
+			if (r.path.startsWith("{"))
+				mw.println("param: '" + r.path.substring(1, r.path.length()-1) + "', ");
+			else
+				mw.println("path: '" + r.path + "', ");
 			
 			common(mw, r);
 			
@@ -165,14 +173,24 @@ public class ApplRoutingTable {
 			IExpr mn;
 			if (ra.expr == null) {
 				mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var));
-			} else if (ra.expr instanceof StringLiteral) {
-				StringLiteral sl = (StringLiteral) ra.expr;
-				mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), meth.as(meth.stringConst(sl.text), J.OBJECT));
-			} else if (ra.expr instanceof UnresolvedVar) {
-				UnresolvedVar uv = (UnresolvedVar) ra.expr;
-				mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), meth.as(meth.stringConst(uv.var), J.OBJECT));
-			} else
-				throw new NotImplementedException();
+			} else {
+				String val;
+				ArgType at;
+				if (ra.expr instanceof StringLiteral) {
+					val = ((StringLiteral) ra.expr).text;
+					at = ArgType.STRING;
+				} else if (ra.expr instanceof UnresolvedVar) {
+					UnresolvedVar uv = (UnresolvedVar) ra.expr;
+					val = uv.var;
+					if (uv.defn() instanceof ParameterRepositoryEntry)
+						at = ArgType.PARAM;
+					else
+						at = ArgType.CARDREF;
+				} else
+					throw new NotImplementedException();
+				Expr ate = meth.staticField(ArgType.class.getName(), ArgType.class.getName(), at.name());
+				mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), ate, meth.stringConst(val));
+			}
 			meth.voidExpr(meth.callInterface("boolean", list, "add", meth.as(mn, J.OBJECT))).flush();
 		}
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(label), J.OBJECT), meth.as(list, J.OBJECT))).flush();
@@ -185,7 +203,10 @@ public class ApplRoutingTable {
 			Var inner = meth.avar(Map.class.getName(), "inner_" + rn.incrementAndGet());
 			meth.assign(inner, meth.makeNew(TreeMap.class.getName())).flush();
 			meth.voidExpr(meth.callInterface("boolean", list, "add", meth.as(inner, J.OBJECT))).flush();
-			meth.voidExpr(meth.callInterface(J.OBJECT, inner, "put", meth.as(meth.stringConst("path"), J.OBJECT), meth.as(meth.stringConst(r.path), J.OBJECT))).flush();
+			if (r.path.startsWith("{"))
+				meth.voidExpr(meth.callInterface(J.OBJECT, inner, "put", meth.as(meth.stringConst("param"), J.OBJECT), meth.as(meth.stringConst(r.path.substring(1, r.path.length()-1)), J.OBJECT))).flush();
+			else
+				meth.voidExpr(meth.callInterface(J.OBJECT, inner, "put", meth.as(meth.stringConst("path"), J.OBJECT), meth.as(meth.stringConst(r.path), J.OBJECT))).flush();
 			
 			jvmcommon(meth, inner, r, rn);
 		}

@@ -3,6 +3,7 @@
 const Application = function(_cxt, topdiv) {
 	this.topdiv = topdiv;
 	this.cards = {};
+	this.params = {};
 	this.currentRoute = null; // TODO: this should not just be a list of strings, but of UNDO actions
 }
 
@@ -48,27 +49,30 @@ Application.prototype.parseRoute = function(_cxt, r) {
 }
 
 Application.prototype.moveDown = function(_cxt, table, path) {
+	if (table.title != null)
+		this.title = table.title;
 	if (path.length == 0) {
-		if (table.title != null)
-			this.title = table.title;
 		return;
 	}
 
 	var first = path[0];
 	for (var i=0;i<table.routes.length;i++) {
 		var rr = table.routes[i];
-		if (rr.path == first) {
-			if (rr.title != null) {
-				this.title = rr.title;
+		if (rr.path == first || rr.param) {
+			if (rr.param) {
+				this.params[rr.param] = first;
 			}
 			this.currentRoute.push({ action: rr });
 			this._createCards(_cxt, rr.cards);
 			this._enterRoute(_cxt, rr.enter);
 			this._enterRoute(_cxt, rr.at);
-			return; // don't consider any other matches or fall through to parameter logic
+
+			path.shift();
+			this.moveDown(_cxt, rr, path);
+
+			break;
 		}
 	}
-	// TODO: maybe it is a parameter
 }
 
 Application.prototype._createCards = function(_cxt, cards) {
@@ -91,9 +95,9 @@ Application.prototype._enterRoute = function(_cxt, enter) {
 					msgs = ctr[m](_cxt, a.str);
 				} else if (a.ref) {
 					msgs = ctr[m](_cxt, this.cards[a.ref]);
-				}
-				// TODO: else if (a.parameter)
-				else
+				} else if (a.param) {
+					msgs = ctr[m](_cxt, this.params[a.param]);
+				} else
 					msgs = ctr[m](_cxt);
 				_cxt.env.queueMessages(_cxt, msgs);
 			}
