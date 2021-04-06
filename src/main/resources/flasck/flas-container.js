@@ -28,9 +28,13 @@ Application.prototype.gotoRoute = function(_cxt, r) {
 }
 
 Application.prototype.parseRoute = function(_cxt, r) {
-	if (r instanceof Location) {
+	if (r instanceof Location || r instanceof URL) {
 		r = r.href;
 	}
+	if (r.startsWith("/"))
+		r = this.baseUri() + r;
+	if (!r.endsWith("/"))
+		r = r + "/";
 	try {
 		if (this.currentPath)
 			r = new URL(r, this.currentPath).href;
