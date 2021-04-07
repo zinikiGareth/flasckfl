@@ -297,6 +297,9 @@ UTRunner.prototype.route = function(_cxt, app, route, storeCards) {
 	if (storeCards)
 		app.bindCards(_cxt, storeCards);
 }
+UTRunner.prototype.userlogin = function(_cxt, app, user) {
+	app.userLoggedIn(_cxt, user);
+}
 UTRunner.prototype.updateCard = function(_cxt, card) {
 	if (!(card instanceof MockCard))
 		return;
@@ -397,10 +400,16 @@ UTRunner.prototype.runRemote = function(testClz, wsapi, spec) {
 
 	window.UTRunner = UTRunner;
 function STSecurityModule() {
+	this.currentUser = null;
 }
 
 STSecurityModule.prototype.requireLogin = function() {
-	return false; // we are not logged in
+	return this.currentUser != null;
+}
+
+STSecurityModule.prototype.userLoggedIn = function(_cxt, app, user) {
+	this.currentUser = user;
+	app.nowLoggedIn(_cxt);
 }
 
 const BoundVar = function() {
@@ -717,6 +726,9 @@ const MockAppl = function(_cxt, clz) {
 MockAppl.prototype.route = function(_cxt, r) {
 	this.appl.gotoRoute(_cxt, r);
 	this.appl._updateDisplay(_cxt, this.appl._currentRenderTree());
+}
+MockAppl.prototype.userLoggedIn = function(_cxt, u) {
+	this.appl.securityModule.userLoggedIn(_cxt, this.appl, u);
 }
 MockAppl.prototype.bindCards = function(_cxt, iv) {
 	var binding = {};
