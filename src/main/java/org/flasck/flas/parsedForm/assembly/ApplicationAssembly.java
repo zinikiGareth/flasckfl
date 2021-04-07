@@ -2,14 +2,12 @@ package org.flasck.flas.parsedForm.assembly;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.AssemblyName;
-import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.assembly.ApplicationElementConsumer;
 import org.flasck.flas.parser.assembly.AssemblyDefinitionConsumer;
 
 public class ApplicationAssembly extends Assembly implements ApplicationElementConsumer {
+	private String baseuri = "";
 	private String title;
-	private TypeReference mainCard;
 	private ApplicationRouting routing;
 	private AssemblyDefinitionConsumer consumer;
 
@@ -19,13 +17,13 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 	}
 
 	@Override
-	public void title(String s) {
-		this.title = s;
+	public void baseuri(String s) {
+		this.baseuri = s;
 	}
 	
 	@Override
-	public void mainCard(TypeReference main) {
-		this.mainCard = main;
+	public void title(String s) {
+		this.title = s;
 	}
 	
 	@Override
@@ -34,12 +32,12 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 		consumer.routingTable(routing);
 	}
 
-	public String getTitle() {
-		return title;
+	public String getBaseUri() {
+		return baseuri;
 	}
 
-	public CardName mainCard() {
-		return (CardName) mainCard.defn().name();
+	public String getTitle() {
+		return title;
 	}
 
 	public ApplicationRouting routing() {

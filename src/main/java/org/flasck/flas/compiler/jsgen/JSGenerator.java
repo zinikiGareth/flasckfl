@@ -24,7 +24,6 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSCompare;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
-import org.flasck.flas.compiler.jsgen.form.JSClassName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
@@ -930,14 +929,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		JSVar div = ctor.argument(J.ELEMENT, "div");
 		ctor.superArg(cc);
 		ctor.superArg(div);
-		clz.inheritsField(false, Access.PROTECTED, new PackageName(J.CLASS), "mainCard");
 		clz.inheritsField(false, Access.PROTECTED, new PackageName(J.STRING), "title");
-		ctor.setField(new JSThis(), "mainCard", new JSClassName(e.mainCard()));
 		ctor.setField(new JSThis(), "title", new JSString(e.getTitle()));
 		ctor.returnVoid();
 		JSMethodCreator bu = clz.createMethod("baseUri", true);
 		bu.returnsType(J.STRING);
-		bu.returnObject(new JSString("https://baseuri.co.uk/appbase"));
+		bu.returnObject(new JSString(e.getBaseUri()));
 		if (e.routing() != null)
 			jse.applRouting(e.name(), e.routing());
 	}

@@ -1,7 +1,10 @@
 
 
 const Application = function(_cxt, topdiv) {
-	this.topdiv = topdiv;
+	if (typeof(topdiv) == 'string')
+		this.topdiv = document.getElementById(topdiv);
+	else
+		this.topdiv = topdiv;
 	this.cards = {};
 	this.params = {};
 	this.currentRoute = null; // TODO: this should not just be a list of strings, but of UNDO actions
@@ -18,6 +21,8 @@ Application.prototype.gotoRoute = function(_cxt, r) {
 		this._createCards(_cxt, routing.cards);
 		this._enterRoute(_cxt, routing.enter);
 		this._enterRoute(_cxt, routing.at);
+		this._readyCards(_cxt, routing.cards);
+
 		this.cards.main._renderInto(_cxt, this.topdiv);
 	}
 	var path = this.parseRoute(_cxt, r);
@@ -66,7 +71,8 @@ Application.prototype.moveDown = function(_cxt, table, path) {
 			this._createCards(_cxt, rr.cards);
 			this._enterRoute(_cxt, rr.enter);
 			this._enterRoute(_cxt, rr.at);
-
+			this._readyCards(_cxt, rr.cards);
+	
 			path.shift();
 			this.moveDown(_cxt, rr, path);
 
@@ -79,6 +85,17 @@ Application.prototype._createCards = function(_cxt, cards) {
 	for (var i=0;i<cards.length;i++) {
 		var ci = cards[i];
 		this.cards[ci.name] = new ci.card(_cxt);
+	}
+}
+
+Application.prototype._readyCards = function(_cxt, cards) {
+	for (var i=0;i<cards.length;i++) {
+		var card = this.cards[cards[i].name];
+		var ctr = _cxt.findContractOnCard(card, "Lifecycle");
+		if (ctr && ctr.ready) {
+			msgs = ctr.ready(_cxt);
+			_cxt.env.queueMessages(_cxt, msgs);
+		}
 	}
 }
 

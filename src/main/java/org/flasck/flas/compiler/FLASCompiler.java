@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
@@ -424,11 +425,21 @@ public class FLASCompiler implements CompileUnit {
 		}
 		
 		if (config.html != null) {
+			Map<File, File> reloc = new HashMap<>();
+			File userDir = new File(System.getProperty("user.dir"));
+			File pf = config.html.getParentFile();
+			if (pf != null)
+				FileUtils.assertDirectory(pf);
+			else
+				pf = config.root;
 			try (FileWriter fos = new FileWriter(config.html)) {
-				File fldir = new File(config.root, "flascklib/js");
+				File fldir = new File(pf, "flascklib/js");
 				FileUtils.cleanDirectory(fldir);
 				FileUtils.assertDirectory(fldir);
-				File cssdir = new File(config.root, "css");
+				File mdir = new File(pf, "modules/js");
+				FileUtils.cleanDirectory(mdir);
+				FileUtils.assertDirectory(mdir);
+				File cssdir = new File(pf, "css");
 				FileUtils.cleanDirectory(cssdir);
 				FileUtils.assertDirectory(cssdir);
 				for (SplitMetaData wd : repository.allWebs()) {
@@ -442,22 +453,30 @@ public class FLASCompiler implements CompileUnit {
 				}
 				List<File> library = FileUtils.findFilesMatching(new File(config.flascklibDir), "*");
 				for (File f : library) {
+					reloc.put(absWith(userDir, f), FileUtils.makeRelativeTo(new File(fldir, f.getName()), pf));
 					FileUtils.copy(f, fldir);
 				}
 				for (File mld : config.modules) {
 					List<File> l = FileUtils.findFilesMatching(mld, "*");
 					for (File f : l) {
-						FileUtils.copy(f, fldir);
+						reloc.put(absWith(userDir, f), FileUtils.makeRelativeTo(new File(mdir, f.getName()), pf));
+						FileUtils.copy(f, mdir);
 					}
 				}
 				FLASAssembler asm = new FLASAssembler(fos);
 				File incdir = new File("includes/js");
-				File ct = new File(config.root, incdir.getPath());
+				File ct = new File(pf, incdir.getPath());
 				FileUtils.cleanDirectory(ct);
 				FileUtils.assertDirectory(ct);
 				for (File f : config.readFlims) {
 					try {
+						nextJs:
 						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
+							for (PackageSources p : packages) {
+								if (i.getName().equals(p.getPackageName() + ".js"))
+									continue nextJs;
+							}
+							reloc.put(absWith(userDir, i), FileUtils.makeRelativeTo(new File(ct, i.getName()), pf));
 							FileUtils.copy(i, ct);
 							asm.includeJS(new File(incdir, i.getName()));
 						}
@@ -468,6 +487,7 @@ public class FLASCompiler implements CompileUnit {
 				for (File f : config.includeFrom) {
 					try {
 						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
+							reloc.put(absWith(userDir, i), FileUtils.makeRelativeTo(new File(ct, i.getName()), pf));
 							FileUtils.copy(i, ct);
 							asm.includeJS(new File(incdir, i.getName()));
 						}
@@ -475,7 +495,10 @@ public class FLASCompiler implements CompileUnit {
 						logger.info("ignoring non-existent directory " + f);
 					}
 				}
-				generateHTML(asm);
+				File outdir = new File(pf, "js");
+				FileUtils.cleanDirectory(outdir);
+				FileUtils.assertDirectory(outdir);
+				generateHTML(asm, outdir, reloc);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -493,6 +516,12 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		return false;
+	}
+
+	private File absWith(File userDir, File f) {
+		if (f.isAbsolute())
+			return f;
+		return new File(userDir, f.getPath());
 	}
 
 	public boolean resolve() {
@@ -634,7 +663,11 @@ public class FLASCompiler implements CompileUnit {
 			repository.traverseAssemblies(config, errors, jse, bce, storer);
 	}
 
-	public void generateHTML(FLASAssembler asm) {
+	public void generateHTML(FLASAssembler asm, File outdir, Map<File, File> reloc) {
+		Map<String, String> remap = new TreeMap<>();
+		for (Entry<File, File> e : reloc.entrySet()) {
+			remap.put("file://" + e.getKey().getPath(), e.getValue().getPath());
+		}
 		repository.traverseAssemblies(config, errors, jse, bce, new AssemblyVisitor() {
 			private List<String> inits = new ArrayList<>();
 			private List<String> css = new ArrayList<>();
@@ -660,7 +693,19 @@ public class FLASCompiler implements CompileUnit {
 			
 			@Override
 			public void includePackageFile(ContentObject co) {
-				js.add(co.url());
+				String url = co.url();
+				if (url.startsWith("file://")) {
+					String tmp = remap.get(url);
+					if (tmp != null)
+						url = tmp;
+					else if (url.startsWith("file://" + config.jsDir().getPath())) {
+						url = url.substring(7 + config.jsDir().getPath().length());
+						url = url.replaceAll("^/*", "");
+						FileUtils.copyStreamToFile(co.asStream(), new File(outdir, url));
+						url = "js/" + url;
+					}
+				}
+				js.add(url);
 			}
 
 			@Override
@@ -728,10 +773,10 @@ public class FLASCompiler implements CompileUnit {
 					public Iterable<String> packages() {
 						return inits;
 					}
-					
+
 					@Override
-					public String mainCard() {
-						return aa.mainCard().uniqueName();
+					public String packageName() {
+						return aa.name().uniqueName();
 					}
 				});
 				asm.endInit();

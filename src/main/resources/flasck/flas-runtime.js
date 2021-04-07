@@ -109,8 +109,13 @@ CommonEnv.prototype.newContext = function() {
 
 if (typeof(window) !== 'undefined') {
     window.addEventListener('resize', function(ev) {
-        if (window.maincard)
-            window.maincard._resizeDisplayElements(env.newContext(), window.maincard._renderTree);
+        if (window.appl) {
+            var keys = Object.keys(window.appl.cards);
+            for (var i=0;i<keys.length;i++) {
+                var card = window.appl.cards[keys[i]];
+                card._resizeDisplayElements(env.newContext(), card._renderTree);
+            }
+        }
     });
 }
 
@@ -877,6 +882,8 @@ FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, field, option, s
 }
 
 FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option, source, value, fromField) {
+    if (!rt)
+        return;
     // In general, everything should already be fully evaluated, but we do allow expressions in templates
     value = _cxt.full(value);
     if (typeof value === 'undefined' || value == null)
@@ -901,6 +908,8 @@ FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option
 }
 
 FLCard.prototype._updateImage = function(_cxt, rt, templateName, field, option, source, value, fromField) {
+    if (!rt)
+        return;
     // In general, everything should already be fully evaluated, but we do allow expressions in templates
     value = _cxt.full(value);
     // it should be an Image object
@@ -957,6 +966,8 @@ FLCard.prototype._updateFromEachInput = function(rt) {
 }
 
 FLCard.prototype._updateStyle = function(_cxt, rt, templateName, type, field, option, source, constant, ...rest) {
+    if (!rt)
+        return;
     var styles = '';
     if (constant)
         styles = _cxt.full(constant);

@@ -39,6 +39,11 @@ public class ApplicationElementParser implements TDAParsing {
 			consumer.title(s);
 			return new NoNestingParser(errors);
 		}
+		case "baseuri": {
+			String s = StringToken.from(errors, toks);
+			consumer.baseuri(s);
+			return new NoNestingParser(errors);
+		}
 		case "routes": {
 			if (toks.hasMoreContent()) {
 				errors.message(toks, "junk at end of line");
@@ -48,12 +53,12 @@ public class ApplicationElementParser implements TDAParsing {
 				errors.message(kw.location, "cannot specify routing table twice");
 				return new IgnoreNestedParser();
 			}
-			routing = new ApplicationRouting(errors, kw.location, namer.assemblyName(null), namer.assemblyName("Routing"), consumer);
+			routing = new ApplicationRouting(errors, kw.location, namer.assemblyName(null), namer.assemblyName("Routing"));
 			consumer.routes(routing);
 			return new TDARoutingParser(errors, routing);
 		}
 		default: {
-			errors.message(toks, "expected 'title' or 'routes'");
+			errors.message(toks, "expected 'title', 'baseuri' or 'routes'");
 			return new IgnoreNestedParser();
 		}
 		}

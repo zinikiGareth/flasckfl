@@ -12,7 +12,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.parser.assembly.ApplicationElementConsumer;
 import org.flasck.flas.parser.assembly.MainRoutingGroupConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
@@ -54,16 +53,14 @@ public class ApplicationRouting extends SubRouting implements MainRoutingGroupCo
 	private final InputPosition location;
 	private final NameOfThing packageName;
 	private final NameOfThing name;
-	private final ApplicationElementConsumer consumer;
 	private final Map<String, CardBinding> cards = new HashMap<>();
 	public boolean sawMainCard;
 
-	public ApplicationRouting(ErrorReporter errors, InputPosition location, NameOfThing packageName, AssemblyName name, ApplicationElementConsumer consumer) {
+	public ApplicationRouting(ErrorReporter errors, InputPosition location, NameOfThing packageName, AssemblyName name) {
 		super(errors, null, null, null);
 		this.location = location;
 		this.packageName = packageName;
 		this.name = name;
-		this.consumer = consumer;
 	}
 
 	public NameOfThing packageName() {
@@ -87,7 +84,6 @@ public class ApplicationRouting extends SubRouting implements MainRoutingGroupCo
 			return;
 		}
 		sawMainCard = true;
-		consumer.mainCard(main);
 	}
 
 	@Override
