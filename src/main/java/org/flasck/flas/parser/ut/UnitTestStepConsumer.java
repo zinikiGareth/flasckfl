@@ -21,7 +21,7 @@ public interface UnitTestStepConsumer {
 	void invokeObjectMethod(Expr expr);
 	void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation);
 	void expect(UnresolvedVar ctr, UnresolvedVar meth, Expr[] args, Expr handler);
-	void match(UnresolvedVar card, MatchedItem what, TargetZone targetZone, boolean contains, String text);
+	void match(UnresolvedVar card, MatchedItem what, TargetZone targetZone, boolean contains, boolean fails, String text);
 	void newdiv(Integer cnt);
 	void other(UnitTestStep step);
 }

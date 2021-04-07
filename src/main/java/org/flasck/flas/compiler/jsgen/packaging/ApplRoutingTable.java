@@ -50,6 +50,7 @@ public class ApplRoutingTable {
 		if (r.hasTitle()) {
 			kw.println("title: '" + r.getTitle() + "',");
 		}
+		kw.println("secure: " + r.requiresSecurity +",");
 		kw.println("cards: [");
 		boolean s2 = false;
 		IndentWriter lw = kw.indent();
@@ -150,6 +151,7 @@ public class ApplRoutingTable {
 		if (r.hasTitle()) {
 			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("title"), J.OBJECT), meth.as(meth.stringConst(r.getTitle()), J.OBJECT))).flush();
 		}
+		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("secure"), J.OBJECT), meth.as(meth.box(meth.boolConst(r.requiresSecurity)), J.OBJECT))).flush();
 		Var cards = meth.avar(List.class.getName(), "cards_" + rn.incrementAndGet());
 		meth.assign(cards, meth.makeNew(ArrayList.class.getName())).flush();
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("cards"), J.OBJECT), meth.as(cards, J.OBJECT))).flush();

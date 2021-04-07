@@ -70,6 +70,7 @@ import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
+import org.flasck.flas.parsedForm.st.UserLogin;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -762,6 +763,14 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void leaveGotoRoute(GotoRoute gr) {
+	}
+
+	@Override
+	public void visitUserLogin(UserLogin ul) {
+	}
+
+	@Override
+	public void leaveUserLogin(UserLogin ul) {
 	}
 
 	@Override

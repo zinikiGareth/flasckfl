@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.GotoRoute;
+import org.flasck.flas.parsedForm.st.UserLogin;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
@@ -170,6 +171,11 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 	@Override
 	public void visitGotoRoute(GotoRoute gr) {
 		new DoRouteGenerator(state, sv, this.block, this.runner);
+	}
+	
+	@Override
+	public void visitUserLogin(UserLogin ul) {
+		new DoUserLoginGenerator(state, sv, this.block, this.runner);
 	}
 	
 	@Override

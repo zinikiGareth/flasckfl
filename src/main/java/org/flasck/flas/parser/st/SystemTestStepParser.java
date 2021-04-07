@@ -91,6 +91,9 @@ public class SystemTestStepParser extends TestStepParser {
 		case "route": {
 			return handleRoute(toks);
 		}
+		case "login": {
+			return handleLogin(toks);
+		}
 		default: {
 			toks.reset(mark);
 			return null;
@@ -221,6 +224,32 @@ public class SystemTestStepParser extends TestStepParser {
 			((IntroductionConsumer)builder).newIntroduction(errors, iv);
 		}
 		((SystemTestStage)builder).gotoRoute(errors, app, route, iv);
+
+		if (toks.hasMoreContent()) {
+			errors.message(toks, "junk at end of line");
+		}
+		return new NoNestingParser(errors);
+	}
+
+	private TDAParsing handleLogin(Tokenizable toks) {
+		ValidIdentifierToken tok = VarNameToken.from(toks);
+		if (tok == null) {
+			errors.message(toks, "no application name provided");
+			return new IgnoreNestedParser();
+		}
+		UnresolvedVar app = new UnresolvedVar(tok.location, tok.text);
+		List<Expr> expr = new ArrayList<>();
+		new TDAExpressionParser(errors, e -> {
+			expr.add(e);
+		}).tryParsing(toks);
+		
+		if (expr.size() != 1) {
+			errors.message(toks, "expression expected");
+			return new NoNestingParser(errors);
+		}
+
+		Expr user = expr.get(0);
+		((SystemTestStage)builder).userLogin(errors, app, user);
 
 		if (toks.hasMoreContent()) {
 			errors.message(toks, "junk at end of line");

@@ -83,6 +83,7 @@ import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
+import org.flasck.flas.parsedForm.st.UserLogin;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -830,6 +831,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveGotoRoute(GotoRoute gr) {
 		top.leaveGotoRoute(gr);
+	}
+
+	public void visitUserLogin(UserLogin ul) {
+		top.visitUserLogin(ul);
+	}
+
+	public void leaveUserLogin(UserLogin ul) {
+		top.leaveUserLogin(ul);
 	}
 
 	public void leaveTypeExpr(TypeExpr expr) {

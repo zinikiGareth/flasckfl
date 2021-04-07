@@ -42,7 +42,7 @@ public class DoUTMatchGeneratorJS extends LeafAdapter implements ResultAware {
 	public void leaveUnitTestMatch(UnitTestMatch m) {
 		switch (m.what) {
 		case TEXT:
-			block.assertable(runner, "matchText", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(m.text));
+			block.assertable(runner, "matchText", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.literal(Boolean.toString(m.fails)), block.string(m.text));
 			break;
 		case TITLE:
 			block.assertable(runner, "matchTitle", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(m.text));

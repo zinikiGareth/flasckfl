@@ -60,6 +60,14 @@ public class TDARoutingParser implements TDAParsing {
 			consumer.exit(exit);
 			return new TDAEnterExitParser(errors, exit);
 		}
+		case "secure": {
+			if (toks.hasMoreContent()) {
+				errors.message(toks, "junk at end of line");
+				return new IgnoreNestedParser();
+			}
+			consumer.isSecure();
+			return new NoNestingParser(errors);
+		}
 		case "route": {
 			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
@@ -92,7 +100,7 @@ public class TDARoutingParser implements TDAParsing {
 		default: {
 			ExprToken op = ExprToken.from(errors, toks);
 			if (op == null || !"<-".equals(op.text)) {
-				errors.message(toks, "expected 'enter', 'at', 'exit', 'route', 'title' or card assignment");
+				errors.message(toks, "expected 'enter', 'at', 'exit', 'secure', 'route', 'title' or card assignment");
 				return new IgnoreNestedParser();
 			}
 			if (kw.text.equals("main") && !(consumer instanceof MainRoutingGroupConsumer)) {

@@ -14,8 +14,20 @@ Application.prototype.baseUri = function(_cxt) {
 	return ''; // could be something like https://foo.com/app; set in the actual application object
 }
 
+Application.prototype.nowLoggedIn = function(_cxt) {
+	this.gotoRoute(_cxt, this.routingPendingSecure.route);
+}
+
 Application.prototype.gotoRoute = function(_cxt, r) {
 	var routing = this._routing();
+	if (routing.secure) {
+		if (!this.securityModule.requireLogin(_cxt, this, this.topdiv)) {
+			this.routingPendingSecure = { routing, route: r };
+			return;
+		} else {
+			this.routingPendingSecure = null;
+		}
+	}
 	if (this.currentRoute == null) {
 		this.currentRoute = [];
 		this._createCards(_cxt, routing.cards);
@@ -64,6 +76,12 @@ Application.prototype.moveDown = function(_cxt, table, path) {
 	for (var i=0;i<table.routes.length;i++) {
 		var rr = table.routes[i];
 		if (rr.path == first || rr.param) {
+			if (rr.secure) {
+				// TODO: create nested cards that demand security
+				// then process "enter" actions so that they are nested
+				// then remember where we are trying to get and return
+				throw new Error("cannot handle nested secure cards yet");
+			}
 			if (rr.param) {
 				this.params[rr.param] = first;
 			}
@@ -84,7 +102,12 @@ Application.prototype.moveDown = function(_cxt, table, path) {
 Application.prototype._createCards = function(_cxt, cards) {
 	for (var i=0;i<cards.length;i++) {
 		var ci = cards[i];
-		this.cards[ci.name] = new ci.card(_cxt);
+		var card = this.cards[ci.name] = new ci.card(_cxt);
+		var ctr = _cxt.findContractOnCard(card, "Lifecycle");
+		if (ctr && ctr.init) {
+			msgs = ctr.init(_cxt);
+			_cxt.env.queueMessages(_cxt, msgs);
+		}
 	}
 }
 

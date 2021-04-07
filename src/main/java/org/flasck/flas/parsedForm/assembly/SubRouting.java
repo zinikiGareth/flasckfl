@@ -21,6 +21,7 @@ public class SubRouting implements RoutingGroupConsumer, Locatable {
 	public RoutingActions enter;
 	public RoutingActions at;
 	public RoutingActions exit;
+	public boolean requiresSecurity;
 	public final List<SubRouting> routes = new ArrayList<>();
 	public final List<CardBinding> assignments = new ArrayList<>();
 
@@ -80,6 +81,11 @@ public class SubRouting implements RoutingGroupConsumer, Locatable {
 			return;
 		}
 		this.exit = actions;
+	}
+
+	@Override
+	public void isSecure() {
+		requiresSecurity = true;
 	}
 
 	@Override

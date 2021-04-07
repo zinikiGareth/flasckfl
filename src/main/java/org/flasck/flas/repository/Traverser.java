@@ -106,6 +106,7 @@ import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
+import org.flasck.flas.parsedForm.st.UserLogin;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -1947,6 +1948,8 @@ public class Traverser implements RepositoryVisitor {
 			visitMockApplication((CreateMockApplication)s);
 		else if (s instanceof GotoRoute)
 			visitGotoRoute((GotoRoute)s);
+		else if (s instanceof UserLogin)
+			visitUserLogin((UserLogin)s);
 		else if (modules != null) {
 			boolean done = false;
 			for (TraverserModule m : modules) {
@@ -2274,6 +2277,18 @@ public class Traverser implements RepositoryVisitor {
 		visitor.leaveGotoRoute(gr);
 	}
 
+	@Override
+	public void visitUserLogin(UserLogin ul) {
+		visitor.visitUserLogin(ul);
+		visitExpr(ul.app, 0);
+		visitExpr(ul.user, 0);
+		leaveUserLogin(ul);
+	}
+
+	public void leaveUserLogin(UserLogin ul) {
+		visitor.leaveUserLogin(ul);
+	}
+	
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
 		if (!cd.generate)

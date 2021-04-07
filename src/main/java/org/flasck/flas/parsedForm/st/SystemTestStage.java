@@ -70,6 +70,10 @@ public class SystemTestStage extends TestStepHolder implements IntroductionConsu
 		this.steps.add(new GotoRoute(app, route, iv));
 	}
 	
+	public void userLogin(ErrorReporter errors, UnresolvedVar app, Expr user) {
+		this.steps.add(new UserLogin(app, user));
+	}
+	
 	@Override
 	public String toString() {
 		return "SystemTestStage[" + desc + "]";

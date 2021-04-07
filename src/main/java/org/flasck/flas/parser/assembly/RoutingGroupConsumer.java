@@ -12,4 +12,5 @@ public interface RoutingGroupConsumer {
 	void at(RoutingActions at);
 	void exit(RoutingActions actions);
 	void route(RoutingGroupConsumer group);
+	void isSecure();
 }

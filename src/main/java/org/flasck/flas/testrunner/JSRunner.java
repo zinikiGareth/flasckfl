@@ -13,9 +13,11 @@ import java.util.function.Consumer;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.zinutils.exceptions.UtilException;
@@ -189,6 +191,12 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			pw.println("</head>");
 			pw.println("<body>");
 			pw.println("<script>");
+			repository.traverse(new LeafAdapter() {
+				@Override
+				public void visitAssembly(ApplicationAssembly e) {
+					pw.println(e.name().uniqueName() +  "._Application.prototype.securityModule = new STSecurityModule();");
+				}
+			});
 			for (SystemTest st : jse.systemTests()) {
 				pw.println(st.name().jsName()  + ".manual = function(host, port) {");
 				pw.println("  var runner = new UTRunner(new WSBridge(host, port));");

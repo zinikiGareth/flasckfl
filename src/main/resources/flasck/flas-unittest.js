@@ -164,6 +164,9 @@ UTRunner.prototype.input = function(_cxt, target, zone, text) {
 	}
 }
 UTRunner.prototype.findDiv = function(_cxt, rt, zone, pos) {
+	if (!rt) {
+		throw Error("MATCH\nThe card has not been rendered");
+	}
 	if (pos >= zone.length) {
 		return document.getElementById(rt._id);
 	}
@@ -198,11 +201,18 @@ UTRunner.prototype.getZoneDiv = function(_cxt, target, zone) {
 	// will throw error if not found
 	return this.findDiv(_cxt, target._currentRenderTree(), zone, 0);
 }
-UTRunner.prototype.matchText = function(_cxt, target, zone, contains, expected) {
+UTRunner.prototype.matchText = function(_cxt, target, zone, contains, fails, expected) {
 	var matchOn = this.findMockFor(target);
 	if (!matchOn)
 		throw Error("there is no mock " + target);
-	var div = this.getZoneDiv(_cxt, matchOn, zone);
+	try {
+		var div = this.getZoneDiv(_cxt, matchOn, zone);
+	} catch (e) {
+		if (fails)
+			return; // we were expecting that ...
+		else
+			throw e;
+	}
 	var actual = div.innerText.trim();
 	actual = actual.replace(/\n/g, ' ');
 	actual = actual.replace(/ +/, ' ');
@@ -386,6 +396,12 @@ UTRunner.prototype.runRemote = function(testClz, wsapi, spec) {
 }
 
 	window.UTRunner = UTRunner;
+function STSecurityModule() {
+}
+
+STSecurityModule.prototype.requireLogin = function() {
+	return false; // we are not logged in
+}
 
 const BoundVar = function() {
 }

@@ -355,28 +355,35 @@ public class TestStepParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		
-		TargetZone targetZone1 = new TargetZone(toks.realinfo(), new ArrayList<>());
-		boolean contains1 = false;
+		TargetZone targetZoneTmp = new TargetZone(toks.realinfo(), new ArrayList<>());
+		boolean containsTmp = false;
+		boolean failsTmp = false;
 		if (toks.hasMoreContent()) {
-			targetZone1 = parseTargetZone(toks);
-			if (targetZone1 == null) {
+			targetZoneTmp = parseTargetZone(toks);
+			if (targetZoneTmp == null) {
 				return new IgnoreNestedParser();
 			}
-			ValidIdentifierToken isContains = VarNameToken.from(toks);
-			if (isContains != null && !"contains".equals(isContains.text)) {
-				errors.message(isContains.location, "syntax error");
-				return new IgnoreNestedParser();
+			ValidIdentifierToken option = VarNameToken.from(toks);
+			if (option != null) {
+				if ("contains".equals(option.text)) {
+					containsTmp = true;
+				} else if ("fails".equals(option.text)) {
+					failsTmp = true;
+				} else {
+					errors.message(option.location, "syntax error");
+					return new IgnoreNestedParser();
+				}
 			}
-			contains1 = isContains != null;
 		}
-		TargetZone targetZone = targetZone1;
-		boolean contains = contains1;
 		if (toks.hasMoreContent()) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
+		final TargetZone targetZone = targetZoneTmp;
+		final boolean contains = containsTmp;
+		final boolean fails = failsTmp;
 		// TODO: should we return an expression parser for scroll matching?
-		return new FreeTextParser(errors, text -> { builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, text); });
+		return new FreeTextParser(errors, text -> { builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, fails, text); });
 	}
 
 	public TargetZone parseTargetZone(Tokenizable toks) {

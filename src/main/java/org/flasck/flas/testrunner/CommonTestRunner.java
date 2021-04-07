@@ -36,7 +36,7 @@ public abstract class CommonTestRunner<T extends CommonState> {
 	protected final List<Expectation> expectations = new ArrayList<>();
 	protected final List<Invocation> invocations = new ArrayList<>();
 	protected final List<String> errors = new ArrayList<>();
-	private final Repository repository;
+	protected final Repository repository;
 
 	public CommonTestRunner(Configuration config, Repository repository) {
 		this.config = config;

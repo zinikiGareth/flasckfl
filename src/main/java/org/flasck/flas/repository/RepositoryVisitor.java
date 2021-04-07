@@ -70,6 +70,7 @@ import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
+import org.flasck.flas.parsedForm.st.UserLogin;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -259,6 +260,8 @@ public interface RepositoryVisitor {
 	void visitMockApplication(CreateMockApplication s);
 	void visitGotoRoute(GotoRoute gr);
 	void leaveGotoRoute(GotoRoute gr);
+	void visitUserLogin(UserLogin ul);
+	void leaveUserLogin(UserLogin ul);
 	void visitTypeExpr(TypeExpr expr);
 	void leaveTypeExpr(TypeExpr expr);
 	void visitCastExpr(CastExpr expr);
