@@ -1772,6 +1772,12 @@ Image._ctor_asset = function(_cxt, _card, _uri) {
 }
 Image._ctor_asset.nfargs = function() { return 2; }
 
+Image._ctor_uri = function(_cxt, _card, _uri) {
+    const ret = new Image(_cxt, _uri);
+    return new ResponseWithMessages(_cxt, ret, []);
+}
+Image._ctor_uri.nfargs = function() { return 2; }
+
 Image.prototype.getUri = function() {
 	return this.state.get("uri");
 }

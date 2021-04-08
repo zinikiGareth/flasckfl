@@ -17,7 +17,6 @@ public class Configuration {
 	public final ErrorReporter errors;
 	public boolean unitjvm = true, unitjs = true;
 	public boolean systemjvm = true, systemjs = true;
-	public boolean dumpTypes;
 	public final List<File> readFlims = new ArrayList<>();
 	public File root;
 	public boolean doTypeCheck = true;

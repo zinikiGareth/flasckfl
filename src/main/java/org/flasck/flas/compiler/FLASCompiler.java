@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.LineNumberReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -552,11 +553,17 @@ public class FLASCompiler implements CompileUnit {
 	public void dumpTypes(File ty) throws FileNotFoundException {
 		// dump types if specified
 		if (ty != null) {
-			FileOutputStream fos = new FileOutputStream(ty);
+			OutputStream fos;
+			if (ty.equals(config.root))
+				fos = System.out;
+			else
+				fos = new FileOutputStream(ty);
 			PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos));
 			RepositoryVisitor dumper = new TypeDumper(pw);
 			repository.traverse(dumper);
-			pw.close();
+			pw.flush();
+			if (fos != System.out)
+				pw.close();
 		}
 	}
 

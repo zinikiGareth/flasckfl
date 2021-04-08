@@ -15,6 +15,7 @@ import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.UnifiableType;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder, StateHolder, EventHolder, PolyHolder {
@@ -200,6 +201,10 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
+		if (other instanceof UnifiableType) {
+			((UnifiableType)other).incorporatedBy(pos, this);
+			return true;
+		}
 		return this == other;
 	}
 

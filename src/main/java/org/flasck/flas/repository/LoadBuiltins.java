@@ -426,7 +426,7 @@ public class LoadBuiltins {
 	//   -> ctor Image.uri
 	private static ObjectCtor imageUri;
 	static {
-		FunctionName ctorFrom = FunctionName.objectCtor(pos, random.name(), "uri");
+		FunctionName ctorFrom = FunctionName.objectCtor(pos, image.name(), "uri");
 		imageUri = new ObjectCtor(pos, image, ctorFrom, Arrays.asList(new TypedPattern(pos, uriTR, new VarName(pos, ctorFrom, "uri"))));
 		imageUri.dontGenerate();
 		imageUri.bindType(new Apply(uri, image));
