@@ -834,6 +834,28 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
         img.style.height = yr;
         img.style.left = xc - xr/2;
         img.style.top = yc - yr/2;
+    } else if (alg.startsWith("promote-box-")) {
+        var props = alg.replace("promote-box-", "");
+        var idx = props.indexOf("-");
+        var idx2 = props.indexOf("-", idx+1);
+        var ar = parseFloat(props.substring(0, idx));
+        var sm, rotate = false;
+        if (idx2 != -1) {
+            sm = parseFloat(props.substring(idx+1, idx2)) / 100;
+            rotate = props.substring(idx2+1) == "rotate";
+        } else {
+            sm = parseFloat(props.substring(idx+1)) / 100;
+        }
+        // figure the smaller dimension, including border
+        var md = Math.min(cw/ar, ch);
+        // thus figure the desired width and height, without border width
+        var dw = md*ar * (1 - 2*sm), dh = md * (1 - 2*sm);
+        img.style.width = dw;
+        img.style.height = dh;
+        if (sm > 0) {
+            img.style.borderTopWidth = img.style.borderBottomWidth = md * sm;
+            img.style.borderLeftWidth = img.style.borderRightWidth = md * ar * sm;
+        }
     } else if (alg.startsWith("text-")) {
         var props = alg.replace("text-", "");
         var rs = parseFloat(props) / 100;
