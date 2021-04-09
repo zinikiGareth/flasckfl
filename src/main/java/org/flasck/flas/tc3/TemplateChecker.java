@@ -238,6 +238,8 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			}
 		} else if (etype instanceof UnionTypeDefn) {
 			distributeUnion(pos, etype, mapping);
+		} else if (etype instanceof ObjectDefn) {
+			errors.message(pos, "cannot assign elements of " + etype.signature() + " to a container");
 		} else if (etype instanceof UnifiableType) {
 			errors.message(pos, "the compiler is not clever enough to do the analysis required to figure out which template to send elements to; please specify a template or make your types clearer");
 		} else {

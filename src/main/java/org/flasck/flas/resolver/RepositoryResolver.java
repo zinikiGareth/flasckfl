@@ -15,6 +15,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.TemplateName;
+import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.ModuleExtensible;
 import org.flasck.flas.compiler.modules.TraversalProcessor;
 import org.flasck.flas.errors.ErrorMark;
@@ -433,8 +434,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 				return;
 			}
 			NameOfThing card = scope.containingCard();
-			if (card == null && !((FunctionName)scope).isUnitTest()) {
-				errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " cannot be created outside card or object scope");
+			if (card == null && !(scope instanceof UnitTestName) && !((FunctionName)scope).isUnitTest()) {
+				errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " cannot be created outside card, object or test scope");
 				return;
 			}
 			expr.bind(ctor, false);

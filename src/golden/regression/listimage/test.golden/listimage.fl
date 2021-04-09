@@ -1,11 +1,11 @@
-	contract handler Handler
+	contract Handler
 		message (String body)
 		
 	card Gallery
 		state
 			List[Image] images
 
-		handler Handler UpdateImages
+		implements Handler
 			message body
 				images <- map makeImage uris
 					uris = (cast List[String] (assoc response 'images'))

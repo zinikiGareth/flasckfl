@@ -1,0 +1,5 @@
+	test that we get back a list of images
+		data Gallery g
+		contract g Handler message '{"images":["https://foo.com/img.jpg"]}'
+		assert (g.images)
+			[Image.uri (parseUri 'https://foo.com/img.jpg')]

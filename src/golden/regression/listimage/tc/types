@@ -1,5 +1,5 @@
-test.golden.Gallery.UpdateImages.message :: String->List[Message]
-test.golden.Gallery.UpdateImages.message.makeImage :: test.golden.Gallery.UpdateImages->String->Image
-test.golden.Gallery.UpdateImages.message.response :: test.golden.Gallery.UpdateImages->String->Hash
-test.golden.Gallery.UpdateImages.message.uris :: test.golden.Gallery.UpdateImages->String->List[String]
+test.golden.Gallery._C0.message :: String->List[Message]
+test.golden.Gallery._C0.message.makeImage :: test.golden.Gallery._C0->String->Image
+test.golden.Gallery._C0.message.response :: test.golden.Gallery._C0->String->Hash
+test.golden.Gallery._C0.message.uris :: test.golden.Gallery._C0->String->List[String]
 test.golden.map :: (A->B)->List[A]->List[B]

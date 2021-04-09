@@ -57,12 +57,25 @@ public class UTAChecker extends LeafAdapter implements ResultAware {
 			((UnifiableType)expr).incorporatedBy(a.expr.location(), value);
 		else if (expr.incorporates(a.value.location(), value))
 			; // fine
-		else if (value == LoadBuiltins.error)
+		else if (isError(value))
 			; // errors are always possible
 		else {
 			errors.message(a.value.location(), "value is of type " + value.signature() + " that cannot be the result of an expression of type " + expr.signature());
 		}
 		// TODO: we probably need to try and resolve any UTs if there weren't errors
 		sv.result(null);
+	}
+
+	private boolean isError(Type value) {
+		if (value == LoadBuiltins.error || value instanceof ErrorType)
+			return true;
+		if (value instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) value;
+			for (Type t : pi.polys()) {
+				if (isError(t))
+					return true;
+			}
+		}
+		return false;
 	}
 }

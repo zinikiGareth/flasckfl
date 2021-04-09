@@ -44,6 +44,8 @@ UTRunner.prototype.handleMessages = function(_cxt, msg) {
 }
 UTRunner.prototype.assertSameValue = function(_cxt, e, a) {
 	e = _cxt.full(e);
+	if (e instanceof ResponseWithMessages)
+		e = e.obj; // just throw the messages away
 	a = _cxt.full(a);
 	if (!_cxt.compare(e, a)) {
 		if (a instanceof FLError)

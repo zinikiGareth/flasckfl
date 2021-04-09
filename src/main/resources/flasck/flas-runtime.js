@@ -471,21 +471,35 @@ FLContext.prototype.spine = function(obj) {
 }
 
 FLContext.prototype.full = function(obj) {
+	var msgs = [];
 	obj = this.head(obj);
 	if (obj == null) {
 		// nothing to do
 	} else if (obj._full) {
 		obj._full(this);
 	} else if (Array.isArray(obj)) {
-		for (var i=0;i<obj.length;i++)
+		for (var i=0;i<obj.length;i++) {
 			obj[i] = this.full(obj[i]);
+			if (obj[i] instanceof ResponseWithMessages) {
+				msgs.unshift(obj[i].msgs);
+				obj[i] = obj[i].obj;
+			}
+		}
 	} else if (obj.state instanceof FieldsContainer) {
 		var ks = Object.keys(obj.state.dict);
 		for (var i=0;i<ks.length;i++) {
-			obj.state.dict[ks[i]] = this.full(obj.state.dict[ks[i]]);
+			var tmp = this.full(obj.state.dict[ks[i]]);
+			if (tmp instanceof ResponseWithMessages) {
+				msgs.unshift(tmp.msgs);
+				tmp = tmp.obj;
+			}
+			obj.state.dict[ks[i]] = tmp;
 		}
 	}
-	return obj;
+	if (msgs.length)
+		return new ResponseWithMessages(this, obj, msgs);
+	else
+		return obj;
 }
 
 FLContext.prototype.isTruthy = function(val) {
@@ -1465,12 +1479,16 @@ Array.prototype._field_tail.nfargs = function() { return 0; }
 Cons.prototype._field_tail = Array.prototype._field_tail;
 
 Cons.eval = function(_cxt, hd, tl) {
+	var msgs;
 	var cp = _cxt.spine(tl);
 	if (cp instanceof FLError)
 		return cp;
 	cp = cp.slice(0);
 	cp.splice(0, 0, hd);
-	return cp;
+	if (msgs) {
+		return new ResponseWithMessages(_cxt, cp, msgs)
+	} else
+		return cp;
 }
 
 const AssignItem = function(list, n) {
@@ -1780,6 +1798,15 @@ Image._ctor_uri.nfargs = function() { return 2; }
 
 Image.prototype.getUri = function() {
 	return this.state.get("uri");
+}
+Image.prototype._compare = function(_cxt, other) {
+    if (!(other instanceof Image))
+        return false;
+    return this.state.get("uri").toString() == other.state.get("uri").toString();
+}
+
+Image.prototype.toString = function() {
+    return "Image " + this.state.get("uri");
 }
 
 
@@ -2628,6 +2655,9 @@ ResponseWithMessages.messages = function(cx, rwm) {
 		return rwm.msgs;
 	else
 		return null;
+}
+ResponseWithMessages.prototype.toString = function() {
+	return "ResponseWithMessages (" + this.obj + ")";
 }
 
 const UpdateDisplay = function(cx, card) {
