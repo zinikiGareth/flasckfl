@@ -594,6 +594,7 @@ public class LoadBuiltins {
 	
 	//   -> comparisons
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, null).dontGenerate();
+	public static final FunctionDefinition isNotEqual = new FunctionDefinition(FunctionName.function(pos, null, "<>"), 2, null).dontGenerate();
 	public static final FunctionDefinition isGE = new FunctionDefinition(FunctionName.function(pos, null, ">="), 2, null).dontGenerate();
 	public static final FunctionDefinition isGT = new FunctionDefinition(FunctionName.function(pos, null, ">"), 2, null).dontGenerate();
 	public static final FunctionDefinition isLE = new FunctionDefinition(FunctionName.function(pos, null, "<="), 2, null).dontGenerate();
@@ -603,6 +604,7 @@ public class LoadBuiltins {
 			Type pa = new PolyType(pos, new SolidName(isEqual.name(), "A"));
 			isEqual.bindType(new Apply(pa, pa, bool));
 		}
+		isNotEqual.bindType(new Apply(number, number, bool));
 		isGE.bindType(new Apply(number, number, bool));
 		isGT.bindType(new Apply(number, number, bool));
 		isLE.bindType(new Apply(number, number, bool));
@@ -796,6 +798,7 @@ public class LoadBuiltins {
 		repository.newUnion(errors, event);
 
 		repository.functionDefn(errors, isEqual);
+		repository.functionDefn(errors, isNotEqual);
 		repository.functionDefn(errors, isGE);
 		repository.functionDefn(errors, isGT);
 		repository.functionDefn(errors, isLE);

@@ -611,6 +611,10 @@ FLContext.prototype.handleEvent = function(card, handler, event) {
 	if (handler) {
 		reply = handler.call(card, this, event);
 	}
+	if (reply instanceof FLError) {
+		this.log(reply.message);
+		return;
+	}
 	reply.push(new UpdateDisplay(this, card));
 	this.env.queueMessages(this, reply);
 }
@@ -772,6 +776,7 @@ FLCard.prototype._resizeDisplayElements = function(_cxt, _rt) {
 FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
     var parent = img.parentElement;
     if (alg.startsWith("target-center-")) {
+        parent.style.position = "relative";
         var props = alg.replace("target-center-", "");
         var idx = props.indexOf("-");
         var xp = parseFloat(props.substring(0, idx));
@@ -815,6 +820,7 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
             parent.style.top = top;
         }
     } else if (alg.startsWith("min-aspect-")) {
+        parent.style.position = "relative";
         var props = alg.replace("min-aspect-", "");
         var idx = props.indexOf("-");
         var idx2 = props.indexOf("-", idx+1);
@@ -835,6 +841,7 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
         img.style.left = xc - xr/2;
         img.style.top = yc - yr/2;
     } else if (alg.startsWith("promote-box-")) {
+        parent.style.position = "relative";
         var props = alg.replace("promote-box-", "");
         var idx = props.indexOf("-");
         var idx2 = props.indexOf("-", idx+1);
@@ -2116,6 +2123,14 @@ FLBuiltin.isEqual = function(_cxt, a, b) {
 }
 
 FLBuiltin.isEqual.nfargs = function() { return 2; }
+
+FLBuiltin.isNotEqual = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
+	return a!=b;
+}
+
+FLBuiltin.isNotEqual.nfargs = function() { return 2; }
 
 FLBuiltin.greaterEqual = function(_cxt, a, b) {
 	a = _cxt.full(a);

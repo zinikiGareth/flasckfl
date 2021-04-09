@@ -263,6 +263,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 		case ":":
 			return 4;
 		case "==":
+		case "<>":
 		case "<":
 		case "<=":
 		case "!=":

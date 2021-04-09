@@ -314,6 +314,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			return "FLBuiltin.not";
 		case "==":
 			return "FLBuiltin.isEqual";
+		case "<>":
+			return "FLBuiltin.isNotEqual";
 		case ">=":
 			return "FLBuiltin.greaterEqual";
 		case ">":

@@ -60,7 +60,7 @@ Application.prototype.parseRoute = function(_cxt, r) {
 			r = new URL(r, this.baseUri()).href;
 	} catch (e) {}
 	this.currentPath = r;
-	var url = r.replace(this.baseUri(), '').replace(/^#*/, '').replace(/^\/*/, '');
+	var url = r.replace(this.baseUri(), '').replace(/^[#/]*/, '');
 	var parts = url.split("/").filter(x => !!x);
 	return parts;
 }
