@@ -1,3 +1,20 @@
+const groundUri = function(uri) {
+	try {
+        if (uri instanceof FLURI) {
+            uri = uri.resolve(window.location);
+        } else if (typeof(uri) === 'string') {
+            uri = new URL(uri, window.location);
+        } else if (!(uri instanceof URL)) {
+            _cxt.log("not a valid uri", uri);
+            return;
+        }
+    } catch (e) {
+		_cxt.log("error in resolving uri from", uri, "inside", window.location);
+		return;
+	}
+    return uri;
+}
+
 const FlasckServices = function() {
 }
 
@@ -5,8 +22,11 @@ const LiveAjaxService = function() {
 }
 
 LiveAjaxService.prototype.subscribe = function(_cxt, uri, options, handler) {
-    console.log("want to subscribe to", uri);
-    this.ajax(_cxt, uri, this.feedback(_cxt.env, uri, options, handler));
+    uri = groundUri(uri);
+    if (uri) {
+        console.log("want to subscribe to", uri);
+        this.ajax(_cxt, uri, this.feedback(_cxt.env, uri, options, handler));
+    }
 }
 
 LiveAjaxService.prototype.ajax = function(_cxt, uri, handler) {
@@ -43,7 +63,19 @@ LiveAjaxService.prototype.feedback = function(env, uri, options, handler) {
     return fb;
 }
 
+const LiveNavigationService = function() {
+}
+
+LiveNavigationService.prototype.redirect = function(_cxt, uri) {
+    uri = groundUri(uri);
+    if (uri) {
+        _cxt.log("redirecting to", uri);    
+        window.location = uri;
+    }
+}
+
 FlasckServices.configure = function(env) {
     env.broker.register("Ajax", new LiveAjaxService());
+    env.broker.register("Navigation", new LiveNavigationService());
 }
 

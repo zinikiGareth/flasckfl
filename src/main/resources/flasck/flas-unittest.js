@@ -715,6 +715,8 @@ MockAjaxSubscriber.prototype.matchAndSend = function(_cxt, baseUri, sub) {
 const MockAjaxService = function() {
 }
 MockAjaxService.prototype.subscribe = function(_cxt, uri, options, handler) {
+	if (uri instanceof FLURI)
+		uri = uri.uri;
 	_cxt.env.activeSubscribers.push({ uri, options, handler });
 }
 

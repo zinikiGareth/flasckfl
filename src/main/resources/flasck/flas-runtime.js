@@ -1473,6 +1473,10 @@ class FLError extends Error {
 		if (other.message != this.message) return false;
 		return true;
 	}
+
+	_throw() {
+		return true;
+	}
 }
 
 FLError.eval = function(_cxt, msg) {
@@ -1826,7 +1830,10 @@ Image._ctor_uri = function(_cxt, _card, _uri) {
 Image._ctor_uri.nfargs = function() { return 2; }
 
 Image.prototype.getUri = function() {
-	return this.state.get("uri");
+	var uri = this.state.get("uri");
+    if (uri instanceof FLURI)
+        uri = uri.resolve(window.location);
+    return uri;
 }
 Image.prototype._compare = function(_cxt, other) {
     if (!(other instanceof Image))
@@ -2249,18 +2256,26 @@ FLBuiltin.assoc = function(_cxt, hash, member) {
 }
 FLBuiltin.assoc.nfargs = function() { return 2; }
 
+function FLURI(s) {
+	this.uri = s;
+}
+
+FLURI.prototype.resolve = function(base) {
+	return new URL(this.uri, base);
+}
+
+FLURI.prototype._towire = function(into) {
+	into.uri = this.uri;
+}
+
 FLBuiltin.parseUri = function(_cxt, s) {
 	s = _cxt.full(s);
 	if (s instanceof FLError)
 		return s;
 	else if (typeof(s) !== 'string')
 		return new FLError("not a string");
-	try {
-		return new URL(s);
-	} catch (e) {
-		_cxt.log("error in parsing", s);
-		return new FLError(e);
-	}
+	else
+		return new FLURI(s);
 }
 FLBuiltin.parseUri.nfargs = function() { return 1; }
 

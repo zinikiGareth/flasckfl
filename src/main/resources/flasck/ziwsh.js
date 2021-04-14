@@ -422,9 +422,13 @@ const MarshallerProxy = function(logger, ctr, svc) {
 
 MarshallerProxy.prototype.invoke = function(meth, args) {
     const cx = args[0];
-    const ux = this.svc.begin(cx, meth);
-    new ArgListMarshaller(this.logger, false, true).marshal(ux, args);
-    return ux.dispatch();
+    try {
+        const ux = this.svc.begin(cx, meth);
+        new ArgListMarshaller(this.logger, false, true).marshal(ux, args);
+        return ux.dispatch();
+    } catch (e) {
+        this.logger.log("error during marshalling", e);
+    }
 }
 
 const ArgListMarshaller = function(logger, includeFirst, includeLast) {
@@ -450,7 +454,9 @@ ObjectMarshaller.prototype.marshal = function(o) {
 }
 
 ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
-    if (ux.handleCycle(o))
+    if (o._throw && o._throw())
+        throw o;
+    else if (ux.handleCycle(o))
         ;
     else if (typeof o === "string")
         ux.string(o);
