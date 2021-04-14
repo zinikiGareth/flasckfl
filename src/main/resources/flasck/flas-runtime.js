@@ -1064,7 +1064,7 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
                     crt.children = [];
                 }
                 var card = this;
-                this._updateList(node, crt.children, value, {
+                this._updateList(_cxt, node, crt.children, value, {
                     insert: function (rtc, ni, v) {
                         card._addItem(_cxt, rtc, node, ni, t, fn, v, _tc);
                     }
@@ -1131,7 +1131,7 @@ FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value, fn
     }
     var card = this;
     if (Array.isArray(value)) {
-        this._updateList(node, crt.children, value, {
+        this._updateList(_cxt, node, crt.children, value, {
             insert: function(rtc, ni, v) {
                 fn.call(card, _cxt, rtc, node, ni, v);
             }
@@ -1189,8 +1189,8 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
         throw new Error("what is this? " + value);
 }
 
-FLCard.prototype._updateList = function(parent, rts, values, cb) {
-    var sw = this._diffLists(rts, values);
+FLCard.prototype._updateList = function(cx, parent, rts, values, cb) {
+    var sw = this._diffLists(cx, rts, values);
     if (sw === true) {
         for (var i=0;i<values.length;i++) {
         	cb.insert(rts[i], parent.children[i], values[i]);
@@ -1365,13 +1365,13 @@ FLCard.prototype._figureScrollInfo = function(parent) {
  *    disaster - it's a complete disaster but some nodes are recoverable: remove everything but be ready to paste them back
  * additions - for add, a list of position and value for new values in reverse order for easy insertion
  */
-FLCard.prototype._diffLists = function(rtc, list) {
+FLCard.prototype._diffLists = function(_cxt, rtc, list) {
     var ret = { additions: [], removals: [], mapping: {} };
     var added = false, removed = false;
     var used = {};
     outer:
     for (var i=0,j=0;i<rtc.length && j<list.length;j++) {
-        if (rtc[i].value == list[j]) {
+        if (_cxt.compare(rtc[i].value, list[j])) {
             ret.mapping[j] = rtc[i]._id;
             used[i] = true;
             i++;
