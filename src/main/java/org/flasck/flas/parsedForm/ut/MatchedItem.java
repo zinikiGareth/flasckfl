@@ -4,6 +4,7 @@ public enum MatchedItem {
 	TEXT,
 	TITLE,
 	IMAGE_URI,
+	HREF,
 	STYLE,
 	SCROLL;
 }

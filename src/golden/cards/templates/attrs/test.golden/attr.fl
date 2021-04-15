@@ -1,0 +1,10 @@
+	struct Mlink
+		Uri uri
+		String title
+
+	card Attr
+		state
+			Link link <- Link (parseUri 'https://website.com') 'Website'
+			
+		template attr
+			link <- link

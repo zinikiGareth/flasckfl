@@ -184,3 +184,4 @@ src/golden/crobags/explicit
 src/golden/cards/templates/input
 src/golden/cascade/nested
 src/golden/regression/listimage
+src/golden/cards/templates/attrs

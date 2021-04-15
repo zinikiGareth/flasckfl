@@ -15,6 +15,7 @@ const CommonEnv = function(bridge, broker) {
         return;
     this.contracts = broker.contracts;
     this.structs = {};
+    this.structs['Link'] = Link;
     this.objects = {};
     this.objects['Random'] = Random;
     this.objects['FLBuiltin'] = FLBuiltin;
@@ -977,6 +978,36 @@ FLCard.prototype._updateImage = function(_cxt, rt, templateName, field, option, 
     node.onload = function(ev) { self._imageLoaded(_cxt); };
 }
 
+FLCard.prototype._updateLink = function(_cxt, rt, templateName, field, option, source, value, fromField) {
+    if (!rt)
+        return;
+    // In general, everything should already be fully evaluated, but we do allow expressions in templates
+    value = _cxt.full(value);
+    // it should be an Link object
+    var linkRef;
+    var linkText;
+    if (typeof value === 'undefined' || value == null || !(value instanceof Link))
+        linkRef = linkText = '';
+    else {
+        linkRef = value._field_uri(_cxt).uri;
+        linkTitle = value._field_title(_cxt);
+    }
+    var div = document.getElementById(rt._id);
+    const node = div.querySelector("[data-flas-link='" + field + "']");
+    if (!node.id) {
+        var ncid = _cxt.nextDocumentId();
+        node.id = ncid;
+        rt[field] = { _id: ncid };
+        if (source)
+            rt[field].source = source;
+        else
+            rt[field].source = this;
+        rt[field].fromField = fromField;
+    }
+    node.href = linkRef;
+    node.innerText = linkTitle;
+}
+
 FLCard.prototype._imageLoaded = function(_cxt) {
     this._resizeDisplayElements(_cxt, this._renderTree);
 }
@@ -1456,6 +1487,8 @@ FLObject.prototype._updateContainer = FLCard.prototype._updateContainer;
 FLObject.prototype._updatePunnet = FLCard.prototype._updatePunnet;
 FLObject.prototype._updateStyle = FLCard.prototype._updateStyle;
 FLObject.prototype._updateList = FLCard.prototype._updateList;
+FLObject.prototype._updateImage = FLCard.prototype._updateImage;
+FLObject.prototype._updateLink = FLCard.prototype._updateLink;
 FLObject.prototype._diffLists = FLCard.prototype._diffLists;
 FLObject.prototype._attachHandlers = FLCard.prototype._attachHandlers;
 FLObject.prototype._resizeDisplayElements = FLCard.prototype._resizeDisplayElements;
@@ -1844,6 +1877,42 @@ Image.prototype._compare = function(_cxt, other) {
 Image.prototype.toString = function() {
     return "Image " + this.state.get("uri");
 }
+
+
+
+const Link = function(_cxt) {
+    this.state = _cxt.fields();
+    this.state.set('_type', 'Link');
+}
+
+Link._typename = 'Link'
+
+Link.prototype._areYouA = function(_cxt, ty) {
+  if (_cxt.isTruthy(ty == 'Link')) {
+    return true;
+  } else 
+    return false;
+}
+Link.prototype._areYouA.nfargs = function() { return 1; }
+
+Link.eval = function(_cxt, _uri, _title) {
+    var v1 = new Link(_cxt);
+	v1.state.set("uri", _uri);
+	v1.state.set("title", _title);
+    return v1;
+}
+Link.eval.nfargs = function() { return 2; }
+
+Link.prototype._field_title = function(_cxt) {
+    return this.state.get('title');
+}
+Link.prototype._field_title.nfargs = function() { return 0; }
+  
+Link.prototype._field_uri = function(_cxt) {
+    return this.state.get('uri');
+}
+Link.prototype._field_uri.nfargs = function() { return 0; }
+  
 
 
 

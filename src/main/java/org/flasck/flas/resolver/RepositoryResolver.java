@@ -814,6 +814,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			break;
 		case CONTENT:
 		case IMAGE:
+		case LINK:
 			if (!b.doesAssignment())
 				errors.message(slotLoc, "content field must be assigned to");
 			break;

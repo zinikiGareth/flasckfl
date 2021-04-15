@@ -350,6 +350,9 @@ public class TestStepParser implements TDAParsing {
 		case "image":
 			what = MatchedItem.IMAGE_URI;
 			break;
+		case "href":
+			what = MatchedItem.HREF;
+			break;
 		default:
 			errors.message(whattok.location, "cannot match '" + whattok.text + "'");
 			return new IgnoreNestedParser();

@@ -344,6 +344,22 @@ public class LoadBuiltins {
 		event.addCase(scrollToTR);
 	}
 
+	//   -> Link
+	public static final TypeReference linkTR = new TypeReference(pos, "Link");
+	public static final StructDefn link = new StructDefn(pos, FieldsType.STRUCT, null, "Link", false);
+	static {
+		linkTR.bind(link);
+		
+		final StructField uri = new StructField(pos, pos, link, true, true, uriTR, "uri", null);
+		link.addField(uri);
+		uri.fullName(new VarName(pos, link.name(), "uri"));
+
+		final StructField label = new StructField(pos, pos, link, true, true, stringTR, "label", null);
+		link.addField(label);
+		label.fullName(new VarName(pos, link.name(), "label"));
+	}
+
+
 	/* Objects */
 
 	// Random
@@ -796,6 +812,8 @@ public class LoadBuiltins {
 		repository.newStruct(errors, clickEvent);
 		repository.newStruct(errors, scrollTo);
 		repository.newUnion(errors, event);
+
+		repository.newStruct(errors, link);
 
 		repository.functionDefn(errors, isEqual);
 		repository.functionDefn(errors, isNotEqual);
