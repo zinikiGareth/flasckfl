@@ -461,7 +461,7 @@ FLContext.prototype.head = function(obj) {
 
 FLContext.prototype.spine = function(obj) {
 	obj = this.head(obj);
-	if (obj instanceof FLError)
+	if (!obj || obj instanceof FLError)
 		return obj;
 	if (Array.isArray(obj))
 		return obj;
@@ -1004,7 +1004,9 @@ FLCard.prototype._updateLink = function(_cxt, rt, templateName, field, option, s
             rt[field].source = this;
         rt[field].fromField = fromField;
     }
-    node.href = linkRef;
+    var env = _cxt.env;
+    node.onclick = ev => window.appl.gotoRoute(env.newContext(), linkRef);
+    node.dataset.route = linkRef;
     node.innerText = linkTitle;
 }
 
@@ -1216,6 +1218,18 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
         pe.setAttribute("id", inid);
         node.appendChild(pe);
         value._renderInto(_cxt, pe);
+    } else if (Array.isArray(value)) {
+        // this is too simplistic
+        for (var i=0;i<value.length;i++) {
+            if (value[i] instanceof FLCard) {
+                const pe = document.createElement("div");
+                pe.setAttribute("id", inid);
+                node.appendChild(pe);
+                value[i]._renderInto(_cxt, pe);
+            } else {
+                throw new Error("not a card: " + value);
+            }
+        }
     } else
         throw new Error("what is this? " + value);
 }
@@ -1545,16 +1559,14 @@ Array.prototype._field_tail.nfargs = function() { return 0; }
 Cons.prototype._field_tail = Array.prototype._field_tail;
 
 Cons.eval = function(_cxt, hd, tl) {
-	var msgs;
 	var cp = _cxt.spine(tl);
 	if (cp instanceof FLError)
 		return cp;
+	else if (!cp)
+		return [hd];
 	cp = cp.slice(0);
 	cp.splice(0, 0, hd);
-	if (msgs) {
-		return new ResponseWithMessages(_cxt, cp, msgs)
-	} else
-		return cp;
+	return cp;
 }
 
 const AssignItem = function(list, n) {
@@ -2145,6 +2157,8 @@ FLBuiltin.take = function(_cxt, quant, list) {
 	list = _cxt.spine(list);
 	if (list instanceof FLError)
 		return list;
+	else if (!list)
+		return [];
 	quant = _cxt.full(quant);
 	if (quant instanceof FLError)
 		return quant;
@@ -2160,6 +2174,8 @@ FLBuiltin.drop = function(_cxt, quant, list) {
 	list = _cxt.spine(list);
 	if (list instanceof FLError)
 		return list;
+	else if (!list)
+		return [];
 	quant = _cxt.full(quant);
 	if (quant instanceof FLError)
 		return quant;

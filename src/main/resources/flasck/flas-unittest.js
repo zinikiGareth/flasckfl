@@ -72,9 +72,17 @@ UTRunner.prototype.invoke = function(_cxt, inv) {
 	this.queueMessages(_cxt, inv);
 	this.dispatchMessages(_cxt);
 }
-UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
+UTRunner.prototype.send = function(_cxt, target, contract, msg, inargs) {
 	_cxt.log("doing send from runner to " + contract + ":" + msg);
 	var reply;
+	var args = [];
+	for (var i=0;i<inargs.length;i++) {
+		if (inargs[i] instanceof MockCard) {
+			args.push(inargs[i].card);
+		} else {
+			args.push(inargs[i]);
+		}
+	}
 	if (target.sendTo) {
 		reply = target.sendTo(_cxt, contract, msg, args);
 	} else {
@@ -269,8 +277,8 @@ UTRunner.prototype.matchHref = function(_cxt, target, zone, expected) {
 	if (div.tagName != "A")
 		throw new Error("MATCH\n  expected: A\n  actual:   " + div.tagName);
 
-	var abs = new URL(expected, window.location).toString()
-	var actual = div.href.toString();
+	var abs = expected;
+	var actual = div.dataset.route.toString();
 	if (actual != abs)
 		throw new Error("MATCH\n  expected: " + abs + "\n  actual:   " + actual);
 }

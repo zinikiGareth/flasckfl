@@ -10,10 +10,11 @@ import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.ExprToken;
-import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
+import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDARoutingParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -26,9 +27,9 @@ public class TDARoutingParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(toks);
+		ValidIdentifierToken kw = VarNameToken.from(toks);
 		if (kw == null) {
-			errors.message(toks, "expected routing keyword");
+			errors.message(toks, "expected routing keyword or card var");
 			return new IgnoreNestedParser();
 		}
 		

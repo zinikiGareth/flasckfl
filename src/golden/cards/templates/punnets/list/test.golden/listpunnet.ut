@@ -1,0 +1,4 @@
+	test we can load a single card in the punnet
+		data ListPunnet lp
+		data Hello hello
+		contract lp AddCard add 0 hello

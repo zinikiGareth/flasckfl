@@ -1,0 +1,16 @@
+	contract AddCard
+		add (Number pos) (Card c)
+		
+	card Hello
+		template hello
+		
+	card ListPunnet
+		state
+			List[Card] cards
+			
+		template list-punnet
+			entries <- cards
+			
+		implements AddCard
+			add p c
+				cards <- concatLists [take p cards, [c], drop p cards]

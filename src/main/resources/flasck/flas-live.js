@@ -70,9 +70,19 @@ LiveNavigationService.prototype.redirect = function(_cxt, uri) {
     uri = groundUri(uri);
     if (uri) {
         _cxt.log("redirecting to", uri);    
-        window.location = uri;
+        if (uri.toString().startsWith(window.appl.baseUri())) {
+            window.history.pushState({}, "", uri);
+            window.appl.gotoRoute(_cxt, uri);
+        } else {
+            window.location = uri;
+        }
     }
 }
+
+window.addEventListener('popstate', function(ev) {
+    console.log("location: " + document.location + ", state: " + JSON.stringify(ev.state));
+    ev.preventDefault();
+});
 
 FlasckServices.configure = function(env) {
     env.broker.register("Ajax", new LiveAjaxService());

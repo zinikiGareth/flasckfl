@@ -68,6 +68,21 @@ public class TypeHelpers {
 		return true;
 	}
 
+	public static boolean isListCard(Type etype) {
+		if (!(etype instanceof PolyInstance))
+			return false;
+		
+		PolyInstance pi = (PolyInstance) etype;
+		if (!pi.struct().equals(LoadBuiltins.list))
+			return false;
+		
+		Type ty = pi.polys().get(0);
+		if (!ty.equals(LoadBuiltins.card))
+			return false;
+		
+		return true;
+	}
+
 	public static Type extractListPoly(Type etype) {
 		if (isListLike(etype))
 			return ((PolyInstance)etype).polys().get(0);
@@ -123,5 +138,4 @@ public class TypeHelpers {
 		} else
 			return false;
 	}
-
 }

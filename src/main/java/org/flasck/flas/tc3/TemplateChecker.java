@@ -190,7 +190,8 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			// but any such thing would have to be a "card handle" and I don't think we have a type for that
 			if (!(
 				LoadBuiltins.crobag.equals(etype) ||
-				LoadBuiltins.card.equals(etype)
+				LoadBuiltins.card.equals(etype) ||
+				TypeHelpers.isListCard(etype)
 			)) {
 				errors.message(pos, "cannot render " + etype.signature() + " in punnet");
 				break;
