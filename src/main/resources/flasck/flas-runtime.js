@@ -1219,16 +1219,23 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
         node.appendChild(pe);
         value._renderInto(_cxt, pe);
     } else if (Array.isArray(value)) {
-        // this is too simplistic
-        for (var i=0;i<value.length;i++) {
-            if (value[i] instanceof FLCard) {
-                const pe = document.createElement("div");
-                pe.setAttribute("id", inid);
-                node.appendChild(pe);
-                value[i]._renderInto(_cxt, pe);
-            } else {
-                throw new Error("not a card: " + value);
+        var sw = this._diffLists(_cxt, crt.children, value);
+        if (sw === true) {
+            ; // everything matched
+        } else if (sw.op === 'addtoend') {
+            for (var i=crt.children.length;i<value.length;i++) {
+                if (value[i] instanceof FLCard) {
+                    crt.children.push({ value: value[i] });
+                    const pe = document.createElement("div");
+                    pe.setAttribute("id", inid);
+                    node.appendChild(pe);
+                    value[i]._renderInto(_cxt, pe);
+                } else {
+                    throw new Error("not a card: " + value);
+                }
             }
+        } else {
+            throw new Error("cannot handle punnet change: " + sw.op);
         }
     } else
         throw new Error("what is this? " + value);

@@ -2,3 +2,15 @@
 		data ListPunnet lp
 		data Hello hello
 		contract lp AddCard add 0 hello
+		match lp text
+			hello
+		
+	test we can load two cards in the punnet
+		data ListPunnet lp
+		data Hello hello
+		contract lp AddCard add 0 hello
+		data Hello hello2
+		contract lp AddCard add 1 hello2
+		match lp text
+			hello hello
+		
