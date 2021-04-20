@@ -14,3 +14,12 @@
 		match lp text
 			hello hello
 		
+	test we can add a card to the start of the punnet
+		data ListPunnet lp
+		data World world
+		contract lp AddCard add 0 world
+		data Hello hello
+		contract lp AddCard add 0 hello
+		match lp text
+			hello world
+		

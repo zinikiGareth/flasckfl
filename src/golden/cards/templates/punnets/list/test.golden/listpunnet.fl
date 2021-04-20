@@ -4,6 +4,9 @@
 	card Hello
 		template hello
 		
+	card World
+		template world
+		
 	card ListPunnet
 		state
 			List[Card] cards
