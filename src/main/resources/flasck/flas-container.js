@@ -38,11 +38,12 @@ Application.prototype.gotoRoute = function(_cxt, r) {
 		this.cards.main._renderInto(_cxt, this.topdiv);
 	}
 	var path = this.parseRoute(_cxt, r);
-
-	// remove and ignore any common elements
-	// move "up" if current has anything left
-	// move "down" the new path
-	this.moveDown(_cxt, routing, path);
+	var cmn = this.removeCommon(_cxt, path);
+	if (this.currentRoute.length > cmn) {
+		_cxt.env.queueMessages(_cxt, new MoveUpEvent(this, cmn, path));
+	} else {
+		_cxt.env.queueMessages(_cxt, new MoveDownEvent(this, cmn == 0 ? routing : this.currentRoute[cmn-1].routes, path));
+	}
 }
 
 Application.prototype.parseRoute = function(_cxt, r) {
@@ -65,10 +66,24 @@ Application.prototype.parseRoute = function(_cxt, r) {
 	return parts;
 }
 
+Application.prototype.removeCommon = function(_cxt, path) {
+	var cmn = 0;
+	while (path.length > 0 && cmn < this.currentRoute.length && path[cmn] == this.currentRoute[cmn].routes.path) {
+		path.shift();
+		cmn++;
+	}
+	return cmn;
+}
+
+Application.prototype.moveUp = function(_cxt) {
+	var exiting = this.currentRoute.pop();
+}
+
 Application.prototype.moveDown = function(_cxt, table, path) {
 	if (table.title != null)
 		this.title = table.title;
 	if (path.length == 0) {
+		_cxt.env.queueMessages(_cxt, new UpdateDisplay(_cxt, this));
 		return;
 	}
 
@@ -85,14 +100,14 @@ Application.prototype.moveDown = function(_cxt, table, path) {
 			if (rr.param) {
 				this.params[rr.param] = first;
 			}
-			this.currentRoute.push({ action: rr });
+			this.currentRoute.push({ routes: rr });
 			this._createCards(_cxt, rr.cards);
 			this._enterRoute(_cxt, rr.enter);
 			this._enterRoute(_cxt, rr.at);
 			this._readyCards(_cxt, rr.cards);
 	
 			path.shift();
-			this.moveDown(_cxt, rr, path);
+			_cxt.env.queueMessages(_cxt, new MoveDownEvent(this, rr, path));
 
 			break;
 		}
@@ -166,6 +181,39 @@ Application.prototype._updateDisplay = function(_cxt, rt) {
 	if (card == null)
 		return;
 	card._updateDisplay(_cxt, rt);
+}
+
+function MoveDownEvent(appl, routing, path) {
+	this.appl = appl;
+	this.routing = routing;
+	this.path = path;
+}
+
+MoveDownEvent.prototype.dispatch = function(_cxt) {
+	this.appl.moveDown(_cxt, this.routing, this.path);
+}
+
+MoveDownEvent.prototype.toString = function() {
+	return "MDE[" + this.path + "]";
+}
+
+function MoveUpEvent(appl, cmn, path) {
+	this.appl = appl;
+	this.cmn = cmn;
+	this.path = path;
+}
+
+MoveUpEvent.prototype.dispatch = function(_cxt) {
+	if (this.appl.currentRoute.length > this.cmn) {
+		this.appl.moveUp(_cxt);
+		_cxt.env.queueMessages(_cxt, this);
+	} else {
+		_cxt.env.queueMessages(_cxt, new MoveDownEvent(this.appl, this.cmn == 0 ? this.appl._routing() : this.appl.currentRoute[this.cmn].routes, this.path));
+	}
+}
+
+MoveUpEvent.prototype.toString = function() {
+	return "MUE[" + this.cmn + "]";
 }
 
 	window.Application = Application;

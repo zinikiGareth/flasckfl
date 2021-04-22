@@ -421,7 +421,23 @@ UTRunner.prototype.runRemote = function(testClz, wsapi, spec) {
 	bridge.executeSync(this, st, cxt, allSteps);
 }
 
+const makeBridge = function(jsb, logger) {
+	return {
+		log: logger.log,
+		debugmsg: logger.debugmsg,
+		// sendJson: (j) => jsb.sendJson.call(jsb, j),
+		// transport: (z) => jsb.transport.call(jsb, z),
+		module: (r, m) => jsb.module.call(jsb, r, m),
+		error: (e) => jsb.error.call(jsb, e),
+		lock: () => jsb.lock.call(jsb),
+		unlock: () => jsb.unlock.call(jsb),
+		getTestCounter: () => jsb.getTestCounter.call(jsb)
+	};
+}
+{
 	window.UTRunner = UTRunner;
+	window.makeBridge = makeBridge;
+}
 function STSecurityModule() {
 	this.currentUser = null;
 }

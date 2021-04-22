@@ -65,8 +65,13 @@ CommonEnv.prototype.dispatchMessages = function(_cxt) {
     }
     delete _cxt.updateCards;
     set.forEach(card => {
-        card._updateDisplay(_cxt, card._renderTree);
-        card._resizeDisplayElements(_cxt, card._renderTree);
+        // This stops applications rendering so we can't do this
+        // if (!card._renderTree)
+        //     return;
+        if (card._updateDisplay)
+            card._updateDisplay(_cxt, card._renderTree);
+        if (card._resizeDisplayElements)
+            card._resizeDisplayElements(_cxt, card._renderTree);
     });
 }
 
@@ -80,8 +85,7 @@ CommonEnv.prototype.handleMessagesWith = function(_cxt, msg) {
     if (!msg)
         ;
     else if (msg instanceof FLError || typeof(msg) == 'string') {
-        this.logger.log(msg);
-        ;
+        _cxt.log(msg);
     } else if (msg instanceof Array) {
         for (var i=0;i<msg.length;i++) {
             this.handleMessages(_cxt, msg[i]);
@@ -89,7 +93,7 @@ CommonEnv.prototype.handleMessagesWith = function(_cxt, msg) {
 	} else if (msg) {
         var ic = this.newContext();
         ic.updateCards = _cxt.updateCards;
-        this.logger.log("dispatching message", msg);
+        _cxt.log("dispatching message", msg);
         var m = msg.dispatch(ic);
         this.handleMessages(_cxt, m);
     }
@@ -461,8 +465,10 @@ FLContext.prototype.head = function(obj) {
 
 FLContext.prototype.spine = function(obj) {
 	obj = this.head(obj);
-	if (!obj || obj instanceof FLError)
+	if (obj instanceof FLError)
 		return obj;
+	if (!obj)
+		return [];
 	if (Array.isArray(obj))
 		return obj;
 	if (obj.constructor === Object) {
@@ -551,7 +557,10 @@ FLContext.prototype.compare = function(left, right) {
 		return left.message === right.message;
 	} else if (left._compare) {
 		return left._compare(this, right);
-	} else if (left.state && right.state && left.state instanceof FieldsContainer && right.state instanceof FieldsContainer && left.name() === right.name()) {
+		// This is dumb differentiation ...
+	} else if (left.state && right.state && left.state instanceof FieldsContainer && right.state instanceof FieldsContainer && left.name && right.name && left.name() === right.name()) {
+		return left.state._compare(this, right.state);
+	} else if (left.state && right.state && left.state instanceof FieldsContainer && right.state instanceof FieldsContainer && left.state.get('_type') && right.state.get('_type') && left.state.get('_type') === right.state.get('_type')) {
 		return left.state._compare(this, right.state);
 	} else
 		return left == right;
@@ -725,6 +734,11 @@ FLContext.prototype.show = function(val) {
 // HACK !  We should map it into a string repn properly
 	return "" + val;
 }
+
+FLContext.prototype.log = function(...args) {
+	this.env.logger.log.apply(this.env.logger, args);
+}
+
 
 
 const FLCard = function(cx) {
@@ -1191,6 +1205,8 @@ FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value, fn
 }
 
 FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
+    if (!_renderTree)
+        return;
     value = _cxt.full(value);
     var div = document.getElementById(_renderTree._id);
     const node = div.querySelector("[data-flas-punnet='" + field + "']");
@@ -1200,6 +1216,10 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
         _renderTree[field] = { _id: ncid, children: [] };
     }
     var crt = _renderTree[field];
+    if (value instanceof FLError) {
+        _cxt.log("error cannot be rendered", value);
+        value = null;
+    }
     if (!value) {
         node.innerHTML = ''; // clear it out
         crt.children = [];
