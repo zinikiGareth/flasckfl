@@ -673,7 +673,7 @@ public class FLASCompiler implements CompileUnit {
 	public void generateHTML(FLASAssembler asm, File outdir, Map<File, File> reloc) {
 		Map<String, String> remap = new TreeMap<>();
 		for (Entry<File, File> e : reloc.entrySet()) {
-			remap.put("file://" + e.getKey().getPath(), e.getValue().getPath());
+			remap.put("file://" + e.getKey().getPath(), "/" + e.getValue().getPath());
 		}
 		repository.traverseAssemblies(config, errors, jse, bce, new AssemblyVisitor() {
 			private List<String> inits = new ArrayList<>();
@@ -709,7 +709,7 @@ public class FLASCompiler implements CompileUnit {
 						url = url.substring(7 + config.jsDir().getPath().length());
 						url = url.replaceAll("^/*", "");
 						FileUtils.copyStreamToFile(co.asStream(), new File(outdir, url));
-						url = "js/" + url;
+						url = "/js/" + url;
 					}
 				}
 				js.add(url);
@@ -767,7 +767,7 @@ public class FLASCompiler implements CompileUnit {
 					asm.templates(co);
 				asm.beginCss();
 				for (String c : css)
-					asm.css("css/" + c);
+					asm.css("/css/" + c);
 				asm.endCss();
 				asm.beginJs();
 				logger.info("assembly has " + js);

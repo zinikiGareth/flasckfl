@@ -101,6 +101,7 @@ Application.prototype.moveDown = function(_cxt, table, path) {
 				this.params[rr.param] = first;
 			}
 			this.currentRoute.push({ routes: rr });
+			// TODO: these need to keep going back to the queue to make sure everything is dispatched in order
 			this._createCards(_cxt, rr.cards);
 			this._enterRoute(_cxt, rr.enter);
 			this._enterRoute(_cxt, rr.at);

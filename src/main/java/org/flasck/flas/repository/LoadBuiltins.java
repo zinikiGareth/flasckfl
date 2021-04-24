@@ -359,6 +359,21 @@ public class LoadBuiltins {
 		label.fullName(new VarName(pos, link.name(), "label"));
 	}
 
+	//   -> hlml
+	public static final TypeReference hlmlTR = new TypeReference(pos, "hlml");
+	public static final StructDefn hlml = new StructDefn(pos, FieldsType.STRUCT, null, "hlml", false);
+	static {
+		hlmlTR.bind(hlml);
+		
+		final StructField uri = new StructField(pos, pos, hlml, true, true, uriTR, "uri", null);
+		hlml.addField(uri);
+		uri.fullName(new VarName(pos, hlml.name(), "uri"));
+
+		final StructField label = new StructField(pos, pos, hlml, true, true, stringTR, "label", null);
+		hlml.addField(label);
+		label.fullName(new VarName(pos, hlml.name(), "label"));
+	}
+
 
 	/* Objects */
 
@@ -449,6 +464,25 @@ public class LoadBuiltins {
 		image.addConstructor(imageUri);
 	}
 
+	// HTML
+	public static final TypeReference htmlTR = new TypeReference(pos, "Html");
+	public static final ObjectDefn html = new ObjectDefn(pos, pos, new ObjectName(null, "Html"), false, new ArrayList<>());
+	static {
+		htmlTR.bind(html);
+	}
+	
+
+	//   -> ctor Html.from
+	private static ObjectCtor htmlFrom;
+	static {
+		FunctionName ctorFrom = FunctionName.objectCtor(pos, html.name(), "from");
+		htmlFrom = new ObjectCtor(pos, html, ctorFrom, Arrays.asList(new TypedPattern(pos, new TypeReference(pos, "AjaxMessage"), new VarName(pos, ctorFrom, "msg"))));
+		htmlFrom.dontGenerate();
+		// TODO: this needs a "forward reference" to AjaxMessage, which is defined in the stdlib
+		// We could do this with some complicated mechanism, but I haven't thought it through
+		htmlFrom.bindType(new Apply(any, html));
+		html.addConstructor(htmlFrom);
+	}
 
 	// SlideWindow (how we know to move forwards & backwards
 	public static final ContractDecl crobagSlideWindow = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "SlideWindow"), false);
@@ -784,6 +818,9 @@ public class LoadBuiltins {
 		repository.newObjectMethod(errors, imageFrom);
 		repository.newObjectMethod(errors, imageAsset);
 		repository.newObjectMethod(errors, imageUri);
+
+		repository.newObject(errors, html);
+		repository.newObjectMethod(errors, htmlFrom);
 
 		repository.newObject(errors, crobag);
 		repository.newObjectMethod(errors, crobagNew);

@@ -21,6 +21,7 @@ const CommonEnv = function(bridge, broker) {
     this.objects['FLBuiltin'] = FLBuiltin;
     this.objects['Crobag'] = Crobag;
     this.objects['CroEntry'] = CroEntry;
+    this.objects['Html'] = Html;
     this.objects['Image'] = Image;
     this.objects['org.ziniki.common.ZiIdURI'] = ZiIdURI; // hack that enables the Java name to be sent on the wire.  It probably shouldn't be; but should we send just a string or should we recognize ZiIdURI?
     this.objects['org.flasck.jvm.builtin.Crobag'] = Crobag; // hack that enables the Java name to be sent on the wire.  It probably shouldn't be.
@@ -958,8 +959,12 @@ FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option
             rt[field].source = this;
         rt[field].fromField = fromField;
     }
-    node.innerHTML = '';
-    node.appendChild(document.createTextNode(value));
+    if (value instanceof Html) {
+        node.innerHTML = value.state.get('html');
+    } else {
+        node.innerHTML = '';
+        node.appendChild(document.createTextNode(value));
+    }
     if (this._eventHandlers) {
         this._attachHandlers(_cxt, rt[field], node, templateName, field, option, source);
     }
@@ -1088,6 +1093,8 @@ FLCard.prototype._updateStyle = function(_cxt, rt, templateName, type, field, op
 }
 
 FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, templateName, value, _tc) {
+    if (!_renderTree)
+        return;
     value = _cxt.full(value);
     var div = document.getElementById(_renderTree._id);
     const node = div.querySelector("[data-flas-" + type + "='" + field + "']");
@@ -1162,6 +1169,8 @@ FLCard.prototype._addItem = function(_cxt, rt, parent, currNode, template, fn, v
 }
 
 FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value, fn) {
+    if (!_renderTree)
+        return;
     value = _cxt.full(value);
     var div = document.getElementById(_renderTree._id);
     const node = div.querySelector("[data-flas-container='" + field + "']");
@@ -1900,6 +1909,35 @@ _ActualSlideHandler.prototype._card = function() {
 }
 _ActualSlideHandler.prototype._card.nfargs = function() { return -1; }
   
+
+
+const Html = function(_cxt, _html) {
+    FLObject.call(this, _cxt);
+    this.state = _cxt.fields();
+	this.state.set("html", _html);
+}
+
+Html._ctor_from = function(_cxt, _card, _html) {
+    var ret;
+    if (!(_html instanceof AjaxMessage)) {
+        ret = new FLError("not an AjaxMessage");
+    } else {
+        ret = new Html(_cxt, _html.state.get('body'));
+    }
+    return new ResponseWithMessages(_cxt, ret, []);
+}
+Html._ctor_from.nfargs = function() { return 2; }
+
+Html.prototype._compare = function(_cxt, other) {
+    if (!(other instanceof Html))
+        return false;
+    return this.state.get("html").toString() == other.state.get("html").toString();
+}
+
+Html.prototype.toString = function() {
+    return "Html";
+}
+
 
 
 const Image = function(_cxt, _uri) {

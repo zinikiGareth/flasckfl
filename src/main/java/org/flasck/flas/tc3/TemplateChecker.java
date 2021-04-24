@@ -117,6 +117,12 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			return;
 		switch (dest) {
 		case CONTENT:
+			if (etype instanceof ObjectDefn && etype.signature().equals("Html")) {
+				if (option.sendsTo != null) {
+					errors.message(pos, "cannot use templates to render images");
+				} else
+					break;
+			}
 			if (option.sendsTo != null) {
 				if (referencedTemplates != null)
 					referencedTemplates.add(option.sendsTo.name.baseName());
