@@ -19,4 +19,7 @@ public class AjaxSubscribe {
 		responses.add(expr);
 	}
 
+	public void html(InputPosition pos, String str) {
+		responses.add(new StringLiteral(pos, str));
+	}
 }

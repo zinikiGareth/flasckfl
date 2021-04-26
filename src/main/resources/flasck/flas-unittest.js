@@ -226,6 +226,7 @@ UTRunner.prototype.matchText = function(_cxt, target, zone, contains, fails, exp
 	var actual = div.innerText.trim();
 	actual = actual.replace(/\n/g, ' ');
 	actual = actual.replace(/ +/, ' ');
+	actual = actual.trim();
 	if (contains) {
 		if (!actual.includes(expected))
 			throw new Error("MATCH\n  expected to contain: " + expected + "\n  actual:   " + actual);
@@ -739,7 +740,10 @@ MockAjaxSubscriber.prototype.matchAndSend = function(_cxt, baseUri, sub) {
 		} else {
 			msg = new AjaxMessage(_cxt);
 			msg.state.set('headers', []);
-			msg.state.set('body', JSON.stringify(resp));
+			if (typeof(resp) === "string")
+				msg.state.set('body', resp);
+			else
+				msg.state.set('body', JSON.stringify(resp));
 		}
 		_cxt.env.queueMessages(_cxt, Send.eval(_cxt, sub.handler, "message", [msg], null));
 		_cxt.env.dispatchMessages(_cxt);

@@ -153,6 +153,11 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 		return convertedIntros;
 	}
 
+	// Used to handle replacing types in statics
+	public void clearType() {
+		this.type = null;
+	}
+	
 	public void bindType(Type ty) {
 		if (this.type != null)
 			throw new RuntimeException("Cannot bind type of " + this.name + " more than once");

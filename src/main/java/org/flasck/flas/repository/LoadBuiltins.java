@@ -478,9 +478,8 @@ public class LoadBuiltins {
 		FunctionName ctorFrom = FunctionName.objectCtor(pos, html.name(), "from");
 		htmlFrom = new ObjectCtor(pos, html, ctorFrom, Arrays.asList(new TypedPattern(pos, new TypeReference(pos, "AjaxMessage"), new VarName(pos, ctorFrom, "msg"))));
 		htmlFrom.dontGenerate();
-		// TODO: this needs a "forward reference" to AjaxMessage, which is defined in the stdlib
-		// We could do this with some complicated mechanism, but I haven't thought it through
-		htmlFrom.bindType(new Apply(any, html));
+		// We cannot bind the type here because it depends on the stdlib
+		// See afterFLIM below
 		html.addConstructor(htmlFrom);
 	}
 
@@ -909,5 +908,13 @@ public class LoadBuiltins {
 		ServiceLoader<ProvideBuiltins> modules = ServiceLoader.load(ProvideBuiltins.class);
 		for (ProvideBuiltins pb : modules)
 			pb.applyTo(errors, repository);
+	}
+	
+	// There is a "logical" issue here that htmlFrom is static, whereas the definition of AjaxMessage is dynamic
+	// I *think* this is only a problem for tests, but (more worryingly) may be an issue for server compilers as well.
+	public static void afterFLIM(ErrorReporter errors, Repository repository) {
+		RepositoryEntry am = repository.get("AjaxMessage");
+		htmlFrom.clearType();
+		htmlFrom.bindType(new Apply((Type)am, html));
 	}
 }
