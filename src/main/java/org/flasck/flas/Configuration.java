@@ -24,6 +24,7 @@ public class Configuration {
 	public boolean generateJVM = true;
 	public File writeJS;
 	public File html;
+	public String inclPrefix = "/";
 	public File writeJVM;
 	PhaseTo upto = PhaseTo.COMPLETE;
 	File dumprepo = null;
@@ -116,6 +117,12 @@ public class Configuration {
 						System.exit(1);
 					}
 					html = new File(root, args[++i]);
+				} else if (arg.equals("--incl-prefix")) {
+					if (hasMore == 0) {
+						System.out.println("--incl-prefix <prefix>");
+						System.exit(1);
+					}
+					inclPrefix = args[++i];
 				} else if (arg.equals("--open")) {
 					openHTML = true;
 					// TODO: will also want "--card-dir" to go and look for other cards
