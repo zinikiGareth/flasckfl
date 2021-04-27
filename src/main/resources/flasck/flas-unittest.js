@@ -317,9 +317,9 @@ UTRunner.prototype.matchScroll = function(_cxt, target, zone, contains, expected
 		throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
 }
 UTRunner.prototype.route = function(_cxt, app, route, storeCards) {
-	app.route(_cxt, route);
-	if (storeCards)
+	app.route(_cxt, route, () => {
 		app.bindCards(_cxt, storeCards);
+	});
 }
 UTRunner.prototype.userlogin = function(_cxt, app, user) {
 	app.userLoggedIn(_cxt, user);
@@ -396,6 +396,9 @@ UTRunner.prototype.deliver = function(json) {
 	this.logger.log("have messages", msgs);
 	this.queueMessages(cx, msgs);
 }
+UTRunner.prototype.addHistory = function(state, title, url) {
+	// we could forward this to the bridge if we wanted to do something specific
+}
 
 UTRunner.prototype.runRemote = function(testClz, wsapi, spec) {
 	var cxt = this.newContext();
@@ -435,6 +438,7 @@ const makeBridge = function(jsb, logger) {
 		getTestCounter: () => jsb.getTestCounter.call(jsb)
 	};
 }
+
 {
 	window.UTRunner = UTRunner;
 	window.makeBridge = makeBridge;
@@ -768,14 +772,18 @@ const MockAppl = function(_cxt, clz) {
 	this.appl = new clz._Application(_cxt, newdiv);
 	this.appl._updateDisplay(_cxt, this.appl._currentRenderTree());
 }
-MockAppl.prototype.route = function(_cxt, r) {
-	this.appl.gotoRoute(_cxt, r);
-	this.appl._updateDisplay(_cxt, this.appl._currentRenderTree());
+MockAppl.prototype.route = function(_cxt, r, andThen) {
+	this.appl.gotoRoute(_cxt, r, () => {
+		this.appl._updateDisplay(_cxt, this.appl._currentRenderTree());
+		andThen();
+	});
 }
 MockAppl.prototype.userLoggedIn = function(_cxt, u) {
 	this.appl.securityModule.userLoggedIn(_cxt, this.appl, u);
 }
 MockAppl.prototype.bindCards = function(_cxt, iv) {
+	if (!iv)
+		return;
 	var binding = {};
 	binding["main"] = this.appl.cards["main"];
 	iv.bindActual({ routes: binding });

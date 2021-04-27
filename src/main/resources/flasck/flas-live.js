@@ -82,6 +82,7 @@ LiveNavigationService.prototype.redirect = function(_cxt, uri) {
 window.addEventListener('popstate', function(ev) {
     console.log("location: " + document.location + ", state: " + JSON.stringify(ev.state));
     ev.preventDefault();
+    window.appl.gotoRoute(env.newContext(), document.location);
 });
 
 FlasckServices.configure = function(env) {

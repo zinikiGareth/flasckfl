@@ -18,31 +18,40 @@ Application.prototype.nowLoggedIn = function(_cxt) {
 	this.gotoRoute(_cxt, this.routingPendingSecure.route);
 }
 
-Application.prototype.gotoRoute = function(_cxt, r) {
+Application.prototype.gotoRoute = function(_cxt, r, allDone) {
 	var routing = this._routing();
 	if (routing.secure) {
 		if (!this.securityModule.requireLogin(_cxt, this, this.topdiv)) {
 			this.routingPendingSecure = { routing, route: r };
+			if (allDone)
+				allDone();
 			return;
 		} else {
 			this.routingPendingSecure = null;
 		}
 	}
+	var ev = null;
 	if (this.currentRoute == null) {
+		ev = new EnterEvent(this, this.topdiv);
 		this.currentRoute = [];
-		this._createCards(_cxt, routing.cards);
-		this._enterRoute(_cxt, routing.enter);
-		this._enterRoute(_cxt, routing.at);
-		this._readyCards(_cxt, routing.cards);
-
-		this.cards.main._renderInto(_cxt, this.topdiv);
+		this._createCards(_cxt, ev, routing.cards);
+		this._enterRoute(_cxt, ev, routing.enter);
+		this._enterRoute(_cxt, ev, routing.at);
+		this._readyCards(_cxt, ev, routing.cards);
 	}
 	var path = this.parseRoute(_cxt, r);
 	var cmn = this.removeCommon(_cxt, path);
+	var at;
 	if (this.currentRoute.length > cmn) {
-		_cxt.env.queueMessages(_cxt, new MoveUpEvent(this, cmn, path));
+		at = new MoveUpEvent(this, cmn, path);
 	} else {
-		_cxt.env.queueMessages(_cxt, new MoveDownEvent(this, cmn == 0 ? routing : this.currentRoute[cmn-1].routes, path));
+		at = new MoveDownEvent(this, cmn == 0 ? routing : this.currentRoute[cmn-1].routes, path, allDone);
+	}
+	if (ev) {
+		ev.andThen(at);
+		_cxt.env.queueMessages(_cxt, ev);
+	} else {
+		_cxt.env.queueMessages(_cxt, at);
 	}
 }
 
@@ -79,11 +88,14 @@ Application.prototype.moveUp = function(_cxt) {
 	var exiting = this.currentRoute.pop();
 }
 
-Application.prototype.moveDown = function(_cxt, table, path) {
+Application.prototype.moveDown = function(_cxt, table, path, allDone) {
 	if (table.title != null)
 		this.title = table.title;
 	if (path.length == 0) {
 		_cxt.env.queueMessages(_cxt, new UpdateDisplay(_cxt, this));
+		if (allDone)
+			allDone();
+		_cxt.addHistory({}, this.title, this.currentPath);
 		return;
 	}
 
@@ -101,47 +113,64 @@ Application.prototype.moveDown = function(_cxt, table, path) {
 				this.params[rr.param] = first;
 			}
 			this.currentRoute.push({ routes: rr });
-			// TODO: these need to keep going back to the queue to make sure everything is dispatched in order
-			this._createCards(_cxt, rr.cards);
-			this._enterRoute(_cxt, rr.enter);
-			this._enterRoute(_cxt, rr.at);
-			this._readyCards(_cxt, rr.cards);
+			var ev = new EnterEvent(this, null);
+			this._createCards(_cxt, ev, rr.cards);
+			this._enterRoute(_cxt, ev, rr.enter);
+			this._enterRoute(_cxt, ev, rr.at);
+			this._readyCards(_cxt, ev, rr.cards);
 	
 			path.shift();
-			_cxt.env.queueMessages(_cxt, new MoveDownEvent(this, rr, path));
+			ev.andThen(new MoveDownEvent(this, rr, path, allDone));
+			_cxt.env.queueMessages(_cxt, ev);
 
 			break;
 		}
 	}
 }
 
-Application.prototype._createCards = function(_cxt, cards) {
+Application.prototype._createCards = function(_cxt, ev, cards) {
 	for (var i=0;i<cards.length;i++) {
-		var ci = cards[i];
-		var card = this.cards[ci.name] = new ci.card(_cxt);
+		ev.add(createOne(this, cards[i]));
+	}
+}
+
+function createOne(appl, ci) {
+	return (_cxt) => {
+		var card = appl.cards[ci.name] = new ci.card(_cxt);
 		var ctr = _cxt.findContractOnCard(card, "Lifecycle");
 		if (ctr && ctr.init) {
 			msgs = ctr.init(_cxt);
 			_cxt.env.queueMessages(_cxt, msgs);
 		}
+	};
+}
+
+Application.prototype._readyCards = function(_cxt, ev, cards) {
+	for (var i=0;i<cards.length;i++) {
+		ev.add(readyOne(this, cards[i].name));
 	}
 }
 
-Application.prototype._readyCards = function(_cxt, cards) {
-	for (var i=0;i<cards.length;i++) {
-		var card = this.cards[cards[i].name];
+function readyOne(appl, name) {
+	return (_cxt) => {
+		var card = appl.cards[name];
 		var ctr = _cxt.findContractOnCard(card, "Lifecycle");
 		if (ctr && ctr.ready) {
 			msgs = ctr.ready(_cxt);
 			_cxt.env.queueMessages(_cxt, msgs);
 		}
+	};
+}
+
+Application.prototype._enterRoute = function(_cxt, ev, enter) {
+	for (var i=0;i<enter.length;i++) {
+		ev.add(enterOne(this, enter[i]));
 	}
 }
 
-Application.prototype._enterRoute = function(_cxt, enter) {
-	for (var i=0;i<enter.length;i++) {
-		var a = enter[i];
-		var card = this.cards[a.card];
+function enterOne(appl, a) {
+	return (_cxt) => {
+		var card = appl.cards[a.card];
 		var ctr = _cxt.findContractOnCard(card, "Lifecycle");
 		if (ctr) {
 			var m = a.action;
@@ -150,15 +179,15 @@ Application.prototype._enterRoute = function(_cxt, enter) {
 				if (a.str) {
 					msgs = ctr[m](_cxt, a.str);
 				} else if (a.ref) {
-					msgs = ctr[m](_cxt, this.cards[a.ref]);
+					msgs = ctr[m](_cxt, appl.cards[a.ref]);
 				} else if (a.param) {
-					msgs = ctr[m](_cxt, this.params[a.param]);
+					msgs = ctr[m](_cxt, appl.params[a.param]);
 				} else
 					msgs = ctr[m](_cxt);
 				_cxt.env.queueMessages(_cxt, msgs);
 			}
 		}
-	}
+	};
 }
 
 Application.prototype._currentRenderTree = function() {
@@ -184,14 +213,47 @@ Application.prototype._updateDisplay = function(_cxt, rt) {
 	card._updateDisplay(_cxt, rt);
 }
 
-function MoveDownEvent(appl, routing, path) {
+function EnterEvent(appl, div) {
+	this.appl = appl;
+	this.div = div;
+	this.actions = [];
+	this.andThenMsg = null;
+	this.cnt = 0;
+}
+
+EnterEvent.prototype.add = function(r) {
+	this.actions.push(r);
+}
+
+EnterEvent.prototype.andThen = function(at) {
+	this.andThenMsg = at;
+}
+
+EnterEvent.prototype.dispatch = function(_cxt) {
+	if (this.cnt < this.actions.length) {
+		this.actions[this.cnt](_cxt);
+	} else if (this.cnt == this.actions.length && this.div) {
+		this.appl.cards.main._renderInto(_cxt, this.div);
+	} else if ((this.cnt == this.actions.length && !this.div) ||
+			   (this.cnt == this.actions.length+1 && this.div)) {
+		this.andThenMsg.dispatch(_cxt);
+	} else
+		return;
+
+	this.cnt++;
+	_cxt.env.queueMessages(_cxt, this);
+	return;
+}
+
+function MoveDownEvent(appl, routing, path, allDone) {
 	this.appl = appl;
 	this.routing = routing;
 	this.path = path;
+	this.allDone = allDone;
 }
 
 MoveDownEvent.prototype.dispatch = function(_cxt) {
-	this.appl.moveDown(_cxt, this.routing, this.path);
+	this.appl.moveDown(_cxt, this.routing, this.path, this.allDone);
 }
 
 MoveDownEvent.prototype.toString = function() {
@@ -209,7 +271,7 @@ MoveUpEvent.prototype.dispatch = function(_cxt) {
 		this.appl.moveUp(_cxt);
 		_cxt.env.queueMessages(_cxt, this);
 	} else {
-		_cxt.env.queueMessages(_cxt, new MoveDownEvent(this.appl, this.cmn == 0 ? this.appl._routing() : this.appl.currentRoute[this.cmn].routes, this.path));
+		_cxt.env.queueMessages(_cxt, new MoveDownEvent(this.appl, this.cmn == 0 ? this.appl._routing() : this.appl.currentRoute[this.cmn-1].routes, this.path));
 	}
 }
 

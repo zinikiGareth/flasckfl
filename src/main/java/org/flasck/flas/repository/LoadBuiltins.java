@@ -915,6 +915,8 @@ public class LoadBuiltins {
 	public static void afterFLIM(ErrorReporter errors, Repository repository) {
 		RepositoryEntry am = repository.get("AjaxMessage");
 		htmlFrom.clearType();
-		htmlFrom.bindType(new Apply((Type)am, html));
+		if (am != null) {
+			htmlFrom.bindType(new Apply((Type)am, html));
+		}
 	}
 }

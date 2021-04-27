@@ -143,6 +143,10 @@ const JSEnv = function(broker) {
 JSEnv.prototype = new CommonEnv();
 JSEnv.prototype.constructor = JSEnv;
 
+JSEnv.prototype.addHistory = function(state, title, url) {
+	history.pushState(state, title, url);
+}
+
 
 
 const ContractStore = function(_cxt) {
@@ -738,6 +742,10 @@ FLContext.prototype.show = function(val) {
 
 FLContext.prototype.log = function(...args) {
 	this.env.logger.log.apply(this.env.logger, args);
+}
+
+FLContext.prototype.addHistory = function(state, title, url) {
+	this.env.addHistory(state, title, url);
 }
 
 
@@ -2163,7 +2171,11 @@ FLBuiltin.boolOr.nfargs = function() { return 2; }
 
 FLBuiltin.concat = function(_cxt, a, b) {
 	a = _cxt.full(a);
+	if (!a)
+		a = '';
 	b = _cxt.full(b);
+	if (!b)
+		b = '';
 	return a + b;
 }
 
