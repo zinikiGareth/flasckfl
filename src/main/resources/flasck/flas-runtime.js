@@ -1245,6 +1245,9 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
         if (crt.children.length == 1 && crt.children[0].value == value)
             return;
         // clear out all extant children that are not "value"
+        for (var i=0;i<crt.children.length;i++) {
+            crt.children[i].value._renderTree = null;
+        }
         crt.children = [];
         node.innerHTML = '';
 
@@ -1258,7 +1261,10 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
     } else if (Array.isArray(value)) {
         var sw = this._diffLists(_cxt, crt.children, value);
         if (sw === true) {
-            ; // everything matched
+            // everything matched
+            for (var i=0;i<value.length;i++) {
+                value[i]._updateDisplay(_cxt, value[i]._renderTree);
+            }
         } else if (sw.op === 'addtoend') {
             for (var i=crt.children.length;i<value.length;i++) {
                 if (value[i] instanceof FLCard) {

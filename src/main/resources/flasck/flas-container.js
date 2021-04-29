@@ -33,19 +33,19 @@ Application.prototype.gotoRoute = function(_cxt, r, allDone) {
 	var ev = null;
 	if (this.currentRoute == null) {
 		ev = new EnterEvent(this, this.topdiv);
-		this.currentRoute = [];
+		this.currentRoute = [{ routes: routing }];
 		this._createCards(_cxt, ev, routing.cards);
-		this._enterRoute(_cxt, ev, routing.enter);
-		this._enterRoute(_cxt, ev, routing.at);
+		this._routeActions(_cxt, ev, routing.enter);
+		this._routeActions(_cxt, ev, routing.at);
 		this._readyCards(_cxt, ev, routing.cards);
 	}
 	var path = this.parseRoute(_cxt, r);
 	var cmn = this.removeCommon(_cxt, path);
 	var at;
-	if (this.currentRoute.length > cmn) {
+	if (this.currentRoute.length > cmn+1) {
 		at = new MoveUpEvent(this, cmn, path);
 	} else {
-		at = new MoveDownEvent(this, cmn == 0 ? routing : this.currentRoute[cmn-1].routes, path, allDone);
+		at = new MoveDownEvent(this, this.currentRoute[cmn].routes, path, allDone);
 	}
 	if (ev) {
 		ev.andThen(at);
@@ -77,7 +77,7 @@ Application.prototype.parseRoute = function(_cxt, r) {
 
 Application.prototype.removeCommon = function(_cxt, path) {
 	var cmn = 0;
-	while (path.length > 0 && cmn < this.currentRoute.length && path[cmn] == this.currentRoute[cmn].routes.path) {
+	while (path.length > 0 && cmn+1 < this.currentRoute.length && path[cmn] == this.currentRoute[cmn+1].routes.path) {
 		path.shift();
 		cmn++;
 	}
@@ -85,7 +85,13 @@ Application.prototype.removeCommon = function(_cxt, path) {
 }
 
 Application.prototype.moveUp = function(_cxt) {
-	var exiting = this.currentRoute.pop();
+	var exiting = this.currentRoute.pop().routes;
+	var ev = new EnterEvent(this, null);
+	this._routeActions(_cxt, ev, exiting.exit);
+	this._closeCards(_cxt, ev, exiting.cards);
+	this._routeActions(_cxt, ev, this.currentRoute[this.currentRoute.length-1].routes.at);
+	_cxt.env.queueMessages(_cxt, ev);
+	_cxt.env.queueMessages(_cxt, new UpdateDisplay(_cxt, this));
 }
 
 Application.prototype.moveDown = function(_cxt, table, path, allDone) {
@@ -115,8 +121,8 @@ Application.prototype.moveDown = function(_cxt, table, path, allDone) {
 			this.currentRoute.push({ routes: rr });
 			var ev = new EnterEvent(this, null);
 			this._createCards(_cxt, ev, rr.cards);
-			this._enterRoute(_cxt, ev, rr.enter);
-			this._enterRoute(_cxt, ev, rr.at);
+			this._routeActions(_cxt, ev, rr.enter);
+			this._routeActions(_cxt, ev, rr.at);
 			this._readyCards(_cxt, ev, rr.cards);
 	
 			path.shift();
@@ -134,6 +140,12 @@ Application.prototype._createCards = function(_cxt, ev, cards) {
 	}
 }
 
+Application.prototype._closeCards = function(_cxt, ev, cards) {
+	for (var i=0;i<cards.length;i++) {
+		ev.add(closeOne(this, cards[i]));
+	}
+}
+
 function createOne(appl, ci) {
 	return (_cxt) => {
 		var card = appl.cards[ci.name] = new ci.card(_cxt);
@@ -141,6 +153,25 @@ function createOne(appl, ci) {
 		if (ctr && ctr.init) {
 			msgs = ctr.init(_cxt);
 			_cxt.env.queueMessages(_cxt, msgs);
+		}
+	};
+}
+
+function closeOne(appl, ci) {
+	return (_cxt) => {
+		var card = appl.cards[ci.name];
+		var ctr = _cxt.findContractOnCard(card, "Lifecycle");
+		if (ctr && ctr.closing) {
+			msgs = ctr.closing(_cxt);
+			_cxt.env.queueMessages(_cxt, msgs);
+		}
+		// TODO: I think we need an explicit on-card "cleanup" method which closes subscriptions and
+		// removes this card from any parents
+		// reset of render tree should probably be in there ...
+		if (card._renderTree) {
+			var div = document.getElementById(card._renderTree._id);
+			div.innerHTML = '';
+			card._renderTree = null;
 		}
 	};
 }
@@ -162,13 +193,13 @@ function readyOne(appl, name) {
 	};
 }
 
-Application.prototype._enterRoute = function(_cxt, ev, enter) {
+Application.prototype._routeActions = function(_cxt, ev, enter) {
 	for (var i=0;i<enter.length;i++) {
-		ev.add(enterOne(this, enter[i]));
+		ev.add(oneAction(this, enter[i]));
 	}
 }
 
-function enterOne(appl, a) {
+function oneAction(appl, a) {
 	return (_cxt) => {
 		var card = appl.cards[a.card];
 		var ctr = _cxt.findContractOnCard(card, "Lifecycle");
@@ -210,7 +241,7 @@ Application.prototype._updateDisplay = function(_cxt, rt) {
 	var card = this.cards.main;
 	if (card == null)
 		return;
-	card._updateDisplay(_cxt, rt);
+	card._updateDisplay(_cxt, card._renderTree);
 }
 
 function EnterEvent(appl, div) {
@@ -236,7 +267,8 @@ EnterEvent.prototype.dispatch = function(_cxt) {
 		this.appl.cards.main._renderInto(_cxt, this.div);
 	} else if ((this.cnt == this.actions.length && !this.div) ||
 			   (this.cnt == this.actions.length+1 && this.div)) {
-		this.andThenMsg.dispatch(_cxt);
+		if (this.andThenMsg)
+			this.andThenMsg.dispatch(_cxt);
 	} else
 		return;
 
@@ -267,11 +299,11 @@ function MoveUpEvent(appl, cmn, path) {
 }
 
 MoveUpEvent.prototype.dispatch = function(_cxt) {
-	if (this.appl.currentRoute.length > this.cmn) {
+	if (this.appl.currentRoute.length > this.cmn+1) {
 		this.appl.moveUp(_cxt);
 		_cxt.env.queueMessages(_cxt, this);
 	} else {
-		_cxt.env.queueMessages(_cxt, new MoveDownEvent(this.appl, this.cmn == 0 ? this.appl._routing() : this.appl.currentRoute[this.cmn-1].routes, this.path));
+		_cxt.env.queueMessages(_cxt, new MoveDownEvent(this.appl, this.appl.currentRoute[this.cmn].routes, this.path));
 	}
 }
 
