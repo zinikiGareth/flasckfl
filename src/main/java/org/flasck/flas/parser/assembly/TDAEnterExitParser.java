@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
@@ -42,6 +43,7 @@ public class TDAEnterExitParser implements TDAParsing {
 		
 		switch (tok.text) {
 		case ".": {
+			TypeReference ctr;
 			TypeNameToken tn = TypeNameToken.qualified(toks);
 			if (tn != null) {
 				System.out.println(tn.text);
@@ -50,6 +52,9 @@ public class TDAEnterExitParser implements TDAParsing {
 					errors.message(toks, "expected .");
 					return new NoNestingParser(errors);
 				}
+				ctr = new TypeReference(tn.location, tn.text, new ArrayList<>());
+			} else {
+				ctr = new TypeReference(card.location(), "Lifecycle", new ArrayList<>());
 			}
 			ValidIdentifierToken meth = VarNameToken.from(toks);
 			if (meth == null) {
@@ -60,7 +65,7 @@ public class TDAEnterExitParser implements TDAParsing {
 			new TDAExpressionParser(errors, e -> {
 				exprs.add(e);
 			}).tryParsing(toks);
-			consumer.method(card, meth.text, exprs);
+			consumer.method(card, ctr, meth.text, exprs);
 			break;
 		}
 		default: {

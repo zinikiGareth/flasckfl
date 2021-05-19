@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.assembly.RoutingActionConsumer;
 
@@ -21,7 +22,7 @@ public class RoutingActions implements RoutingActionConsumer {
 	}
 
 	@Override
-	public void method(UnresolvedVar card, String meth, List<Expr> exprs) {
-		actions.add(new RoutingAction(meth, card, exprs));
+	public void method(UnresolvedVar card, TypeReference contract, String meth, List<Expr> exprs) {
+		actions.add(new RoutingAction(card, contract, meth, exprs));
 	}
 }

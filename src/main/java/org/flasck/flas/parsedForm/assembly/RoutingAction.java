@@ -1,6 +1,5 @@
 package org.flasck.flas.parsedForm.assembly;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
@@ -13,9 +12,9 @@ public class RoutingAction {
 	public final List<Expr> exprs;
 	public final TypeReference contract;
 
-	public RoutingAction(String action, UnresolvedVar card, List<Expr> exprs) {
+	public RoutingAction(UnresolvedVar card, TypeReference contract, String action, List<Expr> exprs) {
 		this.action = action;
-		this.contract = new TypeReference(card.location(), "Lifecycle", new ArrayList<>());
+		this.contract = contract;
 		this.card = card;
 		this.exprs = exprs;
 	}
