@@ -193,7 +193,7 @@ public class ApplRoutingTable {
 					else
 						at = ArgType.CARDREF;
 				} else
-					throw new NotImplementedException();
+					throw new NotImplementedException("cannot handle " + e.getClass());
 				Expr ate = meth.staticField(ArgType.class.getName(), ArgType.class.getName(), at.name());
 				exprs.add(meth.makeNew(J.FLROUTINGARG, ate, meth.stringConst(val)));
 			}

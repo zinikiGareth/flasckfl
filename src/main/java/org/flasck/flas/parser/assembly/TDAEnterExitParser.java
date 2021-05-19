@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -16,6 +17,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAEnterExitParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -56,16 +58,25 @@ public class TDAEnterExitParser implements TDAParsing {
 			} else {
 				ctr = new TypeReference(card.location(), "Lifecycle", new ArrayList<>());
 			}
-			ValidIdentifierToken meth = VarNameToken.from(toks);
-			if (meth == null) {
-				errors.message(toks, "expected method");
-				return new NoNestingParser(errors);
-			}
 			List<Expr> exprs = new ArrayList<>();
 			new TDAExpressionParser(errors, e -> {
 				exprs.add(e);
 			}).tryParsing(toks);
-			consumer.method(card, ctr, meth.text, exprs);
+			if (exprs.isEmpty()) {
+				errors.message(toks, "expected method");
+				return new NoNestingParser(errors);
+			}
+			Expr have = exprs.remove(0);
+			UnresolvedVar uv;
+			if (have instanceof UnresolvedVar)
+				uv = (UnresolvedVar) have;
+			else if (have instanceof ApplyExpr) {
+				uv = (UnresolvedVar) ((ApplyExpr)have).fn;
+				for (Object o : ((ApplyExpr)have).args)
+					exprs.add((Expr) o);
+			} else
+				throw new NotImplementedException();
+			consumer.method(card, ctr, uv.var, exprs);
 			break;
 		}
 		default: {
