@@ -21,18 +21,7 @@ public class RoutingActions implements RoutingActionConsumer {
 	}
 
 	@Override
-	public void load(UnresolvedVar card, Expr expr) {
-		actions.add(new RoutingAction("load", card, expr));
+	public void method(UnresolvedVar card, String meth, List<Expr> exprs) {
+		actions.add(new RoutingAction(meth, card, exprs));
 	}
-
-	@Override
-	public void nest(UnresolvedVar card, Expr expr) {
-		actions.add(new RoutingAction("nest", card, expr));
-	}
-
-	@Override
-	public void done(UnresolvedVar card) {
-		actions.add(new RoutingAction("done", card, null));
-	}
-
 }

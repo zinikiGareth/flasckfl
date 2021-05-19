@@ -1,10 +1,10 @@
 package org.flasck.flas.parser.assembly;
 
+import java.util.List;
+
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 
 public interface RoutingActionConsumer {
-	void load(UnresolvedVar card, Expr expr);
-	void nest(UnresolvedVar card, Expr expr);
-	void done(UnresolvedVar card);
+	void method(UnresolvedVar card, String meth, List<Expr> exprs);
 }

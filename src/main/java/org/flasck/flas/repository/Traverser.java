@@ -562,8 +562,9 @@ public class Traverser implements RepositoryVisitor {
 	public void visitRoutingAction(RoutingAction a) {
 		visitor.visitRoutingAction(a);
 		visitExpr(a.card, 0);
-		if (a.expr != null)
-			visitExpr(a.expr, 0);
+		if (a.exprs != null)
+			for (Expr e : a.exprs)
+				visitExpr(e, 0);
 		leaveRoutingAction(a);
 	}
 

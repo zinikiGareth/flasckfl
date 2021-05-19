@@ -206,15 +206,20 @@ function oneAction(appl, a) {
 		if (ctr) {
 			var m = a.action;
 			if (ctr[m]) {
+				var callWith = [ _cxt ];
+				for (var ai=0;ai<a.args.length;ai++) {
+					var aa = a.args[ai];
+					if (aa.str) {
+						callWith.push(aa.str);
+					} else if (aa.ref) {
+						callWith.push(appl.cards[aa.ref]);
+					} else if (aa.param) {
+						callWith.push(appl.params[aa.param]);
+					} else
+						throw new Error("huh? " + JSON.stringify(aa));
+				}
 				var msgs;
-				if (a.str) {
-					msgs = ctr[m](_cxt, a.str);
-				} else if (a.ref) {
-					msgs = ctr[m](_cxt, appl.cards[a.ref]);
-				} else if (a.param) {
-					msgs = ctr[m](_cxt, appl.params[a.param]);
-				} else
-					msgs = ctr[m](_cxt);
+				msgs = ctr[m].apply(ctr, callWith);
 				_cxt.env.queueMessages(_cxt, msgs);
 			}
 		}

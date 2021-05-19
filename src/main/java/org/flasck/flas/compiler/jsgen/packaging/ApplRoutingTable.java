@@ -88,22 +88,27 @@ public class ApplRoutingTable {
 				lw.println(",");
 			sep = true;
 			lw.print("{ ");
-			lw.print("action: '" + ra.action + "', ");
-			lw.print("card: '" + ra.card.var + "'");
-			if (ra.expr != null) {
-				if (ra.expr instanceof StringLiteral) {
-					StringLiteral sl = (StringLiteral) ra.expr;
-					lw.print(", str: '" + sl.text + "'");
-				} else if (ra.expr instanceof UnresolvedVar) {
+			lw.print("card: '" + ra.card.var + "', ");
+			lw.print("contract: '" + ra.contract.name() + "', ");
+			lw.print("action: '" + ra.action + "', args: [");
+			boolean first = true;
+			for (org.flasck.flas.commonBase.Expr e : ra.exprs) {
+				if (!first)
+					lw.print(", ");
+				first = false;
+				if (e instanceof StringLiteral) {
+					StringLiteral sl = (StringLiteral) e;
+					lw.print("{ str: '" + sl.text + "' }");
+				} else if (e instanceof UnresolvedVar) {
 					// for now assume it's a card in the current card list thing
-					UnresolvedVar uv = (UnresolvedVar) ra.expr;
+					UnresolvedVar uv = (UnresolvedVar) e;
 					if (uv.defn() instanceof ParameterRepositoryEntry)
-						lw.print(", param: '" + uv.var + "'");
+						lw.print("{ param: '" + uv.var + "' }");
 					else
-						lw.print(", ref: '" + uv.var + "'");
+						lw.print("{ ref: '" + uv.var + "' }");
 				}
 			}
-			lw.print(" }");
+			lw.print("] }");
 		}
 		lw.println("");
 	}
@@ -173,16 +178,15 @@ public class ApplRoutingTable {
 		meth.assign(list, meth.makeNew(ArrayList.class.getName())).flush();
 		for (RoutingAction ra : actions.actions) {
 			IExpr mn;
-			if (ra.expr == null) {
-				mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var));
-			} else {
+			List<IExpr> exprs = new ArrayList<>();
+			for (org.flasck.flas.commonBase.Expr e : ra.exprs) {
 				String val;
 				ArgType at;
-				if (ra.expr instanceof StringLiteral) {
-					val = ((StringLiteral) ra.expr).text;
+				if (e instanceof StringLiteral) {
+					val = ((StringLiteral) e).text;
 					at = ArgType.STRING;
-				} else if (ra.expr instanceof UnresolvedVar) {
-					UnresolvedVar uv = (UnresolvedVar) ra.expr;
+				} else if (e instanceof UnresolvedVar) {
+					UnresolvedVar uv = (UnresolvedVar) e;
 					val = uv.var;
 					if (uv.defn() instanceof ParameterRepositoryEntry)
 						at = ArgType.PARAM;
@@ -191,8 +195,9 @@ public class ApplRoutingTable {
 				} else
 					throw new NotImplementedException();
 				Expr ate = meth.staticField(ArgType.class.getName(), ArgType.class.getName(), at.name());
-				mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.action), meth.stringConst(ra.card.var), ate, meth.stringConst(val));
+				exprs.add(meth.makeNew(J.FLROUTINGARG, ate, meth.stringConst(val)));
 			}
+			mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.card.var), meth.stringConst(ra.contract.name()), meth.stringConst(ra.action), meth.arrayOf(J.FLROUTINGARG, exprs));
 			meth.voidExpr(meth.callInterface("boolean", list, "add", meth.as(mn, J.OBJECT))).flush();
 		}
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(label), J.OBJECT), meth.as(list, J.OBJECT))).flush();
