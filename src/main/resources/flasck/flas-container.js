@@ -202,7 +202,7 @@ Application.prototype._routeActions = function(_cxt, ev, enter) {
 function oneAction(appl, a) {
 	return (_cxt) => {
 		var card = appl.cards[a.card];
-		var ctr = _cxt.findContractOnCard(card, "Lifecycle");
+		var ctr = _cxt.findContractOnCard(card, a.contract);
 		if (ctr) {
 			var m = a.action;
 			if (ctr[m]) {

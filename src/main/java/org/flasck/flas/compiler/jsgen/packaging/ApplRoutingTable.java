@@ -89,7 +89,7 @@ public class ApplRoutingTable {
 			sep = true;
 			lw.print("{ ");
 			lw.print("card: '" + ra.card.var + "', ");
-			lw.print("contract: '" + ra.contract.name() + "', ");
+			lw.print("contract: '" + ra.contract.defn().signature() + "', ");
 			lw.print("action: '" + ra.action + "', args: [");
 			boolean first = true;
 			for (org.flasck.flas.commonBase.Expr e : ra.exprs) {
@@ -197,7 +197,7 @@ public class ApplRoutingTable {
 				Expr ate = meth.staticField(ArgType.class.getName(), ArgType.class.getName(), at.name());
 				exprs.add(meth.makeNew(J.FLROUTINGARG, ate, meth.stringConst(val)));
 			}
-			mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.card.var), meth.stringConst(ra.contract.name()), meth.stringConst(ra.action), meth.arrayOf(J.FLROUTINGARG, exprs));
+			mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.card.var), meth.stringConst(ra.contract.defn().signature()), meth.stringConst(ra.action), meth.arrayOf(J.FLROUTINGARG, exprs));
 			meth.voidExpr(meth.callInterface("boolean", list, "add", meth.as(mn, J.OBJECT))).flush();
 		}
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(label), J.OBJECT), meth.as(list, J.OBJECT))).flush();
