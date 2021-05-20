@@ -936,7 +936,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		bu.returnsType(J.STRING);
 		bu.returnObject(new JSString(e.getBaseUri()));
 		if (e.routing() != null)
-			jse.applRouting(e.name(), e.routing());
+			jse.applRouting(clz, e.name(), e.routing());
 	}
 	
 	@Override

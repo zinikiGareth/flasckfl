@@ -29,7 +29,7 @@ public interface JSStorage {
 	JSMethodCreator newFunction(NameOfThing fnName, String pkg, NameOfThing cxt, boolean inPrototype, String name);
 	void methodList(NameOfThing name, List<FunctionName> methods);
 	void eventMap(NameOfThing name, EventTargetZones eventMethods);
-	void applRouting(NameOfThing name, ApplicationRouting routes);
+	void applRouting(JSClassCreator clz, NameOfThing name, ApplicationRouting routes);
 
 	Iterable<File> files();
 	File fileFor(String s);

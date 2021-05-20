@@ -215,6 +215,8 @@ function oneAction(appl, a) {
 						callWith.push(appl.cards[aa.ref]);
 					} else if (aa.param) {
 						callWith.push(appl.params[aa.param]);
+					} else if (aa.expr) {
+						callWith.push(appl[aa.expr].call(appl, _cxt));
 					} else
 						throw new Error("huh? " + JSON.stringify(aa));
 				}

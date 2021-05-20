@@ -144,9 +144,9 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
-	public void applRouting(NameOfThing name, ApplicationRouting routes) {
+	public void applRouting(JSClassCreator clz, NameOfThing name, ApplicationRouting routes) {
 		JSFile inpkg = getPackage(name.packageName().uniqueName());
-		inpkg.applRouting(name, routes);
+		inpkg.applRouting(clz, name, routes);
 	}
 
 	public JSFile getPackage(String pkg) {

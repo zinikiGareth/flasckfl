@@ -25,7 +25,6 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class ApplRoutingTable {
 	private final NameOfThing applName;
@@ -106,6 +105,8 @@ public class ApplRoutingTable {
 						lw.print("{ param: '" + uv.var + "' }");
 					else
 						lw.print("{ ref: '" + uv.var + "' }");
+				} else {
+					lw.print("{ expr: '" + "routing_expr_1" + "' }");
 				}
 			}
 			lw.print("] }");
@@ -192,8 +193,10 @@ public class ApplRoutingTable {
 						at = ArgType.PARAM;
 					else
 						at = ArgType.CARDREF;
-				} else
-					throw new NotImplementedException("cannot handle " + e.getClass());
+				} else {
+					at = ArgType.EXPR;
+					val = "routing_expr_1";
+				}
 				Expr ate = meth.staticField(ArgType.class.getName(), ArgType.class.getName(), at.name());
 				exprs.add(meth.makeNew(J.FLROUTINGARG, ate, meth.stringConst(val)));
 			}
