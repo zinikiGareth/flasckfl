@@ -897,6 +897,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitRoutingAction(a);
 	}
 
+	public void visitRoutingExpr(RoutingAction a, int pos, Expr e) {
+		top.visitRoutingExpr(a, pos, e);
+	}
+
+	public void leaveRoutingExpr(RoutingAction a, int pos, Expr e) {
+		top.leaveRoutingExpr(a, pos, e);
+	}
+
 	public void leaveRoutingAction(RoutingAction a) {
 		top.leaveRoutingAction(a);
 	}

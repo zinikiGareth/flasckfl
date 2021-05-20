@@ -278,4 +278,6 @@ public interface RepositoryVisitor {
 	void leaveActions(RoutingActions actions);
 	void visitRoutingAction(RoutingAction a);
 	void leaveRoutingAction(RoutingAction a);
+	void visitRoutingExpr(RoutingAction a, int pos, Expr e);
+	void leaveRoutingExpr(RoutingAction a, int pos, Expr e);
 }

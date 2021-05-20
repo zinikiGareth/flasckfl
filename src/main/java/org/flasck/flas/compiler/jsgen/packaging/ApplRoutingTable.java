@@ -106,7 +106,7 @@ public class ApplRoutingTable {
 					else
 						lw.print("{ ref: '" + uv.var + "' }");
 				} else {
-					lw.print("{ expr: '" + "routing_expr_1" + "' }");
+					lw.print("{ expr: '" + "routing_expr_0" + "' }");
 				}
 			}
 			lw.print("] }");
@@ -180,6 +180,7 @@ public class ApplRoutingTable {
 		for (RoutingAction ra : actions.actions) {
 			IExpr mn;
 			List<IExpr> exprs = new ArrayList<>();
+			int pos = 0;
 			for (org.flasck.flas.commonBase.Expr e : ra.exprs) {
 				String val;
 				ArgType at;
@@ -195,10 +196,11 @@ public class ApplRoutingTable {
 						at = ArgType.CARDREF;
 				} else {
 					at = ArgType.EXPR;
-					val = "routing_expr_1";
+					val = "routing_expr_" + ra.exprFor(pos);
 				}
 				Expr ate = meth.staticField(ArgType.class.getName(), ArgType.class.getName(), at.name());
 				exprs.add(meth.makeNew(J.FLROUTINGARG, ate, meth.stringConst(val)));
+				pos++;
 			}
 			mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.card.var), meth.stringConst(ra.contract.defn().signature()), meth.stringConst(ra.action), meth.arrayOf(J.FLROUTINGARG, exprs));
 			meth.voidExpr(meth.callInterface("boolean", list, "add", meth.as(mn, J.OBJECT))).flush();

@@ -500,8 +500,6 @@ public class Traverser implements RepositoryVisitor {
 			visitProvides(p);
 		for (ImplementsContract ic : s.contracts)
 			visitImplements(ic);
-//		for (HandlerImplements ic : s.handlers)
-//			visitHandlerImplements(ic, s);
 		leaveAgentDefn(s);
 	}
 
@@ -561,12 +559,24 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitRoutingAction(RoutingAction a) {
 		visitor.visitRoutingAction(a);
-		visitTypeReference(a.contract, false, 0);
+		visitTypeReference(a.contract, false, -1);
 		visitExpr(a.card, 0);
-		if (a.exprs != null)
-			for (Expr e : a.exprs)
-				visitExpr(e, 0);
+		int pos = 0;
+		for (Expr e : a.exprs) {
+			visitRoutingExpr(a, pos++, e);
+		}
 		leaveRoutingAction(a);
+	}
+
+	public void visitRoutingExpr(RoutingAction a, int pos, Expr e) {
+		visitor.visitRoutingExpr(a, pos, e);
+		visitExpr(e, 0);
+		leaveRoutingExpr(a, pos, e);
+	}
+	
+	@Override
+	public void leaveRoutingExpr(RoutingAction a, int pos, Expr e) {
+		visitor.leaveRoutingExpr(a, pos, e);
 	}
 
 	public void leaveRoutingAction(RoutingAction a) {

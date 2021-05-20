@@ -14,7 +14,6 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
-import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -62,9 +61,6 @@ public class JSFile {
 	}
 
 	public void applRouting(JSClassCreator clz, NameOfThing name, ApplicationRouting routes) {
-		JSMethodCreator meth = clz.createMethod("routing_expr_1", true);
-		meth.argument("_cxt");
-		meth.returnObject(meth.string("hello, world"));
 		this.routes.add(new ApplRoutingTable(name, routes));
 	}
 

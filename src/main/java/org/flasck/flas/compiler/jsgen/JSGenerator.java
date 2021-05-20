@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -39,8 +41,6 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
-import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
-import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -63,6 +63,9 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
+import org.flasck.flas.parsedForm.assembly.RoutingAction;
+import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -136,6 +139,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	private UnitTestName testName;
 	private final List<JSExpr> utsteps = new ArrayList<>();
 	private JSClassCreator utclz;
+	private JSClassCreator appclz;
+	private int recnt;
 
 	public JSGenerator(RepositoryReader repository, JSStorage jse, StackVisitor sv, Map<EventHolder, EventTargetZones> eventMap) {
 		this.repository = repository;
@@ -922,21 +927,46 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void visitAssembly(ApplicationAssembly e) {
-		JSClassCreator clz = jse.newClass(e.name().uniqueName(), new SolidName(e.name(), "_Application"));
-		clz.inheritsFrom(new PackageName("Application"), J.FLAPPLICATION);
-		JSMethodCreator ctor = clz.constructor();
+		appclz = jse.newClass(e.name().uniqueName(), new SolidName(e.name(), "_Application"));
+		appclz.inheritsFrom(new PackageName("Application"), J.FLAPPLICATION);
+		recnt = 0;
+		JSMethodCreator ctor = appclz.constructor();
 		JSVar cc = ctor.argument(ClientContext.class.getName(), "_cxt");
 		JSVar div = ctor.argument(J.ELEMENT, "div");
 		ctor.superArg(cc);
 		ctor.superArg(div);
-		clz.inheritsField(false, Access.PROTECTED, new PackageName(J.STRING), "title");
+		appclz.inheritsField(false, Access.PROTECTED, new PackageName(J.STRING), "title");
 		ctor.setField(new JSThis(), "title", new JSString(e.getTitle()));
 		ctor.returnVoid();
-		JSMethodCreator bu = clz.createMethod("baseUri", true);
+		JSMethodCreator bu = appclz.createMethod("baseUri", true);
 		bu.returnsType(J.STRING);
 		bu.returnObject(new JSString(e.getBaseUri()));
 		if (e.routing() != null)
-			jse.applRouting(clz, e.name(), e.routing());
+			jse.applRouting(appclz, e.name(), e.routing());
+	}
+	
+	@Override
+	public void visitRoutingExpr(RoutingAction a, int pos, Expr e) {
+		if (e instanceof ApplyExpr) {
+			this.meth = appclz.createMethod("routing_expr_" + recnt, true);
+			a.exprFn(pos, recnt);
+			recnt++;
+			meth.argument(J.FLEVALCONTEXT, "_cxt");
+			this.block = meth;
+			this.state = new JSFunctionStateStore(meth);
+			sv.push(new ExprGeneratorJS(state, sv, this.block, false));
+		}
+	}
+
+	@Override
+	public void leaveRoutingExpr(RoutingAction a, int pos, Expr e) {
+		this.meth = null;
+	}
+
+	@Override
+	public void leaveAssembly(ApplicationAssembly e) {
+		appclz = null;
+		recnt = 0;
 	}
 	
 	@Override

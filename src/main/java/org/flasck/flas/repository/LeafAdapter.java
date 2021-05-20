@@ -834,6 +834,14 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitRoutingExpr(RoutingAction a, int pos, Expr e) {
+	}
+
+	@Override
+	public void leaveRoutingExpr(RoutingAction a, int pos, Expr e) {
+	}
+
+	@Override
 	public void leaveRoutingAction(RoutingAction a) {
 	}
 
