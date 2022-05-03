@@ -186,3 +186,4 @@ src/golden/cascade/nested
 src/golden/regression/listimage
 src/golden/cards/templates/links
 src/golden/cards/templates/punnets/list
+src/golden/subscriptions/cancelling/namedTop

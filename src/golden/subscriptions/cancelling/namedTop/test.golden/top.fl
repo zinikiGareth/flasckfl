@@ -1,0 +1,20 @@
+The Begin contract is basically just the card start contract.
+
+	contract Top
+		subscribe
+
+The HelpMe contract has a "help" method that then calls back into a Child contract.
+This is not actually invoked.
+
+	contract handler Child
+		
+	contract service HelpMe
+		help -> (Child ch)
+		
+	card NamedTop
+		requires HelpMe h
+		implements Top
+			subscribe
+				<- h.help -> MyChild // => "top"
+				
+		handler Child MyChild

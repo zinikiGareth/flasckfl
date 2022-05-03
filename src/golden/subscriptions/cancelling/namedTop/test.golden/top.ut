@@ -1,0 +1,13 @@
+Check that if a top-level method can instantiate a named subscription and that,
+once created, it can be cancelled be repeating the process.
+
+	test a named subscription is cancelled when called twice
+		data HelpMe h
+		data NamedTop c
+		
+		expect h help -> _first
+		contract c Top subscribe
+
+#		expect <x first
+		expect h help -> _second
+		contract c Top subscribe
