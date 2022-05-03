@@ -113,6 +113,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
+import org.flasck.flas.parsedForm.ut.UnitTestExpectCancel;
 import org.flasck.flas.parsedForm.ut.UnitTestInput;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
@@ -1940,6 +1941,8 @@ public class Traverser implements RepositoryVisitor {
 			visitUnitDataDeclaration((UnitDataDeclaration) s);
 		else if (s instanceof UnitTestExpect)
 			visitUnitTestExpect((UnitTestExpect) s);
+		else if (s instanceof UnitTestExpectCancel)
+			visitUnitTestExpectCancel((UnitTestExpectCancel) s);
 		else if (s instanceof UnitTestSend)
 			visitUnitTestSend((UnitTestSend)s);
 		else if (s instanceof UnitTestRender)
@@ -2094,6 +2097,13 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitUnitTestExpectCancel(UnitTestExpectCancel utec) {
+		visitor.visitUnitTestExpectCancel(utec);
+		visitUnresolvedVar(utec.handlerName, 0);
+		leaveUnitTestExpectCancel(utec);
+	}
+
+	@Override
 	public void expectHandlerNext() {
 		visitor.expectHandlerNext();
 	}
@@ -2101,6 +2111,10 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void leaveUnitTestExpect(UnitTestExpect ute) {
 		visitor.leaveUnitTestExpect(ute);
+	}
+
+	public void leaveUnitTestExpectCancel(UnitTestExpectCancel utec) {
+		visitor.leaveUnitTestExpectCancel(utec);
 	}
 
 	public void visitUnitTestSend(UnitTestSend s) {

@@ -8,6 +8,6 @@ once created, it can be cancelled be repeating the process.
 		expect h help -> _first
 		contract c Top subscribe
 
-#		expect <x first
+		expect <~ first
 		expect h help -> _second
 		contract c Top subscribe

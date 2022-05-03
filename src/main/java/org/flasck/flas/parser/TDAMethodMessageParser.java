@@ -40,18 +40,29 @@ public class TDAMethodMessageParser implements TDAParsing {
 	}
 
 	private TDAParsing handleSend(InputPosition arrowPos, Tokenizable toks) {
-		List<Expr> seen = new ArrayList<>();
+		List<SendMessage> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
-			seen.add(t);
 			SendMessage msg = new SendMessage(arrowPos, t);
+			seen.add(msg);
 			builder.sendMessage(msg);
 		}).tryParsing(toks);
 		if (seen.isEmpty()) {
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser();
 		} else if (toks.hasMoreContent()) {
-			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			ExprToken tok = ExprToken.from(errors, toks);
+			if (tok.type == ExprToken.SYMBOL && tok.text.equals("=>")) {
+				new TDAExpressionParser(errors, t -> {
+					seen.get(0).handlerNameExpr(t);
+				}).tryParsing(toks);
+				if (toks.hasMoreContent()) {
+					errors.message(toks, "syntax error");
+					return new IgnoreNestedParser();
+				}
+			} else {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
 		}
 		return nestedParser;
 	}

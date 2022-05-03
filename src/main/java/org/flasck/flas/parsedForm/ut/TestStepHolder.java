@@ -61,6 +61,11 @@ public class TestStepHolder implements UnitTestStepConsumer {
 	}
 
 	@Override
+	public void expectCancel(UnresolvedVar handlerName) {
+		this.steps.add(new UnitTestExpectCancel(handlerName));
+	}
+
+	@Override
 	public void match(UnresolvedVar card, MatchedItem what, TargetZone targetZone, boolean contains, boolean fails, String text) {
 		this.steps.add(new UnitTestMatch(card, what, targetZone, contains, fails, text));
 	}

@@ -290,6 +290,15 @@ public class TestStepParser implements TDAParsing {
 	protected TDAParsing handleExpect(Tokenizable toks) {
 		ValidIdentifierToken svc = VarNameToken.from(toks);
 		if (svc == null) {
+			// If we don't have a service name, then it could be a contract.
+			// Look for the special operator "<x"
+			ExprToken tok = ExprToken.from(errors, toks);
+			if (tok != null && tok.type == ExprToken.SYMBOL) {
+				if (tok.text.equals("<~"))
+					return handleExpectCancel(toks);
+				errors.message(toks, "invalid expect operator " + tok.text);
+				return new IgnoreNestedParser();
+			}
 			errors.message(toks, "missing contract");
 			return new IgnoreNestedParser();
 		}
@@ -320,6 +329,20 @@ public class TestStepParser implements TDAParsing {
 		}
 		builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
 		return new TDAMultiParser(errors);
+	}
+
+	private TDAParsing handleExpectCancel(Tokenizable toks) {
+		ValidIdentifierToken handler = VarNameToken.from(toks);
+		if (handler == null) {
+			errors.message(toks, "handler name required");
+			return new IgnoreNestedParser();
+		}
+		if (toks.hasMoreContent()) {
+			errors.message(toks, "syntax error");
+			return new IgnoreNestedParser();
+		}
+		builder.expectCancel(new UnresolvedVar(handler.location, handler.text));
+		return new NoNestingParser(errors);
 	}
 
 	protected TDAParsing handleMatch(Tokenizable toks) {

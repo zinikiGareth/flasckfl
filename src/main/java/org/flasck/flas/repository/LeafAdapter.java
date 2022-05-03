@@ -66,8 +66,8 @@ import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
-import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.CreateMockApplication;
+import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.st.UserLogin;
@@ -77,6 +77,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
+import org.flasck.flas.parsedForm.ut.UnitTestExpectCancel;
 import org.flasck.flas.parsedForm.ut.UnitTestInput;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
@@ -619,6 +620,14 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void visitUnitTestExpect(UnitTestExpect s) {
+	}
+
+	@Override
+	public void visitUnitTestExpectCancel(UnitTestExpectCancel s) {
+	}
+
+	@Override
+	public void leaveUnitTestExpectCancel(UnitTestExpectCancel utec) {
 	}
 
 	@Override
