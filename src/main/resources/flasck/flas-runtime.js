@@ -734,6 +734,10 @@ FLContext.prototype.newdiv = function(cnt) {
 	this.env.newdiv(cnt);
 }
 
+FLContext.prototype.expectCancel = function(ctr) {
+	this.env.expectCancel(ctr);
+}
+
 // show value or expr depending on whether individual nodes are evaluated or not
 FLContext.prototype.show = function(val) {
 // HACK !  We should map it into a string repn properly

@@ -111,6 +111,7 @@ public interface JSBlockCreator {
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
 	void renderObject(JSExpr runner, JSExpr obj, SolidName on, int which, JSString templateName);
 	void expect(JSExpr mock, String var, List<JSExpr> args, JSExpr handler);
+	void expectCancel(JSExpr mock);
 	JSExpr storeMockObject(UnitDataDeclaration udd, JSExpr value);
 	void assertSatisfied(JSExpr m);
 	void newdiv(Integer cnt);

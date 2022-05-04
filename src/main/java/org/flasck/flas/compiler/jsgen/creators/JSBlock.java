@@ -29,6 +29,7 @@ import org.flasck.flas.compiler.jsgen.form.JSAssertion;
 import org.flasck.flas.compiler.jsgen.form.JSBind;
 import org.flasck.flas.compiler.jsgen.form.JSCallMethod;
 import org.flasck.flas.compiler.jsgen.form.JSCallStatic;
+import org.flasck.flas.compiler.jsgen.form.JSCancelExpectation;
 import org.flasck.flas.compiler.jsgen.form.JSClosure;
 import org.flasck.flas.compiler.jsgen.form.JSContractByVar;
 import org.flasck.flas.compiler.jsgen.form.JSCurry;
@@ -383,6 +384,12 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void expect(JSExpr obj, String assertion, List<JSExpr> args, JSExpr handler) {
 		JSExpectation stmt = new JSExpectation(obj, assertion, args, handler);
+		stmts.add(stmt);
+	}
+	
+	@Override
+	public void expectCancel(JSExpr obj) {
+		JSCancelExpectation stmt = new JSCancelExpectation(obj);
 		stmts.add(stmt);
 	}
 	
