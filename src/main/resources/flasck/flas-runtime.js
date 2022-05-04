@@ -34,6 +34,7 @@ const CommonEnv = function(bridge, broker) {
 	this.evid = 1;
     this.cards = [];
     this.queue = [];
+    this.subscriptions = {};
     if (bridge.lock)
         this.locker = bridge;
     else
@@ -149,6 +150,7 @@ JSEnv.prototype.addHistory = function(state, title, url) {
 
 
 
+
 const ContractStore = function(_cxt) {
     this.env = _cxt.env;
     this.recorded = {};
@@ -189,7 +191,14 @@ const DispatcherInvoker = function(env, call) {
 DispatcherInvoker.prototype.invoke = function(meth, args) {
     // The context has been put as args 0; use it but pull it out
     // The handler will already have been patched in here, so pull it back out
-    this.env.queueMessages(args[0], Send.eval(args[0], this.call, meth, args.slice(1, args.length-1), args[args.length-1]));
+    var pass = args.slice(1, args.length-1);
+    var hdlr = args[args.length-1];
+    var hdlrName = null;
+    if (hdlr instanceof NamedIdempotentHandler) {
+        hdlrName = hdlr._name;
+        hdlr = hdlr._handler;
+    }
+    this.env.queueMessages(args[0], Send.eval(args[0], this.call, meth, pass, hdlr, hdlrName));
 }
 
 
@@ -298,12 +307,13 @@ FLCurry.prototype.toString = function() {
 
 
 
-const FLMakeSend = function(meth, obj, nargs, handler) {
+const FLMakeSend = function(meth, obj, nargs, handler, subscriptionName) {
 	this.meth = meth;
 	this.obj = obj;
 	this.nargs = nargs;
 	this.current = [];
 	this.handler = handler;
+	this.subscriptionName = subscriptionName;
 }
 
 FLMakeSend.prototype.apply = function(cx, args) {
@@ -311,9 +321,9 @@ FLMakeSend.prototype.apply = function(cx, args) {
 	for (var i=1;i<args.length;i++)
 		all.push(args[i]);
 	if (all.length == this.nargs) {
-		return Send.eval(cx, this.obj, this.meth, all, this.handler);
+		return Send.eval(cx, this.obj, this.meth, all, this.handler, this.subscriptionName);
 	} else {
-		var ret = new FLMakeSend(this.meth, this.obj, this.nargs, this.handler);
+		var ret = new FLMakeSend(this.meth, this.obj, this.nargs, this.handler, this.subscriptionName);
 		ret.current = all;
 		return ret;
 	}
@@ -423,11 +433,11 @@ FLContext.prototype.error = function(msg) {
 	return FLError.eval(this, msg);
 }
 
-FLContext.prototype.mksend = function(meth, obj, cnt, handler) {
+FLContext.prototype.mksend = function(meth, obj, cnt, handler, subscriptionName) {
 	if (cnt == 0)
-		return Send.eval(this, obj, meth, [], handler);
+		return Send.eval(this, obj, meth, [], handler, subscriptionName);
 	else
-		return new FLMakeSend(meth, obj, cnt, handler);
+		return new FLMakeSend(meth, obj, cnt, handler, subscriptionName);
 }
 
 FLContext.returnNull = function(_cxt) {
@@ -754,6 +764,14 @@ FLContext.prototype.log = function(...args) {
 
 FLContext.prototype.addHistory = function(state, title, url) {
 	this.env.addHistory(state, title, url);
+}
+
+FLContext.prototype._bindNamedHandler = function(nh) {
+	// TODO: this will need to become a lot more complicated, because it needs to be a hierarchy
+	if (this.env.subscriptions[nh._name]) {
+		this.log("need to cancel " + this.env.subscriptions[nh._name]);
+	}
+	this.env.subscriptions[nh._name] = nh._ihid;
 }
 
 
@@ -2744,12 +2762,13 @@ Debug.prototype.toString = function() {
 
 const Send = function() {
 }
-Send.eval = function(_cxt, obj, meth, args, handle) {
+Send.eval = function(_cxt, obj, meth, args, handle, subscriptionName) {
 	const s = new Send();
 	s.obj = obj;
 	s.meth = meth;
 	s.args = args;
 	s.handle = handle;
+	s.subscriptionName = subscriptionName;
 	return s;
 }
 Send.prototype._full = function(cx) {
@@ -2757,6 +2776,7 @@ Send.prototype._full = function(cx) {
 	this.meth = cx.full(this.meth);
 	this.args = cx.full(this.args);
 	this.handle = cx.full(this.handle);
+	this.subscriptionName = cx.full(this.subscriptionName);
 }
 Send.prototype._compare = function(cx, other) {
 	if (other instanceof Send) {
@@ -2775,11 +2795,16 @@ Send.prototype.dispatch = function(cx) {
 	}
 	var args = this.args.slice();
 	args.splice(0, 0, cx);
+	var hdlr;
 	if (this.handle) {
-		args.splice(args.length, 0, this.handle);
+		hdlr = this.handle;
 	} else {
-		args.splice(args.length, 0, new IdempotentHandler());
+		hdlr = new IdempotentHandler();
 	}
+	if (this.subscriptionName) {
+		hdlr = new NamedIdempotentHandler(hdlr, this.subscriptionName);
+	}
+	args.splice(args.length, 0, hdlr);
 	var meth = this.obj._methods()[this.meth];
 	if (!meth)
 		return;

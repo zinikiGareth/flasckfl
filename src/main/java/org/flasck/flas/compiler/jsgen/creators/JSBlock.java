@@ -347,8 +347,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler) {
-		JSLocal ma = new JSLocal(creating, new JSMakeSend(sendMeth, obj, nargs, handler));
+	public JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler, JSExpr handlerName) {
+		JSLocal ma = new JSLocal(creating, new JSMakeSend(sendMeth, obj, nargs, handler, handlerName));
 		stmts.add(ma);
 		return ma;
 	}

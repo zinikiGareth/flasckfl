@@ -194,6 +194,11 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
+	public void leaveHandlerName(Expr handlerName) {
+		nv.result(stack.remove(0));
+	}
+	
+	@Override
 	public void leaveMessage(ActionMessage msg) {
 		if (stack.size() != 1)
 			throw new NotImplementedException("when sending messages, should only have 1 arg");

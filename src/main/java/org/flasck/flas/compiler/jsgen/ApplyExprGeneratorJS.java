@@ -179,11 +179,15 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveMakeSend(MakeSend expr) {
-		if (stack.size() != 1 && stack.size() != 2)
+		int expsize = 1;
+		if (expr.handler != null) expsize++;
+		if (expr.handlerName != null) expsize++;
+		if (stack.size() != expsize)
 			throw new NotImplementedException("badly formed stack in makeSend");
 		JSExpr obj = stack.remove(0);
-		JSExpr handler = stack.isEmpty() ? null : stack.remove(0);
-		sv.result(block.makeSend(expr.sendMeth.name, obj, expr.nargs, handler));
+		JSExpr handler = expr.handler == null ? null : stack.remove(0);
+		JSExpr handlerName = expr.handlerName == null ? null : stack.remove(0);
+		sv.result(block.makeSend(expr.sendMeth.name, obj, expr.nargs, handler, handlerName));
 	}
 
 	@Override

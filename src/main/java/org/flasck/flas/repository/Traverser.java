@@ -1445,7 +1445,20 @@ public class Traverser implements RepositoryVisitor {
 	public void visitSendMessage(SendMessage msg) {
 		visitor.visitSendMessage(msg);
 		visitExpr(msg.expr, 0);
+		if (msg.handlerName() != null) {
+			visitHandlerName(msg.handlerName());
+		}
 		leaveSendMessage(msg);
+	}
+
+	public void visitHandlerName(Expr handlerName) {
+		visitor.visitHandlerName(handlerName);
+		visitExpr(handlerName, 0);
+		leaveHandlerName(handlerName);
+	}
+
+	public void leaveHandlerName(Expr handlerName) {
+		visitor.leaveHandlerName(handlerName);
 	}
 
 	@Override
@@ -1878,6 +1891,8 @@ public class Traverser implements RepositoryVisitor {
 		visitExpr(expr.obj, 0);
 		if (expr.handler != null)
 			visitExpr(expr.handler, 0);
+		if (expr.handlerName != null)
+			visitExpr(expr.handlerName, 0);
 		leaveMakeSend(expr);
 	}
 	

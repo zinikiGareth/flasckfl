@@ -148,8 +148,16 @@ JsonMarshaller.prototype.beginList = function(cls) {
     return new JsonListMarshaller(this.broker, me, this.sender, this.collector);
 }
 
-JsonMarshaller.prototype.handler = function(h) {
-    this.obj.args.push({"_ihclz":h._clz(), "_ihid": this.broker.uniqueHandler(h)});
+JsonMarshaller.prototype.handler = function(cx, h) {
+    var clz, ihid;
+    if (h instanceof NamedIdempotentHandler) {
+        clz = h._handler._clz;
+        ihid = h._ihid;
+    } else {
+        clz = h._clz;
+        ihid = this.broker.uniqueHandler(h);
+    }
+    this.obj.args.push({ "_ihclz": clz, "_ihid": ihid });
 }
 
 JsonMarshaller.prototype.dispatch = function() {
@@ -412,6 +420,11 @@ LoggingIdempotentHandler.prototype.failure = function(cx, msg) {
     cx.log("failure: " + msg);
 };
 
+const NamedIdempotentHandler = function(handler, name) {
+    this._handler = handler;
+    this._name = name;
+}
+
 
 
 const MarshallerProxy = function(logger, ctr, svc) {
@@ -424,7 +437,7 @@ MarshallerProxy.prototype.invoke = function(meth, args) {
     const cx = args[0];
     try {
         const ux = this.svc.begin(cx, meth);
-        new ArgListMarshaller(this.logger, false, true).marshal(ux, args);
+        new ArgListMarshaller(this.logger, false, true).marshal(cx, ux, args);
         return ux.dispatch();
     } catch (e) {
         this.logger.log("error during marshalling", e);
@@ -437,10 +450,10 @@ const ArgListMarshaller = function(logger, includeFirst, includeLast) {
     this.skipEnd = includeLast?0:1;
 }
 
-ArgListMarshaller.prototype.marshal = function(m, args) {
+ArgListMarshaller.prototype.marshal = function(cx, m, args) {
     const om = new ObjectMarshaller(this.logger, m);
     for (var i=this.from;i<args.length-this.skipEnd;i++) {
-        om.marshal(args[i]);
+        om.marshal(cx, args[i]);
     }
 }
 
@@ -449,11 +462,11 @@ const ObjectMarshaller = function(logger, top) {
     this.top = top;
 }
 
-ObjectMarshaller.prototype.marshal = function(o) {
-    this.recursiveMarshal(this.top, o);
+ObjectMarshaller.prototype.marshal = function(cx, o) {
+    this.recursiveMarshal(cx, this.top, o);
 }
 
-ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
+ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
     if (o._throw && o._throw())
         throw o;
     else if (ux.handleCycle(o))
@@ -467,12 +480,16 @@ ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
     else if (typeof o === "boolean")
         ux.boolean(o);
     else if (typeof o === "object") {
-        if (o instanceof IdempotentHandler)
-            ux.handler(o);
-        else if (o.state instanceof FieldsContainer) {
-            this.handleStruct(ux, o);
+        if (o instanceof IdempotentHandler) {
+            ux.handler(cx, o);
+        } else if (o instanceof NamedIdempotentHandler) {
+            o._ihid = cx.broker.uniqueHandler(o);
+            cx._bindNamedHandler(o);
+            ux.handler(cx, o);
+        } else if (o.state instanceof FieldsContainer) {
+            this.handleStruct(cx, ux, o);
         } else if (Array.isArray(o)) {
-            this.handleArray(ux, o);
+            this.handleArray(cx, ux, o);
         } else if (o._towire) {
             ux.wireable(this, o);
         } else {
@@ -492,7 +509,7 @@ ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
     }
 }
 
-ObjectMarshaller.prototype.handleStruct = function(ux, o) {
+ObjectMarshaller.prototype.handleStruct = function(cx, ux, o) {
     const fc = o.state;
     // this.logger.log("at", new Error().stack);
     if (!fc.has("_type")) {
@@ -503,15 +520,15 @@ ObjectMarshaller.prototype.handleStruct = function(ux, o) {
     const ks = Object.keys(fc.dict);
     for (var k=0;k<ks.length;k++) {
         fm.field(ks[k]);
-        this.recursiveMarshal(fm, fc.dict[ks[k]]);
+        this.recursiveMarshal(cx, fm, fc.dict[ks[k]]);
     }
     fm.complete();
 }
 
-ObjectMarshaller.prototype.handleArray = function(ux, l) {
+ObjectMarshaller.prototype.handleArray = function(cx, ux, l) {
     const ul = ux.beginList();
     for (var k=0;k<l.length;k++) {
-        this.recursiveMarshal(ul, l[k]);
+        this.recursiveMarshal(cx, ul, l[k]);
     }
     ul.complete();
 }

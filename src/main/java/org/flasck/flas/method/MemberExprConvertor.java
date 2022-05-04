@@ -48,7 +48,6 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 	private HandlerImplements hi;
 	private FunctionName sendMeth;
 	private int expargs;
-	private Expr handler;
 	private ObjectActionHandler odctor;
 	private final Type containerType;
 	private final Type containedType;
@@ -210,7 +209,7 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 			if (isAcor)
 				nv.result(new MakeAcor(expr.location(), sendMeth, obj, expargs));
 			else
-				nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs, handler));
+				nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs));
 		} else
 			throw new HaventConsideredThisException("cannot convert " + expr);
 	}

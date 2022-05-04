@@ -742,6 +742,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitSendMessage(msg);
 	}
 
+	public void visitHandlerName(Expr handlerName) {
+		top.visitHandlerName(handlerName);
+	}
+
+	public void leaveHandlerName(Expr handlerName) {
+		top.leaveHandlerName(handlerName);
+	}
+
 	public void leaveSendMessage(SendMessage msg) {
 		top.leaveSendMessage(msg);
 	}

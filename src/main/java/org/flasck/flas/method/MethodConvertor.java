@@ -12,14 +12,17 @@ import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
+import org.zinutils.exceptions.CantHappenException;
 
 public class MethodConvertor extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -74,6 +77,32 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitMessage(ActionMessage msg) {
 		sv.push(new MessageConvertor(errors, sv, oah, (msg instanceof AssignMessage)?(AssignMessage)msg:null));
+	}
+
+	@Override
+	public void visitHandlerName(Expr expr) {
+		sv.push(new MessageConvertor(errors, sv, oah, null));
+	}
+
+	@Override
+	public void leaveHandlerName(Expr expr) {
+		if (results.size() != 1)
+			throw new CantHappenException("invalid results size " + results.size());
+		sv.result(results.get(0));
+	}
+
+	@Override
+	public void leaveSendMessage(SendMessage msg) {
+		System.out.println("hello");
+		if (msg.handlerName() != null) {
+			// the handler name expr has been added to the end of results, and needs to be moved onto the MakeSend just before that
+			Expr hn = results.remove(results.size()-1);
+			Expr ms = results.get(results.size()-1);
+			if (ms instanceof ApplyExpr) { // it is a MakeSend with a handler
+				ms = (MakeSend)((ApplyExpr)ms).fn;
+			}
+			((MakeSend)ms).handlerName = hn;
+		}
 	}
 	
 	@Override

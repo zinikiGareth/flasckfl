@@ -52,7 +52,7 @@ public interface JSBlockCreator {
 	JSExpr mockHandler(SolidName name);
 	JSExpr createObject(NameOfThing name);
 	JSExpr createObject(NameOfThing name, List<JSExpr> args);
-	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
+	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler, JSExpr handlerName);
 	JSExpr makeAcor(FunctionName acorMeth, JSExpr obj, int nargs);
 	JSExpr introduceVar(String var);
 	JSExpr fromIntroduction(JSExpr boundVar);

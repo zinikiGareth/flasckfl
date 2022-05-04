@@ -13,13 +13,13 @@ public class MakeSend implements Expr, WithTypeSignature {
 	public final Expr obj;
 	public final int nargs;
 	public Expr handler;
+	public Expr handlerName;
 
-	public MakeSend(InputPosition pos, FunctionName sendMeth, Expr obj, int nargs, Expr handler) {
+	public MakeSend(InputPosition pos, FunctionName sendMeth, Expr obj, int nargs) {
 		this.pos = pos;
 		this.sendMeth = sendMeth;
 		this.obj = obj;
 		this.nargs = nargs;
-		this.handler = handler;
 	}
 
 	@Override
@@ -49,6 +49,6 @@ public class MakeSend implements Expr, WithTypeSignature {
 	
 	@Override
 	public String toString() {
-		return "MakeSend[" + sendMeth.uniqueName() + "(" + obj + ", " + nargs + ")]";
+		return "MakeSend[" + sendMeth.uniqueName() + "(" + obj + ", " + nargs + ")" + (handlerName != null ? " => " + handlerName.toString() : "") + "]";
 	}
 }

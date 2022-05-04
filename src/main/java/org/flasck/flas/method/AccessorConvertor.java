@@ -147,7 +147,7 @@ public class AccessorConvertor extends LeafAdapter {
 			else if (td instanceof ObjectDefn && ((ObjectDefn)td).getMethod(meth.var) != null) {
 				ObjectDefn od = (ObjectDefn) td;
 				ObjectMethod m = od.getMethod(meth.var);
-				expr.conversion(new MakeSend(expr.location(), m.name(), from, m.argCount(), null));
+				expr.conversion(new MakeSend(expr.location(), m.name(), from, m.argCount()));
 				return ret;
 			} else {
 				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on " + td.name().uniqueName());

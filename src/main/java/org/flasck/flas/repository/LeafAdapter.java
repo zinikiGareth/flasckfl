@@ -338,6 +338,14 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitHandlerName(Expr handlerName) {
+	}
+
+	@Override
+	public void leaveHandlerName(Expr handlerName) {
+	}
+
+	@Override
 	public void leaveSendMessage(SendMessage msg) {
 	}
 

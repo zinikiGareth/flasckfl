@@ -172,6 +172,8 @@ public interface RepositoryVisitor {
 	void visitAssignSlot(Expr slot);
 	void leaveAssignMessage(AssignMessage msg);
 	void visitSendMessage(SendMessage msg);
+	void visitHandlerName(Expr handlerName);
+	void leaveHandlerName(Expr handlerName);
 	void leaveSendMessage(SendMessage msg);
 	void leaveMessage(ActionMessage msg);
 	void leaveMessages(Messages msgs);

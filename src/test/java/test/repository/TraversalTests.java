@@ -558,7 +558,7 @@ public class TraversalTests {
 
 	@Test
 	public void exprVisitsMakeSend() {
-		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, new SolidName(pkg, "Foo"), "f"), var, 2, null);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, new SolidName(pkg, "Foo"), "f"), var, 2);
 		context.checking(new Expectations() {{
 			oneOf(v).visitMakeSend(ms);
 			oneOf(v).visitExpr(ms, 0);
