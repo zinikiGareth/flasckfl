@@ -16,6 +16,8 @@ import org.flasck.flas.repository.Repository;
 import org.flasck.flas.testrunner.CommonTestRunner.CommonState;
 import org.flasck.flas.testrunner.JVMRunner.State;
 import org.flasck.jvm.FLEvalContext;
+import org.flasck.jvm.container.CardContext;
+import org.flasck.jvm.container.ExpectationException;
 import org.flasck.jvm.fl.AssertFailed;
 import org.flasck.jvm.fl.ClientContext;
 import org.flasck.jvm.fl.FlasTestException;
@@ -135,6 +137,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 					}
 				}
 			}
+			((CardContext)cxt).assertSatisfied();
 			if (cxt.getError() != null)
 				throw cxt.getError();
 			if (desc != null)
@@ -149,29 +152,34 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			desc = "configure";
 		if (state != null)
 			state.failed++;
+		Throwable e2;
 		if (ex instanceof WrappedException || ex instanceof InvocationTargetException || ex instanceof FlasTestException) {
-			Throwable e2 = WrappedException.unwrapThrowable(ex);
-			if (e2 instanceof AssertFailed) {
-				AssertFailed af = (AssertFailed) e2;
-				pw.fail(code, desc);
-				errors.add(code + " FAIL " + desc);
-				pw.println("  expected: " + valueOf(af.expected));
-				pw.println("  actual:   " + valueOf(af.actual));
-			} else if (e2 instanceof NotMatched) {
-				pw.fail(code, desc);
-				errors.add(code + " FAIL " + desc);
-				pw.println("  " + e2.getMessage());
-			} else if (e2 instanceof NewDivException) {
-				pw.fail(code, desc);
-				errors.add(code + " FAIL " + desc);
-				pw.println("  " + e2.getMessage());
-			} else {
-				pw.error(code, desc, e2);
-				errors.add(code + " ERROR " + desc);
-				pw.println(code + " ERROR " + desc);
-			}
+			e2 = WrappedException.unwrapThrowable(ex);
 		} else {
-			pw.error(code, desc, ex);
+			e2 = ex;
+		}
+		if (e2 instanceof AssertFailed) {
+			AssertFailed af = (AssertFailed) e2;
+			pw.fail(code, desc);
+			errors.add(code + " FAIL " + desc);
+			pw.println("  expected: " + valueOf(af.expected));
+			pw.println("  actual:   " + valueOf(af.actual));
+		} else if (e2 instanceof NotMatched) {
+			pw.fail(code, desc);
+			errors.add(code + " FAIL " + desc);
+			pw.println("  " + e2.getMessage());
+		} else if (e2 instanceof NewDivException) {
+			pw.fail(code, desc);
+			errors.add(code + " FAIL " + desc);
+			pw.println("  " + e2.getMessage());
+		} else if (e2 instanceof ExpectationException) {
+			pw.fail(code, desc);
+			errors.add(code + " FAIL " + desc);
+			pw.println("  " + e2.getMessage());
+		} else {
+			pw.error(code, desc, e2);
+			errors.add(code + " ERROR " + desc);
+			pw.println(code + " ERROR " + desc);
 		}
 	}
 
