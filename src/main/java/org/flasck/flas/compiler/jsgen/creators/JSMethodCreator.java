@@ -19,7 +19,6 @@ public interface JSMethodCreator extends JSBlockCreator {
 	void returnsType(String ty);
 	void clear();
 	void initContext(boolean field);
-	void testComplete();
 	void copyContract(JSExpr copyInto, String fld, String arg);
 	void write(IndentWriter w, Set<NameOfThing> names);
 	void helper(JSExpr runner);

@@ -12,7 +12,6 @@ import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
 import org.flasck.flas.compiler.jsgen.form.IVFWriter;
 import org.flasck.flas.compiler.jsgen.form.InitContext;
-import org.flasck.flas.compiler.jsgen.form.JSBlockComplete;
 import org.flasck.flas.compiler.jsgen.form.JSCopyContract;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSInheritFrom;
@@ -136,11 +135,6 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		stmts.add(new JSCopyContract(copyInto, fld, arg));
 	}
 	
-	@Override
-	public void testComplete() {
-		stmts.add(new JSBlockComplete());
-	}
-
 	public void write(IndentWriter w, Set<NameOfThing> names) {
 		if (!genJS)
 			return;
