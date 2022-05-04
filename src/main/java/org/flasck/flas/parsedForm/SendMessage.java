@@ -2,7 +2,6 @@ package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class SendMessage implements ActionMessage {
 	public final InputPosition kw;
