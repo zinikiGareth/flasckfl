@@ -123,6 +123,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 				break;
 			}
 		}
+		t1.checkContextSatisfied(desc);
 		if (desc != null && t1.ok())
 			pw.pass("JS", desc);
 		else if (!t1.ok() && errors.isEmpty())

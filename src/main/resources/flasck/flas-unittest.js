@@ -346,6 +346,11 @@ UTRunner.prototype.newdiv = function(cnt) {
 UTRunner.prototype.expectCancel = function(handler) {
 	this.toCancel.push(handler);
 }
+UTRunner.prototype.assertSatisfied = function() {
+	if (this.toCancel.length != 0) {
+		throw new Error("EXPCAN\n  subscription " + this.toCancel[0] + " was not cancelled");
+	}
+}
 UTRunner.prototype.mockAgent = function(_cxt, agent) {
 	return new MockAgent(agent);
 }

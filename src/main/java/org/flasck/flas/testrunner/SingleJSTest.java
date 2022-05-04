@@ -70,48 +70,23 @@ public class SingleJSTest {
 			}
 			cdl.countDown();
 		});
-		if (!excs.isEmpty()) {
-			Throwable t = excs.get(0);
-			if (state != null)
-				state.failed++;
-			if (t instanceof Ui4jException)
-				t = t.getCause();
-			if (t instanceof JSException) {
-				JSException ex = (JSException) t;
-				if (ex.getCause() instanceof FlasTestException) {
-					JVMRunner.handleError("JS", errors, pw, null, desc, ex.getCause());
-					return;
-				} else {
-					String jsex = ex.getMessage();
-					if (jsex.startsWith("Error: NSV\n")) {
-						pw.fail("JS", desc);
-						errors.add("JS FAIL " + desc);
-						pw.println(jsex.substring(jsex.indexOf('\n')+1));
-						return;
-					} else if (jsex.startsWith("Error: EXP\n")) {
-						pw.fail("JS", desc);
-						errors.add("JS FAIL " + desc);
-						pw.println(jsex.substring(jsex.indexOf('\n')+1));
-						return;
-					} else if (jsex.startsWith("Error: MATCH\n")) {
-						pw.fail("JS", desc);
-						errors.add("JS FAIL " + desc);
-						pw.println(jsex.substring(jsex.indexOf('\n')+1));
-						return;
-					} else if (jsex.startsWith("Error: NEWDIV\n")) {
-						pw.fail("JS", desc);
-						errors.add("JS FAIL " + desc);
-						pw.println("incorrect number of divs created");
-						pw.println(jsex.substring(jsex.indexOf('\n')+1));
-						return;
-					}
-				}
-			}
-			pw.error("JS", desc, t);
-			errors.add("JS ERROR " + (desc == null ? "configure":desc));
-		}
+		handleExceptions(desc, excs);
 	}
-	
+
+	public void checkContextSatisfied(String desc) {
+		List<Throwable> excs = new ArrayList<>();
+		uiThread(desc, cdl -> {
+			try {
+				Object foo = cxt.call("assertSatisfied");
+				System.out.println(foo);
+			} catch (Throwable t) {
+				excs.add(t);
+			}
+			cdl.countDown();
+		});
+		handleExceptions(desc, excs);
+	}
+
 	private void uiThread(String desc, Consumer<CountDownLatch> doit) {
 		CountDownLatch cdl = new CountDownLatch(1);
 		if (Platform.isFxApplicationThread()) {
@@ -139,6 +114,54 @@ public class SingleJSTest {
 		}
 	}
 
+	private void handleExceptions(String desc, List<Throwable> excs) {
+		if (!excs.isEmpty()) {
+			Throwable t = excs.get(0);
+			if (state != null)
+				state.failed++;
+			if (t instanceof Ui4jException)
+				t = t.getCause();
+			if (t instanceof JSException) {
+				JSException ex = (JSException) t;
+				if (ex.getCause() instanceof FlasTestException) {
+					JVMRunner.handleError("JS", errors, pw, null, desc, ex.getCause());
+					return;
+				} else {
+					String jsex = ex.getMessage();
+					if (jsex.startsWith("Error: NSV\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
+					} else if (jsex.startsWith("Error: EXP\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
+					} else if (jsex.startsWith("Error: EXPCAN\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
+					} else if (jsex.startsWith("Error: MATCH\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
+					} else if (jsex.startsWith("Error: NEWDIV\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println("incorrect number of divs created");
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
+					}
+				}
+			}
+			pw.error("JS", desc, t);
+			errors.add("JS ERROR " + (desc == null ? "configure":desc));
+		}
+	}
+	
 	public boolean ok() {
 		return !error && state.failed == 0;
 	}
