@@ -93,7 +93,6 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveSendMessage(SendMessage msg) {
-		System.out.println("hello");
 		if (msg.handlerName() != null) {
 			// the handler name expr has been added to the end of results, and needs to be moved onto the MakeSend just before that
 			Expr hn = results.remove(results.size()-1);

@@ -321,7 +321,10 @@ EvalContext.prototype.log = function(...args) {
 }
 
 EvalContext.prototype.debugmsg = function(...args) {
-	this.env.logger.debugmsg.apply(this.env.logger, args);
+	if (this.env.logger.debugmsg)
+		this.env.logger.debugmsg.apply(this.env.logger, args);
+	else
+		this.log(args);
 }
 
 EvalContext.prototype.registerContract = function(name, ctr) {
@@ -687,7 +690,7 @@ CollectingTraverser.prototype.beginList = function() {
     return lt;
 }
 
-CollectingTraverser.prototype.handler = function(h) {
+CollectingTraverser.prototype.handler = function(cx, h) {
     this.collect(h);
 }
 

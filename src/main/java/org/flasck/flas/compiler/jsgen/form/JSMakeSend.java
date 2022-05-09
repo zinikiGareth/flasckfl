@@ -56,7 +56,12 @@ public class JSMakeSend implements JSExpr {
 			h = jvm.arg(handler);
 		else
 			h = md.aNull();
-		IExpr mksend = md.callInterface(J.OBJECT, jvm.cxt(), "mksend", md.stringConst(sendMeth), jvm.arg(obj), md.intConst(nargs), h);
+		IExpr sn;
+		if (handlerName != null)
+			sn = jvm.arg(handlerName);
+		else
+			sn = md.aNull();
+		IExpr mksend = md.callInterface(J.OBJECT, jvm.cxt(), "mksend", md.stringConst(sendMeth), jvm.arg(obj), md.intConst(nargs), h, sn);
 		jvm.local(this, mksend);
 	}
 	
