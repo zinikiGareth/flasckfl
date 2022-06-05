@@ -77,8 +77,7 @@ public class SingleJSTest {
 		List<Throwable> excs = new ArrayList<>();
 		uiThread(desc, cdl -> {
 			try {
-				Object foo = cxt.call("assertSatisfied");
-				System.out.println(foo);
+				cxt.call("assertSatisfied");
 			} catch (Throwable t) {
 				excs.add(t);
 			}

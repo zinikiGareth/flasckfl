@@ -346,6 +346,15 @@ UTRunner.prototype.newdiv = function(cnt) {
 UTRunner.prototype.expectCancel = function(handler) {
 	this.toCancel.push(handler);
 }
+UTRunner.prototype.cancelBound = function(bv) {
+	var h = bv.actual;
+	var io = this.toCancel.indexOf(h);
+	if (io != -1) {
+		this.toCancel.splice(io, 1);
+	} else {
+		this.logger.log("unexpected cancel of " + h);
+	}
+}
 UTRunner.prototype.assertSatisfied = function() {
 	if (this.toCancel.length != 0) {
 		throw new Error("EXPCAN\n  subscription " + this.toCancel[0] + " was not cancelled");
@@ -555,6 +564,7 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 			_cxt.log("Have invocation of", meth, "with", args);
 			if (matched.handler instanceof BoundVar) {
 				matched.handler.bindActual(ih);
+				_cxt.broker.serviceFor(ih, new SubscriptionFor(matched.handler));
 			}
 			return;
 		}
@@ -581,6 +591,14 @@ MockContract.prototype.assertSatisfied = function(_cxt) {
 	}
 	if (msg)
 		throw new Error("UNUSED\n" + msg);
+}
+
+const SubscriptionFor = function(bv) {
+	this.bv = bv;
+};
+
+SubscriptionFor.prototype.cancel = function(cx) {
+	cx.env.cancelBound(this.bv);
 }
 
 const MockFLObject = function(obj) {

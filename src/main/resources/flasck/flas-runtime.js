@@ -769,7 +769,8 @@ FLContext.prototype.addHistory = function(state, title, url) {
 FLContext.prototype._bindNamedHandler = function(nh) {
 	// TODO: this will need to become a lot more complicated, because it needs to be a hierarchy
 	if (this.env.subscriptions[nh._name]) {
-		this.log("need to cancel " + this.env.subscriptions[nh._name]);
+		var old = this.env.subscriptions[nh._name];
+		this.env.broker.cancel(this, old);
 	}
 	this.env.subscriptions[nh._name] = nh._ihid;
 }

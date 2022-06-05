@@ -39,7 +39,7 @@ JsonBeachhead.prototype.invoke = function(uow, jo, replyTo) {
         const o = jo.args[i];
         this.handleArg(dispatcher, uow, o);
     }
-    dispatcher.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
+    dispatcher.handler(uow, this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
     return dispatcher.dispatch();
 }
 
@@ -71,15 +71,20 @@ JsonBeachhead.prototype.handleArg = function(ux, uow, o) {
 
 JsonBeachhead.prototype.idem = function(uow, jo, replyTo) {
     const ih = this.broker.currentIdem(jo.idem);
+    if (!ih) {
+        uow.log("failed to find idem service for", jo.idem, new Error().stack);
+        throw new Error("did not find idem " + jo.idem);
+    }
     const um = new UnmarshallerDispatcher(null, ih);
     const dispatcher = um.begin(uow, jo.method);
-    uow.log("jo.args =", jo.args);
+    uow.log("jo.args =", JSON.stringify(jo.args));
     var cnt = jo.args.length;
     var wantHandler = false;
     if (jo.method != "success" && jo.method != "failure") {
         wantHandler = true;
         cnt--;
     }
+    uow.log("now cnt=", cnt, "and wantHandler =", wantHandler);
     for (var i=0;i<cnt;i++) {
         this.handleArg(dispatcher, uow, jo.args[i]);
     }
@@ -151,10 +156,11 @@ JsonMarshaller.prototype.beginList = function(cls) {
 JsonMarshaller.prototype.handler = function(cx, h) {
     var clz, ihid;
     if (h instanceof NamedIdempotentHandler) {
-        clz = h._handler._clz;
+        cx.log("have NIH we want clz for", h);
+        clz = h._handler._clz();
         ihid = h._ihid;
     } else {
-        clz = h._clz;
+        clz = h._clz();
         ihid = this.broker.uniqueHandler(h);
     }
     this.obj.args.push({ "_ihclz": clz, "_ihid": ihid });
@@ -232,6 +238,7 @@ OMWrapper.prototype.marshal = function(trav, o) {
 
 
 
+var brokerId = 1;
 const SimpleBroker = function(logger, factory, contracts) {
     this.logger = logger;
     this.server = null;
@@ -240,6 +247,9 @@ const SimpleBroker = function(logger, factory, contracts) {
     this.services = {};
     this.nextHandle = 1;
     this.handlers = {};
+    this.serviceHandlers = {};
+    this.name = "jsbroker_" + brokerId++;
+    logger.log("created ", this.name, new Error().stack);
 };
 
 SimpleBroker.prototype.connectToServer = function(uri) {
@@ -298,15 +308,30 @@ SimpleBroker.prototype.unmarshalTo = function(clz) {
 SimpleBroker.prototype.uniqueHandler = function(h) {
     const name = "handler_" + (this.nextHandle++);
     this.handlers[name] = h;
+    this.logger.log("registered handler name", name, "in", this.name, "have", JSON.stringify(Object.keys(this.handlers)));
     return name;
 }
 
 SimpleBroker.prototype.currentIdem = function(h) {
     const ret = this.handlers[h];
     if (!ret) {
-        this.logger.log("there is no handler for", h);
+        this.logger.log("there is no handler for", h, "in", this.name, "have", JSON.stringify(Object.keys(this.handlers)));
     }
     return ret;
+}
+
+SimpleBroker.prototype.serviceFor = function(h, sf) {
+    this.serviceHandlers[h] = sf;
+}
+SimpleBroker.prototype.cancel = function(cx, old) {
+    const ret = this.handlers[old];
+    if (!ret) {
+        this.logger.log("there is no handler for", h);
+    }
+    this.logger.log("need to cancel " + ret);
+    if (this.serviceHandlers[ret]) {
+        this.serviceHandlers[ret].cancel(cx);
+    }
 }
 
 
@@ -360,6 +385,9 @@ EvalContext.prototype.fromWire = function(om, fields) {
 	return clz.fromWire.call(clz, this, om, fields);
 }
 
+EvalContext.prototype._bindNamedHandler = function(nh) {
+	// Do we need to do anything? This is really to support FLAS, but maybe (some of) that code should come here ...
+}
 
 const FieldsContainer = function(cx) {
 	this.cx = cx;
@@ -443,7 +471,7 @@ MarshallerProxy.prototype.invoke = function(meth, args) {
         new ArgListMarshaller(this.logger, false, true).marshal(cx, ux, args);
         return ux.dispatch();
     } catch (e) {
-        this.logger.log("error during marshalling", e);
+        cx.log("error during marshalling", e);
     }
 }
 
@@ -470,8 +498,10 @@ ObjectMarshaller.prototype.marshal = function(cx, o) {
 }
 
 ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
-    if (o._throw && o._throw())
+    if (o._throw && o._throw()) {
+        cx.log("throwing because object has _throw");
         throw o;
+    }
     else if (ux.handleCycle(o))
         ;
     else if (typeof o === "string")
@@ -486,6 +516,8 @@ ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
         if (o instanceof IdempotentHandler) {
             ux.handler(cx, o);
         } else if (o instanceof NamedIdempotentHandler) {
+            cx.log("stack is", new Error().stack);
+            cx.log("broker is", cx.broker);
             o._ihid = cx.broker.uniqueHandler(o);
             cx._bindNamedHandler(o);
             ux.handler(cx, o);
@@ -618,6 +650,7 @@ const proxy1 = function(cx, underlying, methods, handler) {
 }
 
 
+
 const Unmarshaller = function() {
 }
 
@@ -701,7 +734,7 @@ const FieldsTraverser = function(cx, collector, clz) {
         czz = cx.objectNamed(clz);
     if (!czz)
         throw new Error("Could not find a definition for " + clz);
-    cx.log("creating " + clz + ": " + czz);
+    // cx.log("creating " + clz + ": " + czz);
     this.creation = new czz(cx);
     this.creation.state._wrapper = this.creation;
 }
@@ -749,9 +782,14 @@ UnmarshalTraverser.prototype = new ListTraverser();
 UnmarshalTraverser.prototype.constructor = UnmarshalTraverser;
 
 const DispatcherTraverser = function(svc, method, cx, collector) {
+    cx.log("have service", svc, svc instanceof NamedIdempotentHandler, new Error().stack);
     UnmarshalTraverser.call(this, cx, collector);
+    if (svc instanceof NamedIdempotentHandler) {
+        svc = svc._handler;
+        cx.log("... now have service", svc, svc instanceof NamedIdempotentHandler);
+    }
     if (!svc[method])
-        throw Error("no method '" + method + "'");
+        throw Error("no method '" + method + "': have " + JSON.stringify(Object.keys(svc)));
     this.svc = svc;
     this.method = method;
 }
@@ -760,7 +798,7 @@ DispatcherTraverser.prototype = new UnmarshalTraverser();
 DispatcherTraverser.prototype.constructor = DispatcherTraverser;
 
 DispatcherTraverser.prototype.dispatch = function() {
-    const ih = this.ret[this.ret.length-1];
+    var ih = this.ret[this.ret.length-1];
     try {
         var rets = this.svc[this.method].apply(this.svc, this.ret);
         // I don't think this matches the semantics of when we want success to be called
@@ -768,6 +806,11 @@ DispatcherTraverser.prototype.dispatch = function() {
         // But have test cases to prove that and hold that
         // ih.success(this.cx);
     } catch (e) {
+        if (ih instanceof NamedIdempotentHandler) {
+            this.cx.log("caught exception and reporting failure", e.message);
+            ih = ih._handler;
+        }
+        
         ih.failure(this.cx, e.message);
     }
     return rets;
@@ -843,8 +886,8 @@ ZiwshWebClient.prototype.connectTo = function(uri) {
         zwc.logger.log("cleared backlog");
     });
     this.conn.addEventListener("message", (ev) => {
-        zwc.logger.log("received a message", ev.data);
-        zwc.logger.log("dispatching to", this.bh);
+        // zwc.logger.log("received a message", ev.data);
+        // zwc.logger.log("dispatching to", this.bh);
         const cx = zwc.factory.newContext();
         var actions = this.bh.dispatch(cx, ev.data, this);
         if (zwc.factory.queueMessages) {
