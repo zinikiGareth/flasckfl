@@ -18,6 +18,7 @@ import org.flasck.flas.testrunner.JVMRunner.State;
 import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.container.CardContext;
 import org.flasck.jvm.container.ExpectationException;
+import org.flasck.jvm.container.UnexpectedCancelException;
 import org.flasck.jvm.fl.AssertFailed;
 import org.flasck.jvm.fl.ClientContext;
 import org.flasck.jvm.fl.FlasTestException;
@@ -35,11 +36,13 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	}
 
 	public class State extends CommonState {
+		private final JVMTestHelper helper;
 		private final Class<?> clz;
 		private final Object inst;
 		private final ClientContext cxt;
 
 		public State(JVMTestHelper helper, Class<?> clz, Object inst, ClientContext cxt) {
+			this.helper = helper;
 			this.clz = clz;
 			this.inst = inst;
 			this.cxt = cxt;
@@ -67,7 +70,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			Object test = Class.forName(utc.name.javaName(), false, loader).getConstructor(TestHelper.class, FLEvalContext.class).newInstance(helper, cxt);
 			@SuppressWarnings("unchecked")
 			List<String> steps = (List<String>)Reflection.call(test, "dotest", cxt);
-			doSteps(pw, null, test, steps, cxt, utc.description);
+			doSteps(pw, helper, null, test, steps, cxt, utc.description);
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			pw.println("NOTFOUND " + desc);
 			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
@@ -99,7 +102,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			Method method = state.clz.getMethod(e.name.baseName(), FLEvalContext.class);
 			@SuppressWarnings("unchecked")
 			List<String> steps = (List<String>) method.invoke(state.inst, state.cxt);
-			doSteps(pw, state, state.inst, steps, state.cxt, e.desc);
+			doSteps(pw, state.helper, state, state.inst, steps, state.cxt, e.desc);
 		} catch (Throwable t) {
 			pw.error("JVM", e.desc, t);
 			state.failed++;
@@ -115,7 +118,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		}
 	}
 
-	private void doSteps(TestResultWriter pw, State state, Object test, List<String> steps, FLEvalContext cxt, String desc) {
+	private void doSteps(TestResultWriter pw, JVMTestHelper helper, State state, Object test, List<String> steps, FLEvalContext cxt, String desc) {
 		try {
 			if (desc != null)
 				pw.begin("JVM", desc);
@@ -140,6 +143,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			((CardContext)cxt).assertSatisfied();
 			if (cxt.getError() != null)
 				throw cxt.getError();
+			helper.testComplete();
 			if (desc != null)
 				pw.pass("JVM", desc);
 		} catch (Throwable t) {
@@ -173,6 +177,10 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			errors.add(code + " FAIL " + desc);
 			pw.println("  " + e2.getMessage());
 		} else if (e2 instanceof ExpectationException) {
+			pw.fail(code, desc);
+			errors.add(code + " FAIL " + desc);
+			pw.println("  " + e2.getMessage());
+		} else if (e2 instanceof UnexpectedCancelException) {
 			pw.fail(code, desc);
 			errors.add(code + " FAIL " + desc);
 			pw.println("  " + e2.getMessage());

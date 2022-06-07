@@ -8,6 +8,17 @@ once created, it can be cancelled be repeating the process.
 		expect h help -> _first
 		contract c Top subscribe
 
+		expect h help -> _second
 		expect <~ first
+		contract c Top subscribe
+
+	test an error occurs if a named subscription is cancelled without the expectation
+		data HelpMe h
+		data NamedTop c
+		
+		expect h help -> _first
+		contract c Top subscribe
+
 		expect h help -> _second
 		contract c Top subscribe
+		

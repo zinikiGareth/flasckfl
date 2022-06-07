@@ -142,6 +142,11 @@ public class SingleJSTest {
 						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						return;
+					} else if (jsex.startsWith("Error: UECAN\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
 					} else if (jsex.startsWith("Error: MATCH\n")) {
 						pw.fail("JS", desc);
 						errors.add("JS FAIL " + desc);

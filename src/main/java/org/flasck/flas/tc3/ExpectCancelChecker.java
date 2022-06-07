@@ -32,14 +32,14 @@ public class ExpectCancelChecker extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void leaveUnitTestExpect(UnitTestExpect e) {
+	public void leaveUnitTestExpectCancel(UnitTestExpectCancel e) {
 		// Check for cascades
 		if (mock instanceof ErrorType || handler instanceof ErrorType) {
 			sv.result(mock);
 			return;
 		}
 		if (!(mock instanceof ContractDecl)) {
-			errors.message(e.ctr.location(), "expect requires a contract variable");
+			errors.message(e.handlerName.location(), "expectCancel requires a handler variable");
 			sv.result(null);
 			return;
 		}

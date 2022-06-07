@@ -472,6 +472,8 @@ MarshallerProxy.prototype.invoke = function(meth, args) {
         return ux.dispatch();
     } catch (e) {
         cx.log("error during marshalling", e);
+        cx.log(e.stack);
+        throw e;
     }
 }
 
