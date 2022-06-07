@@ -68,26 +68,26 @@ public class TestEnvironment {
 		FileUtils.assertDirectory(dir);
 	}
 
-	public void checkTestResults() {
+	public void checkTestResults(boolean errorsExpected) {
 		if (haveTests() && (useJSRunner || useJVMRunner)) {
 			FileUtils.assertDirectory(testReports);
 			for (String f : testReportTo.list()) {
 				FileUtils.assertFile(new File(testReports, f));
 			}
-			assertGolden(testReports, testReportTo, false);
+			assertGolden(errorsExpected, testReports, testReportTo, false);
 		}
 	}
 	
-	public void assertGolden(File golden, File genned, boolean allowMissingGolden) {
+	public void assertGolden(boolean errorsExpected, File golden, File genned, boolean allowMissingGolden) {
 		if (checkNothing)
 			return;
 		if (!golden.isDirectory()) {
-			if (!checkEverything)
+			if (!checkEverything || errorsExpected)
 				return;
 			fail("There is no golden directory " + golden);
 		}
 		if (!genned.isDirectory()) {
-			if (!checkEverything)
+			if (!checkEverything || errorsExpected)
 				return;
 			fail("There is no generated directory " + genned);
 		}
@@ -104,6 +104,8 @@ public class TestEnvironment {
 			fail("There is no golden file for the generated " + missing);
 		for (File f : golden.listFiles()) {
 			File gen = new File(genned, f.getName());
+			if (!gen.exists() && errorsExpected)
+				continue;
 			assertTrue("There is no generated file for the golden " + f, gen.exists());
 			String goldhash = Crypto.hashTrim(f);
 			String genhash = Crypto.hashTrim(gen);
@@ -121,19 +123,23 @@ public class TestEnvironment {
 		}
 	}
 
-	public void checkFlimStore() throws IOException {
+	public void checkFlimStore(boolean errorsExpected) throws IOException {
 		if (!goldfd.exists())
 			return;
 		if (!tmpfd.exists())
 			fail("flim store was not created");
-		assertGolden(goldfd, tmpfd, true);
+		assertGolden(errorsExpected, goldfd, tmpfd, true);
 	}
 
-	public void checkTypes() throws IOException {
+	public void checkTypes(boolean expectingErrors) throws IOException {
 		if (!new Configuration(null, new String[0]).doTypeCheck)
 			return;
+		File goldtf = new File(goldtc, "types");
+		File gentf = new File(tc2, "types");
+		if (expectingErrors && (!goldtf.exists() || !gentf.exists()))
+			return;
 		FileUtils.assertDirectory(goldtc);
-		FileUtils.assertFile(new File(goldtc, "types"));
-		assertGolden(goldtc, tc2, false);
+		FileUtils.assertFile(goldtf);
+		assertGolden(expectingErrors, goldtc, tc2, false);
 	}
 }

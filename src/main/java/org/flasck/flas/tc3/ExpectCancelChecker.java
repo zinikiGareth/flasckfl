@@ -3,7 +3,6 @@ package org.flasck.flas.tc3;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestExpectCancel;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;

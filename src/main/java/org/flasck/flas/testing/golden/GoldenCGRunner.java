@@ -260,15 +260,15 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 //		FileUtils.cat(new File(s, "repo.txt"));
 //		}
 		AssertionError tmp = null;
-		if (!expectedErrors.isDirectory()) {
+//		if (!expectedErrors.isDirectory()) {
 			try {
-				te.checkTestResults();
-				te.checkFlimStore();
-				te.checkTypes();
+				te.checkTestResults(expectedErrors.isDirectory());
+				te.checkFlimStore(expectedErrors.isDirectory());
+				te.checkTypes(expectedErrors.isDirectory());
 			} catch (AssertionError ex) {
 				tmp = ex;
 			}
-		}
+//		}
 		checkExpectedErrors(te, expectedErrors, actualErrors);
 		if (tmp != null)
 			throw tmp;
@@ -309,7 +309,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	private static boolean checkExpectedErrors(TestEnvironment te, File expectedErrors, File actualErrors) {
 		final File aef = new File(actualErrors, "errors");
 		if (expectedErrors.isDirectory()) {
-			te.assertGolden(expectedErrors, actualErrors, false);
+			// fairly obviously, we are expecting errors, but we say we aren't so the checks go through
+			te.assertGolden(false, expectedErrors, actualErrors, false);
 			return false;
 		} else if (aef.length() > 0) {
 			FileUtils.cat(aef);

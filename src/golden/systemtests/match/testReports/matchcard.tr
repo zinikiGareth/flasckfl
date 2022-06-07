@@ -3,10 +3,10 @@ JVM PASS we can use match
 JVM FAIL check that match can also fail
   expected: goodbye
   actual:   hello
-JVM test.golden._st_matchcard all stages passed
+JVM test.golden._st_matchcard 1 stages failed
 JS running system test test.golden._st_matchcard
 JS PASS we can use match
 JS FAIL check that match can also fail
   expected: goodbye
   actual:   hello
-JS test.golden._st_matchcard all stages passed
+JS test.golden._st_matchcard 2 stages failed
