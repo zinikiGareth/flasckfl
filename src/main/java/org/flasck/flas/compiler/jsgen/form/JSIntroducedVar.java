@@ -7,12 +7,15 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSIntroducedVar implements JSExpr {
-	public JSIntroducedVar() {
+	private final String var;
+
+	public JSIntroducedVar(String var) {
+		this.var = var;
 	}
 
 	@Override
 	public String asVar() {
-		return "new BoundVar()";
+		return "new BoundVar(" + new JSString(var).asVar() + ")";
 	}
 
 	@Override
@@ -23,7 +26,7 @@ public class JSIntroducedVar implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		IExpr ret = md.makeNew(J.BOUNDVAR);
+		IExpr ret = md.makeNew(J.BOUNDVAR, var == null ? md.castTo(md.aNull(), J.STRING) : md.stringConst(var));
 		jvm.local(this, ret);
 	}
 }

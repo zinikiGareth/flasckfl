@@ -1,6 +1,6 @@
 JVM PASS a named subscription is cancelled when called twice
 JVM FAIL an error occurs if a named subscription is cancelled without the expectation
-  cancelled test.golden.NamedTop.MyChild but it was not expected
+  cancelled first but it was not expected
 JS PASS a named subscription is cancelled when called twice
 JS FAIL an error occurs if a named subscription is cancelled without the expectation
-  cancelled handler but it was not expected
+  cancelled first but it was not expected

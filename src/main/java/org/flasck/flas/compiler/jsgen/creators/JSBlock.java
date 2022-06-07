@@ -320,11 +320,11 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr introduceVar(String var) {
 		if (var != null) {
-			JSExpr iv = new JSLocal(creating, new JSIntroducedVar());
+			JSExpr iv = new JSLocal(creating, new JSIntroducedVar(var));
 			stmts.add(iv);
 			return iv;
 		} else
-			return new JSIntroducedVar();
+			return new JSIntroducedVar(null);
 	}
 
 	@Override

@@ -352,7 +352,7 @@ UTRunner.prototype.cancelBound = function(bv) {
 	if (io != -1) {
 		this.toCancel.splice(io, 1);
 	} else {
-		throw new Error("UECAN\n  cancelled handler but it was not expected");
+		throw new Error("UECAN\n  cancelled " + bv.name + " but it was not expected");
 	}
 }
 UTRunner.prototype.assertSatisfied = function() {
@@ -474,7 +474,8 @@ STSecurityModule.prototype.userLoggedIn = function(_cxt, app, user) {
 	app.nowLoggedIn(_cxt);
 }
 
-const BoundVar = function() {
+const BoundVar = function(name) {
+	this.name = name;
 }
 
 BoundVar.prototype.bindActual = function(obj) {
