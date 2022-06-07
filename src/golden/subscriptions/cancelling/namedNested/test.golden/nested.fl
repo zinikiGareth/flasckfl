@@ -1,0 +1,31 @@
+The Begin contract is basically just the card start contract.
+
+	contract Begin
+		start
+		
+	contract handler Calling
+		hello
+
+	contract service CallMe
+		call -> (Calling n)
+
+The HelpMe contract has a "help" method that then calls back into a Child contract.
+This is not actually invoked.
+	
+	contract handler Child
+
+	contract service HelpMe
+		help -> (Child ch)
+		
+	card NamedNested
+		requires CallMe c
+		requires HelpMe h
+		implements Begin
+			start
+				<- c.call -> Nested
+		
+		handler Calling Nested
+			hello
+				<- h.help -> MyChild => "nested"
+		
+		handler Child MyChild
