@@ -912,9 +912,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 			for (JSExpr m : explodingMocks) {
 				sg.assertSatisfied(m);
 			}
+			utsteps.add(meth.string(sg.name()));
 		}
-		// but we need the runner to call this itself
-//		meth.testComplete();
 		state.meth().returnObject(state.meth().makeArray(utsteps));
 		meth = null;
 		state = null;
