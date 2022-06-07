@@ -19,6 +19,7 @@ import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.container.CardContext;
 import org.flasck.jvm.container.ExpectationException;
 import org.flasck.jvm.container.UnexpectedCancelException;
+import org.flasck.jvm.container.UnusedExpectationException;
 import org.flasck.jvm.fl.AssertFailed;
 import org.flasck.jvm.fl.ClientContext;
 import org.flasck.jvm.fl.FlasTestException;
@@ -177,6 +178,10 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			errors.add(code + " FAIL " + desc);
 			pw.println("  " + e2.getMessage());
 		} else if (e2 instanceof ExpectationException) {
+			pw.fail(code, desc);
+			errors.add(code + " FAIL " + desc);
+			pw.println("  " + e2.getMessage());
+		} else if (e2 instanceof UnusedExpectationException) {
 			pw.fail(code, desc);
 			errors.add(code + " FAIL " + desc);
 			pw.println("  " + e2.getMessage());

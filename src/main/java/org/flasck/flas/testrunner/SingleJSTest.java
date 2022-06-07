@@ -137,6 +137,11 @@ public class SingleJSTest {
 						errors.add("JS FAIL " + desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						return;
+					} else if (jsex.startsWith("Error: UNUSED\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println("  Expectation not called: " + jsex.substring(jsex.indexOf('\n')+3));
+						return;
 					} else if (jsex.startsWith("Error: EXPCAN\n")) {
 						pw.fail("JS", desc);
 						errors.add("JS FAIL " + desc);
