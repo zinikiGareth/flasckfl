@@ -44,6 +44,10 @@ public class TDAUnitTestParser implements TDAParsing {
 			builder.testCase(utc);
 			return new TestStepParser(errors, new TestStepNamer(utc.name), utc, builder);
 		}
+		case "ignore": {
+			// Do what it says on the can ... ignore this line and all nested lines
+			return new IgnoreNestedParser();
+		}
 		default: {
 			toks.reset(mark);
 			errors.message(toks, "syntax error");

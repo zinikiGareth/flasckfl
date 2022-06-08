@@ -1,0 +1,4 @@
+It is possible to ignore a unit test by adding "ignore" to the front
+
+	ignore test anything can happen
+		and everything is ignored included syntax errors
