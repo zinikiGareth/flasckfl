@@ -22,3 +22,12 @@ once created, it can be cancelled be repeating the process.
 		expect h help -> _second
 		contract c Top subscribe
 		
+	test subscriptions are cancelled when the card goes away
+		data HelpMe h
+		data NamedTop c
+		
+		expect h help -> _first
+		contract c Top subscribe
+		
+		expect <~ first
+		close c		

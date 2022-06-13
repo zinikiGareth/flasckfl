@@ -111,6 +111,7 @@ import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestClose;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestExpectCancel;
@@ -1948,6 +1949,8 @@ public class Traverser implements RepositoryVisitor {
 		visitor.visitUnitTestStep(s);
 		if (s instanceof UnitTestAssert)
 			visitUnitTestAssert((UnitTestAssert) s);
+		else if (s instanceof UnitTestClose)
+			visitUnitTestClose((UnitTestClose)s);
 		else if (s instanceof UnitTestShove)
 			visitUnitTestShove((UnitTestShove)s);
 		else if (s instanceof UnitTestInvoke)
@@ -2052,6 +2055,18 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
 		visitor.postUnitTestAssert(a);
+	}
+
+	@Override
+	public void visitUnitTestClose(UnitTestClose s) {
+		visitor.visitUnitTestClose(s);
+		visitExpr(s.card, 0);
+		leaveUnitTestClose(s);
+	}
+
+	@Override
+	public void leaveUnitTestClose(UnitTestClose s) {
+		visitor.leaveUnitTestClose(s);
 	}
 
 	@Override

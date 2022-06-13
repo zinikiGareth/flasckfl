@@ -19,6 +19,11 @@ public class TestStepHolder implements UnitTestStepConsumer {
 	public void assertion(Expr expr, Expr value) {
 		this.steps.add(new UnitTestAssert(expr, value));
 	}
+	
+	@Override
+	public void closeCard(UnresolvedVar card) {
+		this.steps.add(new UnitTestClose(card));
+	}
 
 	@Override
 	public void shove(List<UnresolvedVar> slots, Expr value) {

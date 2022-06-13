@@ -75,6 +75,7 @@ import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestClose;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestExpectCancel;
@@ -860,6 +861,14 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void leaveRoutingAction(RoutingAction a) {
+	}
+
+	@Override
+	public void visitUnitTestClose(UnitTestClose s) {
+	}
+
+	@Override
+	public void leaveUnitTestClose(UnitTestClose s) {
 	}
 
 	@Override

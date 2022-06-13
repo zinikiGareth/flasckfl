@@ -75,6 +75,7 @@ import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestClose;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestExpectCancel;
@@ -285,4 +286,6 @@ public interface RepositoryVisitor {
 	void leaveRoutingAction(RoutingAction a);
 	void visitRoutingExpr(RoutingAction a, int pos, Expr e);
 	void leaveRoutingExpr(RoutingAction a, int pos, Expr e);
+	void visitUnitTestClose(UnitTestClose s);
+	void leaveUnitTestClose(UnitTestClose s);
 }

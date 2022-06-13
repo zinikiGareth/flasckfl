@@ -797,6 +797,10 @@ FLContext.prototype._bindNamedHandler = function(nh) {
 	forcxt.set(nh._name, nh._ihid);
 }
 
+FLContext.prototype.unsubscribeAll = function(card) {
+	this.env.unsubscribeAll(this, card);
+}
+
 
 
 const FLCard = function(cx) {
@@ -1606,6 +1610,10 @@ FLCard.prototype._diffLists = function(_cxt, rtc, list) {
     } else
         return true; // nothing appears to have changed
     return ret;
+}
+
+FLCard.prototype._close = function(cx) {
+    cx.unsubscribeAll(this);
 }
 
 

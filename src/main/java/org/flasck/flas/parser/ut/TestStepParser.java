@@ -57,6 +57,9 @@ public class TestStepParser implements TDAParsing {
 		case "shove": {
 			return handleShove(toks);
 		}
+		case "close": {
+			return closeCard(toks);
+		}
 		case "contract": {
 			return handleSendToContract(toks);
 		}
@@ -170,6 +173,16 @@ public class TestStepParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
+		return new NoNestingParser(errors);
+	}
+
+	protected TDAParsing closeCard(Tokenizable toks) {
+		ValidIdentifierToken tok = VarNameToken.from(toks);
+		if (tok == null) {
+			errors.message(toks, "close requires a card variable to close");
+			return new IgnoreNestedParser();
+		}
+		builder.closeCard(new UnresolvedVar(tok.location, tok.text));
 		return new NoNestingParser(errors);
 	}
 

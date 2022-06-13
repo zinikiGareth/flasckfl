@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.UserLogin;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestClose;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestExpectCancel;
@@ -114,6 +115,11 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 	@Override
 	public void visitUnitTestExpect(UnitTestExpect ute) {
 		new DoExpectationGeneratorJS(state, sv, this.block);
+	}
+
+	@Override
+	public void visitUnitTestClose(UnitTestClose s) {
+		new CloseCardVisitorJS(state, sv, this.block, this.runner);
 	}
 
 	@Override

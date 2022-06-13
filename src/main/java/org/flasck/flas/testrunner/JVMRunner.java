@@ -123,6 +123,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		try {
 			if (desc != null)
 				pw.begin("JVM", desc);
+			helper.reset();
 			for (String s : steps) {
 				if (state != null && state.failed > 0)
 					return;
