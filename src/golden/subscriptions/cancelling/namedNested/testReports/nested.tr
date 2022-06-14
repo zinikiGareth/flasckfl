@@ -1,4 +1,6 @@
 JVM PASS a named subscription is cancelled when called twice from the same callback
 JVM PASS a named subscription is NOT cancelled when called twice from different callbacks
+JVM PASS subscriptions are cancelled when the card goes away
 JS PASS a named subscription is cancelled when called twice from the same callback
 JS PASS a named subscription is NOT cancelled when called twice from different callbacks
+JS PASS subscriptions are cancelled when the card goes away

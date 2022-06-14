@@ -31,3 +31,18 @@ once created, it can be cancelled be repeating the process.
 		
 		expect hm help -> _second
 		invoke callback2.hello
+
+	test subscriptions are cancelled when the card goes away
+		data CallMe cm
+		data HelpMe hm
+		data NamedNested c
+		
+		expect cm call -> _callback
+		contract c Begin start
+		
+		expect hm help -> _first
+		invoke callback.hello
+
+		expect <~ callback
+		expect <~ first
+		close c

@@ -34,7 +34,8 @@ const CommonEnv = function(bridge, broker) {
 	this.evid = 1;
     this.cards = [];
     this.queue = [];
-    this.subscriptions = new Map();
+    this.namedSubscriptions = new Map();
+    this.unnamedSubscriptions = new Map();
     if (bridge.lock)
         this.locker = bridge;
     else
@@ -112,6 +113,23 @@ CommonEnv.prototype.addAll = function(ret, m) {
 
 CommonEnv.prototype.newContext = function() {
 	return new FLContext(this, this.broker);
+}
+
+CommonEnv.prototype.unsubscribeAll = function(_cxt, card) {
+    // TODO: this is where we need the full hierarchy
+    // and we need to traverse it from "card"
+    this.unnamedSubscriptions.forEach(v => {
+        for (var i=0;i<v.length;i++) {
+            this.broker.cancel(_cxt, v[i]);
+        }
+    });
+    this.unnamedSubscriptions.clear();
+    this.namedSubscriptions.forEach((forcxt) => {
+        forcxt.forEach(v => {
+            this.broker.cancel(_cxt, v);
+        });
+    });
+    this.namedSubscriptions.clear();
 }
 
 if (typeof(window) !== 'undefined') {
@@ -781,20 +799,27 @@ FLContext.prototype.addHistory = function(state, title, url) {
 
 FLContext.prototype._bindNamedHandler = function(nh) {
 	// TODO: this will need to become a lot more complicated, because it needs to be a hierarchy
-	if (!nh._name)
-		return;
 	if (!this.subcontext)
 		throw new Error("sub context not bound");
-	var forcxt = this.env.subscriptions.get(this.subcontext);
-	if (!forcxt) {
-		forcxt = new Map();
-		this.env.subscriptions.set(this.subcontext, forcxt);
+	if (!nh._name) {
+		var forcxt = this.env.unnamedSubscriptions.get(this.subcontext);
+		if (!forcxt) {
+			forcxt = [];
+			this.env.unnamedSubscriptions.set(this.subcontext, forcxt);
+		}
+		forcxt.push(nh._ihid);
+	} else {
+		var forcxt = this.env.namedSubscriptions.get(this.subcontext);
+		if (!forcxt) {
+			forcxt = new Map();
+			this.env.namedSubscriptions.set(this.subcontext, forcxt);
+		}
+		if (forcxt.has(nh._name)) {
+			var old = forcxt.get(nh._name);
+			this.env.broker.cancel(this, old);
+		}
+		forcxt.set(nh._name, nh._ihid);
 	}
-	if (forcxt.has(nh._name)) {
-		var old = forcxt.get(nh._name);
-		this.env.broker.cancel(this, old);
-	}
-	forcxt.set(nh._name, nh._ihid);
 }
 
 FLContext.prototype.unsubscribeAll = function(card) {
@@ -2795,7 +2820,11 @@ const Send = function() {
 }
 Send.eval = function(_cxt, obj, meth, args, handle, subscriptionName) {
 	const s = new Send();
-	s.obj = obj;
+	if (obj instanceof NamedIdempotentHandler) {
+		s.obj = obj._handler;
+	} else {
+		s.obj = obj;
+	}
 	s.meth = meth;
 	s.args = args;
 	s.handle = handle;
@@ -2828,12 +2857,9 @@ Send.prototype.dispatch = function(cx) {
 	args.splice(0, 0, cx);
 	var hdlr;
 	if (this.handle) {
-		hdlr = this.handle;
+		hdlr = new NamedIdempotentHandler(this.handle, this.subscriptionName);
 	} else {
 		hdlr = new IdempotentHandler();
-	}
-	if (this.subscriptionName) {
-		hdlr = new NamedIdempotentHandler(hdlr, this.subscriptionName);
 	}
 	args.splice(args.length, 0, hdlr);
 	var meth = this.obj._methods()[this.meth];
