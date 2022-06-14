@@ -114,6 +114,17 @@ CommonEnv.prototype.newContext = function() {
 	return new FLContext(this, this.broker);
 }
 
+CommonEnv.prototype.unsubscribeAll = function(_cxt, card) {
+    // TODO: this is where we need the full hierarchy
+    // and we need to traverse it from "card"
+    this.subscriptions.forEach((forcxt) => {
+        forcxt.forEach(v => {
+            this.broker.cancel(_cxt, v);
+        });
+    });
+    this.subscriptions.clear();
+}
+
 if (typeof(window) !== 'undefined') {
     window.addEventListener('resize', function(ev) {
         if (window.appl) {

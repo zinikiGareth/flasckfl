@@ -326,7 +326,8 @@ SimpleBroker.prototype.serviceFor = function(h, sf) {
 SimpleBroker.prototype.cancel = function(cx, old) {
     const ret = this.handlers[old];
     if (!ret) {
-        this.logger.log("there is no handler for", h);
+        this.logger.log("there is no handler for", old);
+        return;
     }
     this.logger.log("need to cancel " + ret);
     if (this.serviceHandlers[ret]) {

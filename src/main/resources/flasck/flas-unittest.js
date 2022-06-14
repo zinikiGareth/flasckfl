@@ -77,15 +77,6 @@ UTRunner.prototype.close = function(_cxt, dest) {
 	// we don't have a lot of choice but to update all cards
 	this.updateAllCards(_cxt);
 }
-UTRunner.prototype.unsubscribeAll = function(_cxt, card) {
-	var i=0;
-	while (i<this.toCancel.length) {
-		// if ...
-		this.toCancel.splice(i, 1);
-		// else
-		// i++;
-	}
-}
 UTRunner.prototype.invoke = function(_cxt, inv) {
 	inv = _cxt.full(inv);
 	if (inv instanceof Array && inv.length == 1) {
