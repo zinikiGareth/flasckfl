@@ -216,7 +216,8 @@ DispatcherInvoker.prototype.invoke = function(meth, args) {
         hdlrName = hdlr._name;
         hdlr = hdlr._handler;
     }
-    this.env.queueMessages(args[0], Send.eval(args[0], this.call, meth, pass, hdlr, hdlrName));
+    var cx = args[0].bindTo(hdlr);
+    this.env.queueMessages(cx, Send.eval(cx, this.call, meth, pass, hdlr, hdlrName));
 }
 
 
@@ -799,8 +800,10 @@ FLContext.prototype.addHistory = function(state, title, url) {
 
 FLContext.prototype._bindNamedHandler = function(nh) {
 	// TODO: this will need to become a lot more complicated, because it needs to be a hierarchy
-	if (!this.subcontext)
+	if (!this.subcontext) {
+		this.log("no sub context", new Error().stack);
 		throw new Error("sub context not bound");
+	}
 	if (!nh._name) {
 		var forcxt = this.env.unnamedSubscriptions.get(this.subcontext);
 		if (!forcxt) {
@@ -2854,6 +2857,12 @@ Send.prototype.dispatch = function(cx) {
 		return ret;
 	}
 	var args = this.args.slice();
+	// This appears to be tricky.  We don't want to always bind here, but we do need to bind when
+	// we are receiving a message from outside, and it seems that there is nowhere higher in the food chain
+	// to do that.  So, if the subcontext is not bound, bind it here.
+	if (!cx.subcontext) {
+		cx = cx.bindTo(this.obj);
+	}
 	args.splice(0, 0, cx);
 	var hdlr;
 	if (this.handle) {

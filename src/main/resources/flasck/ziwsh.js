@@ -249,7 +249,7 @@ const SimpleBroker = function(logger, factory, contracts) {
     this.handlers = {};
     this.serviceHandlers = new Map();
     this.name = "jsbroker_" + brokerId++;
-    logger.log("created ", this.name, new Error().stack);
+    logger.log("created ", this.name /*, new Error().stack */);
 };
 
 SimpleBroker.prototype.connectToServer = function(uri) {
@@ -783,11 +783,11 @@ UnmarshalTraverser.prototype = new ListTraverser();
 UnmarshalTraverser.prototype.constructor = UnmarshalTraverser;
 
 const DispatcherTraverser = function(svc, method, cx, collector) {
-    cx.log("have service", svc, svc instanceof NamedIdempotentHandler, new Error().stack);
+    // cx.log("have service", svc, svc instanceof NamedIdempotentHandler, new Error().stack);
     UnmarshalTraverser.call(this, cx, collector);
     if (svc instanceof NamedIdempotentHandler) {
         svc = svc._handler;
-        cx.log("... now have service", svc, svc instanceof NamedIdempotentHandler);
+        // cx.log("... now have service", svc, svc instanceof NamedIdempotentHandler);
     }
     if (!svc[method])
         throw Error("no method '" + method + "': have " + JSON.stringify(Object.keys(svc)));
@@ -911,11 +911,12 @@ ZiwshWebClient.prototype.send = function(json) {
 
 /* istanbul ignore else */ 
 if (typeof(module) !== 'undefined')
-	module.exports = { EvalContext, FieldsContainer, IdempotentHandler, JsonBeachhead, SimpleBroker };
+	module.exports = { EvalContext, FieldsContainer, IdempotentHandler, NamedIdempotentHandler, JsonBeachhead, SimpleBroker };
 else {
 	window.EvalContext = EvalContext;
 	window.FieldsContainer = FieldsContainer;
 	window.IdempotentHandler = this.IdempotentHandler;
+	window.NamedIdempotentHandler = this.NamedIdempotentHandler;
 	window.JsonBeachhead = JsonBeachhead;
 	window.SimpleBroker = SimpleBroker;
 }
