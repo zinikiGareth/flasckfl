@@ -118,7 +118,6 @@ CommonEnv.prototype.newContext = function() {
 CommonEnv.prototype.unsubscribeAll = function(_cxt, card) {
     // TODO: this is where we need the full hierarchy
     // and we need to traverse it from "card"
-<<<<<<< HEAD
     this.unnamedSubscriptions.forEach(v => {
         for (var i=0;i<v.length;i++) {
             this.broker.cancel(_cxt, v[i]);
@@ -126,18 +125,11 @@ CommonEnv.prototype.unsubscribeAll = function(_cxt, card) {
     });
     this.unnamedSubscriptions.clear();
     this.namedSubscriptions.forEach((forcxt) => {
-=======
-    this.subscriptions.forEach((forcxt) => {
->>>>>>> 361fd062877c53c76f0a7d4528f66e113a7cbf5e
         forcxt.forEach(v => {
             this.broker.cancel(_cxt, v);
         });
     });
-<<<<<<< HEAD
     this.namedSubscriptions.clear();
-=======
-    this.subscriptions.clear();
->>>>>>> 361fd062877c53c76f0a7d4528f66e113a7cbf5e
 }
 
 if (typeof(window) !== 'undefined') {
