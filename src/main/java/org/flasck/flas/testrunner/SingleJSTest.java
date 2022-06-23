@@ -77,6 +77,7 @@ public class SingleJSTest {
 		List<Throwable> excs = new ArrayList<>();
 		uiThread(desc, cdl -> {
 			try {
+				page.executeScript("window.runner.checkAtEnd();");
 				cxt.call("assertSatisfied");
 			} catch (Throwable t) {
 				excs.add(t);

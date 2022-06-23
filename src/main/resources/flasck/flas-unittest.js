@@ -576,7 +576,7 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 	const ih = args[args.length-1];
 	args = args.slice(0, args.length-1);
 	if (!this.expected[meth]) {
-		_cxt.env.error(new Error("There are no expectations on " + this.ctr.name() + " for " + meth));
+		_cxt.env.error(new Error("EXP\n  There are no expectations on " + this.ctr.name() + " for " + meth));
 		return;
 	}
 	const exp = this.expected[meth];
@@ -588,7 +588,7 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 		if (_cxt.compare(exp[i].args, args)) {
 			var matched = exp[i];
 			if (matched.invoked == matched.allowed) {
-				pending = new Error(this.ctr.name() + "." + meth + " " + args + " already invoked (allowed=" + matched.allowed +"; actual=" + matched.invoked +")");
+				pending = new Error("EXP\n  " + this.ctr.name() + "." + meth + " " + args + " already invoked (allowed=" + matched.allowed +"; actual=" + matched.invoked +")");
 				continue; // there may be another that matches
 			}
 			matched.invoked++;
@@ -604,7 +604,7 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 		_cxt.env.error(pending);
 		return;
 	} else {
-		_cxt.env.error(new Error("Unexpected invocation: " + this.ctr.name() + "." + meth + " " + args));
+		_cxt.env.error(new Error("EXP\n  Unexpected invocation: " + this.ctr.name() + "." + meth + " " + args));
 		return;
 	}
 }

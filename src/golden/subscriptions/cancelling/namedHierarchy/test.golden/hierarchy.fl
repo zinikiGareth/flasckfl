@@ -1,0 +1,28 @@
+The Begin contract is basically just the card start contract.
+
+	contract Begin
+		start (String called)
+		
+	contract handler Calling
+		hello (String called)
+
+	contract service CallMe
+		call -> (Calling n)
+
+	contract handler Child
+
+	contract service HelpMe
+		help -> (Child ch)
+		
+	card NamedNested
+		requires CallMe c
+		requires HelpMe h
+		implements Begin
+			start called
+				<- c.call -> Nested => called
+		
+		handler Calling Nested
+			hello called
+				<- h.help -> MyChild => called
+		
+		handler Child MyChild

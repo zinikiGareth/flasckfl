@@ -1,0 +1,25 @@
+Check that if a callback method instantiates a named subscription that,
+once created, it can be cancelled be repeating the process.
+
+	test a named subscription is cancelled when called twice from the same callback
+		data CallMe cm
+		data HelpMe hm
+		data NamedNested c
+		
+		expect cm call -> _callback
+		contract c Begin start "top"
+		
+		expect hm help -> _first
+		invoke callback.hello "nested"
+
+		expect hm help -> _second
+		invoke callback.hello "other"
+
+		expect <~ callback
+		
+		expect cm call -> _callback2
+
+TODO: we need to cancel the nested subscription handles
+.		expect <~ first
+.		expect <~ second
+		contract c Begin start "top"

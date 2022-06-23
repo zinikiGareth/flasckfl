@@ -1,0 +1,2 @@
+test.golden.NamedNested.Nested.hello :: String->List[Message]
+test.golden.NamedNested._C2.start :: String->List[Message]
