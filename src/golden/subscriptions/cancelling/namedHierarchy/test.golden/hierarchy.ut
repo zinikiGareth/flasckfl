@@ -19,7 +19,6 @@ once created, it can be cancelled be repeating the process.
 		
 		expect cm call -> _callback2
 
-TODO: we need to cancel the nested subscription handles
-.		expect <~ first
-.		expect <~ second
+		expect <~ first
+		expect <~ second
 		contract c Begin start "top"

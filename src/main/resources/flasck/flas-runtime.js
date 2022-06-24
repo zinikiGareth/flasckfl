@@ -36,6 +36,7 @@ const CommonEnv = function(bridge, broker) {
     this.queue = [];
     this.namedSubscriptions = new Map();
     this.unnamedSubscriptions = new Map();
+    this.subDag = new Map(); // this is a map from parent -> child, which kind of makes a DAG
     if (bridge.lock)
         this.locker = bridge;
     else
@@ -120,13 +121,13 @@ CommonEnv.prototype.unsubscribeAll = function(_cxt, card) {
     // and we need to traverse it from "card"
     this.unnamedSubscriptions.forEach(v => {
         for (var i=0;i<v.length;i++) {
-            this.broker.cancel(_cxt, v[i]);
+            this.broker.cancel(_cxt, v[i]._ihid);
         }
     });
     this.unnamedSubscriptions.clear();
     this.namedSubscriptions.forEach((forcxt) => {
         forcxt.forEach(v => {
-            this.broker.cancel(_cxt, v);
+            this.broker.cancel(_cxt, v._ihid);
         });
     });
     this.namedSubscriptions.clear();
@@ -804,13 +805,25 @@ FLContext.prototype._bindNamedHandler = function(nh) {
 		this.log("no sub context", new Error().stack);
 		throw new Error("sub context not bound");
 	}
+	if (nh._handler) {
+		var de;
+		if (this.env.subDag.has(this.subcontext)) {
+			de = this.env.subDag.get(this.subcontext);
+		} else {
+			de = [];
+			this.env.subDag.set(this.subcontext, de);
+		}
+		if (!de.includes(nh._handler)) {
+			de.push(nh._handler);
+		}
+	}
 	if (!nh._name) {
 		var forcxt = this.env.unnamedSubscriptions.get(this.subcontext);
 		if (!forcxt) {
 			forcxt = [];
 			this.env.unnamedSubscriptions.set(this.subcontext, forcxt);
 		}
-		forcxt.push(nh._ihid);
+		forcxt.push(nh);
 	} else {
 		var forcxt = this.env.namedSubscriptions.get(this.subcontext);
 		if (!forcxt) {
@@ -819,9 +832,16 @@ FLContext.prototype._bindNamedHandler = function(nh) {
 		}
 		if (forcxt.has(nh._name)) {
 			var old = forcxt.get(nh._name);
-			this.env.broker.cancel(this, old);
+			var ns = this.env.subDag.get(old._handler);
+			this.log("ns =", ns);
+			if (ns) {
+				ns.forEach(sc => {
+					this.unsubscribeAll(sc);
+				});
+			}
+			this.env.broker.cancel(this, old._ihid);
 		}
-		forcxt.set(nh._name, nh._ihid);
+		forcxt.set(nh._name, nh);
 	}
 }
 

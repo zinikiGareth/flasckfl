@@ -332,6 +332,7 @@ SimpleBroker.prototype.cancel = function(cx, old) {
     this.logger.log("need to cancel " + ret);
     if (this.serviceHandlers.has(ret)) {
         this.serviceHandlers.get(ret).cancel(cx);
+        this.serviceHandlers.delete(ret);
     }
 }
 
