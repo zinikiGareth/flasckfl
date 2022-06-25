@@ -92,6 +92,10 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 		this.state = new JSFunctionStateStore(this.meth, mocks, introductions, containers, applications);
 	}
 
+	public JSBlockCreator method() {
+		return meth;
+	}
+
 	@Override
 	public void shareWith(SystemTestModule module) {
 		module.inject(null, meth, state, block, runner);
@@ -230,7 +234,5 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 
 	public void assertSatisfied(JSExpr m) {
 		state.meth().assertSatisfied(m);
-		state.meth().returnVoid();
 	}
-
 }
