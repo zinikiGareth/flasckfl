@@ -6,8 +6,12 @@ once created, it can be cancelled be repeating the process.
 		data HelpMe hm
 		data NamedNested c
 		
+First set up the top callback, which we will cancel with violent effects
+
 		expect cm call -> _callback
 		contract c Begin start "top"
+
+Then use that to obtain two distinct, named, nested handlers
 		
 		expect hm help -> _first
 		invoke callback.hello "nested"
@@ -15,10 +19,31 @@ once created, it can be cancelled be repeating the process.
 		expect hm help -> _second
 		invoke callback.hello "other"
 
-		expect <~ callback
-		
-		expect cm call -> _callback2
+Test that both of them work
 
+		invoke first.value 3
+		assert (c.current)
+			3
+		invoke second.value 6
+		assert (c.current)
+			6
+		invoke first.value 9
+		assert (c.current)
+			9
+
+When we call the top callback again, the entire hierarchy should be wiped out
+			
+		expect <~ callback
+		expect cm call -> _callback2
 		expect <~ first
 		expect <~ second
 		contract c Begin start "top"
+
+And first and second should have no effect
+
+		invoke first.value 3
+		assert (c.current)
+			9
+		invoke second.value 6
+		assert (c.current)
+			9

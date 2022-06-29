@@ -164,6 +164,11 @@ public class SingleJSTest {
 						pw.println("incorrect number of divs created");
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						return;
+					} else if (jsex.startsWith("Error: NOHDLR\n")) {
+						pw.fail("JS", desc);
+						errors.add("JS FAIL " + desc);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						return;
 					}
 				}
 			}

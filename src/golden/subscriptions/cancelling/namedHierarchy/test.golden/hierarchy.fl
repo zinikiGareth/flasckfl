@@ -10,13 +10,18 @@ The Begin contract is basically just the card start contract.
 		call -> (Calling n)
 
 	contract handler Child
+		value (Number n)
 
 	contract service HelpMe
 		help -> (Child ch)
 		
 	card NamedNested
+		state
+			Number current
+			
 		requires CallMe c
 		requires HelpMe h
+		
 		implements Begin
 			start called
 				<- c.call -> Nested => called
@@ -26,3 +31,5 @@ The Begin contract is basically just the card start contract.
 				<- h.help -> MyChild => called
 		
 		handler Child MyChild
+			value k
+				current <- k

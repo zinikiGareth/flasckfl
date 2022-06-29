@@ -98,8 +98,15 @@ CommonEnv.prototype.handleMessagesWith = function(_cxt, msg) {
         var ic = _cxt.split();
         ic.updateCards = _cxt.updateCards;
         _cxt.log("dispatching message", msg);
-        var m = msg.dispatch(ic);
-        this.handleMessages(_cxt, m);
+        try {
+            var m = msg.dispatch(ic);
+            this.handleMessages(_cxt, m);
+        } catch (e) {
+            _cxt.log(e.message);
+            if (this.error) {
+                this.error(e.toString());
+            }
+        }
     }
 }
 
@@ -217,7 +224,10 @@ DispatcherInvoker.prototype.invoke = function(meth, args) {
         hdlrName = hdlr._name;
         hdlr = hdlr._handler;
     }
-    var cx = args[0].bindTo(hdlr);
+    var cx = args[0];
+    if (!cx.subcontext) {
+        cx = cx.bindTo(hdlr);
+    }
     this.env.queueMessages(cx, Send.eval(cx, this.call, meth, pass, hdlr, hdlrName));
 }
 
@@ -336,7 +346,8 @@ const FLMakeSend = function(meth, obj, nargs, handler, subscriptionName) {
 	this.subscriptionName = subscriptionName;
 }
 
-FLMakeSend.prototype.apply = function(cx, args) {
+FLMakeSend.prototype.apply = function(obj, args) {
+	var cx = args[0];
 	var all = this.current.slice();
 	for (var i=1;i<args.length;i++)
 		all.push(args[i]);
@@ -2843,6 +2854,7 @@ const Send = function() {
 }
 Send.eval = function(_cxt, obj, meth, args, handle, subscriptionName) {
 	const s = new Send();
+	s.subcontext = _cxt.subcontext;
 	if (obj instanceof NamedIdempotentHandler) {
 		s.obj = obj._handler;
 	} else {
@@ -2880,8 +2892,10 @@ Send.prototype.dispatch = function(cx) {
 	// This appears to be tricky.  We don't want to always bind here, but we do need to bind when
 	// we are receiving a message from outside, and it seems that there is nowhere higher in the food chain
 	// to do that.  So, if the subcontext is not bound, bind it here.
-	if (!cx.subcontext) {
+	if (!this.subcontext) {
 		cx = cx.bindTo(this.obj);
+	} else {
+		cx = cx.bindTo(this.subcontext);
 	}
 	args.splice(0, 0, cx);
 	var hdlr;

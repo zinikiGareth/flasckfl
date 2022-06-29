@@ -321,7 +321,10 @@ SimpleBroker.prototype.currentIdem = function(h) {
 }
 
 SimpleBroker.prototype.serviceFor = function(h, sf) {
-    this.serviceHandlers.set(h, sf);
+    if (!h._ihid) {
+        throw new Error("must have an _ihid");
+    }
+    this.serviceHandlers.set(h._ihid, sf);
 }
 SimpleBroker.prototype.cancel = function(cx, old) {
     const ret = this.handlers[old];
@@ -329,10 +332,11 @@ SimpleBroker.prototype.cancel = function(cx, old) {
         this.logger.log("there is no handler for", old);
         return;
     }
+    delete this.handlers[old];
     this.logger.log("need to cancel " + ret);
-    if (this.serviceHandlers.has(ret)) {
-        this.serviceHandlers.get(ret).cancel(cx);
-        this.serviceHandlers.delete(ret);
+    if (this.serviceHandlers.has(old)) {
+        this.serviceHandlers.get(old).cancel(cx);
+        this.serviceHandlers.delete(old);
     }
 }
 
@@ -439,6 +443,10 @@ IdempotentHandler.prototype.success = function(cx) {
 IdempotentHandler.prototype.failure = function(cx, msg) {
 };
 
+IdempotentHandler.prototype._methods = function() {
+    return [ "success", "failure" ];
+}
+
 const LoggingIdempotentHandler = function() {
 };
 
@@ -518,11 +526,31 @@ ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
         ux.boolean(o);
     else if (typeof o === "object") {
         if (o instanceof IdempotentHandler) {
-            ux.handler(cx, o);
+            var ihid = cx.broker.uniqueHandler(o);
+            // we want the prototype of the interface implemented by o
+            // Sometimes, this may be the class itself, or it may be the superclass
+            var intf = Object.getPrototypeOf(o);
+            var sintf = Object.getPrototypeOf(intf);
+            if (typeof(sintf._methods) !== 'undefined') {
+                intf = sintf;
+            }
+            var h = new NamedIdempotentHandler(proxy(cx, intf, this.makeHandlerInvoker(cx, ihid)));
+            h._ihid = ihid;
+            ux.handler(cx, h);
         } else if (o instanceof NamedIdempotentHandler) {
-            o._ihid = cx.broker.uniqueHandler(o);
+            var ihid = cx.broker.uniqueHandler(o);
+            o._ihid = ihid;
             cx._bindNamedHandler(o);
-            ux.handler(cx, o);
+            // we want the prototype of the interface implemented by o._handler
+            // calling getPrototypeOf gets you the *class* of handler, you then call it again to get the interface
+            var intf = Object.getPrototypeOf(o._handler);
+            var sintf = Object.getPrototypeOf(intf);
+            if (typeof(sintf._methods) !== 'undefined') {
+                intf = sintf;
+            }
+            var h = new NamedIdempotentHandler(proxy(cx, intf, this.makeHandlerInvoker(cx, ihid)));
+            h._ihid = ihid;
+            ux.handler(cx, h);
         } else if (o.state instanceof FieldsContainer) {
             this.handleStruct(cx, ux, o);
         } else if (Array.isArray(o)) {
@@ -570,6 +598,38 @@ ObjectMarshaller.prototype.handleArray = function(cx, ux, l) {
     ul.complete();
 }
 
+ObjectMarshaller.prototype.makeHandlerInvoker = function(cx, ihid) {
+    var broker = cx.broker;
+    var env = cx.env;
+    var handler = new Object();
+    handler.invoke = function(name, args) {
+        var uow = env.newContext();
+        const ih = broker.currentIdem(ihid);
+        if (!ih) {
+            uow.log("failed to find idem handler for", ihid, new Error().stack);
+            // throw new Error("NOHDLR\n  did not find idem " + ihid);
+            return; // quietly ignore it ...
+        }
+        const um = new UnmarshallerDispatcher(null, ih);
+
+        var cnt = args.length;
+        uow.log("invoking", name, "#args =", cnt);
+        // var wantHandler = false;
+        // if (name != "success" && name != "failure") {
+        //     wantHandler = true;
+        //     cnt--;
+        // }
+        // uow.log("now cnt=", cnt, "and wantHandler =", wantHandler);
+        
+        const ux = um.begin(uow, name);
+        new ArgListMarshaller(this.logger, false, true).marshal(cx, ux, args);
+        // if (wantHandler)
+        //     dispatcher.handler(this.makeIdempotentHandler(replyTo,args[cnt-1])); // TODO: this is surely recursively doing what we just did - extract it!
+        return ux.dispatch();
+    }
+    return handler;
+}
+
 
 const NoSuchContract = function(ctr) {
     this.ctr = ctr;
@@ -601,8 +661,8 @@ NoSuchContract.forContract = function(ctr) {
 /** Create a proxy of a contract interface
  *  This may also apply to other things, but that's all I care about
  *  We need a:
- *    cx - a context (mainly used for logging)
- *    ctr - the *NAME* of the interface which must be defined in window.contracts
+ *    cx - a context (currently unused)
+ *    ctr - an interface object with a _methods() call
  *    handler - a class with a method defined called "invoke" which takes a method name and a list of arguments
  */
 
@@ -616,6 +676,12 @@ const proxy = function(cx, intf, handler) {
     }
     proxied._methods = function() {
     	return methods;
+    }
+    if (intf._clz) {
+        var clz = intf._clz();
+        proxied._clz = function() {
+            return clz;
+        }
     }
     return proxied;
 }
@@ -801,6 +867,7 @@ DispatcherTraverser.prototype.constructor = DispatcherTraverser;
 
 DispatcherTraverser.prototype.dispatch = function() {
     var ih = this.ret[this.ret.length-1];
+    this.ret[0] = this.ret[0].env.newContext().bindTo(this.svc);
     try {
         var rets = this.svc[this.method].apply(this.svc, this.ret);
         // I don't think this matches the semantics of when we want success to be called
