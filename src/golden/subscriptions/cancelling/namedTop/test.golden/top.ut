@@ -19,7 +19,9 @@ once created, it can be cancelled be repeating the process.
 		expect h help -> _first
 		contract c Top subscribe
 
-		expect h help -> _second
+These expectations are not specified; the second doesn't happen because the first explodes first		
+//		expect <~ first
+//		expect h help -> _second
 		contract c Top subscribe
 		
 	test subscriptions are cancelled when the card goes away

@@ -592,7 +592,9 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 				// 	tih = ih._handler;
 				// }
 				matched.handler.bindActual(tih);
-				_cxt.broker.serviceFor(ih, new SubscriptionFor(matched.handler.name, ih._ihid));
+				if (ih._ihid) {
+					_cxt.broker.serviceFor(ih, new SubscriptionFor(matched.handler.name, ih._ihid));
+				}
 			}
 			return;
 		}
