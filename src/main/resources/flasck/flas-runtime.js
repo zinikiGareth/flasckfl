@@ -97,7 +97,6 @@ CommonEnv.prototype.handleMessagesWith = function(_cxt, msg) {
 	} else if (msg) {
         var ic = _cxt.split();
         ic.updateCards = _cxt.updateCards;
-        _cxt.log("dispatching message", msg);
         try {
             var m = msg.dispatch(ic);
             this.handleMessages(_cxt, m);
@@ -383,7 +382,7 @@ FLContext.prototype.bindTo = function(to) {
 }
 
 FLContext.prototype.split = function() {
-	var ret = new FLContext(this.env, this.broker);
+	var ret = this.env.newContext();
 	ret.subcontext = this.subcontext;
 	return ret;
 }

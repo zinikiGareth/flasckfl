@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.flasck.jvm.fl.FlasTestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.webfolder.ui4j.api.browser.Page;
 import io.webfolder.ui4j.api.util.Ui4jException;
@@ -15,6 +17,7 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class SingleJSTest {
+    static final Logger logger = LoggerFactory.getLogger("SingleJSTest");
 	private final Page page;
 	private final List<String> errors;
 	private final TestResultWriter pw;
@@ -46,6 +49,7 @@ public class SingleJSTest {
 			return new ArrayList<>();
 		List<String> steps = new ArrayList<>();
 		uiThread(desc, cdl -> {
+			logger.error("calling " + name + ".getSteps(" + cxt + ")");
 			Object ua = testObj.call(name, cxt);
 			if (ua instanceof JSObject) {
 				JSObject arr = (JSObject) ua;
@@ -63,6 +67,7 @@ public class SingleJSTest {
 			return;
 		List<Throwable> excs = new ArrayList<>();
 		uiThread(desc, cdl -> {
+			logger.error("calling " + desc + " step " + s + "(" + cxt + ")");
 			try {
 				testObj.call(s, cxt);
 			} catch (Throwable t) {
