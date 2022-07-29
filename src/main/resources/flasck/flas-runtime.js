@@ -2891,10 +2891,10 @@ Send.prototype.dispatch = function(cx) {
 	// This appears to be tricky.  We don't want to always bind here, but we do need to bind when
 	// we are receiving a message from outside, and it seems that there is nowhere higher in the food chain
 	// to do that.  So, if the subcontext is not bound, bind it here.
-	if (!this.subcontext) {
-		cx = cx.bindTo(this.obj);
-	} else {
+	if (this.subcontext) {
 		cx = cx.bindTo(this.subcontext);
+	} else if (!cx.subcontext) {
+		cx = cx.bindTo(this.obj);
 	}
 	args.splice(0, 0, cx);
 	var hdlr;

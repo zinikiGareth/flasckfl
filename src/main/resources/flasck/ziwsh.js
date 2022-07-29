@@ -77,19 +77,22 @@ JsonBeachhead.prototype.idem = function(uow, jo, replyTo) {
     }
     const um = new UnmarshallerDispatcher(null, ih);
     const dispatcher = um.begin(uow, jo.method);
-    uow.log("jo.args =", JSON.stringify(jo.args));
+    // uow.log("jo.args =", JSON.stringify(jo.args));
     var cnt = jo.args.length;
     var wantHandler = false;
     if (jo.method != "success" && jo.method != "failure") {
         wantHandler = true;
         cnt--;
     }
-    uow.log("now cnt=", cnt, "and wantHandler =", wantHandler);
+    // uow.log("now cnt =", cnt, "and wantHandler =", wantHandler);
     for (var i=0;i<cnt;i++) {
         this.handleArg(dispatcher, uow, jo.args[i]);
     }
-    if (wantHandler)
-        dispatcher.handler(this.makeIdempotentHandler(replyTo, jo.args[cnt-1]));
+    if (wantHandler) {
+        const hi = this.makeIdempotentHandler(replyTo, jo.args[cnt-1]);
+        // uow.log("hi =", hi);
+        dispatcher.handler(uow, hi);
+    }
     return dispatcher.dispatch();
 }
 
@@ -486,14 +489,13 @@ const MarshallerProxy = function(logger, ctr, svc) {
 
 MarshallerProxy.prototype.invoke = function(meth, args) {
     const cx = args[0];
-    cx.log("in invoke, have cx with env =", cx.env);
     try {
         const ux = this.svc.begin(cx, meth);
         new ArgListMarshaller(this.logger, false, true).marshal(cx, ux, args);
         return ux.dispatch();
     } catch (e) {
         cx.log("error during marshalling", e);
-        cx.log(e.stack);
+        cx.log("error reported at", e.stack);
         throw e;
     }
 }
@@ -521,6 +523,7 @@ ObjectMarshaller.prototype.marshal = function(cx, o) {
 }
 
 ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
+    // cx.log("o =", o, new Error().stack);
     if (o._throw && o._throw()) {
         cx.log("throwing because object has _throw");
         throw o;
@@ -543,7 +546,7 @@ ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
             var intf;
             if (o._clz && o._methods) {
                 intf = o;
-                cx.log("identified _clz as", intf);
+                cx.log("identified _clz as", intf._clz());
             } else {
                 intf = Object.getPrototypeOf(o);
                 var sintf = Object.getPrototypeOf(intf);
@@ -556,16 +559,25 @@ ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
             h._ihid = ihid;
             ux.handler(cx, h);
         } else if (o instanceof NamedIdempotentHandler) {
-            var ihid = cx.broker.uniqueHandler(o);
+            cx.log("marshalling NIH with", o._ihid, "and", o._name, "and", o._handler.constructor);
+            var ihid = cx.broker.uniqueHandler(o._handler);
+            cx.log("concluded that ihid should be", ihid);
             o._ihid = ihid;
             cx._bindNamedHandler(o);
             // we want the prototype of the interface implemented by o._handler
             // calling getPrototypeOf gets you the *class* of handler, you then call it again to get the interface
-            var intf = Object.getPrototypeOf(o._handler);
-            var sintf = Object.getPrototypeOf(intf);
-            cx.log("have NIH with", intf, "and", sintf);
-            if (typeof(sintf._methods) !== 'undefined') {
-                intf = sintf;
+            var intf;
+            if (o._handler._clz && o._handler._methods) {
+                intf = o._handler;
+                cx.log("identified NIH _clz as", intf._clz());
+            } else 
+            {
+                intf = Object.getPrototypeOf(o._handler);
+                var sintf = Object.getPrototypeOf(intf);
+                cx.log("have NIH with", intf, "and", sintf);
+                if (sintf && typeof(sintf._methods) !== 'undefined') {
+                    intf = sintf;
+                }
             }
             var h = new NamedIdempotentHandler(proxy(cx, intf, this.makeHandlerInvoker(cx, ihid)));
             h._ihid = ihid;
@@ -621,33 +633,19 @@ ObjectMarshaller.prototype.makeHandlerInvoker = function(cx, ihid) {
     var broker = cx.broker;
     var env = cx.env;
     var handler = new Object();
-    cx.log("MAKING HANDLER INVOKER");
+    // cx.log("MAKING HANDLER INVOKER");
     handler.invoke = function(name, args) {
         var uow = env.newContext();
-        cx.log("hello");
-        uow.log("uow hello");
         const ih = broker.currentIdem(ihid);
         if (!ih) {
             uow.log("failed to find idem handler for", ihid, new Error().stack);
             // throw new Error("NOHDLR\n  did not find idem " + ihid);
             return; // quietly ignore it ...    
         }
+        // cx.log("ihid invoker for", name, "with", args);
         const um = new UnmarshallerDispatcher(null, ih);
-
-        var cnt = args.length;
-        uow.log("invoking", name, "#args =", cnt);
-        uow.log("invoking " + name + " #args = " + cnt + " " + args[0] + " " + args[1]);
-        // var wantHandler = false;
-        // if (name != "success" && name != "failure") {
-        //     wantHandler = true;
-        //     cnt--;
-        // }
-        // uow.log("now cnt=", cnt, "and wantHandler =", wantHandler);
-        
         const ux = um.begin(uow, name);
         new ArgListMarshaller(this.logger, false, true).marshal(cx, ux, args);
-        // if (wantHandler)
-        //     dispatcher.handler(this.makeIdempotentHandler(replyTo,args[cnt-1])); // TODO: this is surely recursively doing what we just did - extract it!
         return ux.dispatch();
     }
     return handler;
@@ -690,7 +688,10 @@ NoSuchContract.forContract = function(ctr) {
  */
 
 const proxy = function(cx, intf, handler) {
-    const keys = intf._methods();
+    var keys = intf._methods();
+    if (!Array.isArray(keys)) { // it's an object for which we want the keys
+        keys = Object.keys(keys);
+    }
     const proxied = { _owner: handler };
     const methods = {};
     for (var i=0;i<keys.length;i++) {
@@ -872,7 +873,7 @@ UnmarshalTraverser.prototype = new ListTraverser();
 UnmarshalTraverser.prototype.constructor = UnmarshalTraverser;
 
 const DispatcherTraverser = function(svc, method, cx, collector) {
-    cx.log("have cx", cx.constructor, new Error().stack);
+    // cx.log("have cx", cx.constructor, new Error().stack);
     // cx.log("have service", svc, svc instanceof NamedIdempotentHandler, new Error().stack);
     UnmarshalTraverser.call(this, cx, collector);
     if (svc instanceof NamedIdempotentHandler) {
@@ -891,10 +892,10 @@ DispatcherTraverser.prototype.constructor = DispatcherTraverser;
 DispatcherTraverser.prototype.dispatch = function() {
     var cx = this.ret[0];
     var ih = this.ret[this.ret.length-1];
-    cx.log(new Error().stack);
-    cx.log("js cx = " + cx + " " + JSON.stringify(Object.keys(cx)));
-    cx.log("env = " + Object.keys(cx.env));
-    cx = cx.env.newContext().bindTo(this.svc);
+    // cx.log(new Error().stack);
+    // cx.log("js cx = " + cx + " " + JSON.stringify(Object.keys(cx)));
+    // cx.log("env = " + Object.keys(cx.env));
+    this.ret[0] = cx = cx.env.newContext().bindTo(this.svc);
     try {
         var rets = this.svc[this.method].apply(this.svc, this.ret);
         // I don't think this matches the semantics of when we want success to be called
@@ -902,8 +903,8 @@ DispatcherTraverser.prototype.dispatch = function() {
         // But have test cases to prove that and hold that
         // ih.success(this.cx);
     } catch (e) {
+        cx.log("caught exception and reporting failure", e.toString());
         if (ih instanceof NamedIdempotentHandler) {
-            cx.log("caught exception and reporting failure", e.toString());
             ih = ih._handler;
         }
         

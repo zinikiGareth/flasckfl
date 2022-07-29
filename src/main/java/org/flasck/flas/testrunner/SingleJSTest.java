@@ -49,7 +49,7 @@ public class SingleJSTest {
 			return new ArrayList<>();
 		List<String> steps = new ArrayList<>();
 		uiThread(desc, cdl -> {
-			logger.error("calling " + name + ".getSteps(" + cxt + ")");
+			logger.debug("calling " + name + ".getSteps(" + cxt + ")");
 			Object ua = testObj.call(name, cxt);
 			if (ua instanceof JSObject) {
 				JSObject arr = (JSObject) ua;
@@ -67,7 +67,7 @@ public class SingleJSTest {
 			return;
 		List<Throwable> excs = new ArrayList<>();
 		uiThread(desc, cdl -> {
-			logger.error("calling " + desc + " step " + s + "(" + cxt + ")");
+			logger.debug("calling " + desc + " step " + s + "(" + cxt + ")");
 			try {
 				testObj.call(s, cxt);
 			} catch (Throwable t) {
