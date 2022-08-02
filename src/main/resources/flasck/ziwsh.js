@@ -589,18 +589,21 @@ ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
         } else if (o._towire) {
             ux.wireable(this, o);
         } else {
-            this.logger.log("o =", JSON.stringify(o));
-            this.logger.log("o.state = ", o.state);
             try {
-                throw Error("cannot handle object with constructor " + o.constructor.name);
+                cx.log("o =", JSON.stringify(o));
             } catch (e) {
-                this.logger.log(e.stack);
-                throw e;
+                cx.log("could not stringify", o);
             }
+            cx.log("o.state = ", o.state);
+            cx.log("cannot handle object with constructor " + o.constructor.name, new Error().stack);
         }
     } else {
-        this.logger.log("typeof o =", typeof o);
-        this.logger.log("o =", JSON.stringify(o));
+        cx.log("typeof o =", typeof o);
+        try {
+            cx.log("o =", JSON.stringify(o));
+        } catch (e) {
+            cx.log("could not stringify", o);
+        }
         throw Error("cannot handle " + typeof o);
     }
 }
@@ -679,6 +682,7 @@ NoSuchContract.forContract = function(ctr) {
 }
 
 
+
 /** Create a proxy of a contract interface
  *  This may also apply to other things, but that's all I care about
  *  We need a:
@@ -691,6 +695,10 @@ const proxy = function(cx, intf, handler) {
     var keys = intf._methods();
     if (!Array.isArray(keys)) { // it's an object for which we want the keys
         keys = Object.keys(keys);
+    }
+    if (intf instanceof IdempotentHandler) {
+        keys.push("success");
+        keys.push("failure");
     }
     const proxied = { _owner: handler };
     const methods = {};
@@ -706,6 +714,11 @@ const proxy = function(cx, intf, handler) {
         proxied._clz = function() {
             return clz;
         }
+    }
+    // This feels like functionality bleed from FLAS
+    // TODO: clean it up
+    if (intf._card) {
+        proxied._card = intf._card;
     }
     return proxied;
 }
@@ -897,6 +910,9 @@ DispatcherTraverser.prototype.dispatch = function() {
     // cx.log("env = " + Object.keys(cx.env));
     this.ret[0] = cx = cx.env.newContext().bindTo(this.svc);
     try {
+        if (ih instanceof NamedIdempotentHandler) {
+            cx.log("have NIH in dispatch");
+        }
         var rets = this.svc[this.method].apply(this.svc, this.ret);
         // I don't think this matches the semantics of when we want success to be called
         // I think we should add an event to the end of the list of actions

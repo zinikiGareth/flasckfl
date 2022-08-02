@@ -151,16 +151,18 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("Generator", level);
 		StaticLoggerBinder.defaultLevel("io.webfolder.ui4j", level);
 		StaticLoggerBinder.defaultLevel("IdemHandler", level);
-		StaticLoggerBinder.defaultLevel("TestStages", level);
 		StaticLoggerBinder.defaultLevel("assembler", level);
 		StaticLoggerBinder.defaultLevel("awstxstore", level);
 		StaticLoggerBinder.defaultLevel("org.ziniki.awstxstore", level);
+
+		StaticLoggerBinder.defaultLevel("TestStages", level);
+		StaticLoggerBinder.defaultLevel("CallTracker", level);
 		
 		StaticLoggerBinder.defaultLevel("TestRunner", level);
-		StaticLoggerBinder.defaultLevel("CallTracker", level);
 		StaticLoggerBinder.defaultLevel("ZiWSH", level);
 		StaticLoggerBinder.defaultLevel("ZiwshClient", level);
 		StaticLoggerBinder.defaultLevel("Ziniki", level);
+		StaticLoggerBinder.defaultLevel("ZinikiZiwsh", level);
 		StaticLoggerBinder.defaultLevel("ZinikiTI", level);
 		StaticLoggerBinder.defaultLevel("IMUnitOfWork", level);
 		StaticLoggerBinder.defaultLevel("Broker", level);

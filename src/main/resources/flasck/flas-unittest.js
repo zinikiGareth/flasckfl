@@ -974,11 +974,16 @@ WSBridge.prototype.gotime = function() {
 		return;
 	}
 	setTimeout(() => {
-	var s = this.readysteps.shift();
-	console.log(new Date() + " executing step", s);
-	this.lock("around step");
-	this.st[s].call(this.st, this.runcxt);
-	this.send({action: "step"});
+		if (this.readysteps.length == 0) {
+			// we're done
+			console.log("no more steps");
+			return;
+		}
+		var s = this.readysteps.shift();
+		console.log(new Date() + " executing step", s);
+		this.lock("around step");
+		this.st[s].call(this.st, this.runcxt);
+		this.send({action: "step"});
 	}, 100);
 }
 

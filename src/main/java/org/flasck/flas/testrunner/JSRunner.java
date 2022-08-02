@@ -89,6 +89,8 @@ import netscape.javascript.JSObject;
  *   
  *   -- and from time to time, you will want to call assertSatisfied()
  *   runner.assertSatisfied();
+ *   
+ *   -- note that using runRemote or its child executeSync correctly handles race conditions
  */
 
 public class JSRunner extends CommonTestRunner<JSTestState> {

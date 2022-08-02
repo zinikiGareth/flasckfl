@@ -121,14 +121,12 @@ public class JVMRunner extends CommonTestRunner<State>  {
 
 	private void doSteps(TestResultWriter pw, JVMTestHelper helper, State state, Object test, List<String> steps, FLEvalContext cxt, String desc) {
 		try {
-			if (desc != null)
-				pw.begin("JVM", desc);
+			pw.begin("JVM", desc!=null?desc:"configure");
 			helper.reset();
 			for (String s : steps) {
 				if (state != null && state.failed > 0)
 					return;
-				if (desc != null)
-					pw.begin("JVM", desc + ": " + s);
+				pw.begin("JVM", (desc!=null?desc:"configure") + ": " + s);
 				counter.start();
 				Reflection.call(test, s, cxt);
 				counter.end(s);
