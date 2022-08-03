@@ -663,7 +663,7 @@ const isntThere = function(ctr, meth) {
 	return function(cx, ...rest) {
 		cx.log("no such contract for", ctr.name(), meth);
 		const ih = rest[rest.length-1];
-		const msg = "There is no service for " + ctr.name() + ":" + meth;
+		const msg = "there is no service for " + ctr.name() + ":" + meth;
 		throw Error(msg);
 	}
 }

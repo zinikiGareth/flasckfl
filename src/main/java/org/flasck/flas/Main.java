@@ -179,5 +179,10 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("Uploader", level);
 		
 		StaticLoggerBinder.defaultLevel("DebugLog", Level.INFO);
+
+		// Turn on HTTP tracing
+//		StaticLoggerBinder.defaultLevel("org.apache.http", Level.DEBUG);
+		// but turn off wire format
+//		StaticLoggerBinder.defaultLevel("org.apache.http.wire", Level.WARN);
 	}
 }
