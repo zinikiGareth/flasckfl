@@ -59,8 +59,12 @@ Application.prototype.parseRoute = function(_cxt, r) {
 	if (r instanceof Location || r instanceof URL) {
 		r = r.href;
 	}
+	if (typeof(baseUri) !== 'undefined' && baseUri)
+		buri = baseUri;
+	else
+		buri = this.baseUri();
 	if (r.startsWith("/"))
-		r = this.baseUri() + r;
+		r = buri + r;
 	if (!r.endsWith("/"))
 		r = r + "/";
 	try {
@@ -70,7 +74,7 @@ Application.prototype.parseRoute = function(_cxt, r) {
 			r = new URL(r, this.baseUri()).href;
 	} catch (e) {}
 	this.currentPath = r;
-	var url = r.replace(this.baseUri(), '').replace(/^[#/]*/, '');
+	var url = r.replace(buri, '').replace(/^[#/]*/, '');
 	var parts = url.split("/").filter(x => !!x);
 	return parts;
 }

@@ -923,7 +923,7 @@ WSBridge.prototype.send = function(json) {
 }
 
 WSBridge.prototype.connectToZiniki = function(wsapi, cb) {
-	runner.broker.connectToServer('ws://' + host + ':' + port + '/wsapi/token/secret');
+	runner.broker.connectToServer('ws://' + host + ':' + port);
 }
 
 WSBridge.prototype.executeSync = function(runner, st, cxt, steps) {

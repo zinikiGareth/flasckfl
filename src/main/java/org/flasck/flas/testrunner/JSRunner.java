@@ -180,6 +180,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			try {
 				counter.waitForZero(15000);
 			} catch (Throwable t) {
+				logger.warn("Error waiting for test to end", t);
 				pw.error("JS", desc, t);
 				errors.add("JS ERROR " + (desc == null ? "configure":desc));
 				break;

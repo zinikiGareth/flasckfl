@@ -701,7 +701,7 @@ FLContext.prototype.localCard = function(cardClz, eltName) {
 			console.log("want to log in");
 			window.haveit = function(token, secret) {
 				console.log("have credentials:", token, secret);
-				env.broker.updateConnection(zinikiServer + '/' + token + '/' + secret);
+				env.broker.updateConnection(zinikiServer + '?token=' + token + '&secret=' + secret);
 				elt.innerHTML = '';
 				self.startCard(card, elt);
 			}
