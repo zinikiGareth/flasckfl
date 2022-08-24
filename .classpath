@@ -21,7 +21,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Testing"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JSOUP"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/HTTP"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX 11"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/VSCode"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX 18"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
