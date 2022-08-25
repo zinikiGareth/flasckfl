@@ -8,12 +8,15 @@ import java.util.ServiceLoader;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.compiler.modules.OptionModule;
+import org.flasck.flas.compiler.modules.PreCompilationModule;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.jvm.ziniki.PackageSources;
+import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
 
 public class Configuration {
 	private final ServiceLoader<OptionModule> optionModules;
+	private final ServiceLoader<PreCompilationModule> precompilationModules;
 	public final ErrorReporter errors;
 	public boolean unitjvm = true, unitjs = true;
 	public boolean systemjvm = true, systemjs = true;
@@ -45,6 +48,7 @@ public class Configuration {
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.optionModules = ServiceLoader.load(OptionModule.class);
+		this.precompilationModules = ServiceLoader.load(PreCompilationModule.class);
 		this.errors = errors;
 		if (args != null)
 			process(args);
@@ -201,6 +205,18 @@ public class Configuration {
 		}
 		if (openHTML && html == null) {
 			errors.message((InputPosition)null, "Use of --open requires --html");
+		}
+	}
+
+	public boolean preCompilation() {
+		try {
+			boolean ret = true;
+			for (PreCompilationModule m : precompilationModules) {
+				ret &= m.preCompilation(this);
+			}
+			return ret;
+		} catch (Exception ex) {
+			throw WrappedException.wrap(ex);
 		}
 	}
 

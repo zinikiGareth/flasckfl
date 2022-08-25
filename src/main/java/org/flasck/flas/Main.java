@@ -48,12 +48,13 @@ public class Main {
 	public static boolean standardCompiler(String... args) throws IOException {
 		ErrorResult errors = new ErrorResult();
 		Configuration config = new Configuration(errors, args);
-
+		if (!config.preCompilation())
+			return false;
+		
 		FLASCompiler ret = commonCompiler(errors, config);
 		// This is to do with Android
 //		if (compiler.getBuilder() != null)
 //			compiler.getBuilder().build();
-		// TODO: option to upload to a Ziniki Server
 		
 		return errors.hasErrors() || ret == null;
 	}
