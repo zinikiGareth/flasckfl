@@ -165,6 +165,7 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("Ziniki", level);
 		StaticLoggerBinder.defaultLevel("ZinikiZiwsh", level);
 		StaticLoggerBinder.defaultLevel("ZinikiTI", level);
+		StaticLoggerBinder.defaultLevel("UOWExec", level);
 		StaticLoggerBinder.defaultLevel("IMUnitOfWork", level);
 		StaticLoggerBinder.defaultLevel("Broker", level);
 		StaticLoggerBinder.defaultLevel("Utils", level);
