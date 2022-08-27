@@ -336,7 +336,7 @@ public class JSEnvironment implements JSStorage {
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
 		ret.add(new FileContentObject(f));
-		if (testDir != null) {
+		if (testDir != null && f.isFile()) {
 			FileUtils.copy(f, new File(testDir, f.getName()));
 		}
 	}
