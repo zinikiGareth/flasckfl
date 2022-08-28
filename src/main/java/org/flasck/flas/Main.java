@@ -161,6 +161,7 @@ public class Main {
 		
 		StaticLoggerBinder.defaultLevel("TestRunner", level);
 		StaticLoggerBinder.defaultLevel("ZiWSH", level);
+		StaticLoggerBinder.defaultLevel("FlasckLib", level);
 		StaticLoggerBinder.defaultLevel("ZiwshClient", level);
 		StaticLoggerBinder.defaultLevel("Ziniki", level);
 		StaticLoggerBinder.defaultLevel("ZinikiZiwsh", level);
