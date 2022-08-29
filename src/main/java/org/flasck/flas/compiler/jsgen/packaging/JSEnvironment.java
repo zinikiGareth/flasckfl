@@ -261,17 +261,10 @@ public class JSEnvironment implements JSStorage {
 
 	private void figureJSFilesOnDisk(List<ContentObject> ret, Configuration config, String testDirJS) {
 		List<String> inlib = new ArrayList<>();
-		List<File> library = FileUtils.findFilesMatching(new File(config.flascklibDir), "*");
-		for (File f : library) {
-			includeFile(ret, testDirJS, f);
-			inlib.add(f.getName());
-		}
+		addFrom(ret, testDirJS, inlib, new File(config.flascklibDir, "main"));
+		addFrom(ret, testDirJS, inlib, new File(config.flascklibDir, "test"));
 		for (File mld : config.modules) {
-			List<File> l = FileUtils.findFilesMatching(mld, "*");
-			for (File f : l) {
-				includeFile(ret, testDirJS, f);
-				inlib.add(f.getName());
-			}
+			addFrom(ret, testDirJS, inlib, mld);
 		}
 
 		for (String s : packages()) {
@@ -301,7 +294,18 @@ public class JSEnvironment implements JSStorage {
 		}
 	}
 
+	private void addFrom(List<ContentObject> ret, String testDirJS, List<String> inlib, File from) {
+		List<File> library = FileUtils.findFilesMatching(from, "*");
+		for (File f : library) {
+			includeFile(ret, testDirJS, f);
+			inlib.add(f.getName());
+		}
+	}
+
 	private void figureJSFilesFromContentStore(List<ContentObject> ret, Configuration config, String testDir) {
+		for (ContentObject co : config.flascklibCPV.mainjs()) {
+			ret.add(co);
+		}
 		for (ContentObject co : config.flascklibCPV.livejs()) {
 			ret.add(co);
 		}
@@ -310,6 +314,8 @@ public class JSEnvironment implements JSStorage {
 		}
 		if (config.moduleCOs != null) {
 			for (PackageSources d : config.moduleCOs) {
+				for (ContentObject co : d.mainjs())
+					ret.add(co);
 				for (ContentObject co : d.livejs())
 					ret.add(co);
 				for (ContentObject co : d.testjs())
@@ -318,6 +324,8 @@ public class JSEnvironment implements JSStorage {
 		}
 		if (config.dependencies != null) {
 			for (PackageSources d : config.dependencies) {
+				for (ContentObject co : d.mainjs())
+					ret.add(co);
 				for (ContentObject co : d.livejs())
 					ret.add(co);
 				for (ContentObject co : d.testjs())

@@ -454,17 +454,10 @@ public class FLASCompiler implements CompileUnit {
 					}
 					zoo.close();
 				}
-				List<File> library = FileUtils.findFilesMatching(new File(config.flascklibDir), "*");
-				for (File f : library) {
-					reloc.put(absWith(userDir, f), FileUtils.makeRelativeTo(new File(fldir, f.getName()), pf));
-					FileUtils.copy(f, fldir);
-				}
+				File libroot = new File(config.flascklibDir);
+				copyJSLib(reloc, userDir, pf, fldir, libroot);
 				for (File mld : config.modules) {
-					List<File> l = FileUtils.findFilesMatching(mld, "*");
-					for (File f : l) {
-						reloc.put(absWith(userDir, f), FileUtils.makeRelativeTo(new File(mdir, f.getName()), pf));
-						FileUtils.copy(f, mdir);
-					}
+					copyJSLib(reloc, userDir, pf, mdir, mld);
 				}
 				FLASAssembler asm = new FLASAssembler(fos);
 				File incdir = new File("includes/js");
@@ -519,6 +512,20 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		return false;
+	}
+
+	private void copyJSLib(Map<File, File> reloc, File userDir, File pf, File fldir, File libroot) {
+		List<File> library = FileUtils.findFilesUnderMatching(libroot, "*");
+		for (File f : library) {
+			File lrf = FileUtils.combine(libroot, f);
+			File to = new File(fldir, f.getPath());
+			if (lrf.isDirectory()) {
+				to.mkdir();
+			} else {
+				reloc.put(absWith(userDir, lrf), FileUtils.makeRelativeTo(to, pf));
+				FileUtils.copy(lrf, to);
+			}
+		}
 	}
 
 	private File absWith(File userDir, File f) {

@@ -17,6 +17,7 @@ public class FileBasedSources implements PackageSources {
 	private final List<ContentObject> uts = new ArrayList<>();
 	private final List<ContentObject> fas = new ArrayList<>();
 	private final List<ContentObject> sts = new ArrayList<>();
+	private final List<ContentObject> mjs = new ArrayList<>();
 	private final List<ContentObject> ljs = new ArrayList<>();
 	private final List<ContentObject> tjs = new ArrayList<>();
 	private final List<ContentObject> webs = new ArrayList<>();
@@ -68,6 +69,11 @@ public class FileBasedSources implements PackageSources {
 	@Override
 	public List<ContentObject> systemTests() {
 		return sts;
+	}
+
+	@Override
+	public List<ContentObject> mainjs() {
+		return mjs;
 	}
 
 	@Override
