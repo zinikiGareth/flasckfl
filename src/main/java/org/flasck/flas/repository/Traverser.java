@@ -507,7 +507,8 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitAssembly(ApplicationAssembly e) {
 		visitor.visitAssembly(e);
-		visitApplicationRouting(e.routing());
+		if (e.routing() != null)
+			visitApplicationRouting(e.routing());
 		leaveAssembly(e);
 	}
 
