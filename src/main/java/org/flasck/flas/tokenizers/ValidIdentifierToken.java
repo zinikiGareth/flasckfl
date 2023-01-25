@@ -16,14 +16,22 @@ public class ValidIdentifierToken {
 		line.skipWS();
 		int mark = line.at();
 		InputPosition pos = line.realinfo();
-		if (!line.hasMore() || !Character.isJavaIdentifierStart(line.nextChar()))
+		if (!line.hasMore() || !isIdentifierStart(line.nextChar()))
 			return null;
 		line.advance();
-		while (line.hasMore() && Character.isJavaIdentifierPart(line.nextChar()))
+		while (line.hasMore() && isIdentifierPart(line.nextChar()))
 			line.advance();
 		return new ValidIdentifierToken(pos, line.fromMark(mark), line.at());
 	}
 	
+	private static boolean isIdentifierStart(char c) {
+		return Character.isLetter(c) || c == '_';
+	}
+
+	private static boolean isIdentifierPart(char c) {
+		return Character.isLetter(c) || Character.isDigit(c) || c == '_';
+	}
+
 	@Override
 	public String toString() {
 		return "VIT["+text+":" + location+"]";

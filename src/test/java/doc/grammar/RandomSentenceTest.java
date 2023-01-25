@@ -60,6 +60,12 @@ public class RandomSentenceTest {
 		}
 		FileUtils.deleteDirectoryTree(td);
 		repoFile.delete();
+		if (failed.get()) {
+			for (File f : fd.listFiles()) {
+				if (f.isFile())
+					FileUtils.cat(f);
+			}
+		}
 		assertFalse(failed.get());
 	}
 }
