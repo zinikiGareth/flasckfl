@@ -2,6 +2,7 @@ package org.flasck.flas.parser.st;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SystemTestName;
+import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.compiler.modules.ParserModule;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.st.SystemTestCleanup;
@@ -11,7 +12,6 @@ import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.TestStepNamer;
-import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
@@ -47,7 +47,7 @@ public class TDASystemTestParser implements TDAParsing {
 			SystemTestName stn = namer.special("configure");
 			final SystemTestConfiguration stg = new SystemTestConfiguration(stn, topLevel);
 			builder.configure(stg);
-			return TDAMultiParser.systemTestStep(errors, new TestStepNamer(stn.container()), stg, topLevel, modules);
+			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn.container()), stg, topLevel, modules);
 		}
 		case "test": {
 			final String desc = toks.remainder().trim();
@@ -58,7 +58,7 @@ public class TDASystemTestParser implements TDAParsing {
 			SystemTestName stn = namer.nextStep();
 			final SystemTestStage stage = new SystemTestStage(stn, desc, topLevel);
 			builder.test(stage);
-			return TDAMultiParser.systemTestStep(errors, new TestStepNamer(stn), stage, topLevel, modules);
+			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn), stage, topLevel, modules);
 		}
 		case "finally": {
 			if (toks.hasMoreContent()) {
@@ -68,7 +68,7 @@ public class TDASystemTestParser implements TDAParsing {
 			SystemTestName stn = namer.special("finally");
 			final SystemTestCleanup stg = new SystemTestCleanup(stn, topLevel);
 			builder.cleanup(stg);
-			return TDAMultiParser.systemTestStep(errors, new TestStepNamer(stn), stg, topLevel, modules);
+			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn), stg, topLevel, modules);
 		}
 		default: {
 			toks.reset(mark);

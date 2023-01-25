@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.StateHolder;
-import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.PattToken;
@@ -91,7 +91,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 		}).tryParsing(line);
 
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder);
-		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder);
+		return ParsingPhase.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder);
 	}
 
 	@Override

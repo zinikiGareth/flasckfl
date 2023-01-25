@@ -6,12 +6,12 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StateHolder;
-import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -81,7 +81,7 @@ public class TDAFunctionParser implements TDAParsing {
 			return new IgnoreNestedParser();
 
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, holder);
-		return TDAMultiParser.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder);
+		return ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder);
 	}
 
 	@Override

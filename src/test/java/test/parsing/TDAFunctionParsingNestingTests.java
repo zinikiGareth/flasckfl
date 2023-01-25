@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
@@ -12,7 +13,6 @@ import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
-import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -34,7 +34,7 @@ public class TDAFunctionParsingNestingTests {
 
 	@Before
 	public void setup() {
-		parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
+		parser = ParsingPhase.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
 	}
 	
 	@Test
@@ -58,7 +58,7 @@ public class TDAFunctionParsingNestingTests {
 //			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("g")); will(returnValue(FunctionName.function(pos, null, "g")));
 //			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
 		}});
-		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
+		TDAParsing parser = ParsingPhase.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
 		parser.tryParsing(line);
 		parser.scopeComplete(pos);
 	}
@@ -69,7 +69,7 @@ public class TDAFunctionParsingNestingTests {
 			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
-		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
+		TDAParsing parser = ParsingPhase.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
 		TDAParsing nested = parser.tryParsing(line("f"));
 		nested.tryParsing(line("| true = 42"));
 		nested.scopeComplete(pos);

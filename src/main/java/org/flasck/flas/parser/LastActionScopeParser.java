@@ -1,9 +1,9 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StateHolder;
-import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class LastActionScopeParser implements LastOneOnlyNestedParser {
@@ -17,7 +17,7 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 		this.errors = errors;
 		this.lastThing = lastThing;
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, holder);
-		this.parser = TDAMultiParser.functionScopeUnit(errors, namer, assembler, topLevel, holder);
+		this.parser = ParsingPhase.functionScopeUnit(errors, namer, assembler, topLevel, holder);
 	}
 
 	public void anotherParent() {

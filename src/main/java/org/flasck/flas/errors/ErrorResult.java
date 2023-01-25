@@ -42,6 +42,8 @@ public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<
 	
 	public void showFromMark(ErrorMark em, Writer pw, int ind) {
 		Marker mark = (Marker) em;
+		if (em == null)
+			mark = new Marker(true);
 		try {
 			for (FLASError e : errors) {
 				if (mark.contains(e))
