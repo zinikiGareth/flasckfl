@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parser.IgnoreNestedParser;

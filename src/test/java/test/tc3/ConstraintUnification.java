@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -25,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.PolyInstanceMatcher;
-import test.parsing.LocalErrorTracker;
 
 public class ConstraintUnification {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

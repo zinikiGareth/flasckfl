@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;

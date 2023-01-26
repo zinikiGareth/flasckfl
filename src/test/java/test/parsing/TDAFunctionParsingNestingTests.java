@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.PackageNamer;

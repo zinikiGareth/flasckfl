@@ -2,6 +2,7 @@ package test.parsing;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.TDAFunctionGuardedEquationParser;

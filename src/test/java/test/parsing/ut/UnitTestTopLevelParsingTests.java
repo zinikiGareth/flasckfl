@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
@@ -35,7 +36,6 @@ import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ExprMatcher;
 import flas.matchers.UnitTestCaseMatcher;
-import test.parsing.LocalErrorTracker;
 
 public class UnitTestTopLevelParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

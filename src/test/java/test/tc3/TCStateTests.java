@@ -15,6 +15,7 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -42,7 +43,6 @@ import flas.matchers.ApplyMatcher;
 import flas.matchers.PolyInstanceMatcher;
 import flas.matchers.PolyTypeMatcher;
 import flas.matchers.ResolvedUTMatcher;
-import test.parsing.LocalErrorTracker;
 
 public class TCStateTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

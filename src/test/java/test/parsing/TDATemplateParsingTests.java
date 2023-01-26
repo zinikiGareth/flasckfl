@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;

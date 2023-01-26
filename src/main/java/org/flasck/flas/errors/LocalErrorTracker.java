@@ -1,4 +1,4 @@
-package test.parsing;
+package org.flasck.flas.errors;
 
 import java.io.Writer;
 import java.util.Collection;
@@ -7,9 +7,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.errors.ErrorMark;
-import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 // This tracks errors and expects a Mock ErrorReporter

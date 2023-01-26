@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -46,7 +47,6 @@ import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ApplyMatcher;
 import flas.matchers.PosMatcher;
-import test.parsing.LocalErrorTracker;
 
 public class GroupTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

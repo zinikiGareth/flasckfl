@@ -18,6 +18,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
@@ -66,7 +67,6 @@ import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ApplyMatcher;
-import test.parsing.LocalErrorTracker;
 
 public class StackVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

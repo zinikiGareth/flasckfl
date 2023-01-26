@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parser.ut.TestStepParser;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
@@ -15,8 +16,6 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-
-import test.parsing.LocalErrorTracker;
 
 public class TargetZoneParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

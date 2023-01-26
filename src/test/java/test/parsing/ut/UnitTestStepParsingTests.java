@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -34,7 +35,6 @@ import org.junit.Test;
 import flas.matchers.ExprMatcher;
 import flas.matchers.TargetZoneMatcher;
 import flas.matchers.TypeReferenceMatcher;
-import test.parsing.LocalErrorTracker;
 
 public class UnitTestStepParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
