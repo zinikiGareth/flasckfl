@@ -65,7 +65,10 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 		return new ErrorMark() {
 			@Override
 			public boolean hasMoreNow() {
-				return handler.errorCount() > cnt;
+				if (handler == null)
+					return false;
+				else
+					return handler.errorCount() > cnt;
 			}
 		};
 	}
