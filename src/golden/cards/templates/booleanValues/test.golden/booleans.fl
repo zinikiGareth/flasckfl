@@ -1,0 +1,11 @@
+Test that booleans can be rendered in a template without show
+
+	card ShowBooleans
+		state
+			Boolean b <- True
+			Boolean f <- False
+			
+		template showme
+			yes <- b
+			no <- f
+			
