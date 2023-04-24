@@ -20,8 +20,11 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 import org.flasck.flas.LSPTaskQueue;
 import org.flasck.flas.compiler.TaskQueue;
 import org.flasck.flas.errors.ErrorReporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FLASLanguageServer implements LanguageServer {
+	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
 	private final ErrorReporter errors;
 	private final File flasHome;
 	private final TaskQueue taskQ;
@@ -38,7 +41,7 @@ public class FLASLanguageServer implements LanguageServer {
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-		addRoot(params.getRootUri());
+		logger.info("initialize");
 		List<WorkspaceFolder> folders = params.getWorkspaceFolders();
 		if (folders != null) {
 			for (WorkspaceFolder f : folders) {
@@ -51,6 +54,7 @@ public class FLASLanguageServer implements LanguageServer {
 	}
 	
 	public void addRoot(String rootUri) {
+		logger.info("opening root " + rootUri);
 		try {
 			synchronized (roots) {
 				URI uri = new URI(rootUri + "/");
@@ -86,7 +90,7 @@ public class FLASLanguageServer implements LanguageServer {
 	}
 	
 	public void setCardsFolder(String cardsFolder) {
-		System.out.println("setting cards folder to " + cardsFolder);
+		logger.info("setting cards folder to " + cardsFolder);
 		this.cardsFolder = cardsFolder;
 		synchronized (roots) {
 			for (Root r : roots.values())
@@ -106,12 +110,12 @@ public class FLASLanguageServer implements LanguageServer {
 
 	@Override
 	public CompletableFuture<Object> shutdown() {
-		System.out.println("SHUTDOWN");
+		logger.info("SHUTDOWN");
         return CompletableFuture.completedFuture(null);
 	}
 
 	@Override
 	public void exit() {
-		System.out.println("EXIT");
+		logger.info("EXIT");
 	}
 }

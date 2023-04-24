@@ -18,10 +18,13 @@ import org.flasck.flas.blocker.TDANester;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.ContentObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.utils.FileUtils;
 
 public class FlimReader {
+	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private final ErrorReporter errors;
 	private final Repository repository;
 
@@ -31,8 +34,10 @@ public class FlimReader {
 	}
 
 	public void read(DirectedAcyclicGraph<String> pkgs, File flimdir, List<File> butNot) {
-		if (!flimdir.exists())
+		if (!flimdir.exists()) {
+			logger.info("cannot read flim dir " + flimdir);
 			return;
+		}
 		
 		List<String> ignore = new ArrayList<>();
 		for (File i : butNot)

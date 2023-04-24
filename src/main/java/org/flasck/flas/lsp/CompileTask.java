@@ -6,9 +6,6 @@ import org.flasck.flas.compiler.CompileUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO: extract most of this somewhere else (say "FLASCompiler")
-// "run" here should invoke that with the minimal amount of extra information
-// get it so that we do the remaining steps
 public class CompileTask implements Runnable {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private final CompileUnit compiler;

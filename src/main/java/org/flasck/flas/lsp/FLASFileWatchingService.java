@@ -10,9 +10,12 @@ import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.flasck.flas.errors.ErrorReporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.utils.FileUtils;
 
 public class FLASFileWatchingService implements TextDocumentService {
+	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
 	private final FLASLanguageServer dispatcher;
 	private final ErrorReporter errors;
 
@@ -24,19 +27,23 @@ public class FLASFileWatchingService implements TextDocumentService {
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
     	URI uri = parseURI(params.getTextDocument().getUri());
-    	if (uri == null)
+    	if (uri == null) {
+    		logger.warn("no uri specified");
     		return;
+    	}
     	String text = params.getTextDocument().getText();
-    	System.out.println("saw open of " + uri);
+    	logger.info("saw open of " + uri);
     	dispatcher.dispatch(uri, text);
 	}
 
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
     	URI uri = parseURI(params.getTextDocument().getUri());
-    	if (uri == null)
+    	if (uri == null) {
+    		logger.warn("no uri specified");
     		return;
-    	System.out.println("saw change to " + uri);
+    	}
+    	logger.info("saw change to " + uri);
     	if (!WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath()))))
     		return;
         for (TextDocumentContentChangeEvent changeEvent : params.getContentChanges()) {

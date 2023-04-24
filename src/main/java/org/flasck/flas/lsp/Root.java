@@ -9,9 +9,12 @@ import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.TaskQueue;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.utils.FileUtils;
 
 public class Root {
+	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
 	private final ErrorReporter errors;
 	private final TaskQueue taskQ;
 	public final URI uri;
@@ -27,10 +30,10 @@ public class Root {
 	}
 	
 	public void configure(File flasHome) {
+		logger.info("configuring " + root + " with flas home " + flasHome);
 		Configuration config = new Configuration(errors, new String[] {});
-		config.includeFrom.add(new File(flasHome, "stdlib/flim"));
-		config.includeFrom.add(new File(flasHome, "stdlib/jsout"));
-		config.includeFrom.add(new File(flasHome, "stdlib/jvmout"));
+		config.includeFrom.add(new File(flasHome, "flim"));
+		config.includeFrom.add(new File(flasHome, "userflim"));
         Repository repository = new Repository();
 		compiler = new FLASCompiler(config, errors, repository);
 		compiler.taskQueue(taskQ);
@@ -65,7 +68,9 @@ public class Root {
 		}
 	}
 	public void dispatch(URI uri, String text) {
-    	if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath()))))
+    	if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath())))) {
+    		logger.info("Submitting file for compilation for " + uri);
     		taskQ.submit(new CompileTask(compiler, uri, text));
+    	}
 	}
 }

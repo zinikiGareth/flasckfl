@@ -19,9 +19,12 @@ import org.flasck.flas.repository.FunctionHSICases;
 import org.flasck.flas.repository.HSICases;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.NotImplementedException;
 
 public abstract class ObjectActionHandler extends ObjectMessagesHolder implements Locatable, MethodMessagesConsumer, GuardedMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder, TypeBinder {
+	private static final Logger logger = LoggerFactory.getLogger("ObjectAH");
 	private final InputPosition location;
 	private final FunctionName name;
 	private final List<Pattern> args;
@@ -40,7 +43,7 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	
 	@Override
 	public void clean() {
-		System.out.println("Cleaning " + name);
+		logger.info("Cleaning " + name);
 		RepositoryEntry.super.clean();
 		this.hsiTree = null;
 		this.type = null;

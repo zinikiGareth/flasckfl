@@ -30,6 +30,7 @@ public class Main {
 	public static void main(String[] args) {
 		setLogLevels();
 		if (args != null && args.length >= 1 && "--lsp".equals(args[0])) {
+			StaticLoggerBinder.setLevel("Compiler", Level.INFO);
 			LSPMain.run(args);
 			return; // there should be background threads keeping this alive ...
 		}

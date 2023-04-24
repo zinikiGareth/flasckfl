@@ -22,8 +22,9 @@ public interface ErrorReporter {
 	void showFromMark(ErrorMark mark, Writer pw, int ind);
 
 	// LSP related features
-	default void beginProcessing(URI uri) {}
+	default void beginPhase1(URI uri) {}
 	default void doneProcessing(List<URI> broken) {}
 	default List<URI> getAllBrokenURIs() { return new ArrayList<>(); }
 	default void logMessage(String s) { }
+	default void beginPhase2(URI uri) { }
 }

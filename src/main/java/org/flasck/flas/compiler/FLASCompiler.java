@@ -107,6 +107,7 @@ public class FLASCompiler implements CompileUnit {
 	private JSUploader uploader;
 
 	public FLASCompiler(Configuration config, ErrorReporter errors, Repository repository) {
+		logger.info("initializing FLASCompiler");
 		this.config = config;
 		this.errors = errors;
 		this.repository = repository;
@@ -128,7 +129,8 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public void lspLoadFLIM(URI uri) {
-		errors.beginProcessing(uri);
+		logger.info("lspLoadFLIM from " + uri);
+		errors.beginPhase1(uri);
 		loadFLIMFromFiles();
 		errors.doneProcessing(brokenUris);
 	}
@@ -256,8 +258,8 @@ public class FLASCompiler implements CompileUnit {
 
 	@Override
 	public void parse(URI uri, String text) {
-		System.out.println("Compiling " + uri);
-		errors.beginProcessing(uri);
+		logger.info("Compiling " + uri);
+		errors.beginPhase1(uri);
 		repository.parsing(uri);
 		parseOne(uri);
 		repository.done();
@@ -305,6 +307,7 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public void attemptRest(URI uri) {
+		logger.info("attempting to compile rest of files for " + uri);
 		// if there were previously files that were corrupt, try compiling them again
 		List<URI> broken = new ArrayList<>(this.brokenUris);
 		for (URI b : broken) {
@@ -321,7 +324,7 @@ public class FLASCompiler implements CompileUnit {
 
 		// do the rest of the compilation
 //		sendRepo();
-		errors.beginProcessing(uri);
+		errors.beginPhase2(uri);
 		repository.clean();
 		if (stage2(null)) { // I don't think this should upload, so it won't need the package sources per se ...
 			// worked
@@ -629,7 +632,11 @@ public class FLASCompiler implements CompileUnit {
 				}
 			}
 			for (File f : config.includeFrom)
-				bcl.addClassesFrom(f);
+				try {
+					bcl.addClassesFrom(f);
+				} catch (NoSuchDirectoryException ex) {
+					logger.info("ignoring non-existent includeFrom directory " + f);
+				}
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
 			jvmRunner.runAllUnitTests(writers);
 			jvmRunner.reportErrors(errors);
@@ -658,7 +665,11 @@ public class FLASCompiler implements CompileUnit {
 				}
 			}
 			for (File f : config.includeFrom)
-				bcl.addClassesFrom(f);
+				try {
+					bcl.addClassesFrom(f);
+				} catch (NoSuchDirectoryException ex) {
+					logger.info("ignoring non-existent includeFrom directory " + f);
+				}
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
 			jvmRunner.runAllSystemTests(writers);
 			jvmRunner.reportErrors(errors);
