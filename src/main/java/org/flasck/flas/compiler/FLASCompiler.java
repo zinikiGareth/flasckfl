@@ -260,7 +260,6 @@ public class FLASCompiler implements CompileUnit {
 	public void parse(URI uri, String text) {
 		logger.info("Compiling " + uri);
 		errors.beginPhase1(uri);
-		repository.parsing(uri);
 		parseOne(uri);
 		repository.done();
 		errors.doneProcessing(brokenUris);
@@ -268,6 +267,7 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	private void parseOne(URI uri) {
+		repository.parsing(uri);
 		File file = new File(uri.getPath());
 		String inPkg = file.getParentFile().getName();
 		String name = file.getName();

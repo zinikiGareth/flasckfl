@@ -63,6 +63,8 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.NoMetaDataException;
 import org.ziniki.splitter.SplitMetaData;
@@ -71,6 +73,7 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
+	private static final Logger logger = LoggerFactory.getLogger("Repository");
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
 	private final List<SplitMetaData> webs = new ArrayList<>();
 	private final Map<URI, List<String>> uriDefines = new TreeMap<>();
@@ -252,6 +255,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void addEntry(ErrorReporter errors, final NameOfThing name, final RepositoryEntry entry) {
 		String un = name.uniqueName();
+		logger.debug("trying to add " + un + " of type " + entry.getClass());
 		if (!checkNoStateConflicts(errors, name, entry)) {
 			return;
 		}
@@ -264,6 +268,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		}
 		dict.put(un, entry);
 		if (currentDefines != null) {
+			logger.debug("adding " + un + " to current defines: " + currentDefines.size());
 			currentDefines.add(un);
 		}
 	}

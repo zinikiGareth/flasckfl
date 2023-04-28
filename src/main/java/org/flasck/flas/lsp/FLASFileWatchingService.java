@@ -16,10 +16,10 @@ import org.zinutils.utils.FileUtils;
 
 public class FLASFileWatchingService implements TextDocumentService {
 	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
-	private final FLASLanguageServer dispatcher;
+	private final LSPCore dispatcher;
 	private final ErrorReporter errors;
 
-	public FLASFileWatchingService(ErrorReporter errors, FLASLanguageServer dispatcher) {
+	public FLASFileWatchingService(ErrorReporter errors, LSPCore dispatcher) {
 		this.errors = errors;
 		this.dispatcher = dispatcher;
 	}
