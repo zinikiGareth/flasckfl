@@ -41,7 +41,7 @@ public abstract class BaseRunnerTests {
 	// TODO: defining bce here feels out of place and should be in the JVMRunnerTest
 	// But it is "part of" the CompileResult.  Why?
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
-	FLASCompiler sc = new FLASCompiler(null, null, null);
+	FLASCompiler sc = new FLASCompiler(null, null, null, null);
 	String pkg = "test.runner";
 	CardName cn = new CardName(new PackageName("test.runner"), "TestCard");
 	String spkg = pkg + ".script";

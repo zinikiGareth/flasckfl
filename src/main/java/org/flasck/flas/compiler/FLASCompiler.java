@@ -105,8 +105,9 @@ public class FLASCompiler implements CompileUnit {
 	private Map<EventHolder, EventTargetZones> eventMap;
 	private ByteCodeEnvironment bce;
 	private JSUploader uploader;
+	private CardDataListener cardDataListener;
 
-	public FLASCompiler(Configuration config, ErrorReporter errors, Repository repository) {
+	public FLASCompiler(Configuration config, ErrorReporter errors, Repository repository, CardDataListener cardDataListener) {
 		logger.info("initializing FLASCompiler");
 		this.config = config;
 		this.errors = errors;
@@ -114,6 +115,7 @@ public class FLASCompiler implements CompileUnit {
 		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
 		this.modules = ServiceLoader.load(ParserModule.class);
 		this.completeModules = ServiceLoader.load(CompilerComplete.class);
+		this.cardDataListener = cardDataListener;
 	}
 	
 	public void uploader(JSUploader loader) {
@@ -194,6 +196,8 @@ public class FLASCompiler implements CompileUnit {
 	public void splitWeb(File dir) {
 		try {
 			SplitMetaData md = splitter.split(dir);
+			if (cardDataListener != null)
+				cardDataListener.provideWebData(md);
 			repository.webData(md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + dir);

@@ -8,11 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.eclipse.lsp4j.launch.LSPLauncher;
-import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.launch.LSPLauncher.Builder;
+import org.flasck.flas.lsp.FLASLanguageClient;
 import org.flasck.flas.lsp.FLASLanguageServer;
-import org.flasck.flas.lsp.LSPCore;
-import org.flasck.flas.lsp.LSPErrorForwarder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,15 +44,22 @@ public class LSPMain {
 	}
 
 	private static void launchServer(File flasHome, InputStream in, OutputStream out) {
-		LSPErrorForwarder errors = new LSPErrorForwarder();
-		LSPCore core = new LSPCore(errors, flasHome);
-        FLASLanguageServer server = new FLASLanguageServer(core);
-        Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out);
+        FLASLanguageServer server = new FLASLanguageServer(flasHome);
+        Launcher<FLASLanguageClient> launcher = createServerLauncher(server, in, out);
 
-        LanguageClient client = launcher.getRemoteProxy();
-        errors.connect(client);
+        FLASLanguageClient client = launcher.getRemoteProxy();
+        server.provide(client);
 
         launcher.startListening();
+	}
+
+	private static Launcher<FLASLanguageClient> createServerLauncher(FLASLanguageServer server, InputStream in, OutputStream out) {
+		return new Builder<FLASLanguageClient>()
+				.setLocalService(server)
+				.setRemoteInterface(FLASLanguageClient.class)
+				.setInput(in)
+				.setOutput(out)
+				.create();
 	}
 
 }

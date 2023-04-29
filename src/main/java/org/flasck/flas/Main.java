@@ -63,7 +63,7 @@ public class Main {
 	// If we are the embedded Ziniki compiler, store the resulting package in S3
 	public static boolean uploader(ErrorResult errors, Configuration config, PackageSources cpv, AssemblyVisitor storer) throws IOException {
 		Repository repository = new Repository();
-		FLASCompiler compiler = new FLASCompiler(config, errors, repository);
+		FLASCompiler compiler = new FLASCompiler(config, errors, repository, null);
 		compiler.uploader((JSUploader) storer);
 		compiler.loadFLIMFromContentStore();
 		compiler.parse(cpv);
@@ -104,7 +104,7 @@ public class Main {
 		}
 
 		Repository repository = new Repository();
-		FLASCompiler compiler = new FLASCompiler(config, errors, repository);
+		FLASCompiler compiler = new FLASCompiler(config, errors, repository, null);
 		if (compiler.loadFLIMFromFiles())
 			return null;
 		if (config.inputs.isEmpty()) {

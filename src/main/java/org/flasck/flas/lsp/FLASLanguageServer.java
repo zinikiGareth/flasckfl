@@ -1,5 +1,6 @@
 package org.flasck.flas.lsp;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -17,11 +18,19 @@ import org.slf4j.LoggerFactory;
 public class FLASLanguageServer implements LanguageServer {
 	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
 	private final FLASFileWatchingService watchingService;
-	private LSPCore core;
+	private final LSPCore core;
+	private FLASLanguageClient client;
+	private LSPErrorForwarder errors;
 
-	public FLASLanguageServer(LSPCore core) {
-		this.core = core;
+	public FLASLanguageServer(File flasHome) {
+		errors = new LSPErrorForwarder();
+		this.core = new LSPCore(errors, flasHome);
 		this.watchingService = new FLASFileWatchingService(core.errors(), core);
+	}
+
+	public void provide(FLASLanguageClient client) {
+		this.client = client;
+		errors.connect(client);
 	}
 
 	@Override
@@ -30,7 +39,7 @@ public class FLASLanguageServer implements LanguageServer {
 		List<WorkspaceFolder> folders = params.getWorkspaceFolders();
 		if (folders != null) {
 			for (WorkspaceFolder f : folders) {
-				core.addRoot(f.getUri());
+				core.addRoot(client, f.getUri());
 			}
 		}
         ServerCapabilities capabilities = new ServerCapabilities();

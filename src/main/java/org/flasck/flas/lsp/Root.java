@@ -5,16 +5,23 @@ import java.net.URI;
 import java.util.TreeSet;
 
 import org.flasck.flas.Configuration;
+import org.flasck.flas.compiler.CardDataListener;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.TaskQueue;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ziniki.splitter.CardData;
+import org.ziniki.splitter.MetaEntry;
+import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.utils.FileUtils;
 
-public class Root {
+import com.google.gson.JsonObject;
+
+public class Root implements CardDataListener {
 	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
+	private final FLASLanguageClient client;
 	private final ErrorReporter errors;
 	private final TaskQueue taskQ;
 	public final URI uri;
@@ -22,7 +29,8 @@ public class Root {
 	private final TreeSet<File> files = new TreeSet<File>(new WorkspaceFileNameComparator());
 	private FLASCompiler compiler;
 
-	public Root(ErrorReporter errors, TaskQueue taskQ, URI uri) {
+	public Root(FLASLanguageClient client, ErrorReporter errors, TaskQueue taskQ, URI uri) {
+		this.client = client;
 		this.errors = errors;
 		this.taskQ = taskQ;
 		this.uri = uri;
@@ -35,7 +43,7 @@ public class Root {
 		config.includeFrom.add(new File(flasHome, "flim"));
 		config.includeFrom.add(new File(flasHome, "userflim"));
         Repository repository = new Repository();
-		compiler = new FLASCompiler(config, errors, repository);
+		compiler = new FLASCompiler(config, errors, repository, this);
 		compiler.taskQueue(taskQ);
 		taskQ.loadFLIM(uri, compiler);
 	}
@@ -62,7 +70,7 @@ public class Root {
 		}
 	}
 
-	public void compileAll(Root root) {
+	public void compileAll() {
 		for (File f : files) {
 			taskQ.submit(new CompileTask(compiler, uri.resolve(f.getPath()), null));
 		}
@@ -72,5 +80,22 @@ public class Root {
     		logger.info("Submitting file for compilation for " + uri);
     		taskQ.submit(new CompileTask(compiler, uri, text));
     	}
+	}
+
+	@Override
+	public void provideWebData(SplitMetaData md) {
+		JsonObject cards = new JsonObject();
+		for (String card : md) {
+			JsonObject fields = new JsonObject();
+			CardData cd = md.forCard(card);
+			for (MetaEntry me : cd) {
+				fields.addProperty(me.key(), me.value().toString());
+			}
+			cards.add(card, fields);
+		}
+		JsonObject send = new JsonObject();
+		send.addProperty("uri", uri.toString().replaceAll("/*$",""));
+		send.add("cards", cards);
+		client.sendCardInfo(send);
 	}
 }

@@ -4,8 +4,8 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.flasck.flas.LSPTaskQueue;
 import org.flasck.flas.compiler.TaskQueue;
@@ -28,12 +28,12 @@ public class LSPCore {
 		this.taskQ = new LSPTaskQueue();
 	}
 
-	public void addRoot(String rootUri) {
+	public void addRoot(FLASLanguageClient client, String rootUri) {
 		logger.info("opening root " + rootUri);
 		try {
 			synchronized (roots) {
 				URI uri = new URI(rootUri + "/");
-				Root root = new Root(errors, taskQ, uri);
+				Root root = new Root(client, errors, taskQ, uri);
 				if (roots.containsKey(root.root.getPath()))
 					return;
 				errors.logMessage("opening root " + root.root);
@@ -53,12 +53,14 @@ public class LSPCore {
 		synchronized (roots) {
 			for (Root root : roots.values()) {
 				root.gatherFiles();
-				root.compileAll(root);
+				root.compileAll();
 			}
 		}
 	}
 
 	public void dispatch(URI uri, String text) {
+		if (!this.readyToNotify)
+			return;
 		Root r = findRoot(uri);
 		r.dispatch(uri, text);
 	}

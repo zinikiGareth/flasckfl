@@ -35,8 +35,8 @@ public class FLASWorkspaceService implements WorkspaceService {
 	@Override
 	public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
 		switch (params.getCommand()) {
-		case "flas/readyForTokens": {
-			logger.info("received command readyForTokens");
+		case "flas/readyForNotifications": {
+			logger.info("received command readyForNotifications");
 			core.doParsing(true);
 			return CompletableFuture.completedFuture(null);
 		}
