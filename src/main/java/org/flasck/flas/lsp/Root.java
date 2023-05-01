@@ -40,6 +40,9 @@ public class Root implements CardDataListener {
 	public void configure(File flasHome) {
 		logger.info("configuring " + root + " with flas home " + flasHome);
 		Configuration config = new Configuration(errors, new String[] {});
+		config.root = this.root;
+		config.writeJS = new File(this.root, "jsout");
+		config.writeJVM = new File(this.root, "jvmout");
 		config.includeFrom.add(new File(flasHome, "flim"));
 		config.includeFrom.add(new File(flasHome, "userflim"));
         Repository repository = new Repository();
