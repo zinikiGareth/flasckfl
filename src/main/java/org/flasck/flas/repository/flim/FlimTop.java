@@ -125,4 +125,8 @@ public class FlimTop implements TDAParsing {
 		for (FlimObject fc : objects)
 			fc.resolve();
 	}
+
+	public String pkgName() {
+		return pkg;
+	}
 }

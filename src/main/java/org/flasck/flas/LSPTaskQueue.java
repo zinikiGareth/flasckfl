@@ -44,9 +44,9 @@ public class LSPTaskQueue implements TaskQueue {
 
 	@Override
 	public synchronized void readyWhenYouAre(URI uri, CompileUnit stage2) {
-		logger.info("Adding stage2 to workflow for " + uri);
 		units.add(stage2);
 		if (tasks.isEmpty()) {
+			logger.info("Adding stage2 to workflow for " + uri);
 			Set<CompileUnit> ready = new HashSet<>(units);
 			units.clear();
 			exec.execute(new Runnable() {

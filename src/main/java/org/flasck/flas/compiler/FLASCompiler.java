@@ -74,6 +74,7 @@ import org.flasck.jvm.assembly.CardInitializer;
 import org.flasck.jvm.assembly.FLASAssembler;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.flasck.jvm.ziniki.FileContentObject;
+import org.flasck.jvm.ziniki.MemoryContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,7 +132,7 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public void lspLoadFLIM(URI uri) {
-		logger.info("lspLoadFLIM from " + uri);
+		logger.info("lspLoadFLIM for workspace " + uri);
 		errors.beginPhase1(uri);
 		loadFLIMFromFiles();
 		errors.doneProcessing(brokenUris);
@@ -264,33 +265,38 @@ public class FLASCompiler implements CompileUnit {
 	public void parse(URI uri, String text) {
 		logger.info("Compiling " + uri);
 		errors.beginPhase1(uri);
-		parseOne(uri);
+		parseOne(uri, text);
 		repository.done();
 		errors.doneProcessing(brokenUris);
 		tasks.readyWhenYouAre(uri, this);
 	}
 
-	private void parseOne(URI uri) {
+	private void parseOne(URI uri, String text) {
 		repository.parsing(uri);
 		File file = new File(uri.getPath());
 		String inPkg = file.getParentFile().getName();
 		String name = file.getName();
 		String type = FileUtils.extension(name);
 
+		ContentObject co;
+		if (text != null)
+			co = new MemoryContentObject(file, text.getBytes());
+		else
+			co = new FileContentObject(file);
 		if (type == null) {
 			errors.logMessage("could not compile " + inPkg + "/" + file);
 			return;
 		}
 		switch (type) {
 		case ".fl":
-			parseFL(file, inPkg, name);
+			parseFL(file, inPkg, name, co);
 			break;
 		case ".ut":
 			break;
 		case ".st":
 			break;
 		case ".fa":
-			parseFA(file, inPkg, name);
+			parseFA(file, inPkg, name, co);
 			break;
 		default:
 			errors.logMessage("could not compile " + inPkg + "/" + file);
@@ -298,16 +304,16 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
-	private void parseFL(File file, String inPkg, String name) {
+	private void parseFL(File file, String inPkg, String name, ContentObject fileCO) {
 		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository, modules);
 		errors.logMessage("compiling " + name + " in " + inPkg);
-		flp.process(new FileContentObject(file));
+		flp.process(fileCO);
 	}
 
-	private void parseFA(File file, String inPkg, String name) {
+	private void parseFA(File file, String inPkg, String name, ContentObject fileCO) {
 		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
 		errors.logMessage("compiling " + file.getName() + " in " + inPkg);
-		fap.process(new FileContentObject(file));
+		fap.process(fileCO);
 	}
 
 	public void attemptRest(URI uri) {
@@ -315,7 +321,7 @@ public class FLASCompiler implements CompileUnit {
 		// if there were previously files that were corrupt, try compiling them again
 		List<URI> broken = new ArrayList<>(this.brokenUris);
 		for (URI b : broken) {
-			parseOne(b);
+			parseOne(b, null); // TODO: should probably have cache of files that are "owned" by LSP
 		}
 
 		// If some are still broken, we cannot proceed

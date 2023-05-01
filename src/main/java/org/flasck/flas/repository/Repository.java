@@ -77,12 +77,14 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
 	private final List<SplitMetaData> webs = new ArrayList<>();
 	private final Map<URI, List<String>> uriDefines = new TreeMap<>();
+	private final Map<String, List<String>> flimDefines = new TreeMap<>();
 	private List<String> currentDefines;
 	
 	public Repository() {
 	}
 
 	public void parsing(URI uri) {
+		// Remove anything previously defined by compiling this file
 		List<String> curr = uriDefines.get(uri);
 		if (curr == null) {
 			currentDefines = new ArrayList<>();
@@ -91,6 +93,41 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			while (!curr.isEmpty()) {
 				dict.remove(curr.remove(0));
 			}
+			currentDefines = curr;
+		}
+		
+		// Remove anything defined by FLIM
+		String fn = uri.getPath();
+		File f = new File(fn);
+		String pkg = f.getParentFile().getName(); // the package name associated with a file
+		curr = flimDefines.get(pkg);
+		if (curr != null) {
+			while (!curr.isEmpty()) {
+				dict.remove(curr.remove(0));
+			}
+			flimDefines.remove(pkg);
+		}
+	}
+
+	public void readingFLIM(String pkg) {
+		List<String> curr = flimDefines.get(pkg);
+		if (curr == null) {
+			currentDefines = new ArrayList<>();
+			flimDefines.put(pkg, currentDefines);
+		} else {
+			while (!curr.isEmpty()) {
+				dict.remove(curr.remove(0));
+			}
+			currentDefines = curr;
+		}
+	}
+
+	public void selectPackage(String pkg) {
+		List<String> curr = flimDefines.get(pkg);
+		if (curr == null) { // I don't really think this can happen
+			currentDefines = new ArrayList<>();
+			flimDefines.put(pkg, currentDefines);
+		} else {
 			currentDefines = curr;
 		}
 	}

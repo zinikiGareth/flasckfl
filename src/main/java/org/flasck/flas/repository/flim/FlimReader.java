@@ -35,7 +35,7 @@ public class FlimReader {
 
 	public void read(DirectedAcyclicGraph<String> pkgs, File flimdir, List<File> butNot) {
 		if (!flimdir.exists()) {
-			logger.info("cannot read flim dir " + flimdir);
+			logger.warn("cannot read flim dir " + flimdir);
 			return;
 		}
 		
@@ -55,6 +55,8 @@ public class FlimReader {
 		for (File f : FileUtils.findFilesMatching(flimdir, "*.flim")) {
 			String name = FileUtils.dropExtension(f.getName());
 			if (!ignore.contains(name)) {
+				logger.info("reading flim file for " + name + " from " + f);
+				repository.readingFLIM(name);
 				FlimTop importer = importFlim(f, name);
 				if (importer == null)
 					continue;
@@ -70,6 +72,7 @@ public class FlimReader {
 			return;
 		
 		for (FlimTop ft : importers) {
+			repository.selectPackage(ft.pkgName());
 			ft.resolve();
 		}
 	}
