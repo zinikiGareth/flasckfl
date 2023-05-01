@@ -24,7 +24,7 @@ public class Phase2Handler extends DiagnosticHandler implements LSPErrorHandler 
 
 	@Override
 	public void handle(FLASError e) {
-		logger.info("saw phase2 error: " + e + " for " + workspaceUri);
+		logger.info("handling phase 2 error " + e);
         Diagnostic diagnostic = makeDiagnostic(workspaceUri, e);
         URI uri = workspaceUri;
         if (e.loc != null && e.loc.file != null) {
@@ -38,7 +38,7 @@ public class Phase2Handler extends DiagnosticHandler implements LSPErrorHandler 
 		for (URI uri : diagnostics.keySet()) {
 			List<Diagnostic> report = diagnostics.get(uri);
 			if (!report.isEmpty()) {
-				logger.info("need to report phase 2 diagnostics for " + uri);
+				logger.info("reporting phase 2 diagnostics for " + uri);
 				broken.add(uri);
 				synchronized (client) {
 					client.publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), report));

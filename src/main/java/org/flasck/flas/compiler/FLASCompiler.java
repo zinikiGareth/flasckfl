@@ -107,6 +107,7 @@ public class FLASCompiler implements CompileUnit {
 	private ByteCodeEnvironment bce;
 	private JSUploader uploader;
 	private CardDataListener cardDataListener;
+	private Map<URI, String> textCache = new TreeMap<>();
 
 	public FLASCompiler(Configuration config, ErrorReporter errors, Repository repository, CardDataListener cardDataListener) {
 		logger.info("initializing FLASCompiler");
@@ -279,9 +280,10 @@ public class FLASCompiler implements CompileUnit {
 		String type = FileUtils.extension(name);
 
 		ContentObject co;
-		if (text != null)
+		if (text != null) {
+			textCache.put(uri, text);
 			co = new MemoryContentObject(file, text.getBytes());
-		else
+		} else
 			co = new FileContentObject(file);
 		if (type == null) {
 			errors.logMessage("could not compile " + inPkg + "/" + file);
@@ -321,7 +323,12 @@ public class FLASCompiler implements CompileUnit {
 		// if there were previously files that were corrupt, try compiling them again
 		List<URI> broken = new ArrayList<>(this.brokenUris);
 		for (URI b : broken) {
-			parseOne(b, null); // TODO: should probably have cache of files that are "owned" by LSP
+			if (b.equals(uri))
+				continue;
+			if (textCache.containsKey(b))
+				parseOne(b, textCache.get(b));
+			else
+				parseOne(b, null);
 		}
 
 		// If some are still broken, we cannot proceed
