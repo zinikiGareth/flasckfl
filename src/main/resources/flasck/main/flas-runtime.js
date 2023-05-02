@@ -2436,6 +2436,13 @@ FLBuiltin.strlen = function(_cxt, str) {
 
 FLBuiltin.strlen.nfargs = function() { return 1; }
 
+FLBuiltin.isNull = function(_cxt, a) {
+	a = _cxt.full(a);
+	return a == null || a == undefined;
+}
+
+FLBuiltin.isNull.nfargs = function() { return 1; }
+
 FLBuiltin.isEqual = function(_cxt, a, b) {
 	a = _cxt.full(a);
 	b = _cxt.full(b);

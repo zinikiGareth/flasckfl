@@ -640,7 +640,11 @@ public class LoadBuiltins {
 	/* Functions */
 	
 	// Builtin operators
-	
+
+	// test for null/undefined
+	public static final FunctionDefinition isNull = new FunctionDefinition(FunctionName.function(pos, null, "isNull"), 1, null).dontGenerate();
+	// TODO: test for the more nebulous concept of Falsy?
+
 	//   -> comparisons
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, null).dontGenerate();
 	public static final FunctionDefinition isNotEqual = new FunctionDefinition(FunctionName.function(pos, null, "<>"), 2, null).dontGenerate();
@@ -649,6 +653,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition isLE = new FunctionDefinition(FunctionName.function(pos, null, "<="), 2, null).dontGenerate();
 	public static final FunctionDefinition isLT = new FunctionDefinition(FunctionName.function(pos, null, "<"), 2, null).dontGenerate();
 	static {
+		isNull.bindType(new Apply(any, bool));
 		{
 			Type pa = new PolyType(pos, new SolidName(isEqual.name(), "A"));
 			isEqual.bindType(new Apply(pa, pa, bool));
@@ -851,6 +856,7 @@ public class LoadBuiltins {
 
 		repository.newStruct(errors, link);
 
+		repository.functionDefn(errors, isNull);
 		repository.functionDefn(errors, isEqual);
 		repository.functionDefn(errors, isNotEqual);
 		repository.functionDefn(errors, isGE);
