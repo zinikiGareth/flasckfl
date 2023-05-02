@@ -30,6 +30,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -236,7 +237,7 @@ public class RepositoryTests {
 	public void canAddAnObjectCtorToTheRepository() {
 		Repository r = new Repository();
 		final SolidName on = new SolidName(pkg, "Obj");
-		ObjectCtor ctor = new ObjectCtor(pos, null, FunctionName.objectCtor(pos, on, "simple"), new ArrayList<>());
+		ObjectActionHandler ctor = new ObjectCtor(pos, null, FunctionName.objectCtor(pos, on, "simple"), new ArrayList<>());
 		r.newObjectMethod(errors, ctor);
 		assertEquals(ctor, r.get("test.repo.Obj._ctor_simple"));
 	}

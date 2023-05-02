@@ -37,6 +37,7 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.IntroduceVar;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -428,7 +429,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			throw new NotImplementedException("cannot handle elt " + expr.from.getClass());
 		if (defn instanceof ObjectDefn) {
 			ObjectDefn od = (ObjectDefn) defn;
-			ObjectCtor ctor = od.getConstructor(var);
+			ObjectActionHandler ctor = od.getConstructor(var);
 			if (ctor == null) {
 				errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " does not have a ctor " + var);
 				return;
@@ -647,6 +648,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 				return;
 			}
 		}
+		
+		if (ref.isDynamic()) {
+			throw new NotImplementedException();
+		}
+		
 		if (!(defn instanceof NamedType)) {
 			errors.message(ref.location(), defn.name().uniqueName() + " is not a type");
 			return;

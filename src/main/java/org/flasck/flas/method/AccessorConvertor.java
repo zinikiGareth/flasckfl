@@ -12,7 +12,7 @@ import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeSend;
-import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -158,7 +158,7 @@ public class AccessorConvertor extends LeafAdapter {
 		} else if (defn instanceof ObjectDefn) {
 			// it's actually a ctor not an accessor
 			ObjectDefn od = (ObjectDefn) defn;
-			ObjectCtor ctor = od.getConstructor(meth.var);
+			ObjectActionHandler ctor = od.getConstructor(meth.var);
 			if (ctor == null)
 				throw new CantHappenException("no constructor " + ctor);
 			UnresolvedVar cv = new UnresolvedVar(from.location(), meth.var);

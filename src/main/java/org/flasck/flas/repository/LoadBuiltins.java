@@ -447,8 +447,8 @@ public class LoadBuiltins {
 	//   -> ctor Image.asset
 	private static ObjectCtor imageAsset;
 	static {
-		FunctionName ctorFrom = FunctionName.objectCtor(pos, image.name(), "asset");
-		imageAsset = new ObjectCtor(pos, image, ctorFrom, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, ctorFrom, "asset"))));
+		FunctionName ctorAsset = FunctionName.objectCtor(pos, image.name(), "asset");
+		imageAsset = new ObjectCtor(pos, image, ctorAsset, Arrays.asList(new TypedPattern(pos, stringTR, new VarName(pos, ctorAsset, "asset"))));
 		imageAsset.dontGenerate();
 		imageAsset.bindType(new Apply(string, image));
 		image.addConstructor(imageAsset);
@@ -457,8 +457,8 @@ public class LoadBuiltins {
 	//   -> ctor Image.uri
 	private static ObjectCtor imageUri;
 	static {
-		FunctionName ctorFrom = FunctionName.objectCtor(pos, image.name(), "uri");
-		imageUri = new ObjectCtor(pos, image, ctorFrom, Arrays.asList(new TypedPattern(pos, uriTR, new VarName(pos, ctorFrom, "uri"))));
+		FunctionName ctorUri = FunctionName.objectCtor(pos, image.name(), "uri");
+		imageUri = new ObjectCtor(pos, image, ctorUri, Arrays.asList(new TypedPattern(pos, uriTR, new VarName(pos, ctorUri, "uri"))));
 		imageUri.dontGenerate();
 		imageUri.bindType(new Apply(uri, image));
 		image.addConstructor(imageUri);
@@ -476,8 +476,9 @@ public class LoadBuiltins {
 	private static ObjectCtor htmlFrom;
 	static {
 		FunctionName ctorFrom = FunctionName.objectCtor(pos, html.name(), "from");
-		htmlFrom = new ObjectCtor(pos, html, ctorFrom, Arrays.asList(new TypedPattern(pos, new TypeReference(pos, "AjaxMessage"), new VarName(pos, ctorFrom, "msg"))));
+		htmlFrom = new ObjectCtor(pos, html, ctorFrom, Arrays.asList(new TypedPattern(pos, new TypeReference(pos, "AjaxMessage").bindDynamically(), new VarName(pos, ctorFrom, "msg"))));
 		htmlFrom.dontGenerate();
+		htmlFrom.dynamicallyType();
 		// We cannot bind the type here because it depends on the stdlib
 		// See afterFLIM below
 		html.addConstructor(htmlFrom);
@@ -914,15 +915,5 @@ public class LoadBuiltins {
 		ServiceLoader<ProvideBuiltins> modules = ServiceLoader.load(ProvideBuiltins.class);
 		for (ProvideBuiltins pb : modules)
 			pb.applyTo(errors, repository);
-	}
-	
-	// There is a "logical" issue here that htmlFrom is static, whereas the definition of AjaxMessage is dynamic
-	// I *think* this is only a problem for tests, but (more worryingly) may be an issue for server compilers as well.
-	public static void afterFLIM(ErrorReporter errors, Repository repository) {
-		RepositoryEntry am = repository.get("AjaxMessage");
-		htmlFrom.clearType();
-		if (am != null) {
-			htmlFrom.bindType(new Apply((Type)am, html));
-		}
 	}
 }

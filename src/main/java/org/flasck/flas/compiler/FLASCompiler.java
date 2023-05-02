@@ -153,7 +153,6 @@ public class FLASCompiler implements CompileUnit {
 			if (errors.hasErrors())
 				return true;
 		}
-		LoadBuiltins.afterFLIM(errors, repository);
 		return false;
 	}
 
@@ -174,7 +173,6 @@ public class FLASCompiler implements CompileUnit {
 		if (errors.hasErrors())
 			return;
 		
-		LoadBuiltins.afterFLIM(errors, repository);
 		for (FlimTop ft : importers) {
 			ft.resolve();
 		}

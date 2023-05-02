@@ -20,7 +20,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyHolder;
@@ -125,9 +125,9 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 				}
 				return;
 			}
-			ObjectCtor ctor = od.getConstructor(fld.var);
+			ObjectActionHandler ctor = od.getConstructor(fld.var);
 			if (ctor != null) {
-				announce(expr, ctor.type());
+				announce(expr, ctor.resolveType(repository));
 				return;
 			}
 			ObjectMethod meth = od.getMethod(fld.var);

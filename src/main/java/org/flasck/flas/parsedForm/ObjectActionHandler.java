@@ -18,9 +18,12 @@ import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.FunctionHSICases;
 import org.flasck.flas.repository.HSICases;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public abstract class ObjectActionHandler extends ObjectMessagesHolder implements Locatable, MethodMessagesConsumer, GuardedMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder, TypeBinder {
@@ -34,6 +37,7 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	private List<FunctionIntro> convertedIntros;
 	private NestedVarReader nestedVars;
 	private boolean reportHolder;
+	private boolean dynamicType = false;
 
 	public ObjectActionHandler(InputPosition location, FunctionName name, List<Pattern> args) {
 		this.location = location;
@@ -156,11 +160,6 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 		return convertedIntros;
 	}
 
-	// Used to handle replacing types in statics
-	public void clearType() {
-		this.type = null;
-	}
-	
 	public void bindType(Type ty) {
 		if (this.type != null)
 			throw new RuntimeException("Cannot bind type of " + this.name + " more than once");
@@ -172,11 +171,39 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	}
 	
 	public Type type() {
+		if (this.dynamicType) {
+			throw new CantHappenException("To resolve dynamic types, use resolveType");
+		}
 		if (this.type == null)
 			throw new RuntimeException("Type not bound for " + name.uniqueName());
 		return this.type;
 	}
 
+	public void dynamicallyType() {
+		this.dynamicType  = true;
+	}
+
+	public Type resolveType(RepositoryReader repository) {
+		if (!dynamicType) {
+			return type();
+		}
+		if (this.args.isEmpty()) {
+			return this.getObject();
+		} else {
+			ArrayList<Type> types = new ArrayList<>();
+			for (Pattern p : this.args) {
+				if (p instanceof TypedPattern) {
+					TypedPattern tp  = (TypedPattern) p;
+					types.add(tp.type.resolveType(repository));
+				} else
+					throw new NotImplementedException("not a typed pattern");
+				
+			}
+			types.add(this.getObject());
+			return new Apply(types);
+		}
+	}
+	
 	public void reportHolderInArgCount() {
 		reportHolder = true;
 	}

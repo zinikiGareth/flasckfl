@@ -60,8 +60,8 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 		return null;
 	}
 
-	public ObjectCtor getConstructor(String called) {
-		for (ObjectCtor ret : ctors)
+	public ObjectActionHandler getConstructor(String called) {
+		for (ObjectActionHandler ret : ctors)
 			if (ret.name().name.equals("_ctor_" + called))
 				return ret;
 		

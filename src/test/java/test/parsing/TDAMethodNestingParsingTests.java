@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parser.ObjectElementsConsumer;
@@ -51,7 +52,7 @@ public class TDAMethodNestingParsingTests {
 		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("<- ds.getReady"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("x <- 'hello'"));
-		final ObjectCtor ctor = (ObjectCtor) captureIt.get(0);
+		final ObjectActionHandler ctor = (ObjectActionHandler) captureIt.get(0);
 		assertEquals(2, ctor.messages().size());
 	}
 

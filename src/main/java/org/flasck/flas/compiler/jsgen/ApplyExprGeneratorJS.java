@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -116,7 +117,7 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof ObjectCtor) {
 			stack.add(1, state.container(new PackageName("_DisplayUpdater")));
 			expArgs++;
-			expArgs += ((ObjectCtor)defn).getObject().contracts.size();
+			expArgs += ((ObjectActionHandler)defn).getObject().contracts.size();
 		}
 		
 		// Then divided and conquer for special cases ...

@@ -5,7 +5,11 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeReference implements Expr {
@@ -13,6 +17,7 @@ public class TypeReference implements Expr {
 	private String name;
 	private List<TypeReference> polys;
 	private NamedType definition;
+	private boolean dynamic;
 
 	public TypeReference(InputPosition location, String name, TypeReference... polys) {
 		this(location, name, Arrays.asList(polys));
@@ -48,11 +53,33 @@ public class TypeReference implements Expr {
 	}
 
 	public TypeReference bind(NamedType ty) {
+		if (dynamic)
+			throw new CantHappenException("you cannot bind a dynamic type directly");
 		definition = ty;
 		return this;
 	}
 
 	public NamedType defn() {
+		if (dynamic)
+			throw new CantHappenException("you need to access dynamic type references with resolveType");
 		return definition;
+	}
+
+	public boolean isDynamic() {
+		return dynamic;
+	}
+
+	public TypeReference bindDynamically() {
+		this.dynamic = true;
+		return this;
+	}
+
+	public Type resolveType(RepositoryReader repository) {
+		if (!dynamic) {
+			throw new CantHappenException("no, this should be bound statically");
+		}
+		if (!polys.isEmpty())
+			throw new HaventConsideredThisException("resolving type with polys");
+		return repository.get(name);
 	}
 }
