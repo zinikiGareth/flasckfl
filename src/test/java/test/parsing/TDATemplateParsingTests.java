@@ -1,10 +1,9 @@
 package test.parsing;
 
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -156,7 +155,7 @@ public class TDATemplateParsingTests {
 		final TemplateBindingOption db = ((TemplateBinding)captureIt.get(0)).defaultBinding;
 		assertNotNull(db);
 		assertNull(db.cond);
-		assertThat(db.expr, is(ExprMatcher.unresolved("obj")));
+		assertThat(db.expr, ExprMatcher.unresolved("obj"));
 	}
 
 	@Test
@@ -172,8 +171,8 @@ public class TDATemplateParsingTests {
 		assertEquals(1, binding.conditionalBindings.size());
 		assertNull(binding.defaultBinding);
 		TemplateBindingOption db = binding.conditionalBindings.get(0);
-		assertThat(db.cond, is(ExprMatcher.unresolved("true")));
-		assertThat((StringLiteral)db.expr, is(new StringLiteralMatcher("hello")));
+		assertThat(db.cond, ExprMatcher.unresolved("true"));
+		assertThat((StringLiteral)db.expr, new StringLiteralMatcher("hello"));
 		assertNull(db.sendsTo);
 	}
 
@@ -242,9 +241,9 @@ public class TDATemplateParsingTests {
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(1, binding.conditionalStylings.size());
 		TemplateStylingOption db = binding.conditionalStylings.get(0);
-		assertThat(db.cond, is(ExprMatcher.unresolved("true")));
+		assertThat(db.cond, ExprMatcher.unresolved("true"));
 		assertEquals(1, db.styles.size());
-		assertThat((StringLiteral)db.styles.get(0), is(new StringLiteralMatcher("style1")));
+		assertThat((StringLiteral)db.styles.get(0), new StringLiteralMatcher("style1"));
 	}
 
 	@Test
@@ -262,9 +261,9 @@ public class TDATemplateParsingTests {
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(1, binding.defaultBinding.conditionalStylings.size());
 		TemplateStylingOption db = binding.defaultBinding.conditionalStylings.get(0);
-		assertThat(db.cond, is(ExprMatcher.unresolved("true")));
+		assertThat(db.cond, ExprMatcher.unresolved("true"));
 		assertEquals(1, db.styles.size());
-		assertThat((StringLiteral)db.styles.get(0), is(new StringLiteralMatcher("style1")));
+		assertThat((StringLiteral)db.styles.get(0), new StringLiteralMatcher("style1"));
 	}
 
 	@Test
