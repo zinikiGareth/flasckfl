@@ -20,6 +20,8 @@ public class Configuration {
 	public final ErrorReporter errors;
 	public boolean unitjvm = true, unitjs = true;
 	public boolean systemjvm = true, systemjs = true;
+	public boolean nowritejs = false, nowritejvm = false;
+	public boolean usesplitter = true;
 	public final List<File> readFlims = new ArrayList<>();
 	public File root;
 	public boolean doTypeCheck = true;
@@ -221,6 +223,8 @@ public class Configuration {
 	}
 
 	public File jvmDir() {
+		if (nowritejvm)
+			return null;
 		if (writeJVM != null)
 			return writeJVM;
 		else if (root != null)
@@ -230,6 +234,8 @@ public class Configuration {
 	}
 
 	public File jsDir() {
+		if (nowritejs)
+			return null;
 		if (writeJS != null)
 			return writeJS;
 		else if (root != null)

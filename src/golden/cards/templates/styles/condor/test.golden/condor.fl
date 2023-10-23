@@ -1,0 +1,7 @@
+	card OrStyle
+		state
+			Boolean urgent <- False
+
+		template message
+			styleme <- 'hello, world'
+				| urgent => 'notice-me' || 'ignore-me'

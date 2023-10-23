@@ -120,6 +120,7 @@ src/golden/cards/templates/eventsoncard
 src/golden/cards/templates/functions/card
 src/golden/cards/templates/listlist
 src/golden/cards/templates/message
+src/golden/cards/templates/booleanValues
 src/golden/cards/templates/multipleTargets
 src/golden/cards/templates/nested/different
 src/golden/cards/templates/nested/levels
@@ -134,6 +135,7 @@ src/golden/cards/templates/styles/expr
 src/golden/cards/templates/styles/blankname
 src/golden/cards/templates/styles/complex
 src/golden/cards/templates/styles/cond
+src/golden/cards/templates/styles/condor
 src/golden/cards/templates/styles/events
 src/golden/cards/templates/styles/eventsmulti
 src/golden/cards/templates/styles/eventsonly
@@ -190,4 +192,3 @@ src/golden/subscriptions/cancelling/namedTop
 src/golden/subscriptions/cancelling/namedNested
 src/golden/unittests/ignore
 src/golden/subscriptions/cancelling/namedHierarchy
-src/golden/cards/templates/booleanValues

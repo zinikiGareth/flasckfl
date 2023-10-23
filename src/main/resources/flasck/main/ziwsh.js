@@ -977,7 +977,7 @@ const ZiwshWebClient = function(logger, factory, uri) {
     if (uri) {
         this.connectTo(uri);
     }
-    logger.log("created ZWC");
+    logger.log("created ZWC with uri", uri);
 }
 
 ZiwshWebClient.prototype.connectTo = function(uri) {

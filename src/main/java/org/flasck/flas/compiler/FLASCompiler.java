@@ -114,10 +114,17 @@ public class FLASCompiler implements CompileUnit {
 		this.config = config;
 		this.errors = errors;
 		this.repository = repository;
-		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
+		if (this.config.usesplitter) {
+			this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
+		} else
+			this.splitter = null;
 		this.modules = ServiceLoader.load(ParserModule.class);
 		this.completeModules = ServiceLoader.load(CompilerComplete.class);
 		this.cardDataListener = cardDataListener;
+	}
+	
+	public BCEClassLoader classLoader() {
+		return new BCEClassLoader(bce);
 	}
 	
 	public void uploader(JSUploader loader) {
@@ -635,6 +642,9 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public boolean runUnitTests(Configuration config, Map<File, TestResultWriter> writers) {
+		if (!(config.generateJVM && config.unitjvm) && !(config.generateJS && config.unitjs))
+			return errors.hasErrors();
+		
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
 		if (config.generateJVM && config.unitjvm) {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
@@ -667,6 +677,9 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public boolean runSystemTests(Configuration config, Map<File, TestResultWriter> writers) {
+		if (!(config.generateJVM && config.systemjvm) && !(config.generateJS && config.systemjs))
+			return errors.hasErrors();
+		
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
 		BCEClassLoader bcl = null;
 		if (config.generateJVM && config.systemjvm) {

@@ -673,6 +673,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, null).dontGenerate();
 	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, null).dontGenerate();
 	public static final FunctionDefinition mod = new FunctionDefinition(FunctionName.function(pos, null, "%"), 2, null).dontGenerate();
+	public static final FunctionDefinition round = new FunctionDefinition(FunctionName.function(pos, null, "round"), 1, null).dontGenerate();
 	static {
 		plus.bindType(new Apply(number, number, number));
 		unaryMinus.bindType(new Apply(number, number));
@@ -680,6 +681,7 @@ public class LoadBuiltins {
 		mul.bindType(new Apply(number, number, number));
 		div.bindType(new Apply(number, number, number));
 		mod.bindType(new Apply(number, number, number));
+		round.bindType(new Apply(number, number));
 	}	
 	
 	//   -> boolean
@@ -871,6 +873,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, mul);
 		repository.functionDefn(errors, div);
 		repository.functionDefn(errors, mod);
+		repository.functionDefn(errors, round);
 
 		repository.functionDefn(errors, not);
 		repository.functionDefn(errors, and);
