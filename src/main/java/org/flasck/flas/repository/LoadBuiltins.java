@@ -107,7 +107,7 @@ public class LoadBuiltins {
 	
 	/* Primitives related to time & date */
 	
-	//   -> Instant (a specific moment in the history of the universe)
+	//   -> Instant (a specific moment in the history of the universe, although not corrected for relativistic effects)
 	public static final TypeReference instantTR = new TypeReference(pos, "Instant");
 	public static final Primitive instant = new Primitive(pos, "Instant");
 	static {
@@ -119,6 +119,13 @@ public class LoadBuiltins {
 	public static final Primitive interval = new Primitive(pos, "Interval");
 	static {
 		intervalTR.bind(interval);
+	}
+
+	//   -> Date (a Gregorian date, including the "concepts" of year, month, day, day-of-week, etc)
+	public static final TypeReference dateTR = new TypeReference(pos, "Date");
+	public static final Primitive date = new Primitive(pos, "Date");
+	static {
+		dateTR.bind(date);
 	}
 
 	/* Weird things that need to exist and therefore feel "Primitive" */
@@ -616,6 +623,18 @@ public class LoadBuiltins {
 		isodatetime.bindType(new Apply(instant, string));
 		calendar.addAccessor(calendarIsoDateTime);
 	}
+
+	//   -> acor Calendar.parseIsoDate
+	private static ObjectAccessor calendarParseIsoDate;
+	static {
+		FunctionName pidt = FunctionName.objectMethod(pos, calendar.name(), "parseIsoDate");
+		FunctionDefinition pidtFn = new FunctionDefinition(pidt, 1, null);
+		calendarParseIsoDate = new ObjectAccessor(calendar, pidtFn);
+		calendarParseIsoDate.dontGenerate();
+		pidtFn.bindType(new Apply(string, date));
+		calendar.addAccessor(calendarParseIsoDate);
+	}
+	
 	//   -> acor Calendar.parseIsoDateTime
 	private static ObjectAccessor calendarParseIsoDateTime;
 	static {
@@ -626,7 +645,6 @@ public class LoadBuiltins {
 		pidtFn.bindType(new Apply(string, instant));
 		calendar.addAccessor(calendarParseIsoDateTime);
 	}
-	
 
 	// Types
 	public static final TypeReference typeTR = new TypeReference(pos, "Type");
@@ -799,6 +817,7 @@ public class LoadBuiltins {
 		repository.addEntry(errors, uri.name(), uri);
 		repository.addEntry(errors, interval.name(), interval);
 		repository.addEntry(errors, instant.name(), instant);
+		repository.addEntry(errors, date.getName(), date);
 		repository.newStruct(errors, type);
 
 		repository.addEntry(errors, falseT.name(), falseT);
@@ -840,6 +859,7 @@ public class LoadBuiltins {
 		repository.newObject(errors, calendar);
 		repository.newObjectMethod(errors, calendarGregorian);
 		repository.newObjectAccessor(errors, calendarIsoDateTime);
+		repository.newObjectAccessor(errors, calendarParseIsoDate);
 		repository.newObjectAccessor(errors, calendarParseIsoDateTime);
 
 		repository.newContract(errors, crobagWindowHandler);
