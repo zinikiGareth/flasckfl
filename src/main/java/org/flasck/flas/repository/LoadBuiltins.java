@@ -645,6 +645,11 @@ public class LoadBuiltins {
 		pidtFn.bindType(new Apply(string, instant));
 		calendar.addAccessor(calendarParseIsoDateTime);
 	}
+	
+	public static final FunctionDefinition getYear = new FunctionDefinition(FunctionName.function(pos, null, "getYear"), 1, null).dontGenerate();
+	static {
+		getYear.bindType(new Apply(date, number));
+	}
 
 	// Types
 	public static final TypeReference typeTR = new TypeReference(pos, "Type");
@@ -716,6 +721,12 @@ public class LoadBuiltins {
 	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null).dontGenerate();
 	static {
 		concat.bindType(new Apply(string, string, string));
+	}	
+
+	//   -> string to number
+	public static final FunctionDefinition numberFromString = new FunctionDefinition(FunctionName.function(pos, null, "numberFromString"), 1, null).dontGenerate();
+	static {
+		numberFromString.bindType(new Apply(string, number));
 	}	
 
 	//   -> syntax support
@@ -861,6 +872,7 @@ public class LoadBuiltins {
 		repository.newObjectAccessor(errors, calendarIsoDateTime);
 		repository.newObjectAccessor(errors, calendarParseIsoDate);
 		repository.newObjectAccessor(errors, calendarParseIsoDateTime);
+		repository.functionDefn(errors, getYear);
 
 		repository.newContract(errors, crobagWindowHandler);
 		repository.newContract(errors, crobagSlideWindow);
@@ -900,6 +912,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, or);
 		
 		repository.functionDefn(errors, concat);
+		repository.functionDefn(errors, numberFromString);
 
 		repository.functionDefn(errors, makeTuple);
 		repository.functionDefn(errors, handleSend);
