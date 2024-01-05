@@ -16,6 +16,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.jsgen.packaging.JSUploader;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.repository.AssemblyVisitor;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.ContentObject;
@@ -46,7 +47,7 @@ public class Main {
 		System.exit(failed?1:0);
 	}
 
-	public static boolean standardCompiler(String... args) throws IOException {
+	public static boolean standardCompiler(String... args) throws IOException, ErrorResultException {
 		ErrorResult errors = new ErrorResult();
 		Configuration config = new Configuration(errors, args);
 		if (!config.preCompilation())
@@ -83,7 +84,7 @@ public class Main {
 		return errors.hasErrors();
 	}
 
-	private static FLASCompiler commonCompiler(ErrorResult errors, Configuration config) throws IOException, FileNotFoundException {
+	private static FLASCompiler commonCompiler(ErrorResult errors, Configuration config) throws IOException, FileNotFoundException, ErrorResultException {
 		FLASCompiler compiler = doCompilation(errors, config);
 		if (errors.hasErrors()) {
 			Writer osw;
@@ -98,7 +99,7 @@ public class Main {
 		return compiler;
 	}
 
-	private static FLASCompiler doCompilation(ErrorResult errors, Configuration config) throws IOException, FileNotFoundException {
+	private static FLASCompiler doCompilation(ErrorResult errors, Configuration config) throws IOException, FileNotFoundException, ErrorResultException {
 		if (errors.hasErrors()) {
 			return null;
 		}

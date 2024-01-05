@@ -42,6 +42,7 @@ import org.flasck.flas.compiler.modules.ParserModule;
 import org.flasck.flas.compiler.templates.EventBuilder;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.EventHolder;
@@ -185,7 +186,7 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
-	public PackageSources processInputFromDirectory(File input) {
+	public PackageSources processInputFromDirectory(File input) throws ErrorResultException {
 		if (!input.isDirectory()) {
 			errors.message((InputPosition) null, "there is no input directory " + input);
 			return null;
@@ -196,7 +197,7 @@ public class FLASCompiler implements CompileUnit {
 			return sources;
 		} catch (Throwable ex) {
 			reportException(ex);
-			return null;
+			throw new ErrorResultException(errors);
 		}
 	}
 
