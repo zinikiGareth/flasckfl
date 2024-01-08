@@ -37,6 +37,7 @@ public class TDAStructFieldParser implements TDAParsing {
 				errors.message(toks, "field must have a valid type definition");
 				return new IgnoreNestedParser();
 			}
+			type = types.get(0);
 		}
 		ValidIdentifierToken field = VarNameToken.from(toks);
 		if (field == null) {
