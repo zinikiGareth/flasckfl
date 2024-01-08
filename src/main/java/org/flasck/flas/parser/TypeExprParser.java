@@ -3,35 +3,75 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
-import org.flasck.flas.parsedForm.TupleTypeReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeExprToken;
 
-// TODO: this isn't actually TDA ...
 public class TypeExprParser {
-	public Object tryParsing(Tokenizable line) {
+	private ErrorReporter errors;
+	
+	public TypeExprParser(ErrorReporter errors) {
+		this.errors = errors;
+	}
+	
+	public void tryParsing(Tokenizable line, TDAProvideType pt) {
 		TypeExprToken tt = TypeExprToken.from(line);
 		if (tt == null)
-			return null; // not even a valid token (or line ended)
+			return; // not even a valid token (or line ended)
+		TypeReference curr = null;
 		if (tt.type == TypeExprToken.NAME) {
+			curr = new TypeReference(tt.location, tt.text);
+		} else {
+			errors.message(tt.location, "invalid type reference");
+//			throw new NotImplementedException("handle ORB at least");
+			return;
+		}
+		
+//		int mark = line.at();
+		TypeExprToken nt = TypeExprToken.from(line);
+		if (nt == null) { // we have reached the end of the line
+			pt.provide(curr);
+			return;
+		}
+
+		// polys go here
+		
+		// now try a function
+		if (nt.type == TypeExprToken.ARROW) {
+			List<TypeReference> trs = new ArrayList<>();
+			tryParsing(line, x -> trs.add(x));
+			if (trs.isEmpty()) {
+				return;
+			} else {
+				TypeReference restr = trs.get(0);
+				List<TypeReference> args;
+				if (restr instanceof FunctionTypeReference) {
+					FunctionTypeReference resf = (FunctionTypeReference) restr;
+					args = new ArrayList<TypeReference>(resf.args);
+				} else {
+					args = new ArrayList<TypeReference>();
+					args.add(restr);
+				}
+				args.add(0, curr);
+				curr = new FunctionTypeReference(curr.location(), args);
+			}
+		}
+	
+			/*
 			List<TypeReference> polys = new ArrayList<TypeReference>();
 			int mark = line.at();
 			TypeExprToken osb = TypeExprToken.from(line);
 			if (osb != null && osb.type == TypeExprToken.OSB) {
 				while (line.hasMoreContent()) {
-					TypeReference tmp = (TypeReference) tryParsing(line);
-					if (tmp == null)
-						return null;
-					polys.add(tmp);
+					tryParsing(line, tmp -> polys.add(tmp));
 					osb = TypeExprToken.from(line);
 					if (osb.type == TypeExprToken.CSB) {
 						break;
 					}
 					else if (osb.type != TypeExprToken.COMMA)
-						return null;
+						return;
 				}
 			} else
 				line.reset(mark);
@@ -43,73 +83,75 @@ public class TypeExprParser {
 				TypeExprToken arr = TypeExprToken.from(line);
 				if (arr != null && arr.type == TypeExprToken.ARROW) {
 					arrow = arr.location;
-					Object t = tryOneExpr(line);
-					if (t instanceof TypeReference)
-						fnargs.add((TypeReference) t);
-					else
-						return t;
+					tryOneExpr(line, tr -> fnargs.add((TypeReference) tr) );
 				} else {
 					line.reset(mark);
 					break;
 				}
 			}
 			// The normal case, where we just have one type
-			if (fnargs.size() == 1)
-				return fnargs.get(0);
-			else {
+			if (fnargs.size() == 1) {
+				pt.provide(fnargs.get(0));
+			} else {
 				// This is a function type, such as "A->B mapper"
-				return new FunctionTypeReference(arrow, fnargs);
+				pt.provide(new FunctionTypeReference(arrow, fnargs));
+				return;
 			}
 		}
 		else if (tt.type == TypeExprToken.ORB) {
 			// either a complex type, grouped OR a tuple type
 			// Start parsing nested expression and see what happens
+			int cnt = 0;
 			List<TypeReference> inner = new ArrayList<>();
 			while (line.hasMoreContent()) {
-				Object add = tryOneExpr(line);
-				if (add == null)
-					return null; // and issue an error
-				inner.add((TypeReference) add);
+				tryOneExpr(line, add -> inner.add((TypeReference) add) );
+				if (++cnt != inner.size())
+					return;
 				TypeExprToken crb = TypeExprToken.from(line);
 				if (crb.type == TypeExprToken.CRB) {
-					if (inner.size() == 1)
-						return inner.get(0);
-					else if (inner.size() > 1)
-						return new TupleTypeReference(tt.location, inner);
+					if (inner.size() == 1) {
+						pt.provide(inner.get(0));
+						return;
+					} else if (inner.size() > 1) {
+						pt.provide(new TupleTypeReference(tt.location, inner));
+						return;
+					}
 				} else if (crb.type != TypeExprToken.COMMA)
-					return null; // this is an error
+					return; // this is an error
 			}
-			return null; // unexpected EOF
-		} else
-			return null; // not a valid type expression
+		} 
+		// not a valid type expression
+		 */
+		
+		pt.provide(curr);
 	}
 
-	public Object tryOneExpr(Tokenizable line) {
-		Object add = null;
+	/*
+	public void tryOneExpr(Tokenizable line, TDAProvideType pt) {
 		int mark = line.at();
 		TypeExprToken next = TypeExprToken.from(line);
 		if (next == null)
-			return null; // some kind of error - EOF? invalid token?
+			return; // some kind of error - EOF? invalid token?
 		else if (next.type == TypeExprToken.ORB) {
 			// it's a complex nested type; push this back and call ourselves recursively
 			line.reset(mark);
-			add = tryParsing(line);
+			tryParsing(line, pt);
 		} else if (next.type == TypeExprToken.NAME) {
 			// it's a function application of types
 			TypeExprToken look;
 			mark = line.at();
+			int cnt = 0;
 			List<TypeReference> args = new ArrayList<TypeReference>();
 			while (line.hasMoreContent() && (look = TypeExprToken.from(line)) != null && look.type == TypeExprToken.ARROW) {
-				Object ta = tryOneExpr(line);
-				if (ta == null)
-					return null; // error happened inside, return it
-				args.add((TypeReference) ta);
-				mark = line.at();
+				tryOneExpr(line, t -> args.add(t));
+				if (++cnt != args.size())
+					return; // there was an error
+				mark = line.at(); // update mark
 			}
 			TypeReference tr = new TypeReference(next.location, next.text, args);
-			add = tr;
 			line.reset(mark); // want to see the CRB/COMMA again
+			pt.provide(tr);
 		}
-		return add;
 	}
+	*/
 }

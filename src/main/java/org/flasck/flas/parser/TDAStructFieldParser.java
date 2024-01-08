@@ -1,5 +1,8 @@
 package org.flasck.flas.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
@@ -26,8 +29,11 @@ public class TDAStructFieldParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		TypeReference type = null;
 		if (fieldsType != FieldsType.WRAPS) {
-			type = (TypeReference) new TypeExprParser().tryParsing(toks);
-			if (type == null) {
+			TypeExprParser parser = new TypeExprParser(errors);
+			List<TypeReference> types = new ArrayList<>();
+			TDAProvideType pt = ty -> types.add(ty);
+			parser.tryParsing(toks, pt);
+			if (types.isEmpty()) {
 				errors.message(toks, "field must have a valid type definition");
 				return new IgnoreNestedParser();
 			}

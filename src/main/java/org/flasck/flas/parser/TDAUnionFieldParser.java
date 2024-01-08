@@ -1,5 +1,8 @@
 package org.flasck.flas.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -16,8 +19,11 @@ public class TDAUnionFieldParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		TypeReference type = (TypeReference) new TypeExprParser().tryParsing(toks);
-		if (type == null) {
+		TypeExprParser parser = new TypeExprParser(errors);
+		List<TypeReference> types = new ArrayList<>();
+		TDAProvideType pt = ty -> types.add(ty);
+		parser.tryParsing(toks, pt);
+		if (types.isEmpty()) {
 			errors.message(toks, "field must have a valid type definition");
 			return new IgnoreNestedParser();
 		}
@@ -25,7 +31,7 @@ public class TDAUnionFieldParser implements TDAParsing {
 			errors.message(toks, "tokens beyond end of line");
 			return new IgnoreNestedParser();
 		}
-		consumer.addCase(type);
+		consumer.addCase(types.get(0));
 		return new NoNestingParser(errors);
 	}
 
