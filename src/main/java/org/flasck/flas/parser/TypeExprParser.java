@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeExprToken;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TypeExprParser {
 	private ErrorReporter errors;
@@ -23,13 +24,19 @@ public class TypeExprParser {
 		TypeReference curr = null;
 		if (tt.type == TypeExprToken.NAME) {
 			curr = new TypeReference(tt.location, tt.text);
+		} else if (tt.type == TypeExprToken.ORB) {
+			List<TypeReference> trs = new ArrayList<>();
+			parseInsideRB(line, x -> trs.add(x));
+			if (trs.isEmpty())
+				return;
+			curr = trs.get(0);
 		} else {
 			errors.message(tt.location, "invalid type reference");
 //			throw new NotImplementedException("handle ORB at least");
 			return;
 		}
 		
-//		int mark = line.at();
+		int mark = line.at();
 		TypeExprToken nt = TypeExprToken.from(line);
 		if (nt == null) { // we have reached the end of the line
 			pt.provide(curr);
@@ -57,6 +64,8 @@ public class TypeExprParser {
 				args.add(0, curr);
 				curr = new FunctionTypeReference(curr.location(), args);
 			}
+		} else {
+			line.reset(mark);
 		}
 	
 			/*
@@ -124,6 +133,20 @@ public class TypeExprParser {
 		 */
 		
 		pt.provide(curr);
+	}
+
+	private void parseInsideRB(Tokenizable line, TDAProvideType pt) {
+		List<TypeReference> trs = new ArrayList<>();
+		tryParsing(line, x -> trs.add(x));
+		if (trs.isEmpty()) {
+			return;
+		}
+		TypeExprToken tt = TypeExprToken.from(line);
+		if (tt.type == TypeExprToken.CRB) {
+			pt.provide(trs.get(0));
+			return;
+		}
+		throw new NotImplementedException();
 	}
 
 	/*

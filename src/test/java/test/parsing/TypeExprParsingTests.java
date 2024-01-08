@@ -58,6 +58,24 @@ public class TypeExprParsingTests {
 		assertEquals(3, ftr.args.size());
 		assertEquals("String", ftr.args.get(0).name());
 		assertEquals("Number", ftr.args.get(1).name());
+		assertEquals("String", ftr.args.get(2).name());
+	}
+
+	@Test
+	public void aNestedFunctionType() {
+		parser.tryParsing(new Tokenizable("String->(Number->Boolean)->String"), new Listener());
+		assertEquals(1, pt.size());
+		TypeReference tt = pt.get(0);
+		assertTrue(tt instanceof FunctionTypeReference);
+		FunctionTypeReference ftr = (FunctionTypeReference)tt;
+		assertEquals(3, ftr.args.size());
+		assertEquals("String", ftr.args.get(0).name());
+		TypeReference t1 = ftr.args.get(1);
+		assertTrue(t1 instanceof FunctionTypeReference);
+		FunctionTypeReference ft1 = (FunctionTypeReference) t1;
+		assertEquals("Number", ft1.args.get(0).name());
+		assertEquals("Boolean", ft1.args.get(1).name());
+		assertEquals("String", ftr.args.get(2).name());
 	}
 
 	/*
