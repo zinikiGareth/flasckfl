@@ -134,7 +134,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (exprNargs == -1) {
 			return; // this is not an expression case
 		}
-		RepositoryEntry defn = (RepositoryEntry) tr.defn();
+		RepositoryEntry defn = (RepositoryEntry) tr.namedDefn();
 		if (defn == null)
 			throw new RuntimeException("var " + tr + " was still not resolved");
 		generateFnOrCtor(defn, handleBuiltinName(defn), exprNargs);
@@ -239,7 +239,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.contractByVar(state.container(rc.getParent().name()), rc.referAsVar));
 		} else if (defn instanceof ObjectContract) {
 			ObjectContract oc = (ObjectContract)defn;
-			sv.result(block.member(oc.implementsType().defn().name(), oc.varName().var));
+			sv.result(block.member(oc.implementsType().namedDefn().name(), oc.varName().var));
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(false, ((TupleMember)defn).name(), myName, 0);
 		} else if (defn instanceof UnitDataDeclaration) {

@@ -111,8 +111,8 @@ public class TemplateNestingChain implements NestingChain {
 		for (Link l : links) {
 			if (l.actual != null)
 				continue;
-			if (l.decl != null && l.decl.defn() != null)
-				l.actual = l.decl.defn();
+			if (l.decl != null && l.decl.namedDefn() != null)
+				l.actual = l.decl.namedDefn();
 			else {
 				// it may just be that something went wrong
 				if (!errors.hasErrors())

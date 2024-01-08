@@ -305,7 +305,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		templateCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
 		templateCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.FLCARD), "_card");
 		for (ObjectContract c : obj.contracts) {
-			templateCreator.field(false, Access.PROTECTED, c.implementsType().defn().name(), c.varName().baseName());
+			templateCreator.field(false, Access.PROTECTED, c.implementsType().namedDefn().name(), c.varName().baseName());
 		}
 
 		JSMethodCreator areYouA = templateCreator.createMethod("_areYouA", true);
@@ -863,13 +863,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		explodingMocks.clear();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {
-			if (udd.ofType.defn() instanceof ContractDecl) {
+			if (udd.ofType.namedDefn() instanceof ContractDecl) {
 				declareGlobalMock(udd);
 			}
 		}
 		// and then declare non-contracts
 		for (UnitDataDeclaration udd : globalMocks) {
-			if (!(udd.ofType.defn() instanceof ContractDecl))
+			if (!(udd.ofType.namedDefn() instanceof ContractDecl))
 				declareGlobalMock(udd);
 		}
 		utsteps.clear();
@@ -886,7 +886,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		for (UnitTestStep s : e.steps) {
 			if (s instanceof UnitDataDeclaration) {
 				UnitDataDeclaration udd = (UnitDataDeclaration) s;
-				if (udd.ofType.defn() instanceof ServiceDefinition)
+				if (udd.ofType.namedDefn() instanceof ServiceDefinition)
 					return true;
 			}
 		}

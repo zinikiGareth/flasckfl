@@ -110,7 +110,7 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 				sv.result(new ErrorType());
 				return;
 			}
-			NamedType htype = m.handler.type.defn();
+			NamedType htype = m.handler.type.namedDefn();
 			if (!htype.incorporates(e.handler.location(), handler)) {
 				errors.message(e.handler.location(), "type error: " + htype + " " + handler);
 				sv.result(new ErrorType());

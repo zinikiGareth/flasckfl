@@ -114,7 +114,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 					}
 					boolean isOtherObject = (currentTBO.expr instanceof UnresolvedVar) &&
 						((UnresolvedVar)currentTBO.expr).defn() instanceof StructField &&
-						((StructField)((UnresolvedVar)currentTBO.expr).defn()).type.defn() instanceof ObjectDefn;
+						((StructField)((UnresolvedVar)currentTBO.expr).defn()).type.namedDefn() instanceof ObjectDefn;
 					bindingBlock.updateTemplate(b.assignsTo, currentTBO.sendsTo.template().position(),
 						isOtherObject,
 						currentTBO.sendsTo.defn().id(),

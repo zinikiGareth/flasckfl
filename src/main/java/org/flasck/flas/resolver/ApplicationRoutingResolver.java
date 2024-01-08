@@ -63,7 +63,7 @@ public class ApplicationRoutingResolver extends LeafAdapter {
 	
 	@Override
 	public void leaveCardAssignment(CardBinding card) {
-		RepositoryEntry defn = (RepositoryEntry) card.cardType.defn();
+		RepositoryEntry defn = (RepositoryEntry) card.cardType.namedDefn();
 		if (defn == null) // the card class could not be found, bind to something else
 			defn = new ParameterRepositoryEntry(card.location(), card.var.var); // this is obviously wrong, but there will be a type resolution error ...
 		scopes.get(0).defns.put(card.var.var, defn);

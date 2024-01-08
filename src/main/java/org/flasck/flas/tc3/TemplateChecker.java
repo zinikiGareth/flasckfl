@@ -336,7 +336,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 		} else {
 			List<String> missing = new ArrayList<>();
 			for (TypeReference ty : ((UnionTypeDefn)etype).cases) {
-				NamedType td = ty.defn();
+				NamedType td = ty.namedDefn();
 				if (td instanceof PolyInstance)
 					td = ((PolyInstance)td).struct();
 				StructDefn sd = (StructDefn)td;

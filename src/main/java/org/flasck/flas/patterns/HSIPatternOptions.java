@@ -36,7 +36,7 @@ public class HSIPatternOptions implements HSIOptions {
 		List<FunctionIntro> intros = new ArrayList<>();
 
 		public TV(TypedPattern tp) {
-			this.type = (NamedType) tp.type.defn();
+			this.type = (NamedType) tp.type.namedDefn();
 			this.tp = tp;
 			this.var = tp.var;
 		}
@@ -111,7 +111,7 @@ public class HSIPatternOptions implements HSIOptions {
 
 	@Override
 	public void addTyped(TypedPattern tp, FunctionIntro fi) {
-		NamedType td = (NamedType) tp.type.defn();
+		NamedType td = (NamedType) tp.type.namedDefn();
 		if (td == null)
 			throw new RuntimeException("No definition in " + tp.type);
 		if (td instanceof PolyInstance) {
@@ -131,7 +131,7 @@ public class HSIPatternOptions implements HSIOptions {
 	
 	@Override
 	public void addVarWithType(TypeReference tr, VarName varName, FunctionIntro fi) {
-		TV tv = new TV((NamedType) tr.defn(), varName);
+		TV tv = new TV((NamedType) tr.namedDefn(), varName);
 		tv.intros.add(fi);
 		vars.add(tv);
 		if (varName.baseName().equals("_this"))

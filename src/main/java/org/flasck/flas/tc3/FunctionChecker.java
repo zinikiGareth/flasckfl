@@ -103,7 +103,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		} else if (patt instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) patt;
 			UnifiableType lt = state.createUT(null, "hl " + tp.var);
-			lt.canBeType(tp.var.loc, tp.type.defn());
+			lt.canBeType(tp.var.loc, tp.type.namedDefn());
 			state.bindVarToUT(hl.name().uniqueName(), tp.name().uniqueName(), lt);
 		} else
 			throw new NotImplementedException("not supported as lambda: " + patt.getClass());

@@ -79,7 +79,7 @@ public class AgentDefinition implements Locatable, AgentElementsConsumer, Reposi
 	@Override
 	public ImplementsContract implementsContract(NameOfThing ctr) {
 		for (ImplementsContract ic : this.contracts) {
-			if (ic.implementsType().defn().name().uniqueName().equals(ctr.uniqueName()))
+			if (ic.implementsType().namedDefn().name().uniqueName().equals(ctr.uniqueName()))
 				return ic;
 		}
 		return null;
@@ -88,7 +88,7 @@ public class AgentDefinition implements Locatable, AgentElementsConsumer, Reposi
 	@Override
 	public Provides providesContract(NameOfThing ctr) {
 		for (Provides ic : this.services) {
-			if (ic.implementsType().defn().name().uniqueName().equals(ctr.uniqueName()))
+			if (ic.implementsType().namedDefn().name().uniqueName().equals(ctr.uniqueName()))
 				return ic;
 		}
 		return null;

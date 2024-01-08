@@ -183,9 +183,9 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 			if (e instanceof CastExpr) {
 				CastExpr ce = (CastExpr) e;
 				TypeReference tr = ce.type;
-				if (!(tr.defn() instanceof StructDefn))
+				if (!(tr.namedDefn() instanceof StructDefn))
 					throw new HaventConsideredThisException("Can only handle cast-to-struct at the moment, not " + tr.getClass());
-				sd = (StructDefn) tr.defn();
+				sd = (StructDefn) tr.namedDefn();
 				String fld = ((UnresolvedVar)expr.fld).var;
 				acorFrom = this.sd.getAccessor(fld);
 				if (acorFrom == null)
@@ -225,13 +225,13 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 					AgentDefinition ad = (AgentDefinition) parent;
 					RequiresContract found = null;
 					for (RequiresContract rc : ad.requires) {
-						if (rc.actualType() == oc.implementsType().defn()) {
+						if (rc.actualType() == oc.implementsType().namedDefn()) {
 							found = rc;
 							break;
 						}
 					}
 					if (found == null) {
-						errors.message(expr.fld.location(), "there is no available implementation of " + oc.implementsType().defn().name().uniqueName());
+						errors.message(expr.fld.location(), "there is no available implementation of " + oc.implementsType().namedDefn().name().uniqueName());
 					} else {
 						UnresolvedVar ret = new UnresolvedVar(expr.fld.location(), found.referAsVar);
 						ret.bind(found);

@@ -156,7 +156,7 @@ public class TypeChecker extends LeafAdapter {
 			return;
 		}
 		UnitDataDeclaration udd = (UnitDataDeclaration) re;
-		EventHolder card = (EventHolder) udd.ofType.defn();
+		EventHolder card = (EventHolder) udd.ofType.namedDefn();
 		if (card.templates().isEmpty()) {
 			errors.message(tz.location, "cannot " + msg + " card with no templates");
 			return;
@@ -299,7 +299,7 @@ public class TypeChecker extends LeafAdapter {
 			if (!nested && type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
 				for (StructField sf : ((FieldsDefn) type).fields)
-					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn()), true).type);
+					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.namedDefn()), true).type);
 				if (types.isEmpty())
 					return logit(new PosType(pos, pi));
 				else
@@ -316,7 +316,7 @@ public class TypeChecker extends LeafAdapter {
 			if (type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
 				for (StructField sf : ((FieldsDefn) type).fields)
-					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn()), true).type);
+					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.namedDefn()), true).type);
 				if (types.isEmpty())
 					return logit(new PosType(pos, pi));
 				else

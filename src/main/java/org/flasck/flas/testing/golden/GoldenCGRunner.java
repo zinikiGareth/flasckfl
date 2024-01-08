@@ -90,7 +90,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			sf.add(f.getParentFile());
 		sf = trackOrdering(sf);
 		ByteCodeCreator bcc = CGHarnessRunnerHelper.emptyTestClass(bce, clz.getName());
-		bcc.addRTVAnnotation("org.junit.FixMethodOrder").addEnumParam(MethodSorters.NAME_ASCENDING);
+//		bcc.addRTVAnnotation("org.junit.FixMethodOrder").addEnumParam(MethodSorters.NAME_ASCENDING);
 		for (File dir : sf) {
 			if (p == null || p.matcher(dir.getPath()).find()) {
 				addGoldenTest(bcc, "ut"+df.format(cnt++)+"_", dir);

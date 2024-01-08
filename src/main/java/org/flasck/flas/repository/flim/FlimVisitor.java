@@ -61,7 +61,7 @@ public class FlimVisitor extends LeafAdapter implements ModuleExtensible {
 	
 	@Override
 	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
-		reference((RepositoryEntry)var.defn());
+		reference((RepositoryEntry)var.namedDefn());
 	}
 	
 	@Override
@@ -122,7 +122,7 @@ public class FlimVisitor extends LeafAdapter implements ModuleExtensible {
 				ufw.println("poly " + v.shortName());
 			for (TypeReference e : ud.cases) {
 				ufw.println("member");
-				showType(ufw.indent(), e.defn());
+				showType(ufw.indent(), e.namedDefn());
 			}
 		}
 	}

@@ -98,7 +98,7 @@ public class AccessorConvertor extends LeafAdapter {
 			defn = uv.defn();
 		} else if (from instanceof TypeReference) {
 			TypeReference uv = (TypeReference) expr.from;
-			defn = (RepositoryEntry) uv.defn();
+			defn = (RepositoryEntry) uv.namedDefn();
 		} else if (from instanceof MemberExpr) {
 			MemberExpr me = (MemberExpr) expr.from;
 			defn = me.defn();
@@ -125,7 +125,7 @@ public class AccessorConvertor extends LeafAdapter {
 		}
 		if (defn instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) defn;
-			NamedType td = udd.ofType.defn();
+			NamedType td = udd.ofType.namedDefn();
 			if (td instanceof StateHolder) {
 				// UDDs can prod state directly on cards, agents and objects ...
 				StateHolder sh = (StateHolder)td;

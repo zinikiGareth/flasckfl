@@ -378,7 +378,7 @@ public class TypeConstraintSet implements UnifiableType {
 		if (t instanceof UnionTypeDefn) {
 			UnionTypeDefn utd = (UnionTypeDefn) t;
 			for (TypeReference c : utd.cases) {
-				Type sd = (Type) c.defn();
+				Type sd = (Type) c.namedDefn();
 				addMore.add(new PosType(pos, sd));
 			}
 		} else if (t instanceof PolyInstance) {
@@ -390,13 +390,13 @@ public class TypeConstraintSet implements UnifiableType {
 					mt.put(utd.polys().get(p), pi.polys().get(p));
 				}
 				for (TypeReference c : utd.cases) {
-					if (c.defn() instanceof StructDefn) {
-						StructDefn sd = (StructDefn) c.defn();
+					if (c.namedDefn() instanceof StructDefn) {
+						StructDefn sd = (StructDefn) c.namedDefn();
 						if (sd.hasPolys())
 							throw new CantHappenException("should be polyinstance");
 						addMore.add(new PosType(pos, sd));
-					} else if (c.defn() instanceof PolyInstance) {
-						PolyInstance pc = (PolyInstance) c.defn();
+					} else if (c.namedDefn() instanceof PolyInstance) {
+						PolyInstance pc = (PolyInstance) c.namedDefn();
 						List<Type> pm = new ArrayList<>();
 						for (Type p : pc.polys())
 							pm.add(mt.get(p));

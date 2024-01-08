@@ -46,7 +46,7 @@ public class ApplicationRouting extends SubRouting implements MainRoutingGroupCo
 		}
 
 		public StateHolder type() {
-			return (StateHolder) cardType.defn();
+			return (StateHolder) cardType.namedDefn();
 		}
 	}
 

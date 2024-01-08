@@ -30,7 +30,7 @@ public class PendingObjectMethod extends PendingMethod {
 		List<Type> ts = new ArrayList<>();
 		for (PendingContractArg a : args) {
 			TypedPattern tp = a.resolve(errors, repository, name);
-			ts.add(tp.type.defn());
+			ts.add(tp.type.namedDefn());
 			patts.add(tp);
 		}
 		Type type;

@@ -43,13 +43,13 @@ public class TypeExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (!expr.boundEarly())
 			throw new CantHappenException("I think our test above should stop this happening");
 		TypeReference tr = (TypeReference)expr.defn();
-		this.expr = new JSTypeOf(tr.defn());
+		this.expr = new JSTypeOf(tr.namedDefn());
 		return true;
 	}
 	
 	@Override
 	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
-		expr = new JSTypeOf(var.defn());
+		expr = new JSTypeOf(var.namedDefn());
 	}
 	
 	@Override

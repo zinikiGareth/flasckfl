@@ -41,7 +41,7 @@ public class MappingAnalyzer {
 	}
 
 	public void visitTypeReference(TypeReference tr) {
-		RepositoryEntry defn = (RepositoryEntry) tr.defn();
+		RepositoryEntry defn = (RepositoryEntry) tr.namedDefn();
 		if (defn == null)
 			throw new CantHappenException("should have a definition by this point");
 		visitDefn(defn);

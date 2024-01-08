@@ -75,8 +75,8 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		Set<String> all = new HashSet<>();
 		Set<String> remaining = new HashSet<>();
 		for (TypeReference tr : cases) {
-			all.add(tr.defn().name().uniqueName());
-			remaining.add(tr.defn().name().uniqueName());
+			all.add(tr.namedDefn().name().uniqueName());
+			remaining.add(tr.namedDefn().name().uniqueName());
 		}
 		logger.debug("considering if " + this + " is a match for " + members + " with needAll = " + needAll);
 		logger.debug("have cases " + this.cases);
@@ -162,7 +162,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 
 	public boolean hasCase(StructDefn sd) {
 		for (TypeReference c : cases)
-			if (c.defn().equals(sd))
+			if (c.namedDefn().equals(sd))
 				return true;
 		return false;
 	}
@@ -199,13 +199,13 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 			Type struct = removePoly(other);
 			withcases:
 			for (TypeReference ty : cases)
-				if (ty.defn() instanceof PolyInstance) {
-					Type cs = removePoly(ty.defn());
+				if (ty.namedDefn() instanceof PolyInstance) {
+					Type cs = removePoly(ty.namedDefn());
 					if (cs != struct)
 						continue; // it can't be a match
 					
 					PolyInstance opi = (PolyInstance)other;
-					PolyInstance cpi = (PolyInstance)ty.defn();
+					PolyInstance cpi = (PolyInstance)ty.namedDefn();
 					for (int i=0;i<cpi.polys().size();i++) {
 						Type ci = cpi.polys().get(i);
 						if (ci instanceof PolyType)
@@ -217,7 +217,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 				}
 		} else {
 			for (TypeReference ty : cases)
-				if (removePoly(ty.defn()) == other)
+				if (removePoly(ty.namedDefn()) == other)
 					return true;
 		}
 		return false;

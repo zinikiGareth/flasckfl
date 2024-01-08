@@ -50,7 +50,7 @@ public class StructField implements Locatable, RepositoryEntry, FieldAccessor {
 
 	@Override
 	public Type type() {
-		return type.defn();
+		return type.namedDefn();
 	}
 
 	@Override

@@ -47,7 +47,7 @@ public class UTSendChecker extends LeafAdapter implements ResultAware {
 			return;
 		}
 		ContractDecl cd = null;
-		NameOfThing cn = send.contract.defn().name();
+		NameOfThing cn = send.contract.namedDefn().name();
 		if (ty instanceof ContractImplementor) {
 			ImplementsContract ic = ((ContractImplementor)ty).implementsContract(cn);
 			if (ic != null)

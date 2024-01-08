@@ -52,7 +52,7 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 
 	@Override
 	public void matchType(Type want, VarName var, FunctionIntro intro) {
-		NamedType defined = ((TypedPattern)cmd.args.get(pos++)).type.defn();
+		NamedType defined = ((TypedPattern)cmd.args.get(pos++)).type.namedDefn();
 		if (defined != want) {
 			errors.message(var.loc, "cannot bind " + var.var + " to " + ((NamedType)want).name() + " when the contract specifies " + defined.name());
 			this.ty = new ErrorType();
@@ -67,9 +67,9 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 		if (pos == cmd.args.size() && cmd.handler == null)
 			throw new NotImplementedException("There is no handler for " + cmd.name.uniqueName() + " but have var arg with pos = " + pos);
 		if (pos == cmd.args.size()) {
-			ty = cmd.handler.type.defn();
+			ty = cmd.handler.type.namedDefn();
 		} else {
-			ty = ((TypedPattern)cmd.args.get(pos)).type.defn();
+			ty = ((TypedPattern)cmd.args.get(pos)).type.namedDefn();
 		}
 		pos++;
 		vp.bindType(ty);

@@ -33,7 +33,7 @@ public class CastExprChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
-		castTo = var.defn();
+		castTo = var.namedDefn();
 	}
 	
 	@Override

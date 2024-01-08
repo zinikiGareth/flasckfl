@@ -37,7 +37,7 @@ public interface HSIOptions {
 		public IntroTypeVar(FunctionIntro intro, TypedPattern tp) {
 			this.intro = intro;
 			this.tp = tp;
-			this.type = (NamedType) tp.type.defn();
+			this.type = (NamedType) tp.type.namedDefn();
 		}
 		public IntroTypeVar(FunctionIntro intro, NamedType type) {
 			this.intro = intro;

@@ -161,7 +161,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 				}
 				return new ExprResult(var.location, sf.type());
 			} else if (vardefn instanceof TypedPattern) {
-				return new ExprResult(var.location, ((TypedPattern)vardefn).type.defn());
+				return new ExprResult(var.location, ((TypedPattern)vardefn).type.namedDefn());
 			} else if (vardefn instanceof FunctionDefinition) {
 				FunctionDefinition fd = (FunctionDefinition)vardefn;
 				if (fd.hasType()) {

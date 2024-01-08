@@ -1,0 +1,19 @@
+It should obviously be possible to store a function in a struct and call it.
+Check that types work for that
+
+	f (String s) = 42
+
+	struct StoreFn
+		String->Number fn
+		
+	x = StoreFn f
+	
+	struct StoreListFn
+		List[String->Number] fns
+		
+	y = StoreListFn [f]
+	
+	struct StoreTupleFn
+		(String, String->Number) tuple
+		
+	z = StoreTupleFn ("hello", f)

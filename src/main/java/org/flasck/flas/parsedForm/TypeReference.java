@@ -64,10 +64,31 @@ public class TypeReference implements Expr {
 		return this;
 	}
 
-	public NamedType defn() {
+	public Type defn() {
 		if (dynamic)
 			throw new CantHappenException("you need to access dynamic type references with resolveType");
+		if (definition != null)
+			return definition;
+		else if (applyDefn != null)
+			return applyDefn;
+		else
+			throw new CantHappenException("no type definition");
+	}
+	
+	public NamedType namedDefn() {
+		if (dynamic)
+			throw new CantHappenException("you need to access dynamic type references with resolveType");
+		if (definition == null && applyDefn != null)
+			throw new CantHappenException("you need to call applyDefn for this");
 		return definition;
+	}
+
+	public Apply applyDefn() {
+		if (dynamic)
+			throw new CantHappenException("you need to access dynamic type references with resolveType");
+		if (definition != null && applyDefn == null)
+			throw new CantHappenException("you need to call defn for this");
+		return applyDefn;
 	}
 
 	public boolean isDynamic() {

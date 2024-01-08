@@ -77,7 +77,7 @@ public class ContractDecl implements Locatable, ContractMethodConsumer, Reposito
 			return true;
 		else if (other instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements) other;
-			if (hi.implementsType().defn() == this)
+			if (hi.implementsType().namedDefn() == this)
 				return true;
 		} else if (other instanceof UnifiableType) {
 			UnifiableType ut = (UnifiableType)other;

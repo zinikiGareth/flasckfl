@@ -162,22 +162,22 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 				announce(pos, state.requireVarConstraints(vp.location(), fnCxt, vp.name().uniqueName()));
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern vp = (TypedPattern) defn;
-			announce(pos, (Type) vp.type.defn());
+			announce(pos, (Type) vp.type.namedDefn());
 		} else if (defn instanceof HandlerLambda) {
 			HandlerLambda hl = (HandlerLambda)defn;
 			announce(pos, (Type) hl.type());
 		} else if (defn instanceof StructField) {
 			StructField sf = (StructField) defn;
-			announce(pos, (Type) sf.type.defn());
+			announce(pos, (Type) sf.type.namedDefn());
 		} else if (defn instanceof TemplateNestedField) {
 			TemplateNestedField tnf = (TemplateNestedField) defn;
 			announce(pos, tnf.type());
 		} else if (defn instanceof RequiresContract) {
-			announce(pos, ((RequiresContract)defn).implementsType().defn());
+			announce(pos, ((RequiresContract)defn).implementsType().namedDefn());
 		} else if (defn instanceof ObjectContract) {
-			announce(pos, ((ObjectContract)defn).implementsType().defn());
+			announce(pos, ((ObjectContract)defn).implementsType().namedDefn());
 		} else if (defn instanceof UnitDataDeclaration) {
-			announce(pos, ((UnitDataDeclaration)defn).ofType.defn());
+			announce(pos, ((UnitDataDeclaration)defn).ofType.namedDefn());
 		} else if (defn instanceof IntroduceVar) {
 			Type ia = ((IntroduceVar)defn).introducedAs();
 			if (ia == null)
@@ -190,9 +190,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
 		InputPosition pos = var.location();
-		if (var == null || var.defn() == null)
+		if (var == null || var.namedDefn() == null)
 			throw new NullPointerException("undefined var: " + var);
-		NamedType defn = var.defn();
+		NamedType defn = var.namedDefn();
 		if (defn instanceof ContractDecl) {
 			errors.message(pos, "cannot pass a contract to a function");
 			announce(pos, new ErrorType());

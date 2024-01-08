@@ -1,0 +1,3 @@
+test.golden.f :: String->Number
+test.golden.x :: test.golden.StoreFn
+test.golden.y :: test.golden.StoreListFn

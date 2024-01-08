@@ -280,7 +280,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		currentlyImplementing = null;
 		ContractDecl d = p.actualType();
 		if (d == null) {
-			if (p.implementsType().defn() != null)
+			if (p.implementsType().namedDefn() != null)
 				errors.message(p.implementsType().location(), p.implementsType().name() + " is not a contract");
 			return;
 		}
@@ -304,7 +304,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		currentlyImplementing = null;
 		ContractDecl d = ic.actualType();
 		if (d == null) {
-			if (ic.implementsType().defn() != null)
+			if (ic.implementsType().namedDefn() != null)
 				errors.message(ic.implementsType().location(), ic.implementsType().name() + " is not a contract");
 			return;
 		}
@@ -328,7 +328,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		currentlyImplementing = null;
 		ContractDecl d = hi.actualType();
 		if (d == null) {
-			if (hi.implementsType().defn() != null)
+			if (hi.implementsType().namedDefn() != null)
 				errors.message(hi.implementsType().location(), hi.implementsType().name() + " is not a contract");
 			return;
 		}
@@ -416,7 +416,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 				return;
 		} else if (expr.from instanceof TypeReference) {
 			TypeReference uv = (TypeReference) expr.from;
-			defn = (RepositoryEntry) uv.defn();
+			defn = (RepositoryEntry) uv.namedDefn();
 			if (defn == null) // some kind of error
 				return;
 		} else if (expr.from instanceof ApplyExpr) {
@@ -424,7 +424,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			return;
 		} else if (expr.from instanceof CastExpr) {
 			CastExpr ce = (CastExpr) expr.from;
-			NamedType nt = ce.type.defn();
+			NamedType nt = ce.type.namedDefn();
 			if (nt == null) // some kind of error
 				return;
 			processMemberOfType(expr, nt, var);
@@ -445,12 +445,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			}
 			expr.bind(ctor, false);
 		} else if (defn instanceof UnitDataDeclaration) {
-			NamedType nt = ((UnitDataDeclaration) defn).ofType.defn();
+			NamedType nt = ((UnitDataDeclaration) defn).ofType.namedDefn();
 			processMemberOfType(expr, nt, var);
 		} else if (defn instanceof TypedPattern) {
-			processMemberOfType(expr, ((TypedPattern)defn).type.defn(), var);
+			processMemberOfType(expr, ((TypedPattern)defn).type.namedDefn(), var);
 		} else if (defn instanceof StructField) {
-			NamedType sft = ((StructField)defn).type.defn();
+			NamedType sft = ((StructField)defn).type.namedDefn();
 			processMemberOfType(expr, sft, var);
 		} else if (defn instanceof TemplateNestedField) {
 			TemplateNestedField tnf = (TemplateNestedField) defn;
@@ -459,14 +459,14 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			processMemberOfType(expr, (NamedType) tnf.type(), var);
 		} else if (defn instanceof ObjectContract) {
 			ObjectContract oc = (ObjectContract) defn;
-			ContractDecl cd = (ContractDecl) oc.implementsType().defn();
+			ContractDecl cd = (ContractDecl) oc.implementsType().namedDefn();
 			processMemberOfType(expr, cd, var);
 		} else if (defn instanceof RequiresContract) {
 			RequiresContract rc = (RequiresContract) defn;
-			ContractDecl cd = (ContractDecl) rc.implementsType().defn();
+			ContractDecl cd = (ContractDecl) rc.implementsType().namedDefn();
 			processMemberOfType(expr, cd, var);
 		} else if (defn instanceof HandlerLambda) {
-			NamedType sft = ((TypedPattern)((HandlerLambda)defn).patt).type.defn();
+			NamedType sft = ((TypedPattern)((HandlerLambda)defn).patt).type.namedDefn();
 			processMemberOfType(expr, sft, var);
 		} else if (defn instanceof IntroduceVar) {
 			IntroduceVar iv = (IntroduceVar) defn;
@@ -687,7 +687,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 						visitTypeReference(tr, expectPolys, exprNargs);
 						if (mark.hasMoreNow())
 							return;
-						NamedType arg = tr.defn();
+						Type arg = tr.defn();
 						if (arg == null)
 							throw new CantHappenException("have null type in resolved reference");
 						if (tn.equals("Crobag") && !TypeHelpers.isEntity(arg)) {
@@ -713,7 +713,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		List<Type> boundTo = new ArrayList<>();
 		for (TypeReference k : ref.args) {
 			visitTypeReference(k, expectPolys, exprNargs);
-			boundTo.add(k.defn());
+			boundTo.add(k.namedDefn());
 		}
 		ref.bind(new Apply(boundTo));
 	}
@@ -723,7 +723,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		Tuple tt = new Tuple(ref.location(), null, ref.members.size());
 		for (TypeReference k : ref.members) {
 			visitTypeReference(k, expectPolys, exprNargs);
-			boundTo.add(k.defn());
+			boundTo.add(k.namedDefn());
 		}
 		ref.bind(new PolyInstance(ref.location(), tt, boundTo));
 	}
@@ -738,16 +738,16 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	public void leaveContractMethod(ContractMethodDecl cmd) {
 		boolean dobind = true;
 		for (TypedPattern tp : cmd.args) {
-			if (tp.type.defn() instanceof ContractDecl) {
+			if (tp.type.namedDefn() instanceof ContractDecl) {
 				errors.message(tp.typeLocation, "method arguments may not be contracts");
 				dobind = false;
 			}
 		}
 		if (cmd.handler != null) {
-			if (!(cmd.handler.type.defn() instanceof ContractDecl)) {
+			if (!(cmd.handler.type.namedDefn() instanceof ContractDecl)) {
 				errors.message(cmd.handler.typeLocation, "method handler must be a handler contract");
 				dobind = false;
-			} else if (((ContractDecl)cmd.handler.type.defn()).type != ContractType.HANDLER) {
+			} else if (((ContractDecl)cmd.handler.type.namedDefn()).type != ContractType.HANDLER) {
 				errors.message(cmd.handler.typeLocation, "method handler must be a handler contract");
 				dobind = false;
 			}
@@ -901,8 +901,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			Expr oe = option.expr;
 			if (oe instanceof UnresolvedVar) {
 				UnresolvedVar uv = (UnresolvedVar) oe;
-				if (uv.defn() instanceof StructField && ((StructField)uv.defn()).type.defn() instanceof ObjectDefn)
-					object = (ObjectDefn) ((StructField)uv.defn()).type.defn();
+				if (uv.defn() instanceof StructField && ((StructField)uv.defn()).type.namedDefn() instanceof ObjectDefn)
+					object = (ObjectDefn) ((StructField)uv.defn()).type.namedDefn();
 			}
 			String tname = option.sendsTo.name.baseName();
 			if (object != null) {
@@ -1078,7 +1078,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			currShoveExpr = v;
 		} else if (currShoveExpr.defn() instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) currShoveExpr.defn();
-			NamedType ty = udd.ofType.defn();
+			NamedType ty = udd.ofType.namedDefn();
 			if (ty instanceof PolyInstance)
 				ty = ((PolyInstance)ty).struct();
 			if (ty instanceof StateHolder) {
@@ -1124,7 +1124,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	@Override
 	public void leaveUnitTestRender(UnitTestRender r) {
 		UnitDataDeclaration udd = (UnitDataDeclaration) r.card.defn();
-		ObjectDefn od = (ObjectDefn) udd.ofType.defn();
+		ObjectDefn od = (ObjectDefn) udd.ofType.namedDefn();
 		Template otd = od.getTemplate(r.template.name.baseName());
 		if (otd == null) {
 			errors.message(r.template.location(), "there is no template " + r.template.name.baseName());
@@ -1147,7 +1147,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	}
 	
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {
-		NamedType defn = udd.ofType.defn();
+		NamedType defn = udd.ofType.namedDefn();
 		if (defn == null) {
 			if (!errors.hasErrors())
 				throw new RuntimeException("the UDD type did not get resolved");

@@ -99,9 +99,8 @@ public class TypeExprParser {
 			TypeExprToken look;
 			mark = line.at();
 			List<TypeReference> args = new ArrayList<TypeReference>();
-			while (line.hasMoreContent() && (look = TypeExprToken.from(line)) != null && look.type != TypeExprToken.CRB && look.type != TypeExprToken.CSB && look.type != TypeExprToken.COMMA) {
-				line.reset(mark);
-				Object ta = tryParsing(line);
+			while (line.hasMoreContent() && (look = TypeExprToken.from(line)) != null && look.type == TypeExprToken.ARROW) {
+				Object ta = tryOneExpr(line);
 				if (ta == null)
 					return null; // error happened inside, return it
 				args.add((TypeReference) ta);

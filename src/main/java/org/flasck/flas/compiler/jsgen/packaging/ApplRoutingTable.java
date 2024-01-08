@@ -58,7 +58,7 @@ public class ApplRoutingTable {
 				lw.println(",");
 			lw.print("{ ");
 			lw.print("name: '" + ca.var.var + "', ");
-			lw.print("card: " + ca.cardType.defn().name().jsName());
+			lw.print("card: " + ca.cardType.namedDefn().name().jsName());
 			lw.print(" }");
 			s2 = true;
 		}
@@ -88,7 +88,7 @@ public class ApplRoutingTable {
 			sep = true;
 			lw.print("{ ");
 			lw.print("card: '" + ra.card.var + "', ");
-			lw.print("contract: '" + ra.contract.defn().signature() + "', ");
+			lw.print("contract: '" + ra.contract.namedDefn().signature() + "', ");
 			lw.print("action: '" + ra.action + "', args: [");
 			boolean first = true;
 			for (org.flasck.flas.commonBase.Expr e : ra.exprs) {
@@ -163,7 +163,7 @@ public class ApplRoutingTable {
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("cards"), J.OBJECT), meth.as(cards, J.OBJECT))).flush();
 		
 		for (CardBinding ca : r.assignments) {
-			IExpr mn = meth.makeNew(J.FLCARDASSIGNMENT, meth.stringConst(ca.var.var), meth.stringConst(ca.cardType.defn().name().javaName()));
+			IExpr mn = meth.makeNew(J.FLCARDASSIGNMENT, meth.stringConst(ca.var.var), meth.stringConst(ca.cardType.namedDefn().name().javaName()));
 			meth.voidExpr(meth.callInterface("boolean", cards, "add", meth.as(mn, J.OBJECT))).flush();
 		}
 		genActions(meth, v, "enter", r.enter, rn);
@@ -202,7 +202,7 @@ public class ApplRoutingTable {
 				exprs.add(meth.makeNew(J.FLROUTINGARG, ate, meth.stringConst(val)));
 				pos++;
 			}
-			mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.card.var), meth.stringConst(ra.contract.defn().signature()), meth.stringConst(ra.action), meth.arrayOf(J.FLROUTINGARG, exprs));
+			mn = meth.makeNew(J.FLROUTINGACTION, meth.stringConst(ra.card.var), meth.stringConst(ra.contract.namedDefn().signature()), meth.stringConst(ra.action), meth.arrayOf(J.FLROUTINGARG, exprs));
 			meth.voidExpr(meth.callInterface("boolean", list, "add", meth.as(mn, J.OBJECT))).flush();
 		}
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(label), J.OBJECT), meth.as(list, J.OBJECT))).flush();

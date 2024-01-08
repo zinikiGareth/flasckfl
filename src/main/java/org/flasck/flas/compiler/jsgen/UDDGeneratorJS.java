@@ -64,7 +64,7 @@ public class UDDGeneratorJS extends LeafAdapter implements ResultAware {
 		if (assigned != null) {
 			value = assigned;
 		} else {
-			value = meth.createObject(udd.ofType.defn().name());
+			value = meth.createObject(udd.ofType.namedDefn().name());
 		}
 		JSExpr newMock = block.storeMockObject(udd, value);
 		// I think this is where we would then want to do the assigning of fields ...
@@ -78,7 +78,7 @@ public class UDDGeneratorJS extends LeafAdapter implements ResultAware {
 			globalMocks.add(udd);
 			return;
 		}
-		NamedType objty = udd.ofType.defn();
+		NamedType objty = udd.ofType.namedDefn();
 		if (objty instanceof PolyInstance)
 			objty = ((PolyInstance)objty).struct();
 		if (objty instanceof ContractDecl) {

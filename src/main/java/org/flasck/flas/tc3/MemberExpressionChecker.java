@@ -109,9 +109,9 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 					for (int i=0;i<polys.size();i++) {
 						mapping.put(sd.polys().get(i).shortName(), polys.get(i));
 					}
-					announce(expr, replacePolyVarsWithDeducedTypes(mapping, sf.type.defn()));
+					announce(expr, replacePolyVarsWithDeducedTypes(mapping, sf.type.namedDefn()));
 				} else
-					announce(expr, sf.type.defn());
+					announce(expr, sf.type.namedDefn());
 			}
 		} else if (ty instanceof ObjectDefn) {
 			ObjectDefn od = (ObjectDefn) ty;
@@ -211,7 +211,7 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 
 	private void handleStateHolderUDD(MemberExpr me, StateHolder ty, InputPosition loc, String var) {
 		if (ty.state().hasMember(var)) {
-			announce(me, ty.state().findField(var).type.defn());
+			announce(me, ty.state().findField(var).type.namedDefn());
 		} else {
 			RepositoryEntry entry = repository.get(FunctionName.function(loc, ty.name(), var).uniqueName());
 			if (entry != null && entry instanceof FunctionDefinition) {

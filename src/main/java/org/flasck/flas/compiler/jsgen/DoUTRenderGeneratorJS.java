@@ -43,7 +43,7 @@ public class DoUTRenderGeneratorJS extends LeafAdapter implements ResultAware {
 		if (args.size() != 1)
 			throw new RuntimeException("expected object");
 		UnitDataDeclaration udd = (UnitDataDeclaration) r.card.defn();
-		ObjectDefn od = (ObjectDefn) udd.ofType.defn();
+		ObjectDefn od = (ObjectDefn) udd.ofType.namedDefn();
 //		block.assertable(runner, "render", block.nameOf(args.get(0)), block.literal(od.name().jsName()+".prototype._updateTemplate" + Integer.toString(r.template.template().position())), block.string("items/" + r.template.template().name().baseName()));
 		block.renderObject(runner, args.get(0), od.name(), r.template.template().position(), block.string("items/" + r.template.template().name().baseName()));
 		sv.result(null);

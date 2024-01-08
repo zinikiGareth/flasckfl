@@ -1076,7 +1076,7 @@ public class Traverser implements RepositoryVisitor {
 			patternsLogger.info(indent + ": visiting type " + t.signature() + " with intros " + introNames(hsiOptions.getIntrosForType(t)));
 			for (IntroTypeVar tv : hsiOptions.typedVars(t)) {
 				if (tv.tp != null)
-					tov.matchType(tv.tp.type.defn(), tv.tp.var, tv.intro);
+					tov.matchType(tv.tp.type.namedDefn(), tv.tp.var, tv.intro);
 				else
 					tov.matchType(t, null, tv.intro); // for constants, there is no var to bind
 			}
@@ -1728,7 +1728,7 @@ public class Traverser implements RepositoryVisitor {
 		if (fn instanceof UnresolvedVar) {
 			defn = ((UnresolvedVar)fn).defn();
 		} else if (fn instanceof TypeReference) {
-			defn = ((TypeReference)fn).defn();
+			defn = ((TypeReference)fn).namedDefn();
 		} else
 			return null;
 		if (defn instanceof LogicHolder)
@@ -1744,7 +1744,7 @@ public class Traverser implements RepositoryVisitor {
 		if (fn instanceof UnresolvedVar) {
 			defn = ((UnresolvedVar)fn).defn();
 		} else if (fn instanceof TypeReference) {
-			defn = ((TypeReference)fn).defn();
+			defn = ((TypeReference)fn).namedDefn();
 		} else
 			return null;
 		if (defn instanceof LogicHolder) {
@@ -2157,10 +2157,10 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	private void visitSendExpr(TypeReference contract, Expr expr) {
-		if (contract.defn() == null)
+		if (contract.namedDefn() == null)
 			return;
 		if (expr instanceof UnresolvedVar) {
-			visitor.visitSendMethod(contract.defn(), (UnresolvedVar)expr);
+			visitor.visitSendMethod(contract.namedDefn(), (UnresolvedVar)expr);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			UnresolvedVar te;
@@ -2182,7 +2182,7 @@ public class Traverser implements RepositoryVisitor {
 				te = (UnresolvedVar)ae.fn;
 				args = ae.args;
 			}
-			visitSendMethod(contract.defn(), te);
+			visitSendMethod(contract.namedDefn(), te);
 			for (Object e : args)
 				visitExpr((Expr) e, 0);
 			if (h != null)

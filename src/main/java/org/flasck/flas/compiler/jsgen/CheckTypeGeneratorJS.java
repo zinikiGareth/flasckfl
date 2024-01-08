@@ -28,7 +28,7 @@ public class CheckTypeGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
-		this.type = var.defn();
+		this.type = var.namedDefn();
 	}
 	
 	@Override

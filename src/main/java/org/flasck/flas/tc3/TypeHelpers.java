@@ -129,7 +129,7 @@ public class TypeHelpers {
 		return false;
 	}
 
-	public static boolean isEntity(NamedType arg) {
+	public static boolean isEntity(Type arg) {
 		if (arg instanceof StructDefn) {
 			StructDefn s = (StructDefn) arg;
 			return s.type == FieldsType.ENTITY;

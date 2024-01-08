@@ -38,7 +38,7 @@ public class ContractReferencer implements Locatable {
 	}
 
 	public ContractDecl actualType() {
-		NamedType defn = implementing.defn();
+		NamedType defn = implementing.namedDefn();
 		if (defn == null)
 			return null;
 		else if (defn instanceof ContractDecl)

@@ -52,6 +52,7 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
+import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Tuple;
@@ -249,8 +250,8 @@ public class ResolverTests {
 		r.currentScope(nested);
 		t.visitFunction(op);
 		// TODO: define number as a type ...
-		assertEquals(number, tl.defn());
-		assertEquals(number, tr.defn());
+		assertEquals(number, tl.namedDefn());
+		assertEquals(number, tr.namedDefn());
 	}
 
 	@Test
@@ -269,7 +270,7 @@ public class ResolverTests {
 		Traverser t = new Traverser(r);
 		r.currentScope(nested);
 		t.visitStructField(fld);
-		assertEquals(LoadBuiltins.string, fld.type.defn());
+		assertEquals(LoadBuiltins.string, fld.type.namedDefn());
 	}
 
 	@Test
@@ -289,7 +290,7 @@ public class ResolverTests {
 		Traverser t = new Traverser(r);
 		r.currentScope(pkg);
 		t.visitStructDefn(s);
-		assertEquals(pa, fld.type.defn());
+		assertEquals(pa, fld.type.namedDefn());
 	}
 
 	@Test
@@ -319,8 +320,8 @@ public class ResolverTests {
 		Traverser t = new Traverser(r);
 		r.currentScope(pkg);
 		t.visitStructDefn(s);
-		assertTrue(fld.type.defn() instanceof PolyInstance);
-		PolyInstance pi = (PolyInstance) fld.type.defn();
+		assertTrue(fld.type.namedDefn() instanceof PolyInstance);
+		PolyInstance pi = (PolyInstance) fld.type.namedDefn();
 		assertEquals(listType, pi.struct());
 		assertEquals(1, pi.polys().size());
 		assertTrue(pi.polys().get(0) instanceof PolyInstance);
@@ -333,8 +334,15 @@ public class ResolverTests {
 
 	@Test
 	public void weCanResolveAFunctionInAStructField() {
+		Primitive strType = new Primitive(pos, "String");
+		Primitive nbrType = new Primitive(pos, "Number");
 		context.checking(new Expectations() {{
-			oneOf(errors).mark();
+			oneOf(rr).get("test.repo.MyStruct.String"); will(returnValue(null));
+			oneOf(rr).get("test.repo.String"); will(returnValue(null));
+			oneOf(rr).get("String"); will(returnValue(strType));
+			oneOf(rr).get("test.repo.MyStruct.Number"); will(returnValue(null));
+			oneOf(rr).get("test.repo.Number"); will(returnValue(null));
+			oneOf(rr).get("Number"); will(returnValue(nbrType));
 		}});
 		FunctionTypeReference ft = new FunctionTypeReference(pos, new TypeReference(pos, "String"), new TypeReference(pos, "Number"));
 		SolidName str = new SolidName(pkg, "MyStruct");
@@ -346,7 +354,11 @@ public class ResolverTests {
 		Traverser t = new Traverser(r);
 		r.currentScope(pkg);
 		t.visitStructDefn(s);
-//		assertEquals(pa, fld.type.defn());
+		assertTrue(fld.type.applyDefn() instanceof Apply);
+		Apply app = fld.type.applyDefn();
+		assertEquals(1, app.argCount());
+		assertEquals(strType, app.get(0));
+		assertEquals(nbrType, app.get(1));
 	}
 
 	@Test
@@ -368,7 +380,7 @@ public class ResolverTests {
 		Traverser t = new Traverser(r);
 		r.currentScope(pkg);
 		t.visitObjectDefn(od);
-		assertEquals(pa, fld.type.defn());
+		assertEquals(pa, fld.type.namedDefn());
 	}
 
 	@Test
@@ -380,7 +392,7 @@ public class ResolverTests {
 		r.currentScope(pkg);
 		final TypeReference ty = new TypeReference(pos, "Hello");
 		r.visitTypeReference(ty, true, -1);
-		assertEquals(type, ty.defn());
+		assertEquals(type, ty.namedDefn());
 	}
 
 	@Test
@@ -411,7 +423,7 @@ public class ResolverTests {
 		TypeReference tr = new TypeReference(pos, "HandlerType");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>(), new TypedPattern(pos, tr, new VarName(pos, op.name(), "handler")));
 		new Traverser(r).visitContractMethod(cmd);
-		assertEquals(ht, tr.defn());
+		assertEquals(ht, tr.namedDefn());
 		assertThat(cmd.type(), (Matcher)ApplyMatcher.type(Matchers.is(ht), Matchers.is(LoadBuiltins.send)));
 	}
 
@@ -471,7 +483,7 @@ public class ResolverTests {
 		Provides cs = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(cs.name());
 		r.visitTypeReference(ty, true, 0);
-		assertEquals(type, ty.defn());
+		assertEquals(type, ty.namedDefn());
 	}
 
 	@Test

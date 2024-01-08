@@ -1,4 +1,3 @@
-src/golden/workon
 src/golden/deals/errors
 src/golden/agents/errors
 src/golden/agents/typeerrors
@@ -192,3 +191,4 @@ src/golden/subscriptions/cancelling/namedTop
 src/golden/subscriptions/cancelling/namedNested
 src/golden/unittests/ignore
 src/golden/subscriptions/cancelling/namedHierarchy
+src/golden/structs/functions
