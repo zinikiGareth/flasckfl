@@ -66,15 +66,22 @@ public class PolyInstance implements NamedType, RepositoryEntry, AccessorHolder 
 	@Override
 	public String signature() {
 		StringBuilder ret = new StringBuilder();
-		ret.append(ty.name().uniqueName());
-		ret.append("[");
+		if (ty instanceof Tuple)
+			ret.append("(");
+		else {
+			ret.append(ty.name().uniqueName());
+			ret.append("[");
+		}
 		String sep = "";
 		for (Type p : polys) {
 			ret.append(sep);
 			ret.append(p.signature());
 			sep = ",";
 		}
-		ret.append("]");
+		if (ty instanceof Tuple)
+			ret.append(")");
+		else
+			ret.append("]");
 		return ret.toString();
 	}
 

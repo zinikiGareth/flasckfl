@@ -2,4 +2,4 @@ test.golden.a :: Number
 test.golden.b :: Number
 test.golden.c :: String
 test.golden.d :: String
-test.golden.c.f :: Tuple[String,String]
+test.golden.c.f :: (String,String)

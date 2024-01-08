@@ -35,7 +35,6 @@ import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
-import org.flasck.flas.tc3.Tuple;
 import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
@@ -138,10 +137,6 @@ public class LoadBuiltins {
 		contractTR.bind(contract);
 	}
 
-	//   -> tuple
-	public static final Tuple tuple = new Tuple(pos, "Tuple");
-
-	
 	/* Booleans */
 
 	//   -> Bool (the union)
@@ -737,7 +732,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null).dontGenerate();
 	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null).dontGenerate();
 	static {
-		makeTuple.bindType(tuple);
+		// makeTuple is just a placeholder and should be handled explicitly everywhere
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
 	}	
 

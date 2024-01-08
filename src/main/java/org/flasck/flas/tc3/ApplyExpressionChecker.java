@@ -197,11 +197,11 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		if (expr.args.size() < 2) {
 			throw new RuntimeException("Tuples must have at least two elements");
 		} else {
-			results.remove(0); // remove the operator from the front
+			PosType op = results.remove(0); // remove the operator from the front
 			List<Type> tys = new ArrayList<Type>();
 			for (PosType pt : results)
 				tys.add(pt.type);
-			nv.result(new PolyInstance(expr.location(), LoadBuiltins.tuple, tys));
+			nv.result(new PolyInstance(expr.location(), ((PolyInstance) op.type).struct(), tys));
 		}
 	}
 

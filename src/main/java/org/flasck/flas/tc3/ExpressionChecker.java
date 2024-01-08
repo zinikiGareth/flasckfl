@@ -218,8 +218,12 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			announce(op.location(), (Type) op.defn());
 		} else if (op.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) op.defn();
-			// This handles the tuple case
-			announce(op.location(), fn.type());
+			if (fn == LoadBuiltins.makeTuple) {
+				// This handles the tuple case
+				announce(op.location(), new Tuple(fn.location(), fn.name(), nargs));
+			} else {
+				announce(op.location(), fn.type());
+			}
 		} else
 			throw new RuntimeException("Cannot handle " + op);
 	}
