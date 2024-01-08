@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.Implements;
@@ -57,6 +58,7 @@ import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleTypeReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -636,6 +638,13 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 
 	@Override
 	public void visitTypeReference(TypeReference ref, boolean expectPolys, int exprNargs) {
+		if (ref instanceof FunctionTypeReference) {
+			handleFunctionTypeReference((FunctionTypeReference) ref, expectPolys, exprNargs);
+			return;
+		} else if (ref instanceof TupleTypeReference) {
+			handleTupleTypeReference((TupleTypeReference) ref, expectPolys, exprNargs);
+			return;
+		}
 		String tn = ref.name();
 		RepositoryEntry defn = find(ref.location(), scope, tn);
 		if (defn == null) {
@@ -696,6 +705,18 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		ref.bind((NamedType) defn);
 	}
 
+	private void handleFunctionTypeReference(FunctionTypeReference ref, boolean expectPolys, int exprNargs) {
+		for (TypeReference k : ref.args) {
+			visitTypeReference(k, expectPolys, exprNargs);
+		}
+	}
+
+	private void handleTupleTypeReference(TupleTypeReference ref, boolean expectPolys, int exprNargs) {
+		for (TypeReference k : ref.members) {
+			visitTypeReference(k, expectPolys, exprNargs);
+		}
+	}
+	
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
 		scopeStack.add(0, scope);

@@ -1,8 +1,9 @@
 package test.resolver;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,27 +21,29 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleTypeReference;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -49,6 +52,8 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
+import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.Primitive;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -284,6 +289,58 @@ public class ResolverTests {
 		r.currentScope(pkg);
 		t.visitStructDefn(s);
 		assertEquals(pa, fld.type.defn());
+	}
+
+	@Test
+	public void weCanResolveATupleInAPolyField() {
+		StructDefn listType = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "List"), true, Arrays.asList(new PolyType(pos, new SolidName(null, "A"))));
+		Primitive strType = new Primitive(pos, "String");
+		Primitive nbrType = new Primitive(pos, "Number");
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.MyStruct.List"); will(returnValue(null));
+			oneOf(rr).get("test.repo.List"); will(returnValue(null));
+			oneOf(rr).get("List"); will(returnValue(listType));
+			oneOf(rr).get("test.repo.MyStruct.String"); will(returnValue(null));
+			oneOf(rr).get("test.repo.String"); will(returnValue(null));
+			oneOf(rr).get("String"); will(returnValue(strType));
+			oneOf(rr).get("test.repo.MyStruct.Number"); will(returnValue(null));
+			oneOf(rr).get("test.repo.Number"); will(returnValue(null));
+			oneOf(rr).get("Number"); will(returnValue(nbrType));
+			oneOf(errors).mark();
+		}});
+		TupleTypeReference pv = new TupleTypeReference(pos, new TypeReference(pos, "String"), new TypeReference(pos, "Number"));
+		SolidName str = new SolidName(pkg, "MyStruct");
+		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, str, true, null);
+		StructField fld = new StructField(pos, s, false, true, new TypeReference(pos, "List", pv), "fld");
+		s.addField(fld);
+
+		Resolver r = new RepositoryResolver(errors, rr);
+		Traverser t = new Traverser(r);
+		r.currentScope(pkg);
+		t.visitStructDefn(s);
+		assertTrue(fld.type.defn() instanceof PolyInstance);
+		PolyInstance pi = (PolyInstance) fld.type.defn();
+		assertEquals(listType, pi.struct());
+		assertEquals(1, pi.argCount());
+		assertTrue(pi.get(0) instanceof TupleTypeReference);
+	}
+
+	@Test
+	public void weCanResolveAFunctionInAStructField() {
+		context.checking(new Expectations() {{
+			oneOf(errors).mark();
+		}});
+		FunctionTypeReference ft = new FunctionTypeReference(pos, new TypeReference(pos, "String"), new TypeReference(pos, "Number"));
+		SolidName str = new SolidName(pkg, "MyStruct");
+		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, str, true, null);
+		StructField fld = new StructField(pos, s, false, true, ft, "fld");
+		s.addField(fld);
+
+		Resolver r = new RepositoryResolver(errors, rr);
+		Traverser t = new Traverser(r);
+		r.currentScope(pkg);
+		t.visitStructDefn(s);
+//		assertEquals(pa, fld.type.defn());
 	}
 
 	@Test

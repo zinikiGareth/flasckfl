@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
+import org.flasck.flas.parsedForm.TupleTypeReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeExprToken;
-import org.zinutils.exceptions.UtilException;
 
 // TODO: this isn't actually TDA ...
 public class TypeExprParser {
@@ -64,18 +64,18 @@ public class TypeExprParser {
 		else if (tt.type == TypeExprToken.ORB) {
 			// either a complex type, grouped OR a tuple type
 			// Start parsing nested expression and see what happens
-			List<Object> inner = new ArrayList<Object>();
+			List<TypeReference> inner = new ArrayList<>();
 			while (line.hasMoreContent()) {
 				Object add = tryOneExpr(line);
 				if (add == null)
 					return null; // and issue an error
-				inner.add(add);
+				inner.add((TypeReference) add);
 				TypeExprToken crb = TypeExprToken.from(line);
 				if (crb.type == TypeExprToken.CRB) {
 					if (inner.size() == 1)
 						return inner.get(0);
 					else if (inner.size() > 1)
-						throw new UtilException("Tuple case");
+						return new TupleTypeReference(tt.location, inner);
 				} else if (crb.type != TypeExprToken.COMMA)
 					return null; // this is an error
 			}
@@ -99,7 +99,7 @@ public class TypeExprParser {
 			TypeExprToken look;
 			mark = line.at();
 			List<TypeReference> args = new ArrayList<TypeReference>();
-			while (line.hasMoreContent() && (look = TypeExprToken.from(line)) != null && look.type != TypeExprToken.CRB && look.type != TypeExprToken.COMMA) {
+			while (line.hasMoreContent() && (look = TypeExprToken.from(line)) != null && look.type != TypeExprToken.CRB && look.type != TypeExprToken.CSB && look.type != TypeExprToken.COMMA) {
 				line.reset(mark);
 				Object ta = tryParsing(line);
 				if (ta == null)
