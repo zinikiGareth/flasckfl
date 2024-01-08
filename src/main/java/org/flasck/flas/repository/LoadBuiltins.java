@@ -647,8 +647,10 @@ public class LoadBuiltins {
 	}
 	
 	public static final FunctionDefinition getYear = new FunctionDefinition(FunctionName.function(pos, null, "getYear"), 1, null).dontGenerate();
+	public static final FunctionDefinition dateIsAfter = new FunctionDefinition(FunctionName.function(pos, null, "dateIsAfter"), 2, null).dontGenerate();
 	static {
 		getYear.bindType(new Apply(date, number));
+		dateIsAfter.bindType(new Apply(date, date, bool));
 	}
 
 	// Types
@@ -873,6 +875,7 @@ public class LoadBuiltins {
 		repository.newObjectAccessor(errors, calendarParseIsoDate);
 		repository.newObjectAccessor(errors, calendarParseIsoDateTime);
 		repository.functionDefn(errors, getYear);
+		repository.functionDefn(errors, dateIsAfter);
 
 		repository.newContract(errors, crobagWindowHandler);
 		repository.newContract(errors, crobagSlideWindow);
