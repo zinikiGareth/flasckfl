@@ -42,9 +42,35 @@ public class TypeExprParser {
 		if (nt == null) { // we have reached the end of the line
 			pt.provide(curr);
 			return;
+		} else if (nt.type == TypeExprToken.CSB) {
+			line.reset(mark);
+			pt.provide(curr);
+			return;
 		}
 
-		// polys go here
+		// we may have polymorphic args
+		if (nt.type == TypeExprToken.OSB) {
+			List<TypeReference> trs = new ArrayList<>();
+			int cnt = 0;
+			while (true) {
+				tryParsing(line, x -> trs.add(x));
+				if (++cnt != trs.size()) { // we didn't get a type
+					return;
+				}
+				nt = TypeExprToken.from(line); // get the next token
+				// TODO: can probably be null
+				if (nt.type == TypeExprToken.COMMA) {
+					// carry on
+				} else if (nt.type == TypeExprToken.CSB) {
+					break;
+				} else {
+					// probably a real error
+					throw new NotImplementedException();
+				}
+			}
+			curr = new TypeReference(curr.location(), curr.name(), trs);
+			mark = line.at();
+		}
 		
 		// now try a function
 		if (nt.type == TypeExprToken.ARROW) {

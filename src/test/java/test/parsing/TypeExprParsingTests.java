@@ -1,6 +1,7 @@
 package test.parsing;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class TypeExprParsingTests {
 
 	@Test
 	public void aSimpleFunctionType() {
-		parser.tryParsing(new Tokenizable("String->Number"), new Listener());
+		parseTypeExpr("String->Number");
 		assertEquals(1, pt.size());
 		TypeReference tt = pt.get(0);
 		assertTrue(tt instanceof FunctionTypeReference);
@@ -51,7 +52,7 @@ public class TypeExprParsingTests {
 
 	@Test
 	public void aTwoArgFunctionType() {
-		parser.tryParsing(new Tokenizable("String->Number->String"), new Listener());
+		parseTypeExpr("String->Number->String");
 		assertEquals(1, pt.size());
 		TypeReference tt = pt.get(0);
 		assertTrue(tt instanceof FunctionTypeReference);
@@ -64,7 +65,7 @@ public class TypeExprParsingTests {
 
 	@Test
 	public void aNestedFunctionType() {
-		parser.tryParsing(new Tokenizable("String->(Number->Boolean)->String"), new Listener());
+		parseTypeExpr("String->(Number->Boolean)->String");
 		assertEquals(1, pt.size());
 		TypeReference tt = pt.get(0);
 		assertTrue(tt instanceof FunctionTypeReference);
@@ -81,7 +82,7 @@ public class TypeExprParsingTests {
 
 	@Test
 	public void aSimpleTupleType() {
-		parser.tryParsing(new Tokenizable("(String,Number)"), new Listener());
+		parseTypeExpr("(String,Number)");
 		assertEquals(1, pt.size());
 		TypeReference tt = pt.get(0);
 		assertTrue(tt instanceof TupleTypeReference);
@@ -93,7 +94,7 @@ public class TypeExprParsingTests {
 
 	@Test
 	public void aFunctionTupleType() {
-		parser.tryParsing(new Tokenizable("(String,Number->Boolean)"), new Listener());
+		parseTypeExpr("(String,Number->Boolean)");
 		assertEquals(1, pt.size());
 		TypeReference tt = pt.get(0);
 		assertTrue(tt instanceof TupleTypeReference);
@@ -108,7 +109,7 @@ public class TypeExprParsingTests {
 
 	@Test
 	public void aFunctionReturningATupleType() {
-		parser.tryParsing(new Tokenizable("Number->(String,Boolean)"), new Listener());
+		parseTypeExpr("Number->(String,Boolean)");
 		assertEquals(1, pt.size());
 		TypeReference tt = pt.get(0);
 		assertTrue(tt instanceof FunctionTypeReference);
@@ -120,12 +121,12 @@ public class TypeExprParsingTests {
 		assertEquals("String", ftr.members.get(0).name());
 		assertEquals("Boolean", ftr.members.get(1).name());
 	}
-	/*
+	
 	@Test
 	public void aPolymorphicTypeWithSimpleArgument() {
-		Object tt = parser.tryParsing(new Tokenizable("List[String]"));
-		assertTrue(tt instanceof TypeReference);
-		TypeReference tr = (TypeReference) tt;
+		parseTypeExpr("List[String]");
+		assertEquals(1, pt.size());
+		TypeReference tr = pt.get(0);
 		assertEquals("List", tr.name());
 		assertTrue(tr.hasPolys());
 		assertEquals(1, tr.polys().size());
@@ -134,9 +135,9 @@ public class TypeExprParsingTests {
 
 	@Test
 	public void aPolymorphicTypeWithFunctionArgument() {
-		Object tt = parser.tryParsing(new Tokenizable("List[String->Number]"));
-		assertTrue(tt instanceof TypeReference);
-		TypeReference tr = (TypeReference) tt;
+		parseTypeExpr("List[String->Number]");
+		assertEquals(1, pt.size());
+		TypeReference tr = pt.get(0);
 		assertEquals("List", tr.name());
 		assertTrue(tr.hasPolys());
 		assertEquals(1, tr.polys().size());
@@ -150,7 +151,23 @@ public class TypeExprParsingTests {
 
 	@Test
 	public void aPolymorphicTypeWithTupleArgument() {
-		parser.tryParsing(new Tokenizable("List[(String, Number)]"));
+		parseTypeExpr("List[(String, Number)]");
+		assertEquals(1, pt.size());
+		TypeReference tr = pt.get(0);
+		assertEquals("List", tr.name());
+		assertTrue(tr.hasPolys());
+		assertEquals(1, tr.polys().size());
+		TypeReference p0 = tr.polys().get(0);
+		assertTrue(p0 instanceof TupleTypeReference);
+		TupleTypeReference ftr = (TupleTypeReference)p0;
+		assertEquals(2, ftr.members.size());
+		assertEquals("String", ftr.members.get(0).name());
+		assertEquals("Number", ftr.members.get(1).name());
 	}
-	*/
+
+	private void parseTypeExpr(String text) {
+		Tokenizable toks = new Tokenizable(text);
+		parser.tryParsing(toks, new Listener());
+		assertFalse(toks.hasMoreContent());
+	}
 }
