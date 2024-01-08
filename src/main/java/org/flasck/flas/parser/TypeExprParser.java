@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
+import org.flasck.flas.parsedForm.TupleTypeReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeExprToken;
@@ -137,16 +138,26 @@ public class TypeExprParser {
 
 	private void parseInsideRB(Tokenizable line, TDAProvideType pt) {
 		List<TypeReference> trs = new ArrayList<>();
-		tryParsing(line, x -> trs.add(x));
-		if (trs.isEmpty()) {
-			return;
-		}
-		TypeExprToken tt = TypeExprToken.from(line);
-		if (tt.type == TypeExprToken.CRB) {
-			pt.provide(trs.get(0));
-			return;
-		}
-		throw new NotImplementedException();
+		while (true) {
+			tryParsing(line, x -> trs.add(x));
+			if (trs.isEmpty()) {
+				return;
+			}
+			TypeExprToken tt = TypeExprToken.from(line);
+			if (tt.type == TypeExprToken.CRB) {
+				if (trs.size() == 1) // the parenthesis case
+					pt.provide(trs.get(0));
+				else { // the tuple case
+					pt.provide(new TupleTypeReference(trs.get(0).location(), trs));
+				}
+				return;
+			} else if (tt.type == TypeExprToken.COMMA) {
+				; // loop for next type
+			} else {
+				// probably a real error
+				throw new NotImplementedException();
+			}
+		}			
 	}
 
 	/*

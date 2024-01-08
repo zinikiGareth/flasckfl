@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
+import org.flasck.flas.parsedForm.TupleTypeReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.TDAProvideType;
 import org.flasck.flas.parser.TypeExprParser;
@@ -78,12 +79,48 @@ public class TypeExprParsingTests {
 		assertEquals("String", ftr.args.get(2).name());
 	}
 
-	/*
 	@Test
 	public void aSimpleTupleType() {
-		parser.tryParsing(new Tokenizable("(String,Number)"));
+		parser.tryParsing(new Tokenizable("(String,Number)"), new Listener());
+		assertEquals(1, pt.size());
+		TypeReference tt = pt.get(0);
+		assertTrue(tt instanceof TupleTypeReference);
+		TupleTypeReference ttr = (TupleTypeReference) tt;
+		assertEquals(2, ttr.members.size());
+		assertEquals("String", ttr.members.get(0).name());
+		assertEquals("Number", ttr.members.get(1).name());
 	}
 
+	@Test
+	public void aFunctionTupleType() {
+		parser.tryParsing(new Tokenizable("(String,Number->Boolean)"), new Listener());
+		assertEquals(1, pt.size());
+		TypeReference tt = pt.get(0);
+		assertTrue(tt instanceof TupleTypeReference);
+		TupleTypeReference ttr = (TupleTypeReference) tt;
+		assertEquals(2, ttr.members.size());
+		assertEquals("String", ttr.members.get(0).name());
+		assertTrue(ttr.members.get(1) instanceof FunctionTypeReference);
+		FunctionTypeReference ftr = (FunctionTypeReference) ttr.members.get(1);
+		assertEquals("Number", ftr.args.get(0).name());
+		assertEquals("Boolean", ftr.args.get(1).name());
+	}
+
+	@Test
+	public void aFunctionReturningATupleType() {
+		parser.tryParsing(new Tokenizable("Number->(String,Boolean)"), new Listener());
+		assertEquals(1, pt.size());
+		TypeReference tt = pt.get(0);
+		assertTrue(tt instanceof FunctionTypeReference);
+		FunctionTypeReference ttr = (FunctionTypeReference) tt;
+		assertEquals(2, ttr.args.size());
+		assertEquals("Number", ttr.args.get(0).name());
+		assertTrue(ttr.args.get(1) instanceof TupleTypeReference);
+		TupleTypeReference ftr = (TupleTypeReference) ttr.args.get(1);
+		assertEquals("String", ftr.members.get(0).name());
+		assertEquals("Boolean", ftr.members.get(1).name());
+	}
+	/*
 	@Test
 	public void aPolymorphicTypeWithSimpleArgument() {
 		Object tt = parser.tryParsing(new Tokenizable("List[String]"));
