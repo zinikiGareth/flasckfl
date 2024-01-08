@@ -54,6 +54,7 @@ import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
+import org.flasck.flas.tc3.Tuple;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -321,8 +322,13 @@ public class ResolverTests {
 		assertTrue(fld.type.defn() instanceof PolyInstance);
 		PolyInstance pi = (PolyInstance) fld.type.defn();
 		assertEquals(listType, pi.struct());
-		assertEquals(1, pi.argCount());
-		assertTrue(pi.get(0) instanceof TupleTypeReference);
+		assertEquals(1, pi.polys().size());
+		assertTrue(pi.polys().get(0) instanceof PolyInstance);
+		PolyInstance pt = (PolyInstance) pi.polys().get(0);
+		assertTrue(pt.struct() instanceof Tuple);
+		assertEquals(2, pt.polys().size());
+		assertEquals(strType, pt.polys().get(0));
+		assertEquals(nbrType, pt.polys().get(1));
 	}
 
 	@Test

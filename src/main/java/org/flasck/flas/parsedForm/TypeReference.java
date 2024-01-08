@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.CantHappenException;
@@ -17,6 +18,7 @@ public class TypeReference implements Expr {
 	private String name;
 	private List<TypeReference> polys;
 	private NamedType definition;
+	private Apply applyDefn;
 	private boolean dynamic;
 
 	public TypeReference(InputPosition location, String name, TypeReference... polys) {
@@ -52,10 +54,13 @@ public class TypeReference implements Expr {
 		return name + (polys!= null && !polys.isEmpty()?polys:"");
 	}
 
-	public TypeReference bind(NamedType ty) {
+	public TypeReference bind(Type ty) {
 		if (dynamic)
 			throw new CantHappenException("you cannot bind a dynamic type directly");
-		definition = ty;
+		if (ty instanceof NamedType)
+			definition = (NamedType) ty;
+		else if (ty instanceof Apply)
+			applyDefn = (Apply)ty;
 		return this;
 	}
 

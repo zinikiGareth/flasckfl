@@ -82,9 +82,11 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryEntry.ValidContexts;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.RepositoryVisitor;
+import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
+import org.flasck.flas.tc3.Tuple;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeHelpers;
 import org.flasck.flas.tokenizers.PolyTypeToken;
@@ -686,6 +688,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 						if (mark.hasMoreNow())
 							return;
 						NamedType arg = tr.defn();
+						if (arg == null)
+							throw new CantHappenException("have null type in resolved reference");
 						if (tn.equals("Crobag") && !TypeHelpers.isEntity(arg)) {
 							if (arg != null)
 								errors.message(tr.location(), "a Crobag can only contain entities, not " + arg.signature());
@@ -706,15 +710,22 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	}
 
 	private void handleFunctionTypeReference(FunctionTypeReference ref, boolean expectPolys, int exprNargs) {
+		List<Type> boundTo = new ArrayList<>();
 		for (TypeReference k : ref.args) {
 			visitTypeReference(k, expectPolys, exprNargs);
+			boundTo.add(k.defn());
 		}
+		ref.bind(new Apply(boundTo));
 	}
 
 	private void handleTupleTypeReference(TupleTypeReference ref, boolean expectPolys, int exprNargs) {
+		List<Type> boundTo = new ArrayList<>();
+		Tuple tt = new Tuple(ref.location(), null, ref.members.size());
 		for (TypeReference k : ref.members) {
 			visitTypeReference(k, expectPolys, exprNargs);
+			boundTo.add(k.defn());
 		}
+		ref.bind(new PolyInstance(ref.location(), tt, boundTo));
 	}
 	
 	@Override
