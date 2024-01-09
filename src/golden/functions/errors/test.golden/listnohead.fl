@@ -1,1 +1,3 @@
+List is a union, so you cannot ask for "head", which is only in Cons.
+
 	takehead (List[A] l) = l.head

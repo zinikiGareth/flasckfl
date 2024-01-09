@@ -1,3 +1,24 @@
+I have no idea what this is supposed to be testing or why it carries the name splitdefn
+
 	guarded x
 		| True = "hello"
 		| False = "goodbye"
+
+But I wanted to write some tests where I checked that you could not split the definition
+of a function, so I added them here.
+
+
+The function g splits the cases of split
+
+	split Nil = 0
+	g = 13
+	split (Cons[A] c) = 1
+	
+The struct Hello splits the cases of broken
+
+	broken Nil = 0
+	
+	struct Hello
+		Number n
+		
+	broken l = 1	

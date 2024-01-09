@@ -32,12 +32,16 @@ public class TDAMultiParser implements TDAParsing {
 	// needs to return the parser that will do the children
 	public TDAParsing tryParsing(Tokenizable toks) {
 		ErrorMark mark = errors.mark();
+		TDAParsing nested = null;
 		for (TDAParsing p : parsers) {
 			toks.reset(0);
-			final TDAParsing nested = p.tryParsing(toks);
-			if (nested != null)
-				return nested;
+			if (nested == null)
+				nested = p.tryParsing(toks);
+			else
+				p.choseOther();
 		}
+		if (nested != null)
+			return nested;
 		toks.reset(0);
 		if (!mark.hasMoreNow())
 			errors.message(toks, "syntax error");

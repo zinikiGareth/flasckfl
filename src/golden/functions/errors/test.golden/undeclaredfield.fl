@@ -1,5 +1,6 @@
+This tests that an appropriate error is produced when a field is called by the wrong name.
+
 	struct HoldIt
 		String called
-		
-		
+
 	recoverit (HoldIt e) = e.notcalled

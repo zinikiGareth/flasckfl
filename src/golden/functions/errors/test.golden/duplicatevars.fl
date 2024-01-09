@@ -1,3 +1,4 @@
-// You cannot have the same variable twice in the same intro (use a guard if you want to test for equality between parameters)
+You cannot have the same variable twice in the same intro
+(use a guard if you want to test for equality between parameters)
 
 	dupl x x = Nil

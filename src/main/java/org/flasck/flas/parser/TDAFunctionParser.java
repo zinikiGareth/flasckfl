@@ -85,6 +85,11 @@ public class TDAFunctionParser implements TDAParsing {
 	}
 
 	@Override
+	public void choseOther() {
+		consumer.moveOn();
+	}
+	
+	@Override
 	public void scopeComplete(InputPosition location) {
 		consumer.moveOn();
 	}

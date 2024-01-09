@@ -1,2 +1,6 @@
+I am not sure whether this is supposed to pass or fail.
+It does not currently produce any errors and it seems reasonable
+to me that you can have the same argument in two different statements
+
 	f True x = x
 	f False x = Nil
