@@ -79,6 +79,11 @@ public class Tuple implements PolyHolder, RepositoryEntry, NamedType, NamedThing
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof Tuple && ((Tuple)obj).polys.size() == polys.size();
+	}
+	
+	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
 		if (other instanceof UnifiableType) {
 			((UnifiableType)other).incorporatedBy(pos, this);

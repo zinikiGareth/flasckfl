@@ -30,6 +30,4 @@ and specifically the "l1" case came up in the wild with a unification error.
 	struct StoreListTupleWithFnAsAny
 		List[(String, Any)] list
 		
-	m1 = StoreListTupleWithFnAsAny [("hello", "there"), ("goodbye", "world")]
-
 	l1 = StoreListTupleWithFnAsAny [("hello", takesAny), ("goodbye", takesSome)]

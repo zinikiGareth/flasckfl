@@ -31,6 +31,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
@@ -745,7 +746,7 @@ public class TypeConstraintSet implements UnifiableType {
 			} else {
 				Integer cnt = acs.iterator().next();
 				if (cnt != 0) {
-					logger.debug("unifying " + alltys);
+					logger.debug("unifying functions with arity: " + cnt + ": " + alltys);
 					List<Type> us = new ArrayList<>();
 					for (int i=0;i<=cnt;i++) {
 						Set<Type> ms = new HashSet<>();
@@ -763,6 +764,58 @@ public class TypeConstraintSet implements UnifiableType {
 				} else {
 					logger.debug("looking for union with " + alltys + (needAll?" (need all)":" (accept subset)"));
 					resolvedTo = repository.findUnionWith(errors, pos, alltys, needAll);
+				}
+			}
+			if (resolvedTo == null) {
+				// next thing to try is to see if they are poly instances with unifiable args ...
+				NamedType shared = null;
+				List<Set<Type>> args = new ArrayList<>();
+				for (Type ty : alltys) {
+					if (ty instanceof PolyInstance) {
+						PolyInstance pi = (PolyInstance) ty;
+						NamedType po = pi.struct();
+						if (shared == null) {
+							shared = po;
+							for (int i=0;i<pi.polys().size();i++) {
+								args.add(new HashSet<>());
+							}
+						} else if (!shared.equals(po)) {
+							shared = null;
+							break; // they are different
+						}
+						for (int i=0;i<pi.polys().size();i++) {
+							args.get(i).add(pi.polys().get(i));
+						}
+					} else {
+						shared = null;
+						break; // one at least is not a poly instance
+					}
+				}
+				if (shared != null) {
+					// we have a shared type in "shared"
+					// args is an array of the length of shared.polys(), with each entry being a list of types to unify
+					
+					// I really feel the need to go back and read the paper again and then rewrite all of
+					// this from first principles with 100% TDD unit test coverage.
+					
+					// But in the meantime, this gets me where I need to be today, and we are very close 99% of the time
+					List<Type> unified = new ArrayList<>();
+					for (int i=0;i<args.size();i++) {
+						Set<Type> tounify = args.get(i);
+						if (tounify.size() == 1) {
+							unified.add(CollectionUtils.any(tounify));
+						} else {
+							Type asUnion = repository.findUnionWith(errors, pos, tounify, needAll);
+							if (asUnion != null)
+								unified.add(asUnion);
+							else
+								break;
+						}
+					}
+					if (unified.size() == args.size()) {
+						// we unified the args, so we can say that a PI of the shared type with those is the unified result
+						resolvedTo = new PolyInstance(pos, shared, unified);
+					}
 				}
 			}
 			if (resolvedTo == null) {
