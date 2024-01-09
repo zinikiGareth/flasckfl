@@ -1,7 +1,10 @@
 It should obviously be possible to store a function in a struct and call it.
-Check that types work for that
+Some of the cases in which we store a function inside something else are less obvious
+and specifically the "l1" case came up in the wild with a unification error.
 
 	f (String s) = 42
+	takesAny a = 42
+	takesSome b = 56
 
 	struct StoreFn
 		String->Number fn
@@ -17,3 +20,14 @@ Check that types work for that
 		(String, String->Number) tuple
 		
 	z = StoreTupleFn ("hello", f)
+	
+	struct StoreFnAsAny
+		(String, Any) tuple
+		
+	a1 = StoreFnAsAny ("hello", f)
+	a2 = StoreFnAsAny ("hello", takesAny)	
+
+	struct StoreListTupleWithFnAsAny
+		List[(String, Any)] list
+
+	l1 = StoreListTupleWithFnAsAny [("hello", takesAny), ("goodbye", takesSome)]

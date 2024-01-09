@@ -720,10 +720,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 
 	private void handleTupleTypeReference(TupleTypeReference ref, boolean expectPolys, int exprNargs) {
 		List<Type> boundTo = new ArrayList<>();
-		Tuple tt = new Tuple(ref.location(), null, ref.members.size());
+		Tuple tt = new Tuple(ref.location(), ref.members.size());
 		for (TypeReference k : ref.members) {
 			visitTypeReference(k, expectPolys, exprNargs);
-			boundTo.add(k.namedDefn());
+			boundTo.add(k.defn());
 		}
 		ref.bind(new PolyInstance(ref.location(), tt, boundTo));
 	}

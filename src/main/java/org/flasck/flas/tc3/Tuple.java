@@ -20,11 +20,9 @@ public class Tuple implements PolyHolder, RepositoryEntry, NamedType, NamedThing
 	private final SolidName name;
 	private final List<PolyType> polys = new ArrayList<>();
 
-	// Note: there is the possibility here that multiple tuples will have the same name,
-	// but I don't think we use or reference it anywhere, so that is not a problem.
-	public Tuple(InputPosition loc, NameOfThing inside, int nargs) {
+	public Tuple(InputPosition loc, int nargs) {
 		this.loc = loc;
-		this.name = new SolidName(inside, "_tuple_"+nargs);
+		this.name = new SolidName(null, "_tuple_"+nargs);
 		for (int i=0;i<nargs;i++) {
 			polys.add(new PolyType(loc, new SolidName(this.name, "P" + i)));
 		}
