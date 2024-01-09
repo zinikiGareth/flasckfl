@@ -1,7 +1,10 @@
-duplicatevar  3.7:    dupl x  _ x = Nil
+duplicatevar  4.7:    dupl x  _ x = Nil
                           duplicate function argument x
-listnohead.f  1.25:   takehead (List[A] l) = l. _ head
+listnohead.f  3.25:   takehead (List[A] l) = l. _ head
                           cannot access members of unions
-undeclaredfi  5.25:   recoverit (HoldIt e) = e. _ notcalled
+splitdefn.fl 15.0:     _ split (Cons[A] c) = 1
+                          test.golden.split is defined multiple times: splitdefn.fl 13.0
+splitdefn.fl 24.0:     _ broken l = 1
+                          test.golden.broken is defined multiple times: splitdefn.fl 19.0
+undeclaredfi  6.25:   recoverit (HoldIt e) = e. _ notcalled
                           there is no field 'notcalled' in test.golden.HoldIt
-                              
