@@ -69,8 +69,6 @@ public class InputPosition implements Comparable<InputPosition> {
 			ret = Integer.compare(lineNo, o.lineNo);
 		if (ret == 0)
 			ret = Integer.compare(off, o.off);
-		if (ret == 0)
-			ret = Integer.compare(endPos, o.endPos);
 		return ret;
 	}
 

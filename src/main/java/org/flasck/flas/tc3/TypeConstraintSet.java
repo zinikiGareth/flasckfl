@@ -773,7 +773,7 @@ public class TypeConstraintSet implements UnifiableType {
 				for (PosType ty : resolved) {
 					alreadyError |= containsError(ty.type);
 					tyes.add(ty.type.signature());
-					if (ty.pos != null && ty.pos != LoadBuiltins.pos && ty.pos != Apply.unknown)
+					if (ty.pos != null && ty.pos != LoadBuiltins.pos && ty.pos != Apply.unknown && !ty.pos.equals(pos))
 						locs.add(ty.pos);
 				}
 				if (!alreadyError)
