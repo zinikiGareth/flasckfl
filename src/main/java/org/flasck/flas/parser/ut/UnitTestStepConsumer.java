@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 
 public interface UnitTestStepConsumer {
 	void assertion(Expr expr, Expr value);
+	void identical(Expr expr, Expr value);
 	void closeCard(UnresolvedVar card);
 	void shove(List<UnresolvedVar> slots, Expr value);
 	void data(ErrorReporter errors, UnitDataDeclaration dd);

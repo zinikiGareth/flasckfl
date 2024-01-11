@@ -56,6 +56,17 @@ UTRunner.prototype.assertSameValue = function(_cxt, e, a) {
 		throw new Error("NSV\n  expected: " + e + "\n  actual:   " + a);
 	}
 }
+UTRunner.prototype.assertIdentical = function(_cxt, e, a) {
+	e = _cxt.full(e);
+//	if (e instanceof ResponseWithMessages)
+//		e = e.obj; // just throw the messages away
+	a = _cxt.full(a);
+	if (a !== e) {
+		if (a instanceof FLError)
+			a = a.message;
+		throw new Error("NSV\n  expected: " + e + "\n  actual:   " + a);
+	}
+}
 UTRunner.prototype.shove = function(_cxt, dest, slot, val) {
 	dest = _cxt.full(dest);
 	val = _cxt.full(val);

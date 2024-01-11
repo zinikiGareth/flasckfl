@@ -28,6 +28,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestIdentical;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -66,6 +67,11 @@ public class AccessorConvertor extends LeafAdapter {
 	
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
+		sv.result(null);
+	}
+	
+	@Override
+	public void postUnitTestIdentical(UnitTestIdentical a) {
 		sv.result(null);
 	}
 

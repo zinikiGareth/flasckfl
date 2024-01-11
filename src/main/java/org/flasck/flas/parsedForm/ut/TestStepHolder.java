@@ -21,6 +21,11 @@ public class TestStepHolder implements UnitTestStepConsumer {
 	}
 	
 	@Override
+	public void identical(Expr expr, Expr value) {
+		this.steps.add(new UnitTestIdentical(expr, value));
+	}
+	
+	@Override
 	public void closeCard(UnresolvedVar card) {
 		this.steps.add(new UnitTestClose(card));
 	}

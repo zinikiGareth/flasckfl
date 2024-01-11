@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestClose;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestExpectCancel;
+import org.flasck.flas.parsedForm.ut.UnitTestIdentical;
 import org.flasck.flas.parsedForm.ut.UnitTestInput;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
@@ -108,7 +109,12 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
-		new CaptureAssertionClauseVisitorJS(state, sv, this.block, this.runner);
+		new CaptureAssertionClauseVisitorJS(state, sv, this.block, this.runner, "assertSameValue");
+	}
+
+	@Override
+	public void visitUnitTestIdentical(UnitTestIdentical a) {
+		new CaptureAssertionClauseVisitorJS(state, sv, this.block, this.runner, "assertIdentical");
 	}
 
 	@Override

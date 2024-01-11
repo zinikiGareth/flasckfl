@@ -54,6 +54,9 @@ public class TestStepParser implements TDAParsing {
 		case "assert": {
 			return handleAssert(toks);
 		}
+		case "identical": {
+			return handleIdentical(toks);
+		}
 		case "shove": {
 			return handleShove(toks);
 		}
@@ -110,6 +113,24 @@ public class TestStepParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		return new SingleExpressionParser(errors, "assert", ex -> { builder.assertion(test.get(0), ex); });
+	}
+
+	protected TDAParsing handleIdentical(Tokenizable toks) {
+		List<Expr> test = new ArrayList<>();
+		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> test.add(x));
+		expr.tryParsing(toks);
+		if (errors.hasErrors()){
+			return new IgnoreNestedParser();
+		}
+		if (test.isEmpty()) {
+			errors.message(toks, "assert requires expression to evaluate");
+			return new IgnoreNestedParser();
+		}
+		if (toks.hasMoreContent()) {
+			errors.message(toks, "syntax error");
+			return new IgnoreNestedParser();
+		}
+		return new SingleExpressionParser(errors, "identical", ex -> { builder.identical(test.get(0), ex); });
 	}
 
 	protected TDAParsing handleShove(Tokenizable toks) {

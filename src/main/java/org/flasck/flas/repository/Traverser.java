@@ -115,6 +115,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestClose;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestExpectCancel;
+import org.flasck.flas.parsedForm.ut.UnitTestIdentical;
 import org.flasck.flas.parsedForm.ut.UnitTestInput;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
@@ -1950,6 +1951,8 @@ public class Traverser implements RepositoryVisitor {
 		visitor.visitUnitTestStep(s);
 		if (s instanceof UnitTestAssert)
 			visitUnitTestAssert((UnitTestAssert) s);
+		else if (s instanceof UnitTestIdentical)
+			visitUnitTestIdentical((UnitTestIdentical)s);
 		else if (s instanceof UnitTestClose)
 			visitUnitTestClose((UnitTestClose)s);
 		else if (s instanceof UnitTestShove)
@@ -2042,6 +2045,14 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitUnitTestIdentical(UnitTestIdentical a) {
+		visitor.visitUnitTestIdentical(a);
+		visitAssertExpr(true, a.value);
+		visitAssertExpr(false, a.expr);
+		postUnitTestIdentical(a);
+	}
+
+	@Override
 	public void visitAssertExpr(boolean isValue, Expr e) {
 		visitor.visitAssertExpr(isValue, e);
 		visitExpr(e, 0);
@@ -2056,6 +2067,11 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
 		visitor.postUnitTestAssert(a);
+	}
+
+	@Override
+	public void postUnitTestIdentical(UnitTestIdentical a) {
+		visitor.postUnitTestIdentical(a);
 	}
 
 	@Override

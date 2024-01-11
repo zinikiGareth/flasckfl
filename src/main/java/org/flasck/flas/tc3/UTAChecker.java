@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestIdentical;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -43,6 +44,15 @@ public class UTAChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
+		assertOrIdentical(a.expr, a.value);
+	}
+
+	@Override
+	public void postUnitTestIdentical(UnitTestIdentical a) {
+		assertOrIdentical(a.expr, a.value);
+	}
+
+	private void assertOrIdentical(Expr pexpr, Expr pvalue) {
 		if (results.size() != 2)
 			throw new NotImplementedException();
 		Type value = results.get(0);
@@ -54,18 +64,18 @@ public class UTAChecker extends LeafAdapter implements ResultAware {
 		if (value == expr)
 			; // fine
 		else if (expr instanceof UnifiableType)
-			((UnifiableType)expr).incorporatedBy(a.expr.location(), value);
-		else if (expr.incorporates(a.value.location(), value))
+			((UnifiableType)expr).incorporatedBy(pexpr.location(), value);
+		else if (expr.incorporates(pvalue.location(), value))
 			; // fine
 		else if (isError(value))
 			; // errors are always possible
 		else {
-			errors.message(a.value.location(), "value is of type " + value.signature() + " that cannot be the result of an expression of type " + expr.signature());
+			errors.message(pvalue.location(), "value is of type " + value.signature() + " that cannot be the result of an expression of type " + expr.signature());
 		}
 		// TODO: we probably need to try and resolve any UTs if there weren't errors
 		sv.result(null);
 	}
-
+	
 	private boolean isError(Type value) {
 		if (value == LoadBuiltins.error || value instanceof ErrorType)
 			return true;

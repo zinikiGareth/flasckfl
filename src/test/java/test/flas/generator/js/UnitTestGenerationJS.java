@@ -26,7 +26,7 @@ public class UnitTestGenerationJS {
 			oneOf(meth).assertable(runner, "assertSameValue", la, ra);
 			oneOf(nv).result(null);
 		}});
-		CaptureAssertionClauseVisitorJS capture = new CaptureAssertionClauseVisitorJS(state, nv, meth, runner);
+		CaptureAssertionClauseVisitorJS capture = new CaptureAssertionClauseVisitorJS(state, nv, meth, runner, "assertSameValue");
 		capture.result(la);
 		capture.result(ra);
 		capture.postUnitTestAssert(null);

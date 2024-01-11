@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestIdentical;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -65,6 +66,11 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert e) {
+		new AccessorConvertor(sv, errors, repository);
+	}
+	
+	@Override
+	public void visitUnitTestIdentical(UnitTestIdentical e) {
 		new AccessorConvertor(sv, errors, repository);
 	}
 	
