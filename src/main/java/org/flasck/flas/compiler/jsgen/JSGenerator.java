@@ -989,7 +989,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		
 		// So top will always be "this" if it has one (or the equivalent if not)
 		if (name.name.startsWith("_ctor_")) {
-			first = new JSVar("v1"); // I'm concerned about how tightly coupled this is ... thoughts?
+			first = new JSVar("_v1"); // I'm concerned about how tightly coupled this is ... thoughts?
 			fs.container(top, first);
 		} else
 			fs.container(top, new JSThis());

@@ -192,3 +192,4 @@ src/golden/subscriptions/cancelling/namedNested
 src/golden/unittests/ignore
 src/golden/subscriptions/cancelling/namedHierarchy
 src/golden/structs/functions
+src/golden/structs/sharedeval

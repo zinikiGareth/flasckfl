@@ -235,7 +235,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 
 	public String obtainNextVar() {
-		return "v" + nextVar ++;
+		return "_v" + nextVar ++;
 	}
 	
 	@Override

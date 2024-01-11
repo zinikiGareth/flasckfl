@@ -1,0 +1,14 @@
+2024-01-11: I found a bug for which this is a characterisation test
+
+The nature of the bug was that a value shared between two forks of a constructor led to an infinite loop.
+It turned out that it was simply because my local variable names were v1, v2, etc and that clashed with the field names.
+
+	struct Shared
+		Any v1
+		Any v2
+		
+	struct Value
+		String name
+		
+	value = Value "hello"
+	ret = Shared value value

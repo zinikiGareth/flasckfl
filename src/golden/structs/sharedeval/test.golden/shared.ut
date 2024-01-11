@@ -1,0 +1,5 @@
+	test itworks
+		identical ret.v1
+			ret.v2
+		assert ret.v1
+			Value "hello"
