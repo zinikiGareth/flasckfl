@@ -498,7 +498,7 @@ public class StackVisitation {
 		UnresolvedVar fld = new UnresolvedVar(pos, "head");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
 		mec.result(new ExprResult(pos, LoadBuiltins.cons));
-		mec.leaveMemberExpr(dot);
+		mec.leaveMemberExpr(dot, false);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -518,7 +518,7 @@ public class StackVisitation {
 		UnresolvedVar fld = new UnresolvedVar(pos, "m");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
 		mec.result(new ExprResult(pos, cd));
-		mec.leaveMemberExpr(dot);
+		mec.leaveMemberExpr(dot, false);
 	}
 	
 	@Test
@@ -538,7 +538,7 @@ public class StackVisitation {
 		UnresolvedVar fld = new UnresolvedVar(pos, "q");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
 		mec.result(new ExprResult(pos, cd));
-		mec.leaveMemberExpr(dot);
+		mec.leaveMemberExpr(dot, false);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -562,7 +562,7 @@ public class StackVisitation {
 		UnresolvedVar fld = new UnresolvedVar(pos, "m");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
 		mec.result(new ExprResult(pos, cd));
-		mec.leaveMemberExpr(dot);
+		mec.leaveMemberExpr(dot, false);
 	}
 
 	@Test
@@ -585,7 +585,7 @@ public class StackVisitation {
 		UnresolvedVar fld = new UnresolvedVar(pos, "acor");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
 		mec.result(new ExprResult(pos, od));
-		mec.leaveMemberExpr(dot);
+		mec.leaveMemberExpr(dot, false);
 	}
 	
 

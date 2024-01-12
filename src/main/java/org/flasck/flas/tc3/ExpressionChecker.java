@@ -249,7 +249,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void leaveMemberExpr(MemberExpr expr) {
+	public void leaveMemberExpr(MemberExpr expr, boolean done) {
 		if (expr.boundEarly()) {
 			if (expr.defn() instanceof Type)
 				announce(exprPos, (Type)expr.defn());

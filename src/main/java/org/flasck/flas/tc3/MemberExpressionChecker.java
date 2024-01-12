@@ -78,7 +78,7 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 	}
 
 	@Override
-	public void leaveMemberExpr(MemberExpr expr) {
+	public void leaveMemberExpr(MemberExpr expr, boolean done) {
 		Type ty = results.get(0);
 		if (!(expr.fld instanceof UnresolvedVar))
 			throw new NotImplementedException("Cannot handle " + expr.fld);

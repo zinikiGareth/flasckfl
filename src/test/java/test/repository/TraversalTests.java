@@ -510,7 +510,7 @@ public class TraversalTests {
 			oneOf(v).visitMemberExpr(me, 0);
 			oneOf(v).visitExpr(from, 0);
 			oneOf(v).visitUnresolvedVar(from, 0);
-			oneOf(v).leaveMemberExpr(me);
+			oneOf(v).leaveMemberExpr(me, false);
 		}});
 		t.visitExpr(me, 0);
 	}

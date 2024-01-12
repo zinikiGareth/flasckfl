@@ -392,7 +392,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	}
 
 	@Override
-	public void leaveMemberExpr(MemberExpr expr) {
+	public void leaveMemberExpr(MemberExpr expr, boolean done) {
 		// don't bother if we've already dealt with it ...
 		if (expr.boundEarly())
 			return;

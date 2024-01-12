@@ -174,7 +174,7 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void leaveMemberExpr(MemberExpr expr) {
+	public void leaveMemberExpr(MemberExpr expr, boolean done) {
 		if (results.size() > 1) {
 			throw new CantHappenException("only one result should come back");
 		} else if (results.size() == 1) {

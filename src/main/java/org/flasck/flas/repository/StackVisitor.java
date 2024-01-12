@@ -388,8 +388,8 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		return top.visitMemberExpr(expr, nargs);
 	}
 
-	public void leaveMemberExpr(MemberExpr expr) {
-		top.leaveMemberExpr(expr);
+	public void leaveMemberExpr(MemberExpr expr, boolean done) {
+		top.leaveMemberExpr(expr, done);
 	}
 
 	public void visitConvertedExpr(MemberExpr expr, int nargs) {

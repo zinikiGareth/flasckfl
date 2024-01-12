@@ -97,7 +97,9 @@ public class AccessorConvertor extends LeafAdapter {
 	
 
 	@Override
-	public void leaveMemberExpr(MemberExpr expr) {
+	public void leaveMemberExpr(MemberExpr expr, boolean done) {
+		if (done)
+			return;
 		Expr from = expr.from;
 		RepositoryEntry defn;
 

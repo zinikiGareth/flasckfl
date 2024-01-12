@@ -192,7 +192,7 @@ public interface RepositoryVisitor {
 	void leaveAssertExpr(boolean isValue, Expr e);
 	void visitConstPattern(ConstPattern p, boolean isNested);
 	boolean visitMemberExpr(MemberExpr expr, int nargs);
-	void leaveMemberExpr(MemberExpr expr);
+	void leaveMemberExpr(MemberExpr expr, boolean done);
 	void visitUnitDataDeclaration(UnitDataDeclaration udd);
 	void leaveUnitDataDeclaration(UnitDataDeclaration udd);
 	void visitUnitDataField(Assignment assign);

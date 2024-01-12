@@ -497,7 +497,7 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void leaveMemberExpr(MemberExpr expr) {
+	public void leaveMemberExpr(MemberExpr expr, boolean done) {
 	}
 
 	@Override

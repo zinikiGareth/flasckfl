@@ -1796,7 +1796,7 @@ public class Traverser implements RepositoryVisitor {
 				if (visitMemberFields)
 					visitExpr(expr.fld, 0);
 			}
-			leaveMemberExpr(expr);
+			leaveMemberExpr(expr, done);
 			return done;
 		}
 	}
@@ -1814,8 +1814,8 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
-	public void leaveMemberExpr(MemberExpr expr) {
-		visitor.leaveMemberExpr(expr);
+	public void leaveMemberExpr(MemberExpr expr, boolean done) {
+		visitor.leaveMemberExpr(expr, done);
 	}
 	
 	@Override

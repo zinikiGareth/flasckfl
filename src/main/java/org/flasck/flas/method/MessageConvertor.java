@@ -156,7 +156,7 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void leaveMemberExpr(MemberExpr expr) {
+	public void leaveMemberExpr(MemberExpr expr, boolean done) {
 		if (expr.boundEarly())
 			return;
 		if (mode == Mode.NESTEDSLOT) {
