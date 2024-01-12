@@ -1,0 +1,11 @@
+Test that q has identical items in left and right
+
+	test that q has identical items
+		identical q.left
+			q.right
+			
+And likewise for s
+
+	test that s has identical items
+		identical s.left
+			s.right.foo

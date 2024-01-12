@@ -1,0 +1,30 @@
+The idea here is that if you have a variable, it should have just one value no matter how many
+times you use it - that is, the same identical value is used in each case.
+
+Let us assume we have some very expensive operation; we want to share the value.
+ 
+	struct Result
+		Number n
+	expensiveOp = f 3
+	
+	f x = Result (x * x) // not actually all that expensive
+
+	struct Pair
+		Result left
+		Result right
+	
+If we directly share it in a single expression, we can reasonably expect it to be lifted anyway
+
+	q = Pair expensiveOp expensiveOp
+	
+We also need to consider the case that we have a more complex situation
+
+	struct PairB
+		Result left
+		Wrapper right
+
+	struct Wrapper
+		Result foo
+
+	r = expensiveOp
+	s = PairB r (Wrapper expensiveOp)
