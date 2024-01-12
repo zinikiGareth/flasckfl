@@ -18,6 +18,8 @@ public interface JSMethodCreator extends JSBlockCreator {
 	void superArg(JSExpr a);
 	void returnsType(String ty);
 	void clear();
+	void checkCached();
+	void cacheResult(JSExpr r);
 	void initContext(boolean field);
 	void copyContract(JSExpr copyInto, String fld, String arg);
 	void write(IndentWriter w, Set<NameOfThing> names);

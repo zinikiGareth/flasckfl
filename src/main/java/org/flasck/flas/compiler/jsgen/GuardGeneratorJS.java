@@ -56,6 +56,9 @@ public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
 			trueblock = ifexpr.trueCase();
 			block = ifexpr.falseCase();
 		} else {
+			if (state.shouldCacheResult()) {
+				state.meth().cacheResult((JSExpr) r);
+			}
 			trueblock.returnObject((JSExpr) r);
 		}
 	}

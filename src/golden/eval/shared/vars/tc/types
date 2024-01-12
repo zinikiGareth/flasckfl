@@ -1,0 +1,5 @@
+test.golden.expensiveOp :: test.golden.Result
+test.golden.f :: Number->test.golden.Result
+test.golden.q :: test.golden.Pair
+test.golden.r :: test.golden.Result
+test.golden.s :: test.golden.PairB

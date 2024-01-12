@@ -9,12 +9,16 @@ import java.util.Set;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
+import org.flasck.flas.compiler.jsgen.form.CacheSingleton;
+import org.flasck.flas.compiler.jsgen.form.CheckCached;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
+import org.flasck.flas.compiler.jsgen.form.GetCached;
 import org.flasck.flas.compiler.jsgen.form.IVFWriter;
 import org.flasck.flas.compiler.jsgen.form.InitContext;
 import org.flasck.flas.compiler.jsgen.form.JSCopyContract;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSInheritFrom;
+import org.flasck.flas.compiler.jsgen.form.JSLocal;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.jvm.J;
@@ -123,6 +127,18 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	@Override
 	public void clear() {
 		stmts.add(new ClearRunner());
+	}
+
+	@Override
+	public void checkCached() {
+		JSLocal stmt = new JSLocal(this, new GetCached(this.fnName.uniqueName()));
+		stmts.add(stmt);
+		stmts.add(new CheckCached(stmt));
+	}
+
+	@Override
+	public void cacheResult(JSExpr r) {
+		stmts.add(new CacheSingleton(this.fnName.uniqueName(), r));
 	}
 
 	@Override

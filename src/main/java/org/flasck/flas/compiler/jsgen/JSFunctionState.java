@@ -29,4 +29,6 @@ public interface JSFunctionState {
 	public Map<String, JSExpr> applications();
 	public void application(String name, JSExpr field);
 	public JSExpr application(String asVar);
+	public void cacheResult();
+	public boolean shouldCacheResult();
 }

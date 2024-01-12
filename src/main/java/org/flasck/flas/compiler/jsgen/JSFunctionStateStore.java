@@ -22,6 +22,7 @@ public class JSFunctionStateStore implements JSFunctionState {
 	private final JSMethodCreator meth;
 	private JSExpr ocret;
 	private JSExpr ocmsgs;
+	private boolean cacheResult;
 
 	public JSFunctionStateStore(JSMethodCreator meth) {
 		this(meth, new TreeMap<>(), new TreeMap<>(IntroduceVar.comparator), new HashMap<>(), new HashMap<>());
@@ -146,5 +147,15 @@ public class JSFunctionStateStore implements JSFunctionState {
 			return introductions.get(var);
 		else
 			throw new RuntimeException("No introduction for " + var);
+	}
+
+	@Override
+	public void cacheResult() {
+		this.cacheResult = true;
+	}
+
+	@Override
+	public boolean shouldCacheResult() {
+		return cacheResult;
 	}
 }

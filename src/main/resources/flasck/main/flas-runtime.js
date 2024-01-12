@@ -37,6 +37,7 @@ const CommonEnv = function(bridge, broker) {
     this.namedSubscriptions = new Map();
     this.unnamedSubscriptions = new Map();
     this.subDag = new Map(); // this is a map from parent -> child, which kind of makes a DAG
+	this.singletons = {};
     if (bridge.lock)
         this.locker = bridge;
     else
@@ -137,6 +138,14 @@ CommonEnv.prototype.unsubscribeAll = function(_cxt, card) {
         });
     });
     this.namedSubscriptions.clear();
+}
+
+CommonEnv.prototype.getSingleton = function(name) {
+	return this.singletons[name];
+}
+
+CommonEnv.prototype.cacheSingleton = function(name, value) {
+	this.singletons[name] = value;
 }
 
 if (typeof(window) !== 'undefined') {
@@ -644,6 +653,14 @@ FLContext.prototype.field = function(obj, field) {
 		// This is possibly a bogus assumption
 		return obj.state.get(field);
 	}
+}
+
+FLContext.prototype.getSingleton = function(name) {
+	return this.env.getSingleton(name);
+}
+
+FLContext.prototype.cacheSingleton = function(name, value) {
+	this.env.cacheSingleton(name, value);
 }
 
 FLContext.prototype.nextDocumentId = function() {

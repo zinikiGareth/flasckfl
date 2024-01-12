@@ -206,6 +206,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		if (fn.hasState()) {
 			loadContainers(this.state, fn.name());
 		}
+		
+		if (!fn.hasState() && fn.argCountWithoutHolder() == 0) {
+			this.state.cacheResult();
+			// for simple constants, we can cache them
+			this.meth.checkCached();
+		}
 	}
 
 	// When generating a tuple assignment, we have to create a closure which is the "main thing"
