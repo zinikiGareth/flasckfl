@@ -643,11 +643,13 @@ public class LoadBuiltins {
 	
 	public static final FunctionDefinition getYear = new FunctionDefinition(FunctionName.function(pos, null, "getYear"), 1, null).dontGenerate();
 	public static final FunctionDefinition parseIsoDate = new FunctionDefinition(FunctionName.function(pos, null, "parseIsoDate"), 1, null).dontGenerate();
+	public static final FunctionDefinition isoDate = new FunctionDefinition(FunctionName.function(pos, null, "isoDate"), 1, null).dontGenerate();
 	public static final FunctionDefinition dateIsAfter = new FunctionDefinition(FunctionName.function(pos, null, "dateIsAfter"), 2, null).dontGenerate();
 	static {
 		getYear.bindType(new Apply(date, number));
 		dateIsAfter.bindType(new Apply(date, date, bool));
 		parseIsoDate.bindType(new Apply(string, date));
+		isoDate.bindType(new Apply(date, string));
 	}
 
 	// Types
@@ -874,6 +876,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, getYear);
 		repository.functionDefn(errors, dateIsAfter);
 		repository.functionDefn(errors, parseIsoDate);
+		repository.functionDefn(errors, isoDate);
 
 		repository.newContract(errors, crobagWindowHandler);
 		repository.newContract(errors, crobagSlideWindow);
