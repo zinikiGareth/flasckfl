@@ -1,3 +1,5 @@
+cannotnestin 12.0:     _ | bert => 'hello'
+                          cannot nest more options inside a cond-or-else style
 condorneedsc  7.16:   | => 'constant'  _ || 'cannot-happen'
                           cannot use || without a condition
 noStyleOrEve  4.6:    | True _ 

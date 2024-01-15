@@ -1,8 +1,8 @@
 JVM PASS initially the message is not urgent
-JVM PASS setting veryUrgent does nothing unless it is already urgent
 JVM PASS if we set the boolean, the style is noticed
+JVM PASS setting veryUrgent makes the message scream
 JVM PASS if we set both booleans, the message becomes very urgent
 JS PASS initially the message is not urgent
-JS PASS setting veryUrgent does nothing unless it is already urgent
 JS PASS if we set the boolean, the style is noticed
+JS PASS setting veryUrgent makes the message scream
 JS PASS if we set both booleans, the message becomes very urgent

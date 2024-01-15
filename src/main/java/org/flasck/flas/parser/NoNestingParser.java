@@ -6,14 +6,20 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class NoNestingParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final String msg;
 
 	public NoNestingParser(ErrorReporter errors) {
+		this(errors, "a nested block is not allowed here");
+	}
+	
+	public NoNestingParser(ErrorReporter errors, String msg) {
 		this.errors = errors;
+		this.msg = msg;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		errors.message(toks, "a nested block is not allowed here");
+		errors.message(toks, msg);
 		return null;
 	}
 

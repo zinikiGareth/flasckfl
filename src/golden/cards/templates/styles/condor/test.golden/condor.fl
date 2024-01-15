@@ -8,5 +8,5 @@
 		template message
 			styleme <- 'hello, world'
 				| => 'constant'
-				| urgent => 'notice-me' s || 'ignore-me' t
 					| veryUrgent => 'screaming' || 'ok'
+				| urgent => 'notice-me' s || 'ignore-me' t

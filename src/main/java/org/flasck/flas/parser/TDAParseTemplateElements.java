@@ -75,6 +75,8 @@ public class TDAParseTemplateElements {
 			if (tso == null)
 				return new IgnoreNestedParser();
 			consumer.accept(tso);
+			if (tso.orelse != null)
+				return new NoNestingParser(errors, "cannot nest more options inside a cond-or-else style");
 			return new TDATemplateStylingParser(errors, source, namer, tso);
 		} else {
 			errors.message(toks, "=> required for styling");
