@@ -4,7 +4,9 @@
 		state
 			Number n
 			Instant i
+			Boolean b
 			
 		template top
 			n <- n
 			i <- i
+			b <- b

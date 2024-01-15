@@ -1,6 +1,8 @@
-noprimitives  9.5:    n <-  _ n
+noprimitives 10.5:    n <-  _ n
                           must format value as string for field n
-noprimitives 10.5:    i <-  _ i
+noprimitives 11.5:    i <-  _ i
                           must format value as string for field i
+noprimitives 12.5:    b <-  _ b
+                          must format value as string for field b
 resolvederro  9.10:   entry1 <-  _ nth 1 [ c, c ]
                           must format value as string for field entry1

@@ -128,7 +128,10 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				if (referencedTemplates != null)
 					referencedTemplates.add(option.sendsTo.name.baseName());
 			}
-			if (etype instanceof ObjectDefn) {
+			if (etype instanceof UnionTypeDefn && ((UnionTypeDefn)etype).name().uniqueName().equals("Boolean")) {
+				errors.message(pos, "must format value as string for field " + option.assignsTo.text);
+				break;
+			} else if (etype instanceof ObjectDefn) {
 				if (option.sendsTo == null || option.sendsTo.template() == null) {
 					errors.message(pos, "must use templates to render object " + etype.signature());
 					break;
