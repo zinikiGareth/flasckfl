@@ -4,4 +4,5 @@
 
 		template message
 			styleme <- 'hello, world'
-				| urgent => 'notice-me' || 'ignore-me'
+				| urgent => 'notice-me'
+				| ! urgent => 'ignore-me'

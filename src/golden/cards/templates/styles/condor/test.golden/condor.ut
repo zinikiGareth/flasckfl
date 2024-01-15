@@ -1,11 +1,11 @@
 	test initially the message is not urgent
 		data OrStyle card
 		match card style styleme
-			'ignore-me'
+			ignore-me
 			
 	test if we set the boolean, the style is noticed
 		data OrStyle card
-		shove card urgent
+		shove card.urgent
 			True
 		match card style styleme
-			'notice-me'
+			notice-me
