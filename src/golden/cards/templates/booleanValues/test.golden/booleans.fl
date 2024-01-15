@@ -6,6 +6,11 @@ Test that booleans can be rendered in a template without show
 			Boolean f <- False
 			
 		template showme
-			yes <- b
-			no <- f
+			t <- (show b)
+			f <- (show f)
+			yes <- yesno b
+			no <- yesno f
+			
+		yesno True = "yes"
+		yesno False = "no"
 			

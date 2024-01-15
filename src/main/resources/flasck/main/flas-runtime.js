@@ -814,6 +814,10 @@ FLContext.prototype.assertSatisfied = function() {
 
 // show value or expr depending on whether individual nodes are evaluated or not
 FLContext.prototype.show = function(val) {
+	if (val === true)
+		return "True";
+	else if (val === false)
+		return "False";
 // HACK !  We should map it into a string repn properly
 	return "" + val;
 }

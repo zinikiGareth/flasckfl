@@ -1,0 +1,7 @@
+We want to test that, although we cannot directly render Boolean values in a template,
+we can convert them to strings (with show or otherwise) and render that
+
+	test we can show booleans using strings
+		data ShowBooleans sb
+		match sb text t
+			True
