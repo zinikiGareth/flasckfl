@@ -115,7 +115,7 @@ public class ClassGeneration {
 		JSExpr expr = meth.pushFunction("test.repo.f", null, -1);
 		assertNotNull(expr);
 		expr.write(w);
-		assertEquals("  const v1 = test.repo.f;\n", sw.toString());
+		assertEquals("  const _v1 = test.repo.f;\n", sw.toString());
 	}
 
 	@Test
@@ -132,7 +132,7 @@ public class ClassGeneration {
 			assertNotNull(expr);
 			expr.write(w);
 		}
-		assertEquals("  const v1 = test.repo.g;\n  const v2 = test.repo.f;\n", sw.toString());
+		assertEquals("  const _v1 = test.repo.g;\n  const _v2 = test.repo.f;\n", sw.toString());
 	}
 
 	@Test
@@ -207,7 +207,7 @@ public class ClassGeneration {
 		w = w.indent();
 		JSMethodCreator meth = new JSMethod(jse, null, new PackageName("pkg"), false, "f");
 		JSExpr callG = meth.pushFunction("g", null, -1);
-		assertEquals("v1", callG.asVar());
+		assertEquals("_v1", callG.asVar());
 	}
 
 	@Test
@@ -215,7 +215,7 @@ public class ClassGeneration {
 		w = w.indent();
 		JSMethodCreator meth = new JSMethod(jse, null, new PackageName("pkg"), false, "f");
 		JSExpr callG = meth.pushFunction("g", null, -1);
-		assertEquals("v1", callG.asVar());
+		assertEquals("_v1", callG.asVar());
 	}
 
 	@Test
@@ -259,7 +259,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		meth.closure(false, meth.pushFunction("f", null, -1), meth.string("hello"));
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.closure(v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const _v1 = f;\n  const _v2 = _cxt.closure(_v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -269,7 +269,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		meth.curry(false, 2, meth.pushFunction("f", null, -1), meth.string("hello"));
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.curry(2, v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const _v1 = f;\n  const _v2 = _cxt.curry(2, _v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -279,25 +279,25 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		meth.xcurry(false, 2, Arrays.asList(new XCArg(0, meth.pushFunction("f", null, -1)), new XCArg(2, meth.string("hello"))));
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const _v1 = f;\n  const _v2 = _cxt.xcurry(2, 0, _v1, 2, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
 	public void mockContractCallsTheRightMethod() {
 		JSBlock b = new JSMethod(jse, null, null, false, "fred");
 		JSExpr mc = b.mockContract(new SolidName(new PackageName("org.fred"), "Ctr"));
-		assertEquals("v1", mc.asVar());
+		assertEquals("_v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("const v1 = _cxt.mockContract(new org.fred.Ctr(_cxt));\n", sw.toString());
+		assertEquals("const _v1 = _cxt.mockContract(new org.fred.Ctr(_cxt));\n", sw.toString());
 	}
 	
 	@Test
 	public void createObjectCallsTheRightMethod() {
 		JSBlock b = new JSMethod(jse, null, null, false, "fred");
 		JSExpr mc = b.createObject(new SolidName(new PackageName("org.fred"), "MyObj"));
-		assertEquals("v1", mc.asVar());
+		assertEquals("_v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("const v1 = org.fred.MyObj.eval(_cxt);\n", sw.toString());
+		assertEquals("const _v1 = org.fred.MyObj.eval(_cxt);\n", sw.toString());
 	}
 	
 	@Test
@@ -305,9 +305,9 @@ public class ClassGeneration {
 		SolidName sn = new SolidName(pkg, "Obj");
 		JSBlock b = new JSMethod(jse, null, null, false, "fred");
 		JSExpr mc = b.newOf(sn);
-		assertEquals("v1", mc.asVar());
+		assertEquals("_v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("const v1 = new test.repo.Obj(_cxt);\n", sw.toString());
+		assertEquals("const _v1 = new test.repo.Obj(_cxt);\n", sw.toString());
 	}
 	
 	@Test
