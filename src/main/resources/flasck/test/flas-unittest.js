@@ -215,14 +215,25 @@ UTRunner.prototype.findDiv = function(_cxt, rt, zone, pos) {
 	const first = zone[pos];
 	if (first[0] == "item") {
 		if (!rt.children || first[1] >= rt.children.length) {
-			throw Error("MATCH\nThere is no child " + first[1] + " in " + this._nameOf(zone, pos));
+			throw Error("MATCH\nMatcher failed on '" + this._nameOf(zone, zone.length) + "': There is no child " + first[1] + " of " + this._nameOf(zone, pos));
 		}
 		return this.findDiv(_cxt, rt.children[first[1]], zone, pos+1);
 	} else {
-		if (!rt[first[1]]) {
+		const inner = this._findSubThroughSingle(rt, first[1]);
+		if (!inner) {
 			throw Error("MATCH\nThere is no element " + first[1] + " in " + this._nameOf(zone, pos));
 		}
-		return this.findDiv(_cxt, rt[first[1]], zone, pos+1);
+		return this.findDiv(_cxt, inner, zone, pos+1);
+	}
+}
+UTRunner.prototype._findSubThroughSingle = function(rt, name) {
+	while (true) {
+		var ret = rt[name];
+		if (ret)
+			return ret;
+		rt = rt['single'];
+		if (rt == null)
+			return null;
 	}
 }
 UTRunner.prototype._nameOf = function(zone, pos) {
@@ -232,7 +243,7 @@ UTRunner.prototype._nameOf = function(zone, pos) {
 	for (var i=0;i<pos;i++) {
 		if (ret)
 			ret += '.';
-		ret += zone[pos][1];
+		ret += zone[i][1];
 	}
 	return ret;
 }

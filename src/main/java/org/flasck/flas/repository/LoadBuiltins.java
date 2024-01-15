@@ -742,12 +742,14 @@ public class LoadBuiltins {
 	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, null).dontGenerate();
 	public static final FunctionDefinition dispatch = new FunctionDefinition(FunctionName.function(pos, null, "dispatch"), 1, null).dontGenerate();
 	public static final FunctionDefinition show = new FunctionDefinition(FunctionName.function(pos, null, "show"), 1, null).dontGenerate();
+	public static final FunctionDefinition formatShow = new FunctionDefinition(FunctionName.function(pos, null, "formatShow"), 2, null).dontGenerate();
 	public static final FunctionDefinition expr = new FunctionDefinition(FunctionName.function(pos, null, "expr"), 1, null).dontGenerate();
 	static {
 		isType.bindType(new Apply(type, any, bool));
 		dispatch.bindType(new Apply(listMessages, listMessages));
 		dispatch.restrict(new UTOnlyRestriction("dispatch"));
 		show.bindType(new Apply(any, string));
+		formatShow.bindType(new Apply(string, number, string));
 		expr.bindType(new Apply(any, string));
 	}	
 	
@@ -924,6 +926,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, isType);
 		repository.functionDefn(errors, dispatch);
 		repository.functionDefn(errors, show);
+		repository.functionDefn(errors, formatShow);
 		repository.functionDefn(errors, expr);
 
 		repository.functionDefn(errors, length);

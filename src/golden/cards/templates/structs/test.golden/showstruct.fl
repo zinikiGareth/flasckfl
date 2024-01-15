@@ -1,0 +1,17 @@
+We should be able to take a struct with multiple fields and show it as an item
+contained in a container.
+
+	struct Group
+		String label
+		Number value
+	
+	card MyCard
+		state
+			Group grp
+		
+		template main
+			show <- grp
+		
+		template pair <- (Group g)
+			left <- g.label
+			right <- show g.value

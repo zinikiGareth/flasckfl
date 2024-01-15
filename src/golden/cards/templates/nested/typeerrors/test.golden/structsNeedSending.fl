@@ -8,7 +8,7 @@
 		template top
 			field1 <- s
 			field2 <- s => format
-			hold <- s
+			hold <- s // this is now supported and not an error
 			for-cards <- s
 			
 		template format 

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
@@ -220,8 +221,8 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 		} else if (option.sendsTo != null) {
 			errors.message(option.sendsTo.location(), "cannot specify sendsTo operator for a single item when target is a container");
 			return;
-//		} else if (etype instanceof StructDefn) {
-//			handleStructCases(pos, option, (StructDefn)etype);
+		} else if (etype instanceof StructDefn) {
+			handleStructCases(pos, option, (StructDefn)etype);
 		} else if (etype instanceof UnionTypeDefn) {
 			handleUnionCases(pos, option, (UnionTypeDefn)etype);
 		} else {
@@ -275,6 +276,18 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 		if (!obj.equals(tdb.container())) {
 			errors.message(pos, "cannot use template '" + tdb.uniqueName() + "' to render object of type '" + obj.uniqueName());
 			return;
+		}
+	}
+
+	private void handleStructCases(InputPosition pos, TemplateBindingOption option, StructDefn sd) {
+		Template wh2 = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, sd);
+		if (wh2 == null) {
+//			missing.add(sd.signature());
+		} else {
+			referencedTemplates.add(wh2.name().baseName());
+			Map<NamedType, Template> mapping = new HashMap<>();
+			mapping.put(sd, wh2);
+			option.attachMapping(mapping);
 		}
 	}
 

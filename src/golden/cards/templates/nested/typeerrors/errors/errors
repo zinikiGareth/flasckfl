@@ -18,8 +18,6 @@ primitivesCa  5.8:    hold <-  _ 'hello'
                           cannot render primitive object in container hold
 structsNeedS  9.10:   field1 <-  _ s
                           cannot render compound object in field field1
-structsNeedS 11.8:    hold <-  _ s
-                          cannot identify a suitable template to format value into container hold
 structsNeedS 12.13:   for-cards <-  _ s
                           cannot render test.golden.MyStruct in punnet
 structsNeedS 21.13:   hold <- s =>  _ format

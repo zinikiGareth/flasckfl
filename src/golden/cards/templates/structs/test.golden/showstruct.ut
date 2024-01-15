@@ -1,0 +1,11 @@
+	test that we show a Group correctly
+		data MyCard c
+		shove c.grp
+			Group "hello" 42
+		match c text
+			hello 42
+
+		match c text show.left
+			hello
+		match c text show.right
+			42

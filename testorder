@@ -194,3 +194,4 @@ src/golden/subscriptions/cancelling/namedHierarchy
 src/golden/structs/functions
 src/golden/structs/sharedeval
 src/golden/eval/shared/vars
+src/golden/cards/templates/structs
