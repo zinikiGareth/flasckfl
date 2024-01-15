@@ -66,7 +66,7 @@ public class TDAParseTemplateElements {
 		Expr expr = seen.size() == 0 ? null : seen.get(0);
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
-			TemplateStylingOption tso = new TemplateStylingOption(expr, new ArrayList<>());
+			TemplateStylingOption tso = new TemplateStylingOption(expr, new ArrayList<>(), null);
 			consumer.accept(tso);
 			return new RequireEventsParser(errors, toks.realinfo(), source, namer, tso);
 		}
@@ -132,20 +132,35 @@ public class TDAParseTemplateElements {
 
 	public static TemplateStylingOption readTemplateStyles(ErrorReporter errors, Expr expr, Tokenizable toks) {
 		List<Expr> styles = new ArrayList<>();
+		List<Expr> orelse = null;
+		List<Expr> addTo = styles;
 		while (toks.hasMoreContent()) {
 			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
 			if (s != null) {
-				styles.add(new StringLiteral(pos, s));
+				addTo.add(new StringLiteral(pos, s));
 				continue;
 			}
 			ValidIdentifierToken var = VarNameToken.from(toks);
 			if (var != null) {
-				styles.add(new UnresolvedVar(var.location, var.text));
+				addTo.add(new UnresolvedVar(var.location, var.text));
 				continue;
 			}
 			ExprToken et = ExprToken.from(errors, toks);
 			if (et != null) {
+				if (et.text.equals("||")) {
+					if (expr == null) {
+						errors.message(et.location, "cannot use || without a condition");
+						return null;
+					}
+					if (orelse != null) {
+						errors.message(et.location, "cannot use || more than once");
+						return null;
+					}
+					orelse = new ArrayList<>();
+					addTo = orelse;
+					continue;
+				}
 				if (!et.text.equals("(")) {
 					errors.message(et.location, "valid style expected");
 					return null;
@@ -172,12 +187,12 @@ public class TDAParseTemplateElements {
 					errors.message(crb.location, "expected )");
 					return null;
 				}
-				styles.add(ret.get(0));
+				addTo.add(ret.get(0));
 				continue;
 			}
 			errors.message(toks, "valid style expected");
 			return null;
 		}
-		return new TemplateStylingOption(expr, styles);
+		return new TemplateStylingOption(expr, styles, orelse);
 	}
 }

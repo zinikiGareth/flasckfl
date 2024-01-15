@@ -1,8 +1,12 @@
 	card OrStyle
 		state
 			Boolean urgent <- False
+			Boolean veryUrgent <- False
+			String s <- 'var-phrase'
+			String t <- 'else-phrase'
 
 		template message
 			styleme <- 'hello, world'
-				| urgent => 'notice-me'
-				| ! urgent => 'ignore-me'
+				| => 'constant'
+				| urgent => 'notice-me' s || 'ignore-me' t
+					| veryUrgent => 'screaming' || 'ok'

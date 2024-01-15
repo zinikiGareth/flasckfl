@@ -1,0 +1,7 @@
+In order to use the syntactic sugar for a conditional this-style-or-that styling,
+there must be a conditional
+
+	card OrStyleNeedsCond
+		template styling
+			message
+				| => 'constant' || 'cannot-happen'

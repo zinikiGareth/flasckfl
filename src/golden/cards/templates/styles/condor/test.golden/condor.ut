@@ -1,11 +1,27 @@
 	test initially the message is not urgent
 		data OrStyle card
 		match card style styleme
-			ignore-me
+			constant ignore-me else-phrase
+
+	test setting veryUrgent does nothing unless it is already urgent
+		data OrStyle card
+		shove card.veryUrgent
+			True
+		match card style styleme
+			constant ignore-me else-phrase
 			
 	test if we set the boolean, the style is noticed
 		data OrStyle card
 		shove card.urgent
 			True
 		match card style styleme
-			notice-me
+			constant notice-me var-phrase ok
+			
+	test if we set both booleans, the message becomes very urgent
+		data OrStyle card
+		shove card.urgent
+			True
+		shove card.veryUrgent
+			True
+		match card style styleme
+			constant notice-me var-phrase screaming

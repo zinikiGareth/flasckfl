@@ -1,2 +1,4 @@
+condorneedsc  7.16:   | => 'constant'  _ || 'cannot-happen'
+                          cannot use || without a condition
 noStyleOrEve  4.6:    | True _ 
                           must provide styles and/or nested content

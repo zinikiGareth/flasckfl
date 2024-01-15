@@ -237,6 +237,7 @@ public interface RepositoryVisitor {
 	void visitTemplateCustomization(TemplateCustomization tc);
 	void leaveTemplateCustomization(TemplateCustomization tc);
 	void visitTemplateStyling(TemplateStylingOption tso);
+	void visitTemplateStylesElse(TemplateStylingOption tso);
 	void leaveTemplateStyling(TemplateStylingOption tso);
 	void visitTemplateEvent(TemplateEvent te);
 	void visitUnitTestShove(UnitTestShove s);

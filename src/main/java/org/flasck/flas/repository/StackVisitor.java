@@ -636,6 +636,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitTemplateStyling(tso);
 	}
 
+	public void visitTemplateStylesElse(TemplateStylingOption tso) {
+		top.visitTemplateStylesElse(tso);
+	}
+
 	public void leaveTemplateStyling(TemplateStylingOption tso) {
 		top.leaveTemplateStyling(tso);
 	}

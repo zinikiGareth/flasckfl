@@ -228,6 +228,10 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitTemplateStylesElse(TemplateStylingOption tso) {
+	}
+
+	@Override
 	public void leaveTemplateStyling(TemplateStylingOption tso) {
 	}
 
