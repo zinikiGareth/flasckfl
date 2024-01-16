@@ -1,0 +1,4 @@
+check.fa:     4.8:    main <-  _ Hello
+                          Hello is not a Card
+check.fa:     5.9:    lower <-  _ Goodbye
+                          cannot resolve 'Goodbye'

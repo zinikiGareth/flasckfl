@@ -765,7 +765,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	public void visitApplicationRouting(ApplicationRouting e) {
 		scopeStack.add(0, scope);
 		scope = e.packageName();
-		applicationRouting = new ApplicationRoutingResolver(e);
+		applicationRouting = new ApplicationRoutingResolver(errors, e);
 	}
 	
 	@Override

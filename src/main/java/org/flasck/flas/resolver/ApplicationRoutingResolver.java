@@ -9,6 +9,8 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
@@ -47,8 +49,10 @@ public class ApplicationRoutingResolver extends LeafAdapter {
 
 	private final ApplicationRouting e;
 	private final List<Scope> scopes = new ArrayList<>();
+	private final ErrorReporter errors;
 
-	public ApplicationRoutingResolver(ApplicationRouting e) {
+	public ApplicationRoutingResolver(ErrorReporter errors, ApplicationRouting e) {
+		this.errors = errors;
 		this.e = e;
 		scopes.add(0, new Scope());
 	}
@@ -66,6 +70,9 @@ public class ApplicationRoutingResolver extends LeafAdapter {
 		RepositoryEntry defn = (RepositoryEntry) card.cardType.namedDefn();
 		if (defn == null) // the card class could not be found, bind to something else
 			defn = new ParameterRepositoryEntry(card.location(), card.var.var); // this is obviously wrong, but there will be a type resolution error ...
+		else if (!(defn instanceof CardDefinition))
+			errors.message(card.cardType.location(), card.cardType.name() + " is not a Card");
+			
 		scopes.get(0).defns.put(card.var.var, defn);
 	}
 
