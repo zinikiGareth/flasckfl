@@ -23,7 +23,6 @@ import org.flasck.flas.Main;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.MethodSorters;
 import org.junit.runners.model.InitializationError;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;

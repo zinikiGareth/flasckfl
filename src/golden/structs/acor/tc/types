@@ -1,1 +1,2 @@
 test.golden.double :: test.golden.Top->String
+test.golden.f :: Any->String

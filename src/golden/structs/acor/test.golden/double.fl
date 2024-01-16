@@ -1,5 +1,14 @@
+Test that struct fields generate the correct code using acors
+
 	struct Top
 		String a <- 'hello'
 		String b <- 'world'
 		
 	double (Top x) = x.a ++ x.b
+	
+This is a regression case where you cannot do the appropriate work through a cast
+
+	struct Wrapper
+		Top x
+	
+	f v = (cast Wrapper v).x.a

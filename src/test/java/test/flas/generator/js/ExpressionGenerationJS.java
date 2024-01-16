@@ -305,6 +305,8 @@ public class ExpressionGenerationJS {
 			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).argumentList();
+			oneOf(meth).checkCached();
+			oneOf(meth).cacheResult(with(any(JSExpr.class)));
 			oneOf(meth).structConst(new SolidName(null, "test.repo.Ctor")); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});

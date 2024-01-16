@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.compiler.jsgen.JSFunctionState;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
@@ -44,6 +45,7 @@ public class FunctionGenerationJS {
 	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final JSStorage jss = context.mock(JSStorage.class);
+	private final JSFunctionState state = context.mock(JSFunctionState.class);
 	private final JSMethodCreator meth = context.mock(JSMethodCreator.class);
 
 	@Test
@@ -55,6 +57,8 @@ public class FunctionGenerationJS {
 			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).argumentList();
+			oneOf(meth).checkCached();
+			oneOf(meth).cacheResult(with(any(JSExpr.class)));
 			oneOf(meth).literal("42"); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
@@ -285,7 +289,7 @@ public class FunctionGenerationJS {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
-		JSGenerator.forTests(meth, cxt, gen);
+		JSGenerator.forTests(meth, cxt, gen, state);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
@@ -293,6 +297,7 @@ public class FunctionGenerationJS {
 		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
+			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
 			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(outer));
 		}});
@@ -307,6 +312,7 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(isNil).string("hello"); will(returnValue(dummy));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(isNil).returnObject(dummy);
 		}});
 		gen.startInline(intro);
@@ -324,6 +330,7 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(notNil).literal("42"); will(returnValue(dummy));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(notNil).returnObject(dummy);
 		}});
 		gen.defaultCase();
@@ -342,7 +349,7 @@ public class FunctionGenerationJS {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
-		JSGenerator.forTests(meth, cxt, gen);
+		JSGenerator.forTests(meth, cxt, gen, state);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
@@ -350,6 +357,7 @@ public class FunctionGenerationJS {
 		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
+			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
 			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Number")); will(returnValue(outer));
 		}});
@@ -372,6 +380,7 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(isNil1).string("hello"); will(returnValue(dummy));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(isNil1).returnObject(dummy);
 		}});
 		gen.startInline(intro);
@@ -397,7 +406,7 @@ public class FunctionGenerationJS {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
-		JSGenerator.forTests(meth, cxt, gen);
+		JSGenerator.forTests(meth, cxt, gen, state);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
@@ -405,6 +414,7 @@ public class FunctionGenerationJS {
 		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
+			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
 			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "String")); will(returnValue(outer));
 		}});
@@ -427,6 +437,7 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(isNil1).string("hello"); will(returnValue(dummy));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(isNil1).returnObject(dummy);
 		}});
 		gen.startInline(intro);
@@ -452,13 +463,14 @@ public class FunctionGenerationJS {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
-		JSGenerator.forTests(meth, cxt, gen);
+		JSGenerator.forTests(meth, cxt, gen, state);
 		
 		JSBlockCreator isNil0 = context.mock(JSBlockCreator.class, "isNil0");
 		JSBlockCreator notNil0 = context.mock(JSBlockCreator.class, "notNil0");
 		JSIfExpr outer = new JSIfExpr(null, isNil0, notNil0);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
+			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
 			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(outer));
 		}});
@@ -485,6 +497,7 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(isNil1).string("hello"); will(returnValue(dummy));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(isNil1).returnObject(dummy);
 		}});
 		gen.startInline(intro);
@@ -515,13 +528,14 @@ public class FunctionGenerationJS {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
-		JSGenerator.forTests(meth, cxt, gen);
+		JSGenerator.forTests(meth, cxt, gen, state);
 		
 		JSBlockCreator isTrue0 = context.mock(JSBlockCreator.class, "isTrue0");
 		JSBlockCreator notTrue0 = context.mock(JSBlockCreator.class, "notTrue0");
 		JSIfExpr outer = new JSIfExpr(null, isTrue0, notTrue0);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
+			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
 			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "True")); will(returnValue(outer));
 		}});
@@ -548,6 +562,7 @@ public class FunctionGenerationJS {
 
 			context.checking(new Expectations() {{
 				oneOf(isNil1).string("hello"); will(returnValue(dummy));
+				allowing(state).shouldCacheResult(); will(returnValue(false));
 				oneOf(isNil1).returnObject(dummy);
 			}});
 

@@ -61,6 +61,7 @@ public class GuardGenerationJS {
 			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));
 			oneOf(meth).ifTrue(ge); will(returnValue(guard));
 			oneOf(yesGuard).literal("42"); will(returnValue(r1));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(yesGuard).returnObject(r1);
 			oneOf(noGuard).errorNoDefaultGuard();
 		}});
@@ -107,8 +108,10 @@ public class GuardGenerationJS {
 			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));
 			oneOf(meth).ifTrue(ge); will(returnValue(guard));
 			oneOf(yesGuard).literal("42"); will(returnValue(r1));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(yesGuard).returnObject(r1);
 			oneOf(noGuard).string("hello"); will(returnValue(r2));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(noGuard).returnObject(r2);
 		}});
 		
@@ -159,6 +162,7 @@ public class GuardGenerationJS {
 			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));
 			oneOf(meth).ifTrue(ge); will(returnValue(guard));
 			oneOf(yesGuard).literal("42"); will(returnValue(r1));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(yesGuard).returnObject(r1);
 		}});
 		
@@ -183,6 +187,7 @@ public class GuardGenerationJS {
 			oneOf(noGuard).structConst(new SolidName(null, "False")); will(returnValue(ge2));
 			oneOf(noGuard).ifTrue(ge2); will(returnValue(guard2));
 			oneOf(yesGuard2).literal("42"); will(returnValue(r2));
+			oneOf(state).shouldCacheResult(); will(returnValue(false));
 			oneOf(yesGuard2).returnObject(r2);
 			oneOf(noGuard2).errorNoDefaultGuard();
 		}});
