@@ -1,0 +1,13 @@
+Parentheses and all kinds of brackets need to be correctly paired
+These are "regression" tests - that is, they are here to fix bugs I found in the wild
+
+// I intended a hash
+	r = ( "hello": "world" }
+	
+// I intended a list
+	l = [ 1, 2, 3 )
+	
+// This should just be an expression
+	e = fn (1 + 2]
+	
+	fn z = z

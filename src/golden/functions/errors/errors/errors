@@ -2,6 +2,12 @@ duplicatevar  4.7:    dupl x  _ x = Nil
                           duplicate function argument x
 listnohead.f  3.25:   takehead (List[A] l) = l. _ head
                           cannot access members of unions
+parentheses.  5.23:   r = ( "hello": "world"  _ }
+                          mismatched parentheses: } does not close (
+parentheses.  8.14:   l = [ 1, 2, 3  _ )
+                          mismatched parentheses: ) does not close [
+parentheses. 11.13:   e = fn (1 + 2 _ ]
+                          mismatched parentheses: ] does not close (
 splitdefn.fl 15.0:     _ split (Cons[A] c) = 1
                           test.golden.split is defined multiple times: splitdefn.fl 13.0
 splitdefn.fl 24.0:     _ broken l = 1

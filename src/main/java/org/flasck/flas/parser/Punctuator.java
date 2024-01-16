@@ -40,6 +40,11 @@ public class Punctuator implements Expr {
 		return this.punc.equals(punc);
 	}
 
+	public void checkCloserFor(ErrorReporter errors, Punctuator open) {
+		if ((is(")") && !open.is("(")) || (is("]") && !open.is("[")) || (is("}") && !open.is("{")))
+			errors.message(location, "mismatched parentheses: " + punc + " does not close " + open.punc);
+	}
+
 	@Override
 	public String toString() {
 		return punc;

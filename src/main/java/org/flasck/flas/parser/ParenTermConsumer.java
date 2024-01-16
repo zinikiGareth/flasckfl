@@ -81,6 +81,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 
 	private final ErrorReporter errors;
 	private final ExprTermConsumer builder;
+	private final Punctuator open;
 	private final ParenCloseRewriter closer;
 	private final TDAExprReducer curr;
 	private boolean expectingColon;
@@ -88,6 +89,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 	public ParenTermConsumer(InputPosition from, ErrorReporter errors, ExprTermConsumer builder, Punctuator open) {
 		this.errors = errors;
 		this.builder = builder;
+		this.open = open;
 		if (open.is("("))
 			closer = new ParenCloseRewriter(from, "()");
 		else if (open.is("["))
@@ -110,6 +112,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		if (term instanceof Punctuator) {
 			Punctuator punc = (Punctuator) term;
 			if (punc.is(")") || punc.is("]") || punc.is("}")) {
+				punc.checkCloserFor(errors, open);
 				closer.endAt(term);
 				curr.done();
 			} else if (punc.is(",")) {
