@@ -1,3 +1,8 @@
 	test it works
 		assert (double Top)
 			"helloworld"
+
+	test through cast
+		data Wrapper w <- Wrapper (Top)
+		assert (f w)
+			"hello"

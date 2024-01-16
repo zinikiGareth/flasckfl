@@ -11,3 +11,4 @@ These are "regression" tests - that is, they are here to fix bugs I found in the
 	e = fn (1 + 2]
 	
 	fn z = z
+	

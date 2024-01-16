@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parsedForm.AccessorHolder;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.IntroduceVar;
@@ -114,6 +115,8 @@ public class AccessorConvertor extends LeafAdapter {
 			defn = me.defn();
 		} else if (from instanceof ApplyExpr) { // and possibly other cases ...
 			defn = (RepositoryEntry) expr.containerType(); // the TypeChecker figured out what the containing type is already
+		} else if (from instanceof CastExpr) {
+			defn = (RepositoryEntry) ((CastExpr)from).type.namedDefn();
 		} else
 			throw new NotImplementedException("cannot handle member of " + from.getClass());
 		if (defn == null) {
