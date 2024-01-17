@@ -7,6 +7,21 @@ import org.flasck.flas.commonBase.Locatable;
 import org.ziniki.splitter.FieldType;
 
 public class TargetZone implements Locatable {
+	public static class Qualifier implements Locatable {
+		public final InputPosition location;
+		public final String qualifyingTemplate;
+
+		public Qualifier(InputPosition location, String qualifyingTemplate) {
+			this.location = location;
+			this.qualifyingTemplate = qualifyingTemplate;
+		}
+
+		@Override
+		public InputPosition location() {
+			return location;
+		}
+	}
+
 	public final InputPosition location;
 	private List<FieldType> types;
 	public final List<Object> fields;

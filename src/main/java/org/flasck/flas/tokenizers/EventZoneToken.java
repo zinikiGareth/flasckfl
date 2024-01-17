@@ -6,7 +6,8 @@ public class EventZoneToken {
 	public static final int NAME = 1;
 	public static final int NUMBER = 2;
 	public static final int DOT = 3;
-	public static final int CARD = 4;
+	public static final int COLON = 4;
+	public static final int CARD = 5;
 	public final InputPosition location;
 	public final int type;
 	public final String text;
@@ -37,6 +38,9 @@ public class EventZoneToken {
 		} else if (line.nextChar() == '.') {
 			line.advance();
 			return new EventZoneToken(pos.copySetEnd(line.at()), DOT, line.fromMark(mark));
+		} else if (line.nextChar() == ':') {
+			line.advance();
+			return new EventZoneToken(pos.copySetEnd(line.at()), COLON, line.fromMark(mark));
 		} else if (line.nextChar() == '_') {
 			line.advance();
 			return new EventZoneToken(pos.copySetEnd(line.at()), CARD, line.fromMark(mark));

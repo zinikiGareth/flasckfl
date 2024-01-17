@@ -430,13 +430,13 @@ public class TestStepParser implements TDAParsing {
 				} else if ("fails".equals(option.text)) {
 					failsTmp = true;
 				} else {
-					errors.message(option.location, "syntax error");
+					errors.message(option.location, "invalid match type specification");
 					return new IgnoreNestedParser();
 				}
 			}
 		}
 		if (toks.hasMoreContent()) {
-			errors.message(toks, "syntax error");
+			errors.message(toks, "unexpected characters at end of match");
 			return new IgnoreNestedParser();
 		}
 		final TargetZone targetZone = targetZoneTmp;
@@ -484,17 +484,36 @@ public class TestStepParser implements TDAParsing {
 				first = tok.location;
 			}
 				
-			if (toks.hasMoreContent()) {
-				int mark = toks.at();
-				EventZoneToken dot = EventZoneToken.from(toks);
+			if (!toks.hasMoreContent())
+				break;
+			
+			int mark = toks.at();
+			EventZoneToken dot = EventZoneToken.from(toks);
+			if (dot == null) {
+				break;
+			} else if (dot.type == EventZoneToken.DOT) {
+				continue; // look for next symbol
+			} else if (dot.type == EventZoneToken.COLON) {
+				EventZoneToken qualifyingTemplate = EventZoneToken.from(toks);
+				if (qualifyingTemplate == null) {
+					errors.message(dot.location, "target zone qualifier missing");
+					return null;
+				} else if (qualifyingTemplate.type != EventZoneToken.NAME) {
+					errors.message(dot.location, "target zone qualifier must be a name");
+					return null;
+				}
+				dot = EventZoneToken.from(toks);
 				if (dot == null)
 					break;
-				else if (dot.type != EventZoneToken.DOT) {
-					toks.reset(mark);
-					break;
+				if (dot.type != EventZoneToken.DOT) {
+					errors.message(dot.location, "target zone qualifier must be followed by field");
+					return null;
 				}
-			} else
+				tz.add(new TargetZone.Qualifier(qualifyingTemplate.location, qualifyingTemplate.text));
+			} else { // whatever it was, not what we want: assume the best and give it to the caller
+				toks.reset(mark);
 				break;
+			}
 		}
 		if (tz.isEmpty()) {
 			errors.message(toks, "valid target zone expected");

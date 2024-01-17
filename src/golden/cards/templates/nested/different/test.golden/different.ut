@@ -8,8 +8,14 @@
 
 Support ambiguous event zones (see backlog)
 
-.		match hd text entries.0:entry.desc
-.			first
+		match hd text entries.0:entry
+			first 22
+		match hd text entries.0:entry.desc
+			first
+		match hd text entries.0:entry.amount
+			22
+		match hd text entries.2:total.summary
+			35
 		match hd text
 			first 22 second 13 35
 		
@@ -21,8 +27,8 @@ Support ambiguous event zones (see backlog)
 		newdiv 11
 		shove e1.desc
 			"updated"
-.		match hd text entries.0:entry.desc
-.			updated
+		match hd text entries.0:entry.desc
+			updated
 		match hd text
 			updated 22 second 13 35
 		newdiv 0

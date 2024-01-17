@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.TargetZone;
+import org.flasck.flas.parsedForm.TargetZone.Qualifier;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -51,7 +52,8 @@ public class DoUTEventGeneratorJS extends LeafAdapter implements ResultAware {
 		for (int i=0;i<targetZone.fields.size();i++) {
 			String ty = targetZone.types().get(i).toString().toLowerCase();
 			JSExpr je = makeEventZone(block, targetZone.fields.get(i));
-			al.add(block.makeEventZone(block.string(ty), je));
+			if (je != null)
+				al.add(block.makeEventZone(block.string(ty), je));
 		}
 		return block.makeArray(al);
 	}
@@ -59,6 +61,8 @@ public class DoUTEventGeneratorJS extends LeafAdapter implements ResultAware {
 	public static JSExpr makeEventZone(JSBlockCreator block, Object o) {
 		if (o instanceof String)
 			return block.string((String)o);
+		else if (o instanceof Qualifier)
+			return null;
 		else
 			return block.literal(Integer.toString((Integer)o));
 	}

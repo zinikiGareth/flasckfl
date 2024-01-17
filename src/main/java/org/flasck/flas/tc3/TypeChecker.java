@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.EventHolder;
@@ -19,11 +20,14 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyHolder;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TargetZone;
+import org.flasck.flas.parsedForm.TargetZone.Qualifier;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestClose;
@@ -48,6 +52,8 @@ import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.FieldType;
 import org.ziniki.splitter.NoMetaKeyException;
 import org.zinutils.collections.CollectionUtils;
+import org.zinutils.exceptions.HaventConsideredThisException;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TypeChecker extends LeafAdapter {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
@@ -178,10 +184,10 @@ public class TypeChecker extends LeafAdapter {
 		try {
 			List<FieldType> types = new ArrayList<>();
 			FieldType curr = FieldType.CARD;
-			Template ct = template;
+			TemplateOrError ct = new TemplateOrError(template, webInfo);
 			for (int i = 0; i < tz.fields.size(); i++) {
-				Object idx = tz.fields.get(i);
-				if (idx instanceof Integer) {
+				Object part = tz.fields.get(i);
+				if (part instanceof Integer) {
 					if (curr != FieldType.CONTAINER) {
 						errors.message(tz.location, "can only use indices to index containers");
 						return;
@@ -189,19 +195,50 @@ public class TypeChecker extends LeafAdapter {
 					// I feel we ought to do something here, but I'm not sure what
 					// If nothing else, we ought to not allow it to go around to another index
 					types.add(FieldType.ITEM);
-				} else {
-					curr = webInfo.get((String) idx);
+				} else if (part instanceof Qualifier) {
+					if (!ct.hasError()) 
+						throw new NotImplementedException("the user has provided an explicit resolution but it isn't needed - we should check here");
+					Qualifier q = (Qualifier) part;
+					String tn = q.qualifyingTemplate;
+					Type ty = ct.forType();
+					if (!(ty instanceof UnionTypeDefn))
+						throw new NotImplementedException("we are kind of assuming here that this is a Union, but if not ...");
+					UnionTypeDefn u = (UnionTypeDefn) ty;
+					Template chosen = null;
+					for (Template t : card.templates()) {
+						if (t.name().baseName().equals(tn)) {
+							chosen = t;
+						}
+					}
+					if (chosen == null) {
+						errors.message(q.location(), "there is no template called '" + tn + "'");
+						return;
+					}
+					if (chosen.nestingChain() == null) {
+						errors.message(q.location(), "the template '" + tn + "' does not have a nesting chain, cannot be used as a qualifier");
+						return;
+					}
+					Type tnc = chosen.nestingChain().iterator().next().type();
+					if (!(tnc instanceof StructDefn) || !(u.hasCase((StructDefn) tnc))) {
+						errors.message(q.location, "template '" + tn + "' expects type " + tnc + " which is not part of the union " + u);
+						return;
+					}
+					ct = new TemplateOrError(chosen, chosen.webinfo());
+					// I'm not 100% sure where this comes from in this case
+					types.add(FieldType.CONTAINER);
+				} else if (part instanceof String) {
+					curr = ct.webInfo().get((String) part);
 					if (curr == FieldType.CONTAINER) {
-						ct = findCBO(errors, repository, card.templates(), ct, tz, (String) idx);
+						ct = findCBO(errors, repository, card.templates(), ct.template(), tz, (String) part);
 						if (ct == null) // will have produced an error
 							return;
-						webInfo = ct.webinfo();
 					}
 					types.add(curr);
+				} else {
+					throw new HaventConsideredThisException("part is a " + part.getClass());
 				}
 			}
-			if (curr != FieldType.CONTENT && curr != FieldType.IMAGE && curr != FieldType.LINK && curr != FieldType.STYLE
-					&& (!allowContainer || curr != FieldType.CONTAINER)) {
+			if (curr != FieldType.CONTENT && curr != FieldType.IMAGE && curr != FieldType.LINK && curr != FieldType.STYLE && (!allowContainer || curr != FieldType.CONTAINER)) {
 				errors.message(tz.location, "element " + curr + " '" + tz + "' is not a valid " + type + " target");
 				return;
 			}
@@ -211,11 +248,11 @@ public class TypeChecker extends LeafAdapter {
 		}
 	}
 
-	private static Template findCBO(ErrorReporter errors, RepositoryReader repository, List<Template> allTemplates, Template ct, TargetZone tz, String idx) {
+	private static TemplateOrError findCBO(ErrorReporter errors, RepositoryReader repository, List<Template> allTemplates, Template ct, TargetZone tz, String slot) {
 		Set<Template> sendsTo = new HashSet<>();
 		List<Type> types = new ArrayList<>();
 		for (TemplateBinding b : ct.bindings()) {
-			if (!b.assignsTo.text.equals(idx))
+			if (!b.assignsTo.text.equals(slot))
 				continue;
 			for (TemplateBindingOption cb : b.conditionalBindings) {
 				types.add(notList(ExpressionChecker.check(errors, repository,
@@ -235,19 +272,20 @@ public class TypeChecker extends LeafAdapter {
 			if (types.size() == 1) {
 				Template ret = selectTemplateFromCollectionBasedOnOperatingType(errors, tz.location, allTemplates, types.get(0));
 				if (ret == null) {
-					errors.message(tz.location, "could not find a template for " + types.get(0).signature());
+					return new TemplateOrError(new FLASError(tz.location, "could not find a template for " + types.get(0).signature()), types.get(0));
 				}
-				return ret;
+				return new TemplateOrError(ret, ret.webinfo());
 			} else {
-				errors.message(tz.location, "template " + ct.name().uniqueName() + " does not send to for " + idx);
+				errors.message(tz.location, "template " + ct.name().uniqueName() + " does not send to for " + slot);
 				return null;
 			}
 		}
 		if (sendsTo.size() > 1) {
-			errors.message(tz.location, idx + " is ambiguous for template " + ct.name().uniqueName());
+			errors.message(tz.location, slot + " is ambiguous for template " + ct.name().uniqueName());
 			return null;
 		}
-		return CollectionUtils.nth(sendsTo, 0);
+		Template ret = CollectionUtils.nth(sendsTo, 0);
+		return new TemplateOrError(ret, ret.webinfo());
 	}
 
 	private static Type notList(Type t) {
@@ -257,17 +295,16 @@ public class TypeChecker extends LeafAdapter {
 			return t;
 	}
 
-	public static Template selectTemplateFromCollectionBasedOnOperatingType(ErrorReporter errors, InputPosition pos,
-			Iterable<Template> allTemplates, Type ty) {
+	public static Template selectTemplateFromCollectionBasedOnOperatingType(ErrorReporter errors, InputPosition pos, Iterable<Template> allTemplates, Type forType) {
 		Template ret = null;
 		for (Template t : allTemplates) {
 			if (t.nestingChain() == null)
 				continue;
-			if (t.nestingChain().iterator().next().type().incorporates(pos, ty)) {
+			if (t.nestingChain().iterator().next().type().incorporates(pos, forType)) {
 				// TODO: check we can handle rest of chain
 
 				if (ret != null) {
-					errors.message(pos, "ambiguous templates for " + ty.signature());
+					errors.message(pos, "ambiguous templates for " + forType.signature());
 				}
 				ret = t;
 			}
