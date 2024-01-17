@@ -1232,11 +1232,20 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			return repository.get(var);
 		}
 		String name = s.uniqueName() + "." + var;
+		boolean found = true;
 		final RepositoryEntry defn = repository.get(name);
-		if (defn != null)
-			return defn;
-		else
-			return recfind(s.container(), var);
+		if (defn != null) {
+			// We never want to return a "contract implementation" method from its name
+			// as it cannot be referenced locally.
+			if (defn instanceof ObjectMethod) {
+				ObjectMethod om = (ObjectMethod) defn;
+				if (om.contractMethod() != null)
+					found = false;
+			}
+			if (found)
+				return defn;
+		}
+		return recfind(s.container(), var);
 	}
 
 	// Try and find an inner nested definition IF we are in a privileged context that can break scoping rules

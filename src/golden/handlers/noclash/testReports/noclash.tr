@@ -1,0 +1,4 @@
+JVM PASS that the names do not clash
+JVM PASS that we can invoke the method
+JS PASS that the names do not clash
+JS PASS that we can invoke the method

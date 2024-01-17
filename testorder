@@ -84,6 +84,8 @@ src/golden/structs/fields/cycle
 src/golden/handlers/typeerrors
 src/golden/handlers/locations
 src/golden/handlers/nesting/simple
+src/golden/handlers/nesting/deep
+src/golden/handlers/noclash
 src/golden/methods/objects/assign
 src/golden/methods/objects/nesting/functions
 src/golden/methods/objects/nesting/nothere
@@ -151,7 +153,6 @@ src/golden/services/trampoline
 src/golden/services/allcontract
 src/golden/functions/nestfunctions
 src/golden/methods/eventnestfns
-src/golden/handlers/nesting/deep
 src/golden/methods/objects/callnoargs
 src/golden/packaging/two
 src/golden/packaging/root

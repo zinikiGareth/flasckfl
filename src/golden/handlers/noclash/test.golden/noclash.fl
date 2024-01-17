@@ -1,0 +1,16 @@
+When we define handler methods in a card, the method name is "automatically" in scope.
+One consequence of this is that it can clash with existing member names there such as in a state
+object or another handler.
+
+Check that we can deal with this.
+
+	contract Fred
+		noclash
+		
+	card Bert
+		state
+			String noclash
+		
+		implements Fred
+			noclash
+				noclash <- "This is not as confusing as it seems" 

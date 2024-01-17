@@ -1,0 +1,12 @@
+Test that we can shove and assert the name "noclash" while not having any issues
+
+	test that the names do not clash
+		data Bert b
+		shove b.noclash
+			"hello"
+
+	test that we can invoke the method
+		data Bert b
+		contract b Fred noclash
+		assert b.noclash
+			"This is not as confusing as it seems"

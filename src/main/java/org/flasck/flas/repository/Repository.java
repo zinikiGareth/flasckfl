@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -337,9 +338,15 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			return !conflicts;
 		} else if (name instanceof FunctionName || name instanceof VarName) {
 			String base;
-			if (name instanceof FunctionName)
+			if (name instanceof FunctionName) {
 				base = ((FunctionName)name).name;
-			else if (name instanceof VarName)
+				if (name.container() != null && name.container() instanceof CSName) {
+					// It is perfectly acceptable to have an implementation "share" a name with local names
+					// because they are not really here but inside "_C0" or whatever.
+					// And they are not "used" locally
+					return true;
+				}
+			} else if (name instanceof VarName)
 				base = ((VarName)name).var;
 			else
 				throw new NotImplementedException("cannot extract base from " + name);
