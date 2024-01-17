@@ -23,6 +23,7 @@ import org.flasck.flas.Main;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.MethodSorters;
 import org.junit.runners.model.InitializationError;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -49,6 +50,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	static String flascklib = flascklibOption != null ? flascklibOption : "src/main/resources/flasck";
 	private static int MAXCNT = maxcnt == null ? Integer.MAX_VALUE : Integer.parseInt(maxcnt);
 	protected static Interceptor interceptor = null;
+	private static String wantOrderedOption = System.getProperty("wantOrdered");
+	private static boolean wantOrdered = wantOrderedOption == null || wantOrderedOption.equals("ordered");
 	
 	public static final File jvmdir;
 	static {
@@ -89,7 +92,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			sf.add(f.getParentFile());
 		sf = trackOrdering(sf);
 		ByteCodeCreator bcc = CGHarnessRunnerHelper.emptyTestClass(bce, clz.getName());
-//		bcc.addRTVAnnotation("org.junit.FixMethodOrder").addEnumParam(MethodSorters.NAME_ASCENDING);
+		if (wantOrdered)
+			bcc.addRTVAnnotation("org.junit.FixMethodOrder").addEnumParam(MethodSorters.NAME_ASCENDING);
 		for (File dir : sf) {
 			if (p == null || p.matcher(dir.getPath()).find()) {
 				addGoldenTest(bcc, "ut"+df.format(cnt++)+"_", dir);

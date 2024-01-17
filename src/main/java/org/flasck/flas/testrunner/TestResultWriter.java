@@ -71,6 +71,12 @@ public class TestResultWriter {
 		}
 	}
 
+	public void printStackTrace(Throwable e2) {
+		logger.error("unexpected exception", e2);
+		e2.printStackTrace(pw);
+		pw.flush();
+	}
+
 	public void println(String data) {
 		logger.info(data);
 		pw.println(data);

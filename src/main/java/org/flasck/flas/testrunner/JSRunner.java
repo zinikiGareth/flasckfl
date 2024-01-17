@@ -35,14 +35,14 @@ import netscape.javascript.JSObject;
  * 
  * Unit Tests:
  * 
- *   var runner = new UTRunner(console);
- *   var cxt = runner.newContext();
- *   var ut = new test.golden._ut_nested._ut2(runner, cxt); <-- correct name and test number
- *   ut._ut2_step_1(cxt); <-- for each step in ut._ut2_steps()
- *   ut._ut2_step_2(cxt);
- *   ut._ut2_step_3(cxt);
- *   ut._ut2_step_4(cxt);
- *   runner.assertSatisfied(); <-- to check conditions were all met
+    var runner = new UTRunner(console);
+    var cxt = runner.newContext();
+    var ut = new test.golden._ut_nested._ut2(runner, cxt); <-- correct name and test number
+    ut._ut2_step_1(cxt); <-- for each step in ut._ut2_steps()
+    ut._ut2_step_2(cxt);
+    ut._ut2_step_3(cxt);
+    ut._ut2_step_4(cxt);
+    runner.assertSatisfied(); <-- to check conditions were all met
  *  
  * System Tests:
  * 

@@ -192,6 +192,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			pw.error(code, desc, e2);
 			errors.add(code + " ERROR " + desc);
 			pw.println(code + " ERROR " + desc);
+			pw.printStackTrace(e2);
 		}
 	}
 

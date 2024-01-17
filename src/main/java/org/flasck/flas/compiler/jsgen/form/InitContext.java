@@ -22,7 +22,7 @@ public class InitContext implements IVForm {
 		if (!field) {
 			for (String e : env.packages())
 				if (!e.contains("_ut_") && !e.contains("_st_"))
-					w.println(e + "._init(_cxt);");
+					w.println("if (" + e + "._init) " + e + "._init(_cxt);");
 			w.println("runner.makeReady();");
 		}
 	}

@@ -662,14 +662,14 @@ MockFLObject.prototype._currentDiv = function() {
 	if (this.div)
 		return this.div;
 	else
-		throw Error("You must render the object first");
+		return null;
 }
 
 MockFLObject.prototype._currentRenderTree = function() {
 	if (this.rt)
 		return this.rt.result.single;
 	else
-		throw Error("You must render the object first");
+		return null;
 }
 
 const MockAgent = function(agent) {

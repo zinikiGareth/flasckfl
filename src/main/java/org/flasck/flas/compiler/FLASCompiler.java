@@ -86,6 +86,7 @@ import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.NoSuchDirectoryException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.utils.FileUtils;
@@ -402,13 +403,30 @@ public class FLASCompiler implements CompileUnit {
 		if (buildEventMaps())
 			return true;
 
+		ListMap<String, String> autolink = new ListMap<>();
 		Set<String> usedrefs = new TreeSet<>();
 		FlimWriter writer = null;
 		List<String> process = new ArrayList<>();
 		if (config.flimdir() != null) {
 			writer = new FlimWriter(repository, config.flimdir());
-			for (File f : config.inputs)
-				process.add(f.getName());
+			for (PackageSources f : packages) {
+				String pn = f.getPackageName();
+				process.add(pn);
+				if (!f.unitTests().isEmpty()) {
+					int x = pn.lastIndexOf(".")+1;
+					String pk = pn.substring(x);
+					String up = pn+ "._ut_" + pk;
+					process.add(up);
+					autolink.add(up, pn);
+				}
+				if (!f.systemTests().isEmpty()) {
+					int x = pn.lastIndexOf(".")+1;
+					String pk = pn.substring(x);
+					String sp = pn+ "._st_" + pk;
+					process.add(sp);
+					autolink.add(sp, pn);
+				}
+			}
 		} else if (uploader != null) {
 			writer = new FlimWriter(repository, uploader);
 			for (PackageSources p : packages)
@@ -421,6 +439,12 @@ public class FLASCompiler implements CompileUnit {
 				if (refs == null)
 					return true;
 				pkgs.ensure(input);
+				if (autolink.contains(input)) {
+					for (String k : autolink.get(input)) {
+						pkgs.ensure(k);
+						pkgs.ensureLink(input, k);
+					}
+				}
 				for (String s : refs) {
 					pkgs.ensure(s);
 					pkgs.ensureLink(input, s);
