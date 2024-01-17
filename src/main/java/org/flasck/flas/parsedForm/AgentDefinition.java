@@ -106,7 +106,7 @@ public class AgentDefinition implements Locatable, AgentElementsConsumer, Reposi
 
 	@Override
 	public String signature() {
-		throw new NotImplementedException();
+		return this.cardName().uniqueName();
 	}
 
 	@Override

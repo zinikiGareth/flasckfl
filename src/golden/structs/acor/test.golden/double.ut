@@ -6,3 +6,9 @@
 		data Wrapper w <- Wrapper (Top)
 		assert (f w)
 			"hello"
+			
+	test method invocation
+		data InCard c
+		contract c SomeContract deliver (Wrapper Top)
+		assert (c.q)
+			"hello"

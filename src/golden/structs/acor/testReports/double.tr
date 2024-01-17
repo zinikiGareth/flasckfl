@@ -1,4 +1,6 @@
 JVM PASS it works
 JVM PASS through cast
+JVM PASS method invocation
 JS PASS it works
 JS PASS through cast
+JS PASS method invocation

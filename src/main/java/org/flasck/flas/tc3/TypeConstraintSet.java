@@ -205,6 +205,10 @@ public class TypeConstraintSet implements UnifiableType {
 		return motive;
 	}
 	
+	public boolean isResolved() {
+		return resolvedTo != null;
+	}
+	
 	@Override
 	public Type resolvedTo() {
 		if (redirectedTo != null)

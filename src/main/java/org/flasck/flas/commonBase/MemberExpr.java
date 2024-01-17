@@ -1,11 +1,27 @@
 package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.FieldAccessor;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StateHolder;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.ErrorType;
+import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.TypeConstraintSet;
+import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
@@ -51,6 +67,69 @@ public class MemberExpr implements Expr {
 	
 	public void bindContainerType(Type ty) {
 		this.containerType = ty;
+		if (ty instanceof Primitive || ty instanceof UnionTypeDefn || ty instanceof ErrorType)
+			return;
+		if (this.fld instanceof UnresolvedVar) {
+			UnresolvedVar uv = (UnresolvedVar) this.fld;
+			RepositoryEntry e = null;
+			if (uv.defn() == null) {
+				if (ty instanceof TypeConstraintSet) {
+					TypeConstraintSet tcs = (TypeConstraintSet)ty;
+					if (tcs.isResolved())
+						ty = tcs.resolvedTo();
+					else
+						return;
+				}
+				if (ty instanceof PolyInstance) {
+					ty = ((PolyInstance)ty).struct();
+				}
+				if (ty instanceof Primitive || ty instanceof UnionTypeDefn)
+					return;
+				if (ty instanceof StructDefn) {
+					StructDefn sd = (StructDefn) ty;
+					e = sd.findField(uv.var);
+				} else if (ty instanceof StateHolder) {
+					StateHolder cd = (StateHolder) ty;
+					if (cd.state() != null) // it may be a field
+						e = cd.state().findField(uv.var);
+					if (e == null) {
+						if (ty instanceof ObjectDefn) {
+							ObjectDefn od = (ObjectDefn) ty;
+							ObjectActionHandler ctor = od.getConstructor(uv.var);
+							if (ctor != null)
+								e = ctor;
+							if (e == null) {
+								FieldAccessor acor = od.getAccessor(uv.var);
+								if (acor != null)
+									e = (RepositoryEntry) acor;
+							}
+							if (e == null) {
+								ObjectMethod method = od.getMethod(uv.var);
+								if (method != null)
+									e = method;
+							}
+						} else if (ty instanceof CardDefinition) {
+							
+						} else 
+							throw new NotImplementedException();
+					}
+				} else if (ty instanceof ContractDecl) {
+					ContractDecl cd = (ContractDecl) ty;
+					e = cd.getMethod(uv.var);
+				} else if (ty instanceof ApplicationRouting) {
+					// I'm not sure if this is just "too hard for me right now"
+					// or "too hard".
+					// I'm not convinced that it can be analyzed statically.
+					return;
+				} else
+					throw new HaventConsideredThisException("need to handle " + ty.getClass());
+				if (e != null)
+					((UnresolvedVar)fld).bind(e);
+				
+				// if we still can't find e, there is a good chance that is because it isn't there:
+				// the user may have typed something erroneous
+			}
+		}
 	}
 	
 	public Type containerType() {

@@ -487,6 +487,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		}
 		if (nt instanceof PolyInstance)
 			nt = ((PolyInstance)nt).struct();
+		RepositoryEntry re = repository.get(nt.name().uniqueName() + "." + var);
+		if (re != null) {
+			((UnresolvedVar)expr.fld).bind(re);
+		}
 		if (nt instanceof StructDefn) {
 			StructDefn sd = (StructDefn) nt;
 			StructField sf = sd.findField(var);

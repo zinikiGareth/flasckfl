@@ -12,3 +12,16 @@ This is a regression case where you cannot do the appropriate work through a cas
 		Top x
 	
 	f v = (cast Wrapper v).x.a
+
+And likewise if you are in a method
+
+	contract SomeContract
+		deliver (Any z)
+
+	card InCard
+		state
+			String q
+		
+		implements SomeContract
+			deliver z
+				q <- (cast Wrapper z).x.a
