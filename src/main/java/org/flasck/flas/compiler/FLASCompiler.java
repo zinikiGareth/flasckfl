@@ -235,12 +235,16 @@ public class FLASCompiler implements CompileUnit {
 		logger.info("parsing fl");
 		for (ContentObject f : sources.sources()) {
 			File fi = new File(f.key());
+			if (!validateFileName(fi))
+				continue;
 			System.out.println("    " + fi.getName());
 			flp.process(f);
 		}
 		logger.info("parsing ut");
 		for (ContentObject f : sources.unitTests()) {
 			File fi = new File(f.key());
+			if (!validateFileName(fi))
+				continue;
 			System.out.println("    " + fi.getName());
 			String file = FileUtils.dropExtension(fi.getName());
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
@@ -253,12 +257,16 @@ public class FLASCompiler implements CompileUnit {
 		logger.info("parsing fa");
 		for (ContentObject f : sources.assemblies()) {
 			File fi = new File(f.key());
+			if (!validateFileName(fi))
+				continue;
 			System.out.println("    " + fi.getName());
 			fap.process(f);
 		}
 		logger.info("parsing st");
 		for (ContentObject f : sources.systemTests()) {
 			File fi = new File(f.key());
+			if (!validateFileName(fi))
+				continue;
 			System.out.println("    " + fi.getName());
 			String file = FileUtils.dropExtension(fi.getName());
 			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
@@ -267,6 +275,26 @@ public class FLASCompiler implements CompileUnit {
 			ParsingPhase parser = new ParsingPhase(errors, stfn, st, (TopLevelDefinitionConsumer) repository, modules);
 			parser.process(f);
 		}
+	}
+
+	private boolean validateFileName(File fi) {
+		String n = fi.getName();
+		if (!assertValidName(n)) {
+			errors.message(new InputPosition(n, 0, 0, null, null), "illegal characters in file name");
+			return false;
+		} else
+			return true;
+	}
+
+	private boolean assertValidName(String n) {
+		n = FileUtils.dropExtension(n);
+		if (!Character.isLetter(n.charAt(0)))
+			return false;
+		for (int i=1;i<n.length();i++) {
+			if (!Character.isLetterOrDigit(n.charAt(i)))
+				return false;
+		}
+		return true;
 	}
 
 	@Override

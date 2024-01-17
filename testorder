@@ -1,3 +1,4 @@
+src/golden/banned/symbols
 src/golden/deals/errors
 src/golden/agents/errors
 src/golden/agents/typeerrors

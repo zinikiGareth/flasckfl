@@ -1,0 +1,9 @@
+When we name a unit or system test, it becomes a package name.
+This name cannot have hyphens in it, so thus the file name can't.
+This file will thus never be processed.
+
+The content here is just to make sure it is never processed.
+
+	test simple
+		assert (2*2)
+			4
