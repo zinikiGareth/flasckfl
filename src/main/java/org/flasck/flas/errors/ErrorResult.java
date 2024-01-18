@@ -134,7 +134,14 @@ public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<
 	@Override
 	public <T extends LoggableToken> T logParsingToken(T token) {
 		if (tokenStream != null) {
-			tokenStream.println("parsed token: " + token.location() + " " + token.type() + " " + token.text());
+			InputPosition pos = token.location();
+			tokenStream.print(pos.lineNo + ":");
+			if (pos.indent != null)
+				tokenStream.print(pos.indent.tabs+"."+pos.indent.spaces);
+			else
+				tokenStream.print("0.0");
+			tokenStream.println(":" + pos.off);
+			tokenStream.println(token.type() + " " + token.text());
 		}
 		return token;
 	}

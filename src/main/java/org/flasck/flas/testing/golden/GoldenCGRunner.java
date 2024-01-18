@@ -178,12 +178,15 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File incldirs = new File(s, "incl");
 		final File modules = new File(s, "modules");
 		final File parseTokens = new File(s, "parsetokens");
+		final File reconstruct = new File(s, "reconstruct");
 		FileUtils.cleanDirectory(actualErrors);
 		FileUtils.cleanDirectory(tr);
 		FileUtils.cleanDirectory(parseTokens);
+		FileUtils.cleanDirectory(reconstruct);
 		FileUtils.assertDirectory(actualErrors);
 		FileUtils.assertDirectory(tr);
 		FileUtils.assertDirectory(parseTokens);
+		FileUtils.assertDirectory(reconstruct);
 		FileUtils.deleteDirectoryTree(flimstoreTo);
 		if (flimfrom.exists()) {
 			FileUtils.assertDirectory(flimstoreTo);
@@ -265,6 +268,9 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 //		} finally {
 //		FileUtils.cat(new File(s, "repo.txt"));
 //		}
+		GrammarChecker r = new GrammarChecker(parseTokens, reconstruct);
+		r.checkParseTokenLogic();
+		r.checkGrammar();
 		AssertionError tmp = null;
 //		if (!expectedErrors.isDirectory()) {
 			try {
