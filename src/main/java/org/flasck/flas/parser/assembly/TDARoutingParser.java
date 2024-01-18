@@ -27,7 +27,7 @@ public class TDARoutingParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		ValidIdentifierToken kw = VarNameToken.from(toks);
+		ValidIdentifierToken kw = VarNameToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "expected routing keyword or card var");
 			return new IgnoreNestedParser();
@@ -108,7 +108,7 @@ public class TDARoutingParser implements TDAParsing {
 				errors.message(kw.location, "main cannot be set here");
 				return new IgnoreNestedParser();
 			}
-			TypeNameToken card = TypeNameToken.qualified(toks);
+			TypeNameToken card = TypeNameToken.qualified(errors, toks);
 			if (card == null) {
 				errors.message(toks, "card name required");
 				return new IgnoreNestedParser();

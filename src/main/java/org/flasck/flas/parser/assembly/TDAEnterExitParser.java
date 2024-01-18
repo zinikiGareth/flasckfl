@@ -30,7 +30,7 @@ public class TDAEnterExitParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		ValidIdentifierToken cardToken = VarNameToken.from(toks);
+		ValidIdentifierToken cardToken = VarNameToken.from(errors, toks);
 		if (cardToken == null) {
 			errors.message(toks, "expected card reference");
 			return new NoNestingParser(errors);
@@ -46,7 +46,7 @@ public class TDAEnterExitParser implements TDAParsing {
 		switch (tok.text) {
 		case ".": {
 			TypeReference ctr;
-			TypeNameToken tn = TypeNameToken.qualified(toks);
+			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn != null) {
 				System.out.println(tn.text);
 				tok = ExprToken.from(errors, toks);

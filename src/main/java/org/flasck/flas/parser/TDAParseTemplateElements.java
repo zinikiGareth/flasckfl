@@ -143,7 +143,7 @@ public class TDAParseTemplateElements {
 				addTo.add(new StringLiteral(pos, s));
 				continue;
 			}
-			ValidIdentifierToken var = VarNameToken.from(toks);
+			ValidIdentifierToken var = VarNameToken.from(errors, toks);
 			if (var != null) {
 				addTo.add(new UnresolvedVar(var.location, var.text));
 				continue;

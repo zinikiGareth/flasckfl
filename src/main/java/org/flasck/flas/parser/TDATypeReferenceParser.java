@@ -26,7 +26,7 @@ public class TDATypeReferenceParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		TypeNameToken qn = TypeNameToken.qualified(toks);
+		TypeNameToken qn = TypeNameToken.qualified(errors, toks);
 		if (qn == null) {
 			errors.message(toks, "typename expected");
 			return null;

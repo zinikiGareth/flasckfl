@@ -1,10 +1,12 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parser.VarNamer;
 
-public class PolyTypeToken {
+public class PolyTypeToken implements LoggableToken {
 	public final InputPosition location;
 	public final String text;
 
@@ -13,7 +15,7 @@ public class PolyTypeToken {
 		text = tok.text;
 	}
 
-	public static PolyTypeToken from(Tokenizable line) {
+	public static PolyTypeToken from(ErrorReporter errors, Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
@@ -25,14 +27,14 @@ public class PolyTypeToken {
 			line.reset(mark);
 			return null;
 		}
-		ValidIdentifierToken tok = ValidIdentifierToken.from(line);
+		ValidIdentifierToken tok = ValidIdentifierToken.from(errors, line);
 		String tx = tok.text;
 		if (!validate(tx)) {
 			// would be a real type
 			line.reset(mark);
 			return null;
 		}
-		return new PolyTypeToken(tok);
+		return errors.logParsingToken(new PolyTypeToken(tok));
 	}
 
 	public static PolyType fromToken(InputPosition pos, VarNamer namer, String tok) {
@@ -54,5 +56,20 @@ public class PolyTypeToken {
 
 	public PolyType asType(VarNamer namer) {
 		return new PolyType(location, namer.namePoly(location, text));
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
+	@Override
+	public String type() {
+		return "PolyType";
+	}
+
+	@Override
+	public String text() {
+		return text;
 	}
 }

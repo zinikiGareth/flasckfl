@@ -43,7 +43,7 @@ public class TDAPatternParser implements TDAParsing {
 			return null;
 		
 		// This case is for the simple case such as "Nil" where a no-arg constructor can match by itself
-		TypeNameToken qn = TypeNameToken.qualified(toks);
+		TypeNameToken qn = TypeNameToken.qualified(errors, toks);
 		if (qn != null)
 			return handleASimpleConstructor(qn);
 		
@@ -105,7 +105,7 @@ public class TDAPatternParser implements TDAParsing {
 
 	public TDAParsing handleOneORBMemberCase(Tokenizable toks) {
 		int mark = toks.at();
-		TypeNameToken qn = TypeNameToken.qualified(toks);
+		TypeNameToken qn = TypeNameToken.qualified(errors, toks);
 		if (qn != null) {
 			toks.reset(mark); // let it read it again
 			return handleCasesStartingWithAType(toks, qn);

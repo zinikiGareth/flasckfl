@@ -35,7 +35,7 @@ public class PendingState implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		switch (kw.text) {
 		case "member": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			PendingField f = new PendingField(errors, tok);
 			fields.add(f);
 			return f;

@@ -55,7 +55,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}
 		case "provides": {
-			TypeNameToken tn = TypeNameToken.qualified(toks);
+			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser();
@@ -71,7 +71,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel, holder);
 		}
 		case "requires": {
-			TypeNameToken tn = TypeNameToken.qualified(toks);
+			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser();
@@ -80,7 +80,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			InputPosition varloc = null;
 			String varname = null;
 			if (toks.hasMoreContent()) {
-				ValidIdentifierToken var = VarNameToken.from(toks);
+				ValidIdentifierToken var = VarNameToken.from(errors, toks);
 				if (var == null) {
 					errors.message(toks, "invalid service var name");
 					return new IgnoreNestedParser();
@@ -100,7 +100,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			return new NoNestingParser(errors);
 		}
 		case "implements": {
-			TypeNameToken tn = TypeNameToken.qualified(toks);
+			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser();

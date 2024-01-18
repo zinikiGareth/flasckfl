@@ -26,7 +26,7 @@ public abstract class PendingMethod implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		switch (kw.text) {
 		case "arg": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			return new FlimTypeReader(errors) {
 				@Override
 				public void collect(PendingType ty) {
@@ -35,7 +35,7 @@ public abstract class PendingMethod implements TDAParsing {
 			};
 		}
 		case "handler": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			return new FlimTypeReader(errors) {
 				@Override
 				public void collect(PendingType ty) {

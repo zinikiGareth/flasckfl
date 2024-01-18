@@ -109,7 +109,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		switch (op.text) {
 		case "create": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			if (tok == null) {
 				errors.message(toks, "ajax create requires a variable to name the mock");
 				return new IgnoreNestedParser();
@@ -132,7 +132,7 @@ public class SystemTestStepParser extends TestStepParser {
 			return new AjaxCreateActionsParser(errors, ac);
 		}
 		case "pump": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			if (tok == null) {
 				errors.message(toks, "no mock specified");
 				return new IgnoreNestedParser();
@@ -154,7 +154,7 @@ public class SystemTestStepParser extends TestStepParser {
 	}
 
 	private TDAParsing handleApplication(Tokenizable toks) {
-		ValidIdentifierToken tok = VarNameToken.from(toks);
+		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "no application name provided");
 			return new IgnoreNestedParser();
@@ -176,7 +176,7 @@ public class SystemTestStepParser extends TestStepParser {
 	}
 
 	private TDAParsing handleRoute(Tokenizable toks) {
-		ValidIdentifierToken tok = VarNameToken.from(toks);
+		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "no application name provided");
 			return new IgnoreNestedParser();
@@ -232,7 +232,7 @@ public class SystemTestStepParser extends TestStepParser {
 	}
 
 	private TDAParsing handleLogin(Tokenizable toks) {
-		ValidIdentifierToken tok = VarNameToken.from(toks);
+		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "no application name provided");
 			return new IgnoreNestedParser();

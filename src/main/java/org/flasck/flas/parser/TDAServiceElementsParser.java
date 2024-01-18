@@ -50,7 +50,7 @@ public class TDAServiceElementsParser implements TDAParsing {
 			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, null).parseMethod(namer, toks);
 		}
 		case "provides": {
-			TypeNameToken tn = TypeNameToken.qualified(toks);
+			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser();
@@ -66,7 +66,7 @@ public class TDAServiceElementsParser implements TDAParsing {
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), cs, topLevel, null);
 		}
 		case "requires": {
-			TypeNameToken tn = TypeNameToken.qualified(toks);
+			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser();
@@ -75,7 +75,7 @@ public class TDAServiceElementsParser implements TDAParsing {
 			InputPosition varloc = null;
 			String varname = null;
 			if (toks.hasMoreContent()) {
-				ValidIdentifierToken var = VarNameToken.from(toks);
+				ValidIdentifierToken var = VarNameToken.from(errors, toks);
 				if (var == null) {
 					errors.message(toks, "invalid service var name");
 					return new IgnoreNestedParser();

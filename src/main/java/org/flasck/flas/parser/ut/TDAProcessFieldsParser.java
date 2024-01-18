@@ -27,7 +27,7 @@ public class TDAProcessFieldsParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		ValidIdentifierToken var = VarNameToken.from(toks);
+		ValidIdentifierToken var = VarNameToken.from(errors, toks);
 		if (var == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();

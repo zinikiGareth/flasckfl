@@ -169,12 +169,12 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	protected TDAParsing handleSendToContract(Tokenizable toks) {
-		ValidIdentifierToken tok = VarNameToken.from(toks);
+		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "contract requires a card variable to send the event to");
 			return new IgnoreNestedParser();
 		}
-		TypeNameToken evname = TypeNameToken.qualified(toks);
+		TypeNameToken evname = TypeNameToken.qualified(errors, toks);
 		if (evname == null) {
 			errors.message(toks, "contract requires a Contract name");
 			return new IgnoreNestedParser();
@@ -198,7 +198,7 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	protected TDAParsing closeCard(Tokenizable toks) {
-		ValidIdentifierToken tok = VarNameToken.from(toks);
+		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "close requires a card variable to close");
 			return new IgnoreNestedParser();
@@ -235,7 +235,7 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	protected TDAParsing handleRender(Tokenizable toks) {
-		ValidIdentifierToken tok = VarNameToken.from(toks);
+		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "must specify a card to be rendered");
 			return new IgnoreNestedParser();
@@ -253,7 +253,7 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	protected TDAParsing handleEvent(Tokenizable toks) {
-		ValidIdentifierToken tok = VarNameToken.from(toks);
+		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "must specify a card to receive event");
 			return new IgnoreNestedParser();
@@ -286,7 +286,7 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	protected TDAParsing handleInput(Tokenizable toks) {
-		ValidIdentifierToken tok = VarNameToken.from(toks);
+		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "must specify a card to receive event");
 			return new IgnoreNestedParser();
@@ -322,7 +322,7 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	protected TDAParsing handleExpect(Tokenizable toks) {
-		ValidIdentifierToken svc = VarNameToken.from(toks);
+		ValidIdentifierToken svc = VarNameToken.from(errors, toks);
 		if (svc == null) {
 			// If we don't have a service name, then it could be a contract.
 			// Look for the special operator "<x"
@@ -336,7 +336,7 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "missing contract");
 			return new IgnoreNestedParser();
 		}
-		ValidIdentifierToken meth = VarNameToken.from(toks);
+		ValidIdentifierToken meth = VarNameToken.from(errors, toks);
 		if (meth == null) {
 			errors.message(toks, "missing method");
 			return new IgnoreNestedParser();
@@ -366,7 +366,7 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	private TDAParsing handleExpectCancel(Tokenizable toks) {
-		ValidIdentifierToken handler = VarNameToken.from(toks);
+		ValidIdentifierToken handler = VarNameToken.from(errors, toks);
 		if (handler == null) {
 			errors.message(toks, "handler name required");
 			return new IgnoreNestedParser();
@@ -380,12 +380,12 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	protected TDAParsing handleMatch(Tokenizable toks) {
-		ValidIdentifierToken card = VarNameToken.from(toks);
+		ValidIdentifierToken card = VarNameToken.from(errors, toks);
 		if (card == null) {
 			errors.message(toks, "missing card");
 			return new IgnoreNestedParser();
 		}
-		ValidIdentifierToken whattok = VarNameToken.from(toks);
+		ValidIdentifierToken whattok = VarNameToken.from(errors, toks);
 		if (whattok == null) {
 			errors.message(toks, "missing category");
 			return new IgnoreNestedParser();
@@ -423,7 +423,7 @@ public class TestStepParser implements TDAParsing {
 			if (targetZoneTmp == null) {
 				return new IgnoreNestedParser();
 			}
-			ValidIdentifierToken option = VarNameToken.from(toks);
+			ValidIdentifierToken option = VarNameToken.from(errors, toks);
 			if (option != null) {
 				if ("contains".equals(option.text)) {
 					containsTmp = true;

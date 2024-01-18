@@ -1,8 +1,10 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 
-public class ValidIdentifierToken {
+public class ValidIdentifierToken implements LoggableToken {
 	public final InputPosition location;
 	public final String text;
 
@@ -12,7 +14,7 @@ public class ValidIdentifierToken {
 		this.text = text;
 	}
 
-	public static ValidIdentifierToken from(Tokenizable line) {
+	public static ValidIdentifierToken from(ErrorReporter errors, Tokenizable line) {
 		line.skipWS();
 		int mark = line.at();
 		InputPosition pos = line.realinfo();
@@ -21,7 +23,7 @@ public class ValidIdentifierToken {
 		line.advance();
 		while (line.hasMore() && isIdentifierPart(line.nextChar()))
 			line.advance();
-		return new ValidIdentifierToken(pos, line.fromMark(mark), line.at());
+		return errors.logParsingToken(new ValidIdentifierToken(pos, line.fromMark(mark), line.at()));
 	}
 	
 	private static boolean isIdentifierStart(char c) {
@@ -35,6 +37,21 @@ public class ValidIdentifierToken {
 	@Override
 	public String toString() {
 		return "VIT["+text+":" + location+"]";
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
+	@Override
+	public String type() {
+		return "identifier";
+	}
+
+	@Override
+	public String text() {
+		return text;
 	}
 
 }

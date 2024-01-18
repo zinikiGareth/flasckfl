@@ -43,7 +43,7 @@ public class FlimUnion implements TDAParsing {
 			};
 		}
 		case "poly": {
-			PolyTypeToken ta = PolyTypeToken.from(toks);
+			PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 			polys.add(new PolyType(kw.location, new SolidName(tn, ta.text)));
 			return new NoNestingParser(errors);
 		}

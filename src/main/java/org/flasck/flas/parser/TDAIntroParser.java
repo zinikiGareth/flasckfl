@@ -55,7 +55,7 @@ public class TDAIntroParser implements TDAParsing {
 		case "agent":
 		case "card":
 		case "service": {
-			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
@@ -113,7 +113,7 @@ public class TDAIntroParser implements TDAParsing {
 		case "envelope":
 		case "deal":
 		case "offer": {
-			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
@@ -122,7 +122,7 @@ public class TDAIntroParser implements TDAParsing {
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
 			while (toks.hasMoreContent()) {
-				PolyTypeToken ta = PolyTypeToken.from(toks);
+				PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 				if (ta == null) {
 					errors.message(toks, "invalid type argument");
 					return new IgnoreNestedParser();
@@ -139,7 +139,7 @@ public class TDAIntroParser implements TDAParsing {
 			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true);
 		}
 		case "wraps": {
-			TypeNameToken tn = TypeNameToken.qualified(toks);
+			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing envelope name");
 				return new IgnoreNestedParser();
@@ -149,7 +149,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "wraps must have <-");
 				return new IgnoreNestedParser();
 			}
-			TypeNameToken from = TypeNameToken.qualified(toks);
+			TypeNameToken from = TypeNameToken.qualified(errors, toks);
 			if (from == null) {
 				errors.message(toks, "invalid or missing wrapped type name");
 				return new IgnoreNestedParser();
@@ -165,7 +165,7 @@ public class TDAIntroParser implements TDAParsing {
 			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), FieldsType.WRAPS, false);
 		}
 		case "union": {
-			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
@@ -174,7 +174,7 @@ public class TDAIntroParser implements TDAParsing {
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
 			while (toks.hasMoreContent()) {
-				PolyTypeToken ta = PolyTypeToken.from(toks);
+				PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 				if (ta == null) {
 					errors.message(toks, "invalid type argument");
 					return new IgnoreNestedParser();
@@ -186,7 +186,7 @@ public class TDAIntroParser implements TDAParsing {
 			return new TDAUnionFieldParser(errors, ud);
 		}
 		case "object": {
-			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
@@ -195,7 +195,7 @@ public class TDAIntroParser implements TDAParsing {
 			SimpleVarNamer svn = new SimpleVarNamer(on);
 			List<PolyType> polys = new ArrayList<>();
 			while (toks.hasMoreContent()) {
-				PolyTypeToken ta = PolyTypeToken.from(toks);
+				PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 				if (ta == null) {
 					errors.message(toks, "syntax error");
 					return new IgnoreNestedParser();
@@ -236,7 +236,7 @@ public class TDAIntroParser implements TDAParsing {
 				}
 			}
 			
-			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();

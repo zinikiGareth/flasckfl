@@ -32,7 +32,7 @@ public class TDAMethodParser {
 	
 	public TDAParsing parseMethod(FunctionNameProvider methodNamer, Tokenizable toks) {
 		ErrorMark mark = errors.mark();
-		ValidIdentifierToken var = VarNameToken.from(toks);
+		ValidIdentifierToken var = VarNameToken.from(errors, toks);
 		if (var == null) {
 			errors.message(toks, "no method name provided");
 			return new IgnoreNestedParser();

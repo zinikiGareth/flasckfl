@@ -46,7 +46,7 @@ public class ContractMethodParser implements TDAParsing {
 
 		// Read the function name
 		InputPosition pos = toks.realinfo();
-		ValidIdentifierToken name = ValidIdentifierToken.from(toks);
+		ValidIdentifierToken name = ValidIdentifierToken.from(errors, toks);
 		if (name == null) {
 			if (toks.hasMoreContent())
 				errors.message(toks, "invalid method name");

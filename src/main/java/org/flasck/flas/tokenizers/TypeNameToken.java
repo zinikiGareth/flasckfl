@@ -1,8 +1,10 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 
-public class TypeNameToken {
+public class TypeNameToken implements LoggableToken {
 	public final InputPosition location;
 	public final String text;
 
@@ -17,7 +19,7 @@ public class TypeNameToken {
 		text = proto;
 	}
 
-	public static TypeNameToken unqualified(Tokenizable line) {
+	public static TypeNameToken unqualified(ErrorReporter errors, Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
@@ -29,18 +31,18 @@ public class TypeNameToken {
 			line.reset(mark);
 			return null;
 		}
-		ValidIdentifierToken tok = ValidIdentifierToken.from(line);
+		ValidIdentifierToken tok = ValidIdentifierToken.from(errors, line);
 		if (tok.text.length() == 1 || tok.text.length() == 2 && (Character.isUpperCase(tok.text.charAt(1)) || Character.isDigit(tok.text.charAt(1)))) {
 			// would be a poly var
 			line.reset(mark);
 			return null;
 		}
-		return new TypeNameToken(tok);
+		return errors.logParsingToken(new TypeNameToken(tok));
 	}
 
 	// qualified names are any number of (lowercase) package names followed by exactly one (uppercase) type name
 	// we then stop; if there is another dot, it is probably a ctor method
-	public static TypeNameToken qualified(Tokenizable line) {
+	public static TypeNameToken qualified(ErrorReporter errors, Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore() || !Character.isJavaIdentifierStart(line.nextChar()))
 			return null;
@@ -67,13 +69,28 @@ public class TypeNameToken {
 			line.advance();
 		}
 		if (haveName)
-			return new TypeNameToken(loc, line.fromMark(mark), line.at());
+			return errors.logParsingToken(new TypeNameToken(loc, line.fromMark(mark), line.at()));
 		else {
 			line.reset(mark); // we only saw lowercase things ...
 			return null;
 		}
 	}
 	
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
+	@Override
+	public String type() {
+		return "TypeName";
+	}
+
+	@Override
+	public String text() {
+		return text;
+	}
+
 	@Override
 	public String toString() {
 		return "TNT[" + text + "]";

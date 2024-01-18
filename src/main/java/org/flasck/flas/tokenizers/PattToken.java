@@ -40,7 +40,7 @@ public class PattToken {
 		char c = line.nextChar();
 		int pos;
 		if (Character.isJavaIdentifierStart(c)) {
-			ValidIdentifierToken tok = ValidIdentifierToken.from(line);
+			ValidIdentifierToken tok = ValidIdentifierToken.from(errors, line);
 			if (tok == null)
 				return null;
 			if (tok.text.equals("true"))

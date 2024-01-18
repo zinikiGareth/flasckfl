@@ -36,8 +36,8 @@ public class FlimContract implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		switch (kw.text) {
 		case "method": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
-			ValidIdentifierToken reqd = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
+			ValidIdentifierToken reqd = VarNameToken.from(errors, toks);
 			FlimContractMethod ret = new FlimContractMethod(errors, repository, name, tok.location, tok.text, Boolean.parseBoolean(reqd.text));
 			methods.add(ret);
 			return ret;

@@ -40,13 +40,13 @@ public class FlimStruct implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		switch (kw.text) {
 		case "field": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			PendingField f = new PendingField(errors, tok);
 			fields.add(f);
 			return f;
 		}
 		case "poly": {
-			PolyTypeToken ta = PolyTypeToken.from(toks);
+			PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 			polys.add(new PolyType(kw.location, new SolidName(tn, ta.text)));
 			return new NoNestingParser(errors);
 		}

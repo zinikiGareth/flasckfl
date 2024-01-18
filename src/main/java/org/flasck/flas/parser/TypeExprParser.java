@@ -19,7 +19,7 @@ public class TypeExprParser {
 	}
 	
 	public void tryParsing(Tokenizable line, TDAProvideType pt) {
-		TypeExprToken tt = TypeExprToken.from(line);
+		TypeExprToken tt = TypeExprToken.from(errors, line);
 		if (tt == null)
 			return; // not even a valid token (or line ended)
 		TypeReference curr = null;
@@ -38,7 +38,7 @@ public class TypeExprParser {
 		}
 		
 		int mark = line.at();
-		TypeExprToken nt = TypeExprToken.from(line);
+		TypeExprToken nt = TypeExprToken.from(errors, line);
 		if (nt == null) { // we have reached the end of the line
 			pt.provide(curr);
 			return;
@@ -57,7 +57,7 @@ public class TypeExprParser {
 				if (++cnt != trs.size()) { // we didn't get a type
 					return;
 				}
-				nt = TypeExprToken.from(line); // get the next token
+				nt = TypeExprToken.from(errors, line); // get the next token
 				// TODO: can probably be null
 				if (nt.type == TypeExprToken.COMMA) {
 					// carry on
@@ -169,7 +169,7 @@ public class TypeExprParser {
 			if (trs.isEmpty()) {
 				return;
 			}
-			TypeExprToken tt = TypeExprToken.from(line);
+			TypeExprToken tt = TypeExprToken.from(errors, line);
 			if (tt.type == TypeExprToken.CRB) {
 				if (trs.size() == 1) // the parenthesis case
 					pt.provide(trs.get(0));

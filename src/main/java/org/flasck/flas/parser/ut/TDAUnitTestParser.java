@@ -7,6 +7,7 @@ import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.TestDescriptionToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAUnitTestParser implements TDAParsing {
@@ -35,7 +36,10 @@ public class TDAUnitTestParser implements TDAParsing {
 			return new TDAUnitTestDataParser(errors, false, namer, dd -> builder.data(dd), topLevel).tryParsing(toks);
 		}
 		case "test": {
+			toks.skipWS();
+			InputPosition pos = toks.realinfo();
 			final String desc = toks.remainder().trim();
+			errors.logParsingToken(new TestDescriptionToken(pos, desc));
 			if (desc.length() == 0) {
 				errors.message(toks, "test case must have a description");
 				return new IgnoreNestedParser();

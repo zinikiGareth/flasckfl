@@ -107,7 +107,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 		}
 		TypeReference tr = ref.get(0);
 
-		ValidIdentifierToken var = ValidIdentifierToken.from(toks);
+		ValidIdentifierToken var = ValidIdentifierToken.from(errors, toks);
 		if (var == null) {
 			errors.message(toks, "var name expected");
 			return false;

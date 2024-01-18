@@ -54,7 +54,7 @@ public class TDAHandlerParser implements TDAParsing {
 			errors.message(line, "missing contract reference");
 			return new IgnoreNestedParser();
 		}
-		TypeNameToken tn = TypeNameToken.qualified(line);
+		TypeNameToken tn = TypeNameToken.qualified(errors, line);
 		if (tn == null) {
 			errors.message(line, "invalid contract reference");
 			return new IgnoreNestedParser();
@@ -63,7 +63,7 @@ public class TDAHandlerParser implements TDAParsing {
 			errors.message(line, "missing handler name");
 			return new IgnoreNestedParser();
 		}
-		TypeNameToken named = TypeNameToken.unqualified(line);
+		TypeNameToken named = TypeNameToken.unqualified(errors, line);
 		if (named == null) {
 			errors.message(line, "invalid handler name");
 			return new IgnoreNestedParser();

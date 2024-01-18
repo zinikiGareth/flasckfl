@@ -57,7 +57,7 @@ public class ExprToken implements LoggableToken {
 		int mark = line.at();
 		char c = line.nextChar();
 		if (Character.isJavaIdentifierStart(c))
-			return errors.logParsingToken(new ExprToken(IDENTIFIER, ValidIdentifierToken.from(line)));
+			return errors.logParsingToken(new ExprToken(IDENTIFIER, ValidIdentifierToken.from(errors, line)));
 		else if (c == '"' || c == '\'') {
 			String tok = StringToken.from(errors, line);
 			if (tok == null)

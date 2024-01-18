@@ -1,8 +1,10 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 
-public class TypeExprToken {
+public class TypeExprToken implements LoggableToken {
 	public static final int NAME = 1;
 
 	public static final int ORB = 10;
@@ -23,7 +25,7 @@ public class TypeExprToken {
 		this.text = text;
 	}
 
-	public static TypeExprToken from(Tokenizable line) {
+	public static TypeExprToken from(ErrorReporter errors, Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
@@ -31,16 +33,16 @@ public class TypeExprToken {
 		char c = line.nextChar();
 		int pos;
 		if (Character.isLetter(c)) {
-			TypeNameToken tmp = TypeNameToken.qualified(line);
+			TypeNameToken tmp = TypeNameToken.qualified(errors, line);
 			if (tmp != null)
-				return new TypeExprToken(loc, NAME, tmp.text, line.at());
+				return errors.logParsingToken(new TypeExprToken(loc, NAME, tmp.text, line.at()));
 			else
 				return null;
 		} else if ((pos = "()[],".indexOf(c)) != -1) {
 			line.advance();
-			return new TypeExprToken(loc, 10+pos, null, line.at());
+			return errors.logParsingToken(new TypeExprToken(loc, 10+pos, null, line.at()));
 		} else if ("->".equals(line.getTo(2))) {
-			return new TypeExprToken(loc, ARROW, "->", line.at());
+			return errors.logParsingToken(new TypeExprToken(loc, ARROW, "->", line.at()));
 		} else
 			return null;
 	}
@@ -48,5 +50,20 @@ public class TypeExprToken {
 	@Override
 	public String toString() {
 		return "PT[" + type + ":" + text + "]";
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
+	@Override
+	public String type() {
+		return "TypeExprToken_" + type;
+	}
+
+	@Override
+	public String text() {
+		return text;
 	}
 }

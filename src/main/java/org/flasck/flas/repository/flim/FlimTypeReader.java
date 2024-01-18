@@ -42,7 +42,7 @@ public abstract class FlimTypeReader implements TDAParsing {
 			return new NoNestingParser(errors);
 		}
 		case "var": {
-			PolyTypeToken ty = PolyTypeToken.from(toks);
+			PolyTypeToken ty = PolyTypeToken.from(errors, toks);
 			definePolyVar(ty.location, ty.text);
 			return new NoNestingParser(errors);
 		}

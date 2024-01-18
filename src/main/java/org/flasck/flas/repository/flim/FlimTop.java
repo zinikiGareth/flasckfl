@@ -65,35 +65,35 @@ public class FlimTop implements TDAParsing {
 		}
 		switch (kw.text) {
 		case "contract": {
-			ContractType ct = ContractType.valueOf(VarNameToken.from(toks).text.toUpperCase());
-			TypeNameToken tnt = TypeNameToken.unqualified(toks);
+			ContractType ct = ContractType.valueOf(VarNameToken.from(errors, toks).text.toUpperCase());
+			TypeNameToken tnt = TypeNameToken.unqualified(errors, toks);
 			SolidName cn = new SolidName(container, tnt.text);
 			FlimContract fc = new FlimContract(errors, repository, cn, ct);
 			contracts.add(fc);
 			return fc;
 		}
 		case "struct": {
-			TypeNameToken tnt = TypeNameToken.unqualified(toks);
+			TypeNameToken tnt = TypeNameToken.unqualified(errors, toks);
 			SolidName tn = new SolidName(container, tnt.text);
 			FlimStruct fs = new FlimStruct(errors, repository, tn);
 			structs.add(fs);
 			return fs;
 		}
 		case "union": {
-			TypeNameToken tnt = TypeNameToken.unqualified(toks);
+			TypeNameToken tnt = TypeNameToken.unqualified(errors, toks);
 			SolidName tn = new SolidName(container, tnt.text);
 			FlimUnion fs = new FlimUnion(errors, repository, tn);
 			unions.add(fs);
 			return fs;
 		}
 		case "function": {
-			ValidIdentifierToken ft = VarNameToken.from(toks);
+			ValidIdentifierToken ft = VarNameToken.from(errors, toks);
 			FlimFunction pf = new FlimFunction(errors, repository, FunctionName.function(pos, container, ft.text));
 			functions.add(pf);
 			return pf;
 		}
 		case "object": {
-			TypeNameToken tnt = TypeNameToken.unqualified(toks);
+			TypeNameToken tnt = TypeNameToken.unqualified(errors, toks);
 			ObjectName on = new ObjectName(container, tnt.text);
 			FlimObject fs = new FlimObject(errors, repository, on);
 			objects.add(fs);

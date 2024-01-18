@@ -62,7 +62,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}
 		case "requires": {
-			TypeNameToken tn = TypeNameToken.qualified(toks);
+			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser();
@@ -72,7 +72,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 				errors.message(toks, "missing variable name");
 				return new IgnoreNestedParser();
 			}
-			ValidIdentifierToken var = VarNameToken.from(toks);
+			ValidIdentifierToken var = VarNameToken.from(errors, toks);
 			if (var == null) {
 				errors.message(toks, "invalid service var name");
 				return new IgnoreNestedParser();
@@ -122,7 +122,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder).parseMethod(namer, toks);
 		}
 		case "ctor": {
-			ValidIdentifierToken var = VarNameToken.from(toks);
+			ValidIdentifierToken var = VarNameToken.from(errors, toks);
 			FunctionName fnName = namer.ctor(var.location, var.text);
 			List<Pattern> args = new ArrayList<>();
 			TDAPatternParser pp = new TDAPatternParser(errors, new SimpleVarNamer(fnName), p -> {

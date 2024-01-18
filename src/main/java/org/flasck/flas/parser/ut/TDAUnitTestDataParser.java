@@ -44,7 +44,7 @@ public class TDAUnitTestDataParser implements TDAParsing {
 			// it failed
 			return new IgnoreNestedParser();
 		}
-		ValidIdentifierToken var = VarNameToken.from(toks);
+		ValidIdentifierToken var = VarNameToken.from(errors, toks);
 		if (var == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();

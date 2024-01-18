@@ -35,7 +35,7 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (!toks.hasMoreContent())
 			return null;
-		ValidIdentifierToken name = VarNameToken.from(toks);
+		ValidIdentifierToken name = VarNameToken.from(errors, toks);
 		if (name == null) {
 			errors.message(toks, "invalid method name");
 			return new IgnoreNestedParser();
@@ -44,11 +44,11 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 		final FunctionName methName = namer.functionName(name.location, name.text);
 		VarPattern handler = null;
 		while (toks.hasMoreContent()) {
-			ValidIdentifierToken arg = VarNameToken.from(toks);
+			ValidIdentifierToken arg = VarNameToken.from(errors, toks);
 			if (arg == null) {
 				ExprToken tok = ExprToken.from(errors, toks);
 				if (tok != null && "->".equals(tok.text)) {
-					ValidIdentifierToken h = VarNameToken.from(toks);
+					ValidIdentifierToken h = VarNameToken.from(errors, toks);
 					if (h == null) {
 						errors.message(toks, "missing or invalid handler name");
 						return new IgnoreNestedParser();

@@ -48,25 +48,25 @@ public class FlimObject implements TDAParsing {
 			return state;
 		}
 		case "ctor": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			PendingObjectCtor ctor = new PendingObjectCtor(errors, kw.location, FunctionName.objectCtor(kw.location, on, tok.text));
 			ctors.add(ctor);
 			return ctor;
 		}
 		case "acor": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			PendingObjectAcor acor = new PendingObjectAcor(errors, FunctionName.function(kw.location, on, tok.text));
 			acors.add(acor);
 			return acor;
 		}
 		case "method": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
+			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			PendingObjectMethod meth = new PendingObjectMethod(errors, kw.location, FunctionName.objectMethod(kw.location, on, tok.text));
 			methods.add(meth);
 			return meth;
 		}
 		case "poly": {
-			PolyTypeToken ta = PolyTypeToken.from(toks);
+			PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 			polys.add(new PolyType(kw.location, new SolidName(on, ta.text)));
 			return new NoNestingParser(errors);
 		}

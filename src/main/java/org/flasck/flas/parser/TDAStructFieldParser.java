@@ -8,6 +8,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
@@ -39,7 +40,7 @@ public class TDAStructFieldParser implements TDAParsing {
 			}
 			type = types.get(0);
 		}
-		ValidIdentifierToken field = VarNameToken.from(toks);
+		ValidIdentifierToken field = VarNameToken.from(errors, toks);
 		if (field == null) {
 			errors.message(toks, "field must have a valid field name");
 			return new IgnoreNestedParser();
@@ -62,20 +63,18 @@ public class TDAStructFieldParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			toks.skipWS();
-			InputPosition assOp = toks.realinfo();
-			String op = toks.getTo(2);
-			if (!"<-".equals(op)) {
+			ExprToken arrow = ExprToken.from(errors, toks);
+			if (!"<-".equals(arrow.text)) {
 				errors.message(toks, "expected <- or end of line");
 				return new IgnoreNestedParser();
 			}
-			assOp.endAt(toks.at());
 			TypeReference ft = type;
 			new TDAExpressionParser(errors, expr -> {
 				if (errors.hasErrors()) {
 					ret.ignore();
 				} else {
 					ret.noNest(errors);
-					builder.addField(new StructField(field.location, assOp, builder.holder(), createAsAccessors, true, ft, field.text, expr));
+					builder.addField(new StructField(field.location, arrow.location, builder.holder(), createAsAccessors, true, ft, field.text, expr));
 				}
 			}).tryParsing(toks);
 			if (toks.hasMoreContent())
