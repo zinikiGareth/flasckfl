@@ -1,2 +1,3 @@
+test.golden.InCard._C0.deliver :: Any->List[Message]
 test.golden.double :: test.golden.Top->String
 test.golden.f :: Any->String

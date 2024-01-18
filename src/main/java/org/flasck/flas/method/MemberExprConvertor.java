@@ -192,6 +192,9 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 					throw new NotImplementedException("There is no acor " + fld);
 				expargs = 0;
 				obj = ce.val;
+			} else if (e instanceof MakeAcor) {
+				acorFrom = (FieldAccessor) ((UnresolvedVar)expr.fld).defn();
+				obj = (MakeAcor)e;
 			} else
 				throw new HaventConsideredThisException("e is of type " + e.getClass());
 		}

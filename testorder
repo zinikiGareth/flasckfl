@@ -198,4 +198,3 @@ src/golden/structs/sharedeval
 src/golden/eval/shared/vars
 src/golden/cards/templates/structs
 src/golden/assembly/consistency
-src/golden/workon
