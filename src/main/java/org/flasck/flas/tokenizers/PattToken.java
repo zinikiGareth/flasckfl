@@ -2,8 +2,9 @@ package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 
-public class PattToken {
+public class PattToken implements LoggableToken {
 	public static final int VAR = 1;
 	public static final int TYPE = 2;
 	public static final int NUMBER = 3;
@@ -44,23 +45,23 @@ public class PattToken {
 			if (tok == null)
 				return null;
 			if (tok.text.equals("true"))
-				return new PattToken(tok.location, PattToken.TRUE, "true", line.at());
+				return errors.logParsingToken(new PattToken(tok.location, PattToken.TRUE, "true", line.at()));
 			else if (tok.text.equals("false"))
-				return new PattToken(tok.location, PattToken.FALSE, "false", line.at());
+				return errors.logParsingToken(new PattToken(tok.location, PattToken.FALSE, "false", line.at()));
 			else
-				return new PattToken(tok.location, Character.isUpperCase(c)?TYPE:VAR, tok.text, line.at());
+				return errors.logParsingToken(new PattToken(tok.location, Character.isUpperCase(c)?TYPE:VAR, tok.text, line.at()));
 		} else if (c == '"' || c == '\'') {
 			InputPosition loc = line.realinfo();
 			String s = StringToken.from(errors, line);
-			return new PattToken(loc, PattToken.STRING, s, line.at());
+			return errors.logParsingToken(new PattToken(loc, PattToken.STRING, s, line.at()));
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1))) {
 			NumberToken num = NumberToken.from(line);
-			return new PattToken(num.location, NUMBER, num.text, line.at());
+			return errors.logParsingToken(new PattToken(num.location, NUMBER, num.text, line.at()));
 		} else if ((pos = "()[]{}:,".indexOf(c)) != -1) {
 			InputPosition loc = line.realinfo();
 			line.advance();
-			return new PattToken(loc, pos+10, null, line.at());
+			return errors.logParsingToken(new PattToken(loc, pos+10, new String(new char[] { c }), line.at()));
 		} else
 			return null;
 	}
@@ -68,5 +69,20 @@ public class PattToken {
 	@Override
 	public String toString() {
 		return "PT[" + type + ":" + text + "]";
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
+	@Override
+	public String type() {
+		return "Patt_" + type;
+	}
+
+	@Override
+	public String text() {
+		return text;
 	}
 }

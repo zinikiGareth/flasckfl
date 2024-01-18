@@ -8,15 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.TupleTypeReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.TDAProvideType;
 import org.flasck.flas.parser.TypeExprParser;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 public class TypeExprParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -29,6 +33,13 @@ public class TypeExprParsingTests {
 		public void provide(TypeReference ty) {
 			pt.add(ty);
 		}
+	}
+
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
 	}
 
 	@Test

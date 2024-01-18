@@ -14,6 +14,7 @@ public class ExprToken implements LoggableToken {
 	public final InputPosition location;
 	public final int type;
 	public final String text;
+	private String original;
 
 	public ExprToken(InputPosition location, int type, String text) {
 		this.location = location;
@@ -46,6 +47,8 @@ public class ExprToken implements LoggableToken {
 
 	@Override
 	public String text() {
+		if (original != null)
+			return original;
 		return text;
 	}
 
@@ -62,7 +65,7 @@ public class ExprToken implements LoggableToken {
 			String tok = StringToken.from(errors, line);
 			if (tok == null)
 				return null;
-			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()), STRING, tok));
+			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()), STRING, tok).original(line.fromMark(mark)));
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1)))
 			return errors.logParsingToken(new ExprToken(NUMBER, NumberToken.from(line)));
@@ -77,6 +80,11 @@ public class ExprToken implements LoggableToken {
 				return null;
 			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()), SYMBOL, line.fromMark(mark)));
 		}
+	}
+
+	private ExprToken original(String o) {
+		this.original = o;
+		return this;
 	}
 
 	@Override

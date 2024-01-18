@@ -40,7 +40,7 @@ public class TypeExprToken implements LoggableToken {
 				return null;
 		} else if ((pos = "()[],".indexOf(c)) != -1) {
 			line.advance();
-			return errors.logParsingToken(new TypeExprToken(loc, 10+pos, null, line.at()));
+			return errors.logParsingToken(new TypeExprToken(loc, 10+pos, new String(new char[] { c }), line.at()));
 		} else if ("->".equals(line.getTo(2))) {
 			return errors.logParsingToken(new TypeExprToken(loc, ARROW, "->", line.at()));
 		} else
