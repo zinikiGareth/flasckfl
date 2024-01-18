@@ -47,7 +47,7 @@ public class TDAIntroParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (!toks.hasMoreContent())
 			return null;
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null)
 			return null; // in the "nothing doing" sense
 
@@ -220,7 +220,7 @@ public class TDAIntroParser implements TDAParsing {
 			);
 		}
 		case "contract": {
-			KeywordToken sh = KeywordToken.from(toks);
+			KeywordToken sh = KeywordToken.from(errors, toks);
 			ContractType ct = ContractType.CONTRACT;
 			if (sh != null) {
 				switch (sh.text) {

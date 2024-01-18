@@ -29,9 +29,9 @@ public class PendingField extends FlimTypeReader {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		if ("init".equals(kw.text)) {
-			KeywordToken iw = KeywordToken.from(toks);
+			KeywordToken iw = KeywordToken.from(errors, toks);
 			if (iw != null)
 				hasInit = Boolean.parseBoolean(iw.text);
 			return new NoNestingParser(errors);

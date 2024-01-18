@@ -1,6 +1,9 @@
 package org.flasck.flas.errors;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Iterator;
@@ -8,12 +11,23 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.utils.Justification;
 
 public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<FLASError> {
 	private final Set<FLASError> errors = new TreeSet<FLASError>();
+	private final File saveParsingTokens;
+	private PrintWriter tokenStream;
 
+	public ErrorResult() {
+		this(null);
+	}
+	
+	public ErrorResult(File saveParsingTokens) {
+		this.saveParsingTokens = saveParsingTokens;
+	}
+	
 	public int count() {
 		return errors.size();
 	}
@@ -101,6 +115,35 @@ public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<
 		return errors.iterator();
 	}
 	
+	@Override
+	public void track(File f) {
+		System.out.println("    " + f.getName());
+		if (tokenStream != null) {
+			tokenStream.close();
+			tokenStream = null;
+		}
+		try {
+			if (saveParsingTokens != null)
+				tokenStream = new PrintWriter(new File(saveParsingTokens, f.getName()));
+		} catch (FileNotFoundException ex) {
+			System.err.println("could not open " + saveParsingTokens);
+			tokenStream = null;
+		}
+	}
+
+	@Override
+	public <T extends LoggableToken> T logParsingToken(T token) {
+		if (tokenStream != null) {
+			tokenStream.println("parsed token: " + token.location() + " " + token.type() + " " + token.text());
+		}
+		return token;
+	}
+	
+	public void closeTokenStream() {
+		if (tokenStream != null)
+			tokenStream.close();
+	}
+
 	private class Marker implements ErrorMark {
 		private Set<FLASError> have = new TreeSet<>();
 

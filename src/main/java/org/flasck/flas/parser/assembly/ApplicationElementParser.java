@@ -27,7 +27,7 @@ public class ApplicationElementParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "expected assembly keyword");
 			return new IgnoreNestedParser();

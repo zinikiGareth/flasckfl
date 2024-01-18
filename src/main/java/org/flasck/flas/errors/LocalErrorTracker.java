@@ -1,5 +1,6 @@
 package org.flasck.flas.errors;
 
+import java.io.File;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.HashSet;
@@ -7,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 // This tracks errors and expects a Mock ErrorReporter
@@ -78,5 +80,14 @@ public class LocalErrorTracker implements ErrorReporter {
 				return ab.get();
 			}
 		};
+	}
+
+	public void track(File f) {
+		other.track(f);
+	}
+
+	@Override
+	public <T extends LoggableToken> T logParsingToken(T token) {
+		return other.logParsingToken(token);
 	}
 }

@@ -35,7 +35,7 @@ public class ContractMethodParser implements TDAParsing {
 		boolean required = true;
 		InputPosition optLoc = null;
 		int mark = toks.at();
-		KeywordToken ud = KeywordToken.from(toks);
+		KeywordToken ud = KeywordToken.from(errors, toks);
 		if (ud != null) {
 			if (ud.text.equals("optional")) {
 				required = false;

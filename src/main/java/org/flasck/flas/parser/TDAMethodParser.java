@@ -64,7 +64,7 @@ public class TDAMethodParser {
 				return new TDAParsing() {
 					@Override
 					public TDAParsing tryParsing(Tokenizable toks) {
-						KeywordToken kw = KeywordToken.from(toks);
+						KeywordToken kw = KeywordToken.from(errors, toks);
 						if (kw == null || !"method".equals(kw.text))
 							return null;
 						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder).parseMethod(namer, toks);

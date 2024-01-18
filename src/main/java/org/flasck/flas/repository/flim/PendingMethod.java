@@ -23,7 +23,7 @@ public abstract class PendingMethod implements TDAParsing {
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		switch (kw.text) {
 		case "arg": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);

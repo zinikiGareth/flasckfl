@@ -32,7 +32,7 @@ public class TDAServiceElementsParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null)
 			return null;
 		switch (kw.text) {

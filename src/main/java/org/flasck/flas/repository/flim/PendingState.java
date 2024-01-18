@@ -32,7 +32,7 @@ public class PendingState implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		switch (kw.text) {
 		case "member": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);

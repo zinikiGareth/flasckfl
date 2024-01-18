@@ -86,7 +86,7 @@ public class RunRegressionSuite {
 		boolean result;
 		try {
 			File repoFile = File.createTempFile("repo", ".txt");
-			result = !org.flasck.flas.Main.standardCompiler(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), dir.toString() });
+			result = !org.flasck.flas.Main.standardCompiler(null, new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), dir.toString() });
 			if (result) {
 				result = RepoChecker.checkRepo(repoFile, asMap(ms));
 			}

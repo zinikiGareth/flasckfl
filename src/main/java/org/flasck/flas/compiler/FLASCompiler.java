@@ -237,7 +237,7 @@ public class FLASCompiler implements CompileUnit {
 			File fi = new File(f.key());
 			if (!validateFileName(fi))
 				continue;
-			System.out.println("    " + fi.getName());
+			errors.track(fi);
 			flp.process(f);
 		}
 		logger.info("parsing ut");
@@ -245,7 +245,7 @@ public class FLASCompiler implements CompileUnit {
 			File fi = new File(f.key());
 			if (!validateFileName(fi))
 				continue;
-			System.out.println("    " + fi.getName());
+			errors.track(fi);
 			String file = FileUtils.dropExtension(fi.getName());
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
 			UnitTestPackage utp = new UnitTestPackage(new InputPosition(file, 1, 0, null, ""), utfn);
@@ -259,7 +259,7 @@ public class FLASCompiler implements CompileUnit {
 			File fi = new File(f.key());
 			if (!validateFileName(fi))
 				continue;
-			System.out.println("    " + fi.getName());
+			errors.track(fi);
 			fap.process(f);
 		}
 		logger.info("parsing st");
@@ -267,7 +267,7 @@ public class FLASCompiler implements CompileUnit {
 			File fi = new File(f.key());
 			if (!validateFileName(fi))
 				continue;
-			System.out.println("    " + fi.getName());
+			errors.track(fi);
 			String file = FileUtils.dropExtension(fi.getName());
 			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
 			SystemTest st = new SystemTest(stfn);

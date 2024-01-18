@@ -41,7 +41,7 @@ public class FlimObject implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		switch (kw.text) {
 		case "state": {
 			state = new PendingState(errors, repository, polys);

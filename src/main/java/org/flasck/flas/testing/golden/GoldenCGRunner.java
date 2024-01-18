@@ -177,10 +177,13 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File flimfrom = new File(s, "flim-imports");
 		final File incldirs = new File(s, "incl");
 		final File modules = new File(s, "modules");
+		final File parseTokens = new File(s, "parsetokens");
 		FileUtils.cleanDirectory(actualErrors);
 		FileUtils.cleanDirectory(tr);
+		FileUtils.cleanDirectory(parseTokens);
 		FileUtils.assertDirectory(actualErrors);
 		FileUtils.assertDirectory(tr);
+		FileUtils.assertDirectory(parseTokens);
 		FileUtils.deleteDirectoryTree(flimstoreTo);
 		if (flimfrom.exists()) {
 			FileUtils.assertDirectory(flimstoreTo);
@@ -258,7 +261,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		} else
 			args.add("test.golden");
 //		try {
-		Main.standardCompiler(args.toArray(new String[args.size()]));
+		Main.standardCompiler(parseTokens, args.toArray(new String[args.size()]));
 //		} finally {
 //		FileUtils.cat(new File(s, "repo.txt"));
 //		}

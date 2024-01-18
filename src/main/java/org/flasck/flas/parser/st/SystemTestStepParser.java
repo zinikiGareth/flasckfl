@@ -44,7 +44,7 @@ public class SystemTestStepParser extends TestStepParser {
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		int mark = toks.at();
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
@@ -102,7 +102,7 @@ public class SystemTestStepParser extends TestStepParser {
 	}
 
 	private TDAParsing handleAjax(Tokenizable toks) {
-		KeywordToken op = KeywordToken.from(toks);
+		KeywordToken op = KeywordToken.from(errors, toks);
 		if (op == null) {
 			errors.message(toks, "ajax command requires an operator");
 			return new IgnoreNestedParser();

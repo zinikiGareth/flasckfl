@@ -25,7 +25,7 @@ public class TDAUnitTestParser implements TDAParsing {
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		int mark = toks.at();
-		KeywordToken tok = KeywordToken.from(toks);
+		KeywordToken tok = KeywordToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();

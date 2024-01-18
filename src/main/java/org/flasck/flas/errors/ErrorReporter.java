@@ -1,5 +1,6 @@
 package org.flasck.flas.errors;
 
+import java.io.File;
 import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
@@ -7,10 +8,12 @@ import java.util.Collection;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public interface ErrorReporter {
-
+	void track(File f);
+	<T extends LoggableToken> T logParsingToken(T token);
 	ErrorReporter message(InputPosition pos, String msg);
 	ErrorReporter message(InputPosition pos, Collection<InputPosition> locs, String msg);
 	ErrorReporter message(Tokenizable line, String msg);

@@ -48,7 +48,7 @@ public class FlimTop implements TDAParsing {
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		InputPosition pos = toks.realinfo();
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		NameOfThing container;
 		PackageNameToken inpkg = PackageNameToken.from(toks);
 		if (kw.text.equals("usespackage")){

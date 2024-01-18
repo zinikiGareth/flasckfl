@@ -47,7 +47,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		InputPosition location = toks.realinfo();
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			return null; // try something else - e.g. functions 
 		}

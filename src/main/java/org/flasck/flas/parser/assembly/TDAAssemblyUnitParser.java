@@ -25,7 +25,7 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "expected 'application', 'card' or 'library'");
 			return new IgnoreNestedParser();

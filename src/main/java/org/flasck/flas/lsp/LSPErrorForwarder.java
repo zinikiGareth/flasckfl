@@ -1,5 +1,6 @@
 package org.flasck.flas.lsp;
 
+import java.io.File;
 import java.io.Writer;
 import java.net.URI;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.errors.FatErrorAPI;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,4 +88,14 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 		}
 	}
 
+	@Override
+	public void track(File f) {
+		System.out.println("    " + f.getName());
+	}
+
+	@Override
+	public <T extends LoggableToken> T logParsingToken(T token) {
+		// hard to know if we want to do anything or not...
+		return token;
+	}
 }

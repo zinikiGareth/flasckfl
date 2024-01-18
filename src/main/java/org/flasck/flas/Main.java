@@ -37,7 +37,7 @@ public class Main {
 		}
 		boolean failed;
 		try {
-			failed = standardCompiler(args);
+			failed = standardCompiler(null, args);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			Logger logger = LoggerFactory.getLogger("Compiler");
@@ -47,13 +47,14 @@ public class Main {
 		System.exit(failed?1:0);
 	}
 
-	public static boolean standardCompiler(String... args) throws IOException, ErrorResultException {
-		ErrorResult errors = new ErrorResult();
+	public static boolean standardCompiler(File saveParsingTokens, String... args) throws IOException, ErrorResultException {
+		ErrorResult errors = new ErrorResult(saveParsingTokens);
 		Configuration config = new Configuration(errors, args);
 		if (!config.preCompilation())
 			return false;
 		
 		FLASCompiler ret = commonCompiler(errors, config);
+		errors.closeTokenStream();
 		// This is to do with Android
 //		if (compiler.getBuilder() != null)
 //			compiler.getBuilder().build();

@@ -1,8 +1,10 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 
-public class KeywordToken {
+public class KeywordToken implements LoggableToken {
 
 	public final InputPosition location;
 	public final String text;
@@ -13,7 +15,7 @@ public class KeywordToken {
 		this.text = text;
 	}
 
-	public static KeywordToken from(Tokenizable line) {
+	public static KeywordToken from(ErrorReporter errors, Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
@@ -31,7 +33,22 @@ public class KeywordToken {
 		String ret = line.fromMark(mark);
 		if (ret == null)
 			return null;
-		return new KeywordToken(location, ret, line.at());
+		return errors.logParsingToken(new KeywordToken(location, ret, line.at()));
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
+	@Override
+	public String type() {
+		return "keyword";
+	}
+
+	@Override
+	public String text() {
+		return text;
 	}
 
 	@Override

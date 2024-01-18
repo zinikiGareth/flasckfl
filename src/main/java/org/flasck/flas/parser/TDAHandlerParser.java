@@ -37,7 +37,7 @@ public class TDAHandlerParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (!toks.hasMoreContent())
 			return null;
-		KeywordToken kw = KeywordToken.from(toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null || !kw.text.equals("handler"))
 			return null; // in the "nothing doing" sense
 
