@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.st.AjaxCreate;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -32,12 +33,14 @@ public class AjaxCreateActionsParser implements TDAParsing {
 		}
 		switch (kw.text) {
 		case "subscribe": {
+			int mark = toks.at();
 			InputPosition loc = toks.realinfo();
 			String sl = StringToken.from(errors, toks);
 			if (sl == null) {
 				errors.message(toks, "subscribe requires a path");
 				return new IgnoreNestedParser(errors);
 			}
+			errors.logParsingToken(new ExprToken(loc, ExprToken.STRING, sl).original(toks.fromMark(mark)));
 			try {
 				URI uri = new URI(sl);
 				if (uri.getScheme() != null || uri.getHost() != null || uri.getPort() != -1 || uri.getFragment() != null) {

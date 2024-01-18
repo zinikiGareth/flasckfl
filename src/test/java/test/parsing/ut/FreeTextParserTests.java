@@ -2,17 +2,22 @@ package test.parsing.ut;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.ut.FreeTextParser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 public class FreeTextParserTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -21,6 +26,13 @@ public class FreeTextParserTests {
 	@SuppressWarnings("unchecked")
 	private Consumer<String> handler = context.mock(Consumer.class);
 	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
+
+	@Before
+	public void setup() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
 
 	@Test
 	public void aSimpleOneLiner() {

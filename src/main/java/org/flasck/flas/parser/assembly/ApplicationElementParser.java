@@ -7,6 +7,7 @@ import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelNamer;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -35,12 +36,18 @@ public class ApplicationElementParser implements TDAParsing {
 		
 		switch (kw.text) {
 		case "title": {
+			int mark = toks.at();
+			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
+			errors.logParsingToken(new ExprToken(pos, ExprToken.STRING, s).original(toks.fromMark(mark)));
 			consumer.title(s);
 			return new NoNestingParser(errors);
 		}
 		case "baseuri": {
+			int mark = toks.at();
+			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
+			errors.logParsingToken(new ExprToken(pos, ExprToken.STRING, s).original(toks.fromMark(mark)));
 			consumer.baseuri(s);
 			return new NoNestingParser(errors);
 		}

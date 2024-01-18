@@ -70,12 +70,14 @@ public class TDARoutingParser implements TDAParsing {
 			return new NoNestingParser(errors);
 		}
 		case "route": {
+			int mark = toks.at();
 			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
 			if (s == null) {
 				errors.message(toks, "must specify a route path");
 				return new IgnoreNestedParser(errors);
 			}
+			errors.logParsingToken(new ExprToken(pos, ExprToken.STRING, s).original(toks.fromMark(mark)));
 			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser(errors);
@@ -85,12 +87,14 @@ public class TDARoutingParser implements TDAParsing {
 			return new TDARoutingParser(errors, group);
 		}
 		case "title": {
+			int mark = toks.at();
 			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
 			if (s == null) {
 				errors.message(toks, "must specify a title");
 				return new IgnoreNestedParser(errors);
 			}
+			errors.logParsingToken(new ExprToken(pos, ExprToken.STRING, s).original(toks.fromMark(mark)));
 			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser(errors);

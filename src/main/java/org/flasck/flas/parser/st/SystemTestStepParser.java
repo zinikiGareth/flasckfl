@@ -114,12 +114,14 @@ public class SystemTestStepParser extends TestStepParser {
 				errors.message(toks, "ajax create requires a variable to name the mock");
 				return new IgnoreNestedParser(errors);
 			}
+			int mark = toks.at();
 			InputPosition loc = toks.realinfo();
 			String sl = StringToken.from(errors, toks);
 			if (sl == null) {
 				errors.message(toks, "ajax create requires a base url");
 				return new IgnoreNestedParser(errors);
 			}
+			errors.logParsingToken(new ExprToken(loc, ExprToken.STRING, sl).original(toks.fromMark(mark)));
 			try {
 				new URI(sl);
 			} catch (URISyntaxException ex) {

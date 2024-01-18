@@ -82,7 +82,7 @@ public class ExprToken implements LoggableToken {
 		}
 	}
 
-	private ExprToken original(String o) {
+	public ExprToken original(String o) {
 		this.original = o;
 		return this;
 	}

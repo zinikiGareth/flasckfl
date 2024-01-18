@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parser.ut.TestStepParser;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
@@ -14,8 +15,10 @@ import org.flasck.flas.parser.ut.UnitTestStepConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 public class TargetZoneParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -25,6 +28,13 @@ public class TargetZoneParsingTests {
 	private UnitTestDefinitionConsumer topLevel = context.mock(UnitTestDefinitionConsumer.class);
 	private UnitTestStepConsumer builder = context.mock(UnitTestStepConsumer.class);
 	private TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+
+	@Before
+	public void setup() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
 
 	@Test
 	public void underscoreRepresentsTheWholeCard() {
