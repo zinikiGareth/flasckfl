@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.PackageNamer;
@@ -14,8 +15,10 @@ import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.VarPatternMatcher;
 
@@ -24,6 +27,13 @@ public class TDAMethodIntroParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
+
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
 
 	@Test
 	public void aStandaloneMethodCanBeDefined() {

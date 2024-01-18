@@ -101,7 +101,7 @@ public class FlimReader {
 
 	private FlimTop importFlim(Reader r, String name, String fn) {
 		FlimTop ret = new FlimTop(errors, repository, name);
-		Blocker blocker = new Blocker(errors, new TDANester(ret));
+		Blocker blocker = new Blocker(errors, new TDANester(errors, ret));
 		try (LineNumberReader lnr = new LineNumberReader(r)) {
 			String s;
 			try {

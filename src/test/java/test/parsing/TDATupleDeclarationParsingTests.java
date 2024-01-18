@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.FunctionNameProvider;
 import org.flasck.flas.parser.TDAParsing;
@@ -17,8 +18,10 @@ import org.flasck.flas.parser.TDATupleDeclarationParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import test.flas.stories.TDAStoryTests;
 
@@ -28,6 +31,13 @@ public class TDATupleDeclarationParsingTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private FunctionNameProvider functionNamer = context.mock(FunctionNameProvider.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
+
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
 
 	@Test
 	public void aBlankLineReturnsNothingAndDoesNothing() {

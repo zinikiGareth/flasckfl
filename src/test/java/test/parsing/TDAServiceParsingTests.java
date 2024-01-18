@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -27,6 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.HandlerImplementsMatcher;
 import flas.matchers.ServiceDefnMatcher;
@@ -47,6 +49,7 @@ public class TDAServiceParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).newService(with(tracker), with(ServiceDefnMatcher.called("test.pkg.ServiceA"))); will(captureCard);
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 		}});
 		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
 		serviceParser = intro.tryParsing(TDABasicIntroParsingTests.line("service ServiceA"));

@@ -5,6 +5,7 @@ import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
 import org.flasck.flas.blocker.TDANester;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.TDAParsing;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -19,6 +20,7 @@ import flas.matchers.TokenizableMatcher;
  */
 public class TDAStoryTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Test
 	public void nothingMeansNothing() {
@@ -26,7 +28,7 @@ public class TDAStoryTests {
 		context.checking(new Expectations() {{
 			oneOf(topLevel).scopeComplete(null);
 		}});
-		TDANester story = new TDANester(topLevel);
+		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
 		story.flush();
 	}
@@ -38,7 +40,7 @@ public class TDAStoryTests {
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world")));
 			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
-		TDANester story = new TDANester(topLevel);
+		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
 		story.line(1, line("hello, world"));
 		story.flush();
@@ -52,7 +54,7 @@ public class TDAStoryTests {
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("a second line")));
 			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
-		TDANester story = new TDANester(topLevel);
+		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(1, line("a second line"));
@@ -69,7 +71,7 @@ public class TDAStoryTests {
 			oneOf(nested).scopeComplete(with(any(InputPosition.class)));
 			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
-		TDANester story = new TDANester(topLevel);
+		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(2, line("a second line"));
@@ -83,7 +85,7 @@ public class TDAStoryTests {
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world"))); will(returnValue(null));
 			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
-		TDANester story = new TDANester(topLevel);
+		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(2, line("a second line"));
@@ -101,7 +103,7 @@ public class TDAStoryTests {
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("back at top"))); will(returnValue(null));
 			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
-		TDANester story = new TDANester(topLevel);
+		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(2, line("a second line"));
@@ -124,7 +126,7 @@ public class TDAStoryTests {
 			oneOf(nested2).scopeComplete(with(any(InputPosition.class)));
 			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
-		TDANester story = new TDANester(topLevel);
+		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(2, line("a second line"));
@@ -142,7 +144,7 @@ public class TDAStoryTests {
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world")));
 			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
-		TDANester story = new TDANester(topLevel);
+		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
 		story.line(1, line("hello, world"));
 		story.flush();
@@ -159,7 +161,7 @@ public class TDAStoryTests {
 			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 			oneOf(topLevel).scopeComplete(null);
 		}});
-		TDANester story = new TDANester(topLevel);
+		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
 		story.line(1, line("hello, world"));
 		story.flush();

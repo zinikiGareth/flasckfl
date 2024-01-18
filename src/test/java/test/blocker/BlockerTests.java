@@ -1,13 +1,17 @@
 package test.blocker;
 
+import org.flasck.flas.blockForm.Indent;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.BlockConsumer;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.LineMatcher;
 
@@ -17,13 +21,17 @@ public class BlockerTests {
 	private BlockConsumer consumer;
 	private Blocker blocker;
 	private int lineNo = 1;
-	
+	private InputPosition pos = new InputPosition("-", lineNo, 0, new Indent(1, 0), "at");
+	private InputPosition pos3 = new InputPosition("-", 3, 0, new Indent(1, 0), "at");
+	private InputPosition pos5 = new InputPosition("-", 5, 0, new Indent(1, 0), "at");
+
 	@Before
 	public void setup() {
 		errors = context.mock(ErrorReporter.class);
 		consumer = context.mock(BlockConsumer.class);
 		context.checking(new Expectations() {{
 			allowing(consumer).flush();
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 		}});
 		blocker = new Blocker(errors, consumer);
 	}
@@ -68,11 +76,11 @@ public class BlockerTests {
 	@Test
 	public void testCommentsDontGetLost() {
 		context.checking(new Expectations() {{
-			oneOf(consumer).comment("hello");
+			oneOf(consumer).comment(pos, "hello");
 			oneOf(consumer).line(with(1), with(LineMatcher.match("package")));
-			oneOf(consumer).comment("fred");
+			oneOf(consumer).comment(pos3, "fred");
 			oneOf(consumer).line(with(2), with(LineMatcher.match("decl")));
-			oneOf(consumer).comment("bert");
+			oneOf(consumer).comment(pos5, "bert");
 		}});
 		line("hello");
 		line("\tpackage");

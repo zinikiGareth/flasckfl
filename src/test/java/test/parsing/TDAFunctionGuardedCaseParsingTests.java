@@ -3,6 +3,7 @@ package test.parsing;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.TDAFunctionGuardedEquationParser;
@@ -12,6 +13,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.FunctionCaseDefnMatcher;
 
@@ -28,6 +30,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 		LastOneOnlyNestedParser loonp = context.mock(LastOneOnlyNestedParser.class);
 		context.checking(new Expectations() {{
 			allowing(loonp).anotherParent();
+			allowing(errorsMock).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 		}});
 		parser = new TDAFunctionGuardedEquationParser(errors, pos, consumer, loonp);
 	}

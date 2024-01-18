@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
@@ -32,6 +33,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.ExprMatcher;
 import flas.matchers.StringLiteralMatcher;
@@ -50,6 +52,7 @@ public class TDATemplateParsingTests {
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 		}});
 		parser = new TDATemplateBindingParser(tracker, null, namer, consumer);
 	}

@@ -33,11 +33,12 @@ public class Blocker {
 	private void consume(String file, int lineNumber, String text) {
 		Indent ind = getIndent(text);
 		text = text.trim();
+		InputPosition pos = new InputPosition(file, lineNumber, 0, ind, text);
 		if (ind == null || (ind.tabs == 0 && ind.spaces == 0) || text.startsWith("//")) {
-			consumer.comment(text);
+			consumer.comment(pos, text);
 		} else if (ind.tabs == 0 && ind.spaces != 0) {
 			// can't have a line with spaces at start and no tabs
-			errors.message(new InputPosition(file, lineNumber, 0, ind, text), "line cannot start with spaces");
+			errors.message(pos, "line cannot start with spaces");
 		} else if (ind.tabs == currLevel  && ind.spaces > 0) {
 			// this is a continuation line
 			currline.lines.add(new SingleLine(file, lineNumber, ind, text));
@@ -49,9 +50,9 @@ public class Blocker {
 			currline.lines.add(new SingleLine(file, lineNumber, ind, text));
 			currLevel = ind.tabs;
 		} else if (ind.tabs > currLevel+1) {
-			errors.message(new InputPosition(file, lineNumber, 0, ind, text), "invalid indent");
+			errors.message(pos, "invalid indent");
 		} else if (ind.tabs == currLevel+1 && ind.spaces > 0) {
-			errors.message(new InputPosition(file, lineNumber, 0, ind, text), "illegal continuation line (spaces at front)");
+			errors.message(pos, "illegal continuation line (spaces at front)");
 		} else {
 			// incredibly, we didn't think about this case
 			throw new UtilException("We didn't think of that");

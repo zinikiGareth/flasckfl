@@ -15,6 +15,7 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
@@ -30,9 +31,11 @@ import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.ExprMatcher;
 import flas.matchers.UnitTestCaseMatcher;
@@ -47,6 +50,13 @@ public class UnitTestTopLevelParsingTests {
 	private final PackageName pkg = new PackageName("test.pkg._ut_file");
 	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
 	private FunctionScopeUnitConsumer topLevel = context.mock(FunctionScopeUnitConsumer.class);
+
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
 
 	@Test
 	public void testWeCanCreateATestCase() {

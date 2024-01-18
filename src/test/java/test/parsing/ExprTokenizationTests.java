@@ -5,14 +5,17 @@ import static org.junit.Assert.assertNull;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.ExprTermConsumer;
 import org.flasck.flas.parser.TDAExprParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.ExprMatcher;
 
@@ -22,6 +25,13 @@ public class ExprTokenizationTests {
 	private ExprTermConsumer builder = context.mock(ExprTermConsumer.class);
 	private final TDAExprParser parser = new TDAExprParser(errors, null, builder, null);
 	private final Sequence order = context.sequence("order");
+
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
 
 	@Test
 	public void testEndOfLineTerminates() {

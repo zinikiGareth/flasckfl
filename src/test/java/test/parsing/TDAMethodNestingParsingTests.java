@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -19,9 +20,11 @@ import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 /** The way in which methods nest is non-obvious (but I think the same is true of guarded equations)
  * At the top (block) level is the method declaration (with or without the method keyword, depending on context)
@@ -38,6 +41,13 @@ public class TDAMethodNestingParsingTests {
 	private ObjectNestedNamer namer = new ObjectNestedNamer(name);
 	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
 	
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
+
 	@Test
 	public void anObjectCtorCanHaveActionsWithNoNesting() {
 		CaptureAction captureIt = new CaptureAction(null);

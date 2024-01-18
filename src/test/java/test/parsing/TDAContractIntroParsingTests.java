@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -20,9 +21,11 @@ import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 public class TDAContractIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -31,6 +34,13 @@ public class TDAContractIntroParsingTests {
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
 	
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
+
 	@Test
 	public void theSimplestContractDefinitionAcceptsANameAndReturnsAMethodParser() {
 		CaptureAction captureIt = new CaptureAction(null);

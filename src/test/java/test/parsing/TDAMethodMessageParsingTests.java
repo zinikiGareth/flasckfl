@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.MethodMessagesConsumer;
@@ -16,6 +17,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.AssignMessageMatcher;
 import flas.matchers.ExprMatcher;
@@ -33,6 +35,7 @@ public class TDAMethodMessageParsingTests {
 	public void setup() {
 		context.checking(new Expectations() {{
 			allowing(nestedFunctionScope).anotherParent();
+			allowing(errorsMock).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 		}});
 	}
 	

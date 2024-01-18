@@ -8,6 +8,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.PackageNamer;
@@ -20,6 +21,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.FunctionDefinitionMatcher;
 import test.flas.stories.TDAStoryTests;
@@ -36,8 +38,11 @@ public class TDAFunctionParsingNestingTests {
 	@Before
 	public void setup() {
 		parser = ParsingPhase.topLevelUnit(tracker, functionNamer, builder, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
 	}
-	
+
 	@Test
 	public void weCanHaveTwoFunctionsInTheSameScope() {
 		context.checking(new Expectations() {{

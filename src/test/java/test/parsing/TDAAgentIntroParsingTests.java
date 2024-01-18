@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
@@ -17,8 +18,10 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.AgentDefnMatcher;
 import flas.matchers.HandlerImplementsMatcher;
@@ -30,6 +33,13 @@ public class TDAAgentIntroParsingTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefinitionConsumer builder = context.mock(AgentConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
+
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
 
 	@Test
 	public void theSimplestagentCreatesAScopeEntryAndReturnsAFieldParser() {

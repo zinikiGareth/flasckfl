@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -27,8 +28,10 @@ import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.FunctionDefinitionMatcher;
 import flas.matchers.ObjectAccessorMatcher;
@@ -46,6 +49,13 @@ public class TDAObjectElementParsingTests {
 	final SolidName objName = new SolidName(null, "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(objName);
 	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
 
 	@Test
 	public void junkIsNotAKeyword() {

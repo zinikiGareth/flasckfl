@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -38,6 +39,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.CardDefnMatcher;
 
@@ -58,6 +60,7 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).newCard(with(tracker), with(CardDefnMatcher.called("test.pkg.CardA"))); will(captureCard);
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 		}});
 		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
 		cardParser = intro.tryParsing(TDABasicIntroParsingTests.line("card CardA"));

@@ -5,15 +5,19 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.tokenizers.CommentToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDANester implements BlockConsumer {
 	private final List<TDAParsing> stack = new ArrayList<>();
 	private InputPosition lastloc;
-	private TDAParsing topLevel;
+	private final ErrorReporter errors;
+	private final TDAParsing topLevel;
 
-	public TDANester(TDAParsing topLevel) {
+	public TDANester(ErrorReporter errors, TDAParsing topLevel) {
+		this.errors = errors;
 		this.topLevel = topLevel;
 	}
 
@@ -24,9 +28,8 @@ public class TDANester implements BlockConsumer {
 	}
 
 	@Override
-	public void comment(String text) {
-		// I don't think we particularly care about this ...
-		// If we do, it's probably just to pass it through ...
+	public void comment(InputPosition location, String text) {
+		errors.logParsingToken(new CommentToken(location, text));
 	}
 
 	@Override

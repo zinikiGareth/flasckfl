@@ -48,25 +48,25 @@ public class ParsingPhase implements ParserScanner {
 
 	public ParsingPhase(ErrorReporter errors, String inPkg, TopLevelDefinitionConsumer tldc, Iterable<ParserModule> modules) {
 		this.errors = errors;
-		TDANester story = new TDANester(topLevelUnit(errors, new PackageNamer(inPkg), tldc, modules));
+		TDANester story = new TDANester(errors, topLevelUnit(errors, new PackageNamer(inPkg), tldc, modules));
 		this.blocker = new Blocker(errors, story);
 	}
 
 	public ParsingPhase(ErrorReporter errors, UnitTestFileName fn, UnitTestDefinitionConsumer utdc) {
 		this.errors = errors;
-		TDANester story = new TDANester(unitTestUnit(errors, new UnitTestPackageNamer(fn), utdc));
+		TDANester story = new TDANester(errors, unitTestUnit(errors, new UnitTestPackageNamer(fn), utdc));
 		this.blocker = new Blocker(errors, story);
 	}
 
 	public ParsingPhase(ErrorReporter errors, UnitTestFileName fn, SystemTestDefinitionConsumer stdc, TopLevelDefinitionConsumer tldc, Iterable<ParserModule> modules) {
 		this.errors = errors;
-		TDANester story = new TDANester(systemTestUnit(errors, new SystemTestPackageNamer(fn), stdc, tldc, modules));
+		TDANester story = new TDANester(errors, systemTestUnit(errors, new SystemTestPackageNamer(fn), stdc, tldc, modules));
 		this.blocker = new Blocker(errors, story);
 	}
 
 	public ParsingPhase(ErrorReporter errors, String inPkg, AssemblyDefinitionConsumer adc) {
 		this.errors = errors;
-		TDANester story = new TDANester(assemblyUnit(errors, new PackageNamer(inPkg), adc));
+		TDANester story = new TDANester(errors, assemblyUnit(errors, new PackageNamer(inPkg), adc));
 		this.blocker = new Blocker(errors, story);
 	}
 

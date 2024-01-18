@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
@@ -15,8 +16,10 @@ import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.StructDefnMatcher;
 
@@ -25,6 +28,13 @@ public class TDADealIntroParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
+
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+		}});
+	}
 
 	@Test
 	public void theSimplestDealCreatesAScopeEntryAndReturnsAFieldParser() {
