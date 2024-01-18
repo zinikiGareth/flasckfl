@@ -35,7 +35,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 
 		List<LocatedName> vars = new ArrayList<>();
 		boolean haveCRB = false;
-		while (line.hasMoreContent()) {
+		while (line.hasMoreContent(errors)) {
 			PattToken nx = PattToken.from(errors, line);
 			if (nx.type == PattToken.CRB) {
 				if (vars.isEmpty())
@@ -71,7 +71,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			errors.message(line, "insufficient vars to make tuple declaration");
 			return null;
 		}
-		if (!line.hasMoreContent()) {
+		if (!line.hasMoreContent(errors)) {
 			errors.message(line, "syntax error");
 			return null;
 		}
@@ -80,7 +80,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			errors.message(line, "syntax error");
 			return null;
 		}
-		if (!line.hasMoreContent()) {
+		if (!line.hasMoreContent(errors)) {
 			errors.message(line, "tuple assignment requires expression");
 			return null;
 		}

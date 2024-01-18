@@ -35,7 +35,7 @@ public class TDAHandlerParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (!toks.hasMoreContent())
+		if (!toks.hasMoreContent(errors))
 			return null;
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null || !kw.text.equals("handler"))
@@ -50,28 +50,28 @@ public class TDAHandlerParser implements TDAParsing {
 
 	public TDAParsing parseHandler(InputPosition kw, boolean inCard, Tokenizable line) {
 		ErrorMark mark = errors.mark();
-		if (!line.hasMoreContent()) {
+		if (!line.hasMoreContent(errors)) {
 			errors.message(line, "missing contract reference");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		TypeNameToken tn = TypeNameToken.qualified(errors, line);
 		if (tn == null) {
 			errors.message(line, "invalid contract reference");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (!line.hasMoreContent()) {
+		if (!line.hasMoreContent(errors)) {
 			errors.message(line, "missing handler name");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		TypeNameToken named = TypeNameToken.unqualified(errors, line);
 		if (named == null) {
 			errors.message(line, "invalid handler name");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		List<HandlerLambda> lambdas = new ArrayList<>();
 		final HandlerName hn = namer.handlerName(named.text);
 		VarNamer vn = new SimpleVarNamer(hn); 
-		while (line.hasMoreContent() && !mark.hasMoreNow()) {
+		while (line.hasMoreContent(errors) && !mark.hasMoreNow()) {
 			TDAPatternParser pp = new TDAPatternParser(errors, vn, patt -> lambdas.add(new HandlerLambda(patt, false)), topLevel);
 			pp.tryParsing(line);
 		}

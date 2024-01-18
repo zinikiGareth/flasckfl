@@ -28,7 +28,7 @@ public class AjaxCreateActionsParser implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		switch (kw.text) {
 		case "subscribe": {
@@ -36,25 +36,25 @@ public class AjaxCreateActionsParser implements TDAParsing {
 			String sl = StringToken.from(errors, toks);
 			if (sl == null) {
 				errors.message(toks, "subscribe requires a path");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			try {
 				URI uri = new URI(sl);
 				if (uri.getScheme() != null || uri.getHost() != null || uri.getPort() != -1 || uri.getFragment() != null) {
 					errors.message(loc, "only path permitted");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 				if (uri.getPath() == null || uri.getPath().equals("")) {
 					errors.message(loc, "subscribe requires a path");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 				if (!uri.getPath().startsWith("/")) {
 					errors.message(loc, "path must be absolute");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 			} catch (URISyntaxException ex) {
 				errors.message(loc, "invalid path uri: " + sl);
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			StringLiteral pathUrl = new StringLiteral(loc, sl);
 			AjaxSubscribe sub = new AjaxSubscribe(kw.location, pathUrl);
@@ -63,7 +63,7 @@ public class AjaxCreateActionsParser implements TDAParsing {
 		}
 		default: {
 			errors.message(kw.location, "unrecognized ajax action " + kw.text);
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		}
 	}

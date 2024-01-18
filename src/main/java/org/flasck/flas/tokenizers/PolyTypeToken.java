@@ -16,7 +16,7 @@ public class PolyTypeToken implements LoggableToken {
 	}
 
 	public static PolyTypeToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 

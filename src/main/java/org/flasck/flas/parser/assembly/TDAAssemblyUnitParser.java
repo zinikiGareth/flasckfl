@@ -28,7 +28,7 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "expected 'application', 'card' or 'library'");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		
 		switch (kw.text) {
@@ -47,7 +47,7 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 		}
 		default: {
 			errors.message(toks, "expected 'application', 'card' or 'library'");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		}
 	}

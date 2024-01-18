@@ -15,7 +15,7 @@ public class ValidIdentifierToken implements LoggableToken {
 	}
 
 	public static ValidIdentifierToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		int mark = line.at();
 		InputPosition pos = line.realinfo();
 		if (!line.hasMore() || !isIdentifierStart(line.nextChar()))

@@ -179,6 +179,6 @@ public class TypeExprParsingTests {
 	private void parseTypeExpr(String text) {
 		Tokenizable toks = new Tokenizable(text);
 		parser.tryParsing(toks, new Listener());
-		assertFalse(toks.hasMoreContent());
+		assertFalse(toks.hasMoreContent(errors));
 	}
 }

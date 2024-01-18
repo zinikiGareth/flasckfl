@@ -30,41 +30,41 @@ public class TDARoutingParser implements TDAParsing {
 		ValidIdentifierToken kw = VarNameToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "expected routing keyword or card var");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		
 		switch (kw.text) {
 		case "enter": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			RoutingActions enter = new RoutingActions(kw.location);
 			consumer.enter(enter);
 			return new TDAEnterExitParser(errors, enter);
 		}
 		case "at": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			RoutingActions at = new RoutingActions(kw.location);
 			consumer.at(at);
 			return new TDAEnterExitParser(errors, at);
 		}
 		case "exit": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			RoutingActions exit = new RoutingActions(kw.location);
 			consumer.exit(exit);
 			return new TDAEnterExitParser(errors, exit);
 		}
 		case "secure": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			consumer.isSecure();
 			return new NoNestingParser(errors);
@@ -74,11 +74,11 @@ public class TDARoutingParser implements TDAParsing {
 			String s = StringToken.from(errors, toks);
 			if (s == null) {
 				errors.message(toks, "must specify a route path");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			RoutingGroupConsumer group = new SubRouting(errors, pos, s, consumer);
 			consumer.route(group);
@@ -89,11 +89,11 @@ public class TDARoutingParser implements TDAParsing {
 			String s = StringToken.from(errors, toks);
 			if (s == null) {
 				errors.message(toks, "must specify a title");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			consumer.title(pos, s);
 			return new NoNestingParser(errors);
@@ -102,20 +102,20 @@ public class TDARoutingParser implements TDAParsing {
 			ExprToken op = ExprToken.from(errors, toks);
 			if (op == null || !"<-".equals(op.text)) {
 				errors.message(toks, "expected 'enter', 'at', 'exit', 'secure', 'route', 'title' or card assignment");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			if (kw.text.equals("main") && !(consumer instanceof MainRoutingGroupConsumer)) {
 				errors.message(kw.location, "main cannot be set here");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			TypeNameToken card = TypeNameToken.qualified(errors, toks);
 			if (card == null) {
 				errors.message(toks, "card name required");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			TypeReference tr = new TypeReference(card.location, card.text);
 			consumer.assignCard(new UnresolvedVar(kw.location, kw.text), tr);

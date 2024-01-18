@@ -47,7 +47,7 @@ public class SystemTestStepParser extends TestStepParser {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		switch (kw.text) {
 		case "assert": {
@@ -105,20 +105,20 @@ public class SystemTestStepParser extends TestStepParser {
 		KeywordToken op = KeywordToken.from(errors, toks);
 		if (op == null) {
 			errors.message(toks, "ajax command requires an operator");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		switch (op.text) {
 		case "create": {
 			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			if (tok == null) {
 				errors.message(toks, "ajax create requires a variable to name the mock");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			InputPosition loc = toks.realinfo();
 			String sl = StringToken.from(errors, toks);
 			if (sl == null) {
 				errors.message(toks, "ajax create requires a base url");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			try {
 				new URI(sl);
@@ -135,11 +135,11 @@ public class SystemTestStepParser extends TestStepParser {
 			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 			if (tok == null) {
 				errors.message(toks, "no mock specified");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "syntax error");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			VarName vn = namer.nameVar(tok.location, tok.text);
 			AjaxPump pump = new AjaxPump(op.location, vn);
@@ -148,7 +148,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		default: {
 			errors.message(op.location, "unrecognized ajax operator: " + op.text);
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		}
 	}
@@ -157,11 +157,11 @@ public class SystemTestStepParser extends TestStepParser {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "no application name provided");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		VarName vn = namer.nameVar(tok.location, tok.text);
 		// TODO: this is the thing that we can configure using the (hypothetical) nested parser
@@ -179,7 +179,7 @@ public class SystemTestStepParser extends TestStepParser {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "no application name provided");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		UnresolvedVar app = new UnresolvedVar(tok.location, tok.text);
 		Tokenizable ec;
@@ -225,7 +225,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		((SystemTestStage)builder).gotoRoute(errors, app, route, iv);
 
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "junk at end of line");
 		}
 		return new NoNestingParser(errors);
@@ -235,7 +235,7 @@ public class SystemTestStepParser extends TestStepParser {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "no application name provided");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		UnresolvedVar app = new UnresolvedVar(tok.location, tok.text);
 		List<Expr> expr = new ArrayList<>();
@@ -251,7 +251,7 @@ public class SystemTestStepParser extends TestStepParser {
 		Expr user = expr.get(0);
 		((SystemTestStage)builder).userLogin(errors, app, user);
 
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "junk at end of line");
 		}
 		return new NoNestingParser(errors);

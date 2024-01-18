@@ -35,19 +35,19 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 			TemplateNameToken tn = TemplateNameToken.from(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "template must have a name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			int pos = consumer.templatePosn();
-			if (pos == 0 && toks.hasMoreContent()) {
+			if (pos == 0 && toks.hasMoreContent(errors)) {
 				errors.message(toks, "main template cannot declare chain");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			ErrorMark em = errors.mark();
 			NestingChain chain = null;
 			if (pos > 0) {
 				chain = parseChain(errors, namer, toks);
 				if (em.hasMoreNow())
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 			}
 			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.location, tn.text), pos, chain);
 			consumer.addTemplate(template);
@@ -80,13 +80,13 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 
 	public static NestingChain parseChain(ErrorReporter errors, TemplateNamer namer, Tokenizable toks) {
 		NestingChain chain = new TemplateNestingChain(namer);
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			ExprToken send = ExprToken.from(errors, toks);
 			if (!"<-".equals(send.text)) {
 				errors.message(send.location, "expected <-");
 				return null;
 			}
-			while (toks.hasMoreContent()) {
+			while (toks.hasMoreContent(errors)) {
 				if (!readChainElement(errors, namer, toks, chain))
 					return null;
 			}

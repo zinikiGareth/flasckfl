@@ -192,15 +192,17 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			FileUtils.assertDirectory(flimstoreTo);
 			copyFlimstoresTo(flimstoreTo, flimfrom);
 		}
+		List<String> packageList = new ArrayList<>();
+		if (packages.exists()) {
+			packageList = FileUtils.readFileAsLines(packages);
+		}
 		if (flimstore.exists()) {
 			// Only create flimstore-to and populate it if we have a flimstore with packages that need importing
 			TreeSet<String> create = new TreeSet<>();
 			for (File f : FileUtils.findFilesMatching(flimstore, "*")) {
 				create.add(f.getName());
 			}
-			if (packages.exists()) {
-				create.removeAll(FileUtils.readFileAsLines(packages));
-			}
+			create.removeAll(packageList);
 			if (!create.isEmpty()) {
 				// If we do need to import something, copy everything to check we don't load in what we shouldn't
 				FileUtils.assertDirectory(flimstoreTo);
@@ -260,7 +262,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		args.add("--testname");
 		args.add(s.replace("/", "-").replace("src-golden-", ""));
 		if (packages.exists()) {
-			args.addAll(FileUtils.readFileAsLines(packages));
+			args.addAll(packageList);
 		} else
 			args.add("test.golden");
 //		try {
@@ -279,6 +281,14 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 				te.checkTypes(expectedErrors.isDirectory());
 			} catch (AssertionError ex) {
 				tmp = ex;
+			}
+			if (!expectedErrors.isDirectory()) {
+				File golden = new File(s, "test.golden");
+				if (golden.exists())
+					te.checkReconstructions(golden, reconstruct);
+				for (String p : packageList) {
+					te.checkReconstructions(new File(s, p), reconstruct);
+				}
 			}
 //		}
 		checkExpectedErrors(te, expectedErrors, actualErrors);
@@ -322,7 +332,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File aef = new File(actualErrors, "errors");
 		if (expectedErrors.isDirectory()) {
 			// fairly obviously, we are expecting errors, but we say we aren't so the checks go through
-			te.assertGolden(false, expectedErrors, actualErrors, false);
+			te.assertGolden(false, expectedErrors, actualErrors, false, false);
 			return false;
 		} else if (aef.length() > 0) {
 			FileUtils.cat(aef);

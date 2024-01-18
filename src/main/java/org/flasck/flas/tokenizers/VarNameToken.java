@@ -4,7 +4,7 @@ import org.flasck.flas.errors.ErrorReporter;
 
 public class VarNameToken {
 	public static ValidIdentifierToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 

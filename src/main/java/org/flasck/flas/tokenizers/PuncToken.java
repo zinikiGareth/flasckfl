@@ -2,8 +2,9 @@ package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 
-public class PuncToken {
+public class PuncToken implements LoggableToken {
 	public final InputPosition location;
 	public final String text;
 
@@ -13,7 +14,7 @@ public class PuncToken {
 	}
 
 	public static PuncToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 		InputPosition loc = line.realinfo();
@@ -21,7 +22,7 @@ public class PuncToken {
 		char c = line.nextChar();
 		if ("()[]{}.,:".indexOf(c) != -1) {
 			line.advance();
-			return new PuncToken(loc.copySetEnd(line.at()), line.fromMark(mark));
+			return errors.logParsingToken(new PuncToken(loc.copySetEnd(line.at()), line.fromMark(mark)));
 		} else {
 			line.reset(mark);
 			return null;
@@ -31,5 +32,21 @@ public class PuncToken {
 	@Override
 	public String toString() {
 		return "PT[" + text + "]";
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
+	@Override
+	public String type() {
+		return "Punctoken";
+	}
+
+	@Override
+	public String text() {
+		// TODO Auto-generated method stub
+		return text;
 	}
 }

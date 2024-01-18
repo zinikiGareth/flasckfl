@@ -53,7 +53,7 @@ public class ExprToken implements LoggableToken {
 	}
 
 	public static ExprToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 		InputPosition loc = line.realinfo();
@@ -68,7 +68,7 @@ public class ExprToken implements LoggableToken {
 			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()), STRING, tok).original(line.fromMark(mark)));
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1)))
-			return errors.logParsingToken(new ExprToken(NUMBER, NumberToken.from(line)));
+			return errors.logParsingToken(new ExprToken(NUMBER, NumberToken.from(errors, line)));
 		else if ("()[]{}.,:".indexOf(c) != -1) {
 			line.advance();
 			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()), PUNC, line.fromMark(mark)));

@@ -21,7 +21,7 @@ public class MessageToken implements LoggableToken {
 	}
 
 	public static MessageToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 		InputPosition loc = line.realinfo();

@@ -45,7 +45,7 @@ public class TDAMultiParser implements TDAParsing {
 		toks.reset(0);
 		if (!mark.hasMoreNow())
 			errors.message(toks, "syntax error");
-		return new IgnoreNestedParser();
+		return new IgnoreNestedParser(errors);
 	}
 
 	// I added this method for testing purposes

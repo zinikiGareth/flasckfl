@@ -50,7 +50,7 @@ public class FlimTop implements TDAParsing {
 		InputPosition pos = toks.realinfo();
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		NameOfThing container;
-		PackageNameToken inpkg = PackageNameToken.from(toks);
+		PackageNameToken inpkg = PackageNameToken.from(errors, toks);
 		if (kw.text.equals("usespackage")){
 			uses.add(inpkg.text);
 			return new NoNestingParser(errors);
@@ -61,7 +61,7 @@ public class FlimTop implements TDAParsing {
 			container = new PackageName(pkg);
 		} else {
 			errors.message(inpkg.location, "invalid package name");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		switch (kw.text) {
 		case "contract": {

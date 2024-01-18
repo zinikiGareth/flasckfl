@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
+import org.flasck.flas.errors.ErrorReporter;
 
 public class Tokenizable {
 	private final ContinuedLine line;
@@ -38,15 +39,18 @@ public class Tokenizable {
 		return pos;
 	}
 
-	public void skipWS() {
+	public void skipWS(ErrorReporter errors) {
 		while (pos < input.length() && Character.isWhitespace(input.charAt(pos)))
 			pos++;
 		if (pos+1 < input.length() && input.charAt(pos) == '/' && input.charAt(pos+1) == '/') {
+			InputPosition loc = realinfo();
+			int at = pos;
 			int idx = input.indexOf("\n", pos);
 			if (idx == -1)
 				pos = input.length();
 			else
 				pos = idx+1;
+			errors.logParsingToken(new CommentToken(loc, input.substring(at, pos).trim()));
 		}
 	}
 
@@ -58,8 +62,8 @@ public class Tokenizable {
 		return pos < input.length();
 	}
 	
-	public boolean hasMoreContent() {
-		skipWS();
+	public boolean hasMoreContent(ErrorReporter errors) {
+		skipWS(errors);
 		return pos < input.length();
 	}
 	

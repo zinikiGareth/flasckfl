@@ -26,12 +26,12 @@ public class SingleExpressionParser implements TDAParsing {
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (++exprCount > 1)
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		TDAExpressionParser expr = new TDAExpressionParser(errors, builder);
 		expr.tryParsing(toks);
-		if (toks.hasMoreContent()){
+		if (toks.hasMoreContent(errors)){
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		return new NoNestingParser(errors);
 	}

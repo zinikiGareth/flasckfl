@@ -38,11 +38,11 @@ public class TDAServiceElementsParser implements TDAParsing {
 		switch (kw.text) {
 		case "state": {
 			errors.message(kw.location, "services may not have state");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		case "implements": {
 			errors.message(kw.location, "services may not implement down contracts");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
@@ -53,11 +53,11 @@ public class TDAServiceElementsParser implements TDAParsing {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName csn = namer.csn(tn.location, "S");
@@ -69,23 +69,23 @@ public class TDAServiceElementsParser implements TDAParsing {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			
 			InputPosition varloc = null;
 			String varname = null;
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				ValidIdentifierToken var = VarNameToken.from(errors, toks);
 				if (var == null) {
 					errors.message(toks, "invalid service var name");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 				varloc = var.location;
 				varname = var.text;
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName cin = namer.csn(tn.location, "R");

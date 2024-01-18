@@ -74,11 +74,11 @@ public class TestEnvironment {
 			for (String f : testReportTo.list()) {
 				FileUtils.assertFile(new File(testReports, f));
 			}
-			assertGolden(errorsExpected, testReports, testReportTo, false);
+			assertGolden(errorsExpected, testReports, testReportTo, false, false);
 		}
 	}
 	
-	public void assertGolden(boolean errorsExpected, File golden, File genned, boolean allowMissingGolden) {
+	public void assertGolden(boolean errorsExpected, File golden, File genned, boolean allowMissingGolden, boolean allowWSDiffs) {
 		if (checkNothing)
 			return;
 		if (!golden.isDirectory()) {
@@ -112,12 +112,16 @@ public class TestEnvironment {
 			if (!goldhash.equals(genhash)) {
 				RunProcess proc = new RunProcess("diff");
 				proc.arg("-C5");
+				if (allowWSDiffs)
+					proc.arg("-b");
 				proc.arg(f.getPath());
 				proc.arg(gen.getPath());
 				proc.redirectStdout(System.out);
 				proc.redirectStderr(System.err);
 				proc.execute();
-				proc.getExitCode();
+				int code = proc.getExitCode();
+				if (code == 0)
+					continue;
 			}
 			assertEquals("Files " + f + " and " + gen + " differed", goldhash, genhash);
 		}
@@ -128,7 +132,7 @@ public class TestEnvironment {
 			return;
 		if (!tmpfd.exists())
 			fail("flim store was not created");
-		assertGolden(errorsExpected, goldfd, tmpfd, true);
+		assertGolden(errorsExpected, goldfd, tmpfd, true, false);
 	}
 
 	public void checkTypes(boolean expectingErrors) throws IOException {
@@ -140,6 +144,10 @@ public class TestEnvironment {
 			return;
 		FileUtils.assertDirectory(goldtc);
 		FileUtils.assertFile(goldtf);
-		assertGolden(expectingErrors, goldtc, tc2, false);
+		assertGolden(expectingErrors, goldtc, tc2, false, false);
+	}
+
+	public void checkReconstructions(File sources, File reconstructions) {
+		assertGolden(false, sources, reconstructions, true, true);
 	}
 }

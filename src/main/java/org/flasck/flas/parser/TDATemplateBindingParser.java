@@ -37,19 +37,19 @@ public class TDATemplateBindingParser implements TDAParsing {
 				return TDAParseTemplateElements.parseStyling(errors, source, namer, toks, x -> consumer.addStyling(x));
 			} else {
 				errors.message(toks, "syntax error");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 		}
 		TemplateField field = new TemplateField(tok.location, tok.text);
 		TemplateBindingOption simple = null;
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			ExprToken send = ExprToken.from(errors, toks);
 			if (send == null || !"<-".equals(send.text)) {
 				if ("=>".equals(send.text))
 					errors.message(toks, "missing expression");
 				else
 					errors.message(toks, "syntax error");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			List<Expr> seen = new ArrayList<>();
 			new TDAExpressionParser(errors, t -> {
@@ -57,20 +57,20 @@ public class TDATemplateBindingParser implements TDAParsing {
 			}).tryParsing(toks);
 			if (seen.isEmpty()) {
 				errors.message(toks, "no expression to send");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			Expr expr = seen.get(0);
 			TemplateReference sendsTo = null;
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				ExprToken format = ExprToken.from(errors, toks);
 				if (format == null || !"=>".equals(format.text)) {
 					errors.message(toks, "syntax error");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 				TemplateNameToken dest = TemplateNameToken.from(errors, toks);
 				if (dest == null) {
 					errors.message(toks, "missing template name");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 				sendsTo = new TemplateReference(dest.location, namer.template(dest.location, dest.text));
 			}

@@ -45,16 +45,16 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (!("|".equals(tok.text))) {
 			errors.message(tok.location, "guard expected");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (!toks.hasMoreContent()) { // it's a default
+		if (!toks.hasMoreContent(errors)) { // it's a default
 			if (firstGuard) {
 				errors.message(tok.location, "first guard cannot be default");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			if (seenDefault) {
 				errors.message(tok.location, "cannot provide two default guards");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			GuardedMessages dgm = new GuardedMessages(tok.location, null);
 			consumer.guard(dgm);
@@ -69,7 +69,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 		}).tryParsing(toks);
 		if (seen.isEmpty()) {
 			errors.message(toks, "no guard expression");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		firstGuard = false;
 		return new TDAMethodMessageParser(errors, seen.get(0), nestedParser);

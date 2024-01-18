@@ -26,7 +26,7 @@ public class TypeExprToken implements LoggableToken {
 	}
 
 	public static TypeExprToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 		InputPosition loc = line.realinfo();

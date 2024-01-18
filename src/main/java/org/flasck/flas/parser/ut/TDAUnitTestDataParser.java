@@ -42,15 +42,15 @@ public class TDAUnitTestDataParser implements TDAParsing {
 		TDATypeReferenceParser parser = new TDATypeReferenceParser(errors, namer, x -> tr.add(x), topLevel);
 		if (parser.tryParsing(toks) == null) {
 			// it failed
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		ValidIdentifierToken var = VarNameToken.from(errors, toks);
 		if (var == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		FunctionName fnName = namer.dataName(var.location, var.text);
-		if (!toks.hasMoreContent()) {
+		if (!toks.hasMoreContent(errors)) {
 			UnitDataDeclaration data = new UnitDataDeclaration(pos, atTopLevel, tr.get(0), fnName, null);
 			builder.accept(data);
 			return new TDAProcessFieldsParser(errors, data);
@@ -58,17 +58,17 @@ public class TDAUnitTestDataParser implements TDAParsing {
 		ExprToken send = ExprToken.from(errors, toks);
 		if (send == null || !send.text.equals("<-")) {
 			errors.message(toks, "expected <-");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		List<Expr> exprs = new ArrayList<>();
 		new TDAExpressionParser(errors, x->exprs.add(x)).tryParsing(toks);
 		if (exprs.isEmpty()) {
 			// it failed
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		UnitDataDeclaration data = new UnitDataDeclaration(pos, atTopLevel, tr.get(0), fnName, exprs.get(0));
 		builder.accept(data);

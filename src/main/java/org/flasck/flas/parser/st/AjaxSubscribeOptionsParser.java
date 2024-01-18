@@ -22,26 +22,26 @@ public class AjaxSubscribeOptionsParser implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		switch (kw.text) {
 		case "responses": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "syntax error");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			return new AjaxSubscribeResponsesParser(errors, sub);
 		}
 		case "html": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "syntax error");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			return new AjaxSubscribeHtmlResponsesParser(errors, sub);
 		}
 		default: {
 			errors.message(kw.location, "unrecognized ajax action " + kw.text);
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		}
 	}

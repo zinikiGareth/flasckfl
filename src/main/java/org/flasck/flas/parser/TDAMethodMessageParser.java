@@ -34,7 +34,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 			return handleAssign(tok, toks);
 		else {
 			errors.message(toks, "expected assign or send message");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 			
 	}
@@ -48,20 +48,20 @@ public class TDAMethodMessageParser implements TDAParsing {
 		}).tryParsing(toks);
 		if (seen.isEmpty()) {
 			errors.message(toks, "no expression to send");
-			return new IgnoreNestedParser();
-		} else if (toks.hasMoreContent()) {
+			return new IgnoreNestedParser(errors);
+		} else if (toks.hasMoreContent(errors)) {
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok.type == ExprToken.SYMBOL && tok.text.equals("=>")) {
 				new TDAExpressionParser(errors, t -> {
 					seen.get(0).handlerNameExpr(t);
 				}).tryParsing(toks);
-				if (toks.hasMoreContent()) {
+				if (toks.hasMoreContent(errors)) {
 					errors.message(toks, "syntax error");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 			} else {
 				errors.message(toks, "syntax error");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 		}
 		return nestedParser;
@@ -79,21 +79,21 @@ public class TDAMethodMessageParser implements TDAParsing {
 			tok = ExprToken.from(errors, toks);
 			if (tok == null) {
 				errors.message(toks, "expected . or <-");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			if (tok.type == ExprToken.PUNC && ".".equals(tok.text)) {
 				// read another identifier
 				tok = ExprToken.from(errors, toks);
 				if (tok == null || tok.type != ExprToken.IDENTIFIER) {
 					errors.message(toks, "expected identifier");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 			} else
 				break;
 		}
 		if (!"<-".equals(tok.text)) {
 			errors.message(tok.location, "expected <-");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		InputPosition pos = tok.location;
 		List<Expr> seen = new ArrayList<>();
@@ -105,7 +105,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 		}).tryParsing(toks);
 		if (seen.isEmpty()) {
 			errors.message(toks, "no expression to send");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		return nestedParser;
 	}

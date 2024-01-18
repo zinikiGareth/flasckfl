@@ -85,7 +85,7 @@ public class TDAEnterExitParser implements TDAParsing {
 		}
 		}
 
-		if (toks.hasMoreContent())
+		if (toks.hasMoreContent(errors))
 			errors.message(toks, "syntax error");
 
 		return new NoNestingParser(errors);

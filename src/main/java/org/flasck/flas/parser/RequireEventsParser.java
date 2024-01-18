@@ -28,7 +28,7 @@ public class RequireEventsParser implements TDAParsing {
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if ("|".equals(tok.text)) {
 			seenHandler = true;
@@ -39,7 +39,7 @@ public class RequireEventsParser implements TDAParsing {
 			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> tso.events.add(ev));
 		} else {
 			errors.message(toks, "event handler expected");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 	}
 

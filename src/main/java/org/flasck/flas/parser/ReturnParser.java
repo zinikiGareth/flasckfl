@@ -3,9 +3,11 @@ package org.flasck.flas.parser;
 import org.flasck.flas.errors.ErrorReporter;
 
 public class ReturnParser {
+	private final ErrorReporter errors;
 	private TDAParsing ret;
 
-	public ReturnParser() {
+	public ReturnParser(ErrorReporter errors) {
+		this.errors = errors;
 		this.ret = null;
 	}
 	
@@ -18,7 +20,7 @@ public class ReturnParser {
 	}
 
 	public void ignore() {
-		ret = new IgnoreNestedParser();
+		ret = new IgnoreNestedParser(errors);
 	}
 
 	public TDAParsing get() {

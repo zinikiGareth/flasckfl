@@ -20,7 +20,7 @@ public class TypeNameToken implements LoggableToken {
 	}
 
 	public static TypeNameToken unqualified(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 
@@ -43,7 +43,7 @@ public class TypeNameToken implements LoggableToken {
 	// qualified names are any number of (lowercase) package names followed by exactly one (uppercase) type name
 	// we then stop; if there is another dot, it is probably a ctor method
 	public static TypeNameToken qualified(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore() || !Character.isJavaIdentifierStart(line.nextChar()))
 			return null;
 	

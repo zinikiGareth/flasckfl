@@ -31,16 +31,16 @@ public class AjaxSubscribeResponsesParser implements TDAParsing {
 		ep.tryParsing(toks);
 		if (mark.hasMoreNow()) {
 			// we had errors, abort
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if (es.size() == 0) {
 			toks.reset(0);
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if (es.size() > 1) {
 			errors.message(es.get(1).location(), "only one response allowed per line");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		// TODO: This is way too draconian
 		// Headline: we should allow AjaxMessage or JSON values

@@ -61,7 +61,7 @@ public class TDAExprParser implements TDAParsing {
 						if (!ltr.isEmpty())
 							term = ltr.get(0);
 						else
-							return new IgnoreNestedParser();
+							return new IgnoreNestedParser(errors);
 					}
 				} else if (tok.text.equals("_"))
 					term = new AnonymousVar(tok.location);
@@ -71,7 +71,7 @@ public class TDAExprParser implements TDAParsing {
 					term = iv;
 				} else {
 					errors.message(tok.location, "syntax error");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 				builder.term(term);
 				break;

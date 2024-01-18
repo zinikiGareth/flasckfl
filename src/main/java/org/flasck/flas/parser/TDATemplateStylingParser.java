@@ -26,7 +26,7 @@ public class TDATemplateStylingParser implements TDAParsing {
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if ("|".equals(tok.text)) {
 			return TDAParseTemplateElements.parseStyling(errors, source, namer, toks, tso -> customizer.conditionalStylings.add(tso));
@@ -35,7 +35,7 @@ public class TDATemplateStylingParser implements TDAParsing {
 			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> customizer.events.add(ev));
 		} else {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 	}
 

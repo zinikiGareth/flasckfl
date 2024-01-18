@@ -48,7 +48,7 @@ public class ContractMethodParser implements TDAParsing {
 		InputPosition pos = toks.realinfo();
 		ValidIdentifierToken name = ValidIdentifierToken.from(errors, toks);
 		if (name == null) {
-			if (toks.hasMoreContent())
+			if (toks.hasMoreContent(errors))
 				errors.message(toks, "invalid method name");
 			else
 				errors.message(toks, "missing method name");
@@ -71,14 +71,14 @@ public class ContractMethodParser implements TDAParsing {
 				targs.add((TypedPattern) p);
 		}
 		if (emark.hasMoreNow())
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		TypedPattern handler = null;
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			// it must be a handler specification
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (!"->".equals(tok.text)) {
 				errors.message(tok.location, "syntax error");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			
 			List<Pattern> hdlrs = new ArrayList<>();
@@ -86,18 +86,18 @@ public class ContractMethodParser implements TDAParsing {
 			hp.tryParsing(toks);
 			if (hdlrs.size() != 1) {
 				errors.message(toks, "no handler specified");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			Pattern p = hdlrs.get(0);
 			if (!(p instanceof TypedPattern)) {
 				errors.message(p.location(), "contract handler must be a typed pattern");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			handler = (TypedPattern) p;
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 
 		ContractMethodDecl ret = new ContractMethodDecl(optLoc, name.location, name.location, required, fnName, targs, handler);

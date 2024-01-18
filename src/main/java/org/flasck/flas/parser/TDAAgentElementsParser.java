@@ -46,7 +46,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 		case "state": {
 			if (seenState) {
 				errors.message(kw.location, "multiple state declarations");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			final StateDefinition state = new StateDefinition(toks.realinfo(), ((NamedType)consumer).name());
 			consumer.defineState(state);
@@ -58,11 +58,11 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName csn = namer.csn(tn.location, "S");
@@ -74,23 +74,23 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			
 			InputPosition varloc = null;
 			String varname = null;
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				ValidIdentifierToken var = VarNameToken.from(errors, toks);
 				if (var == null) {
 					errors.message(toks, "invalid service var name");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 				varloc = var.location;
 				varname = var.text;
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName cin = namer.csn(tn.location, "R");
@@ -103,11 +103,11 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName cin = namer.csn(tn.location, "C");

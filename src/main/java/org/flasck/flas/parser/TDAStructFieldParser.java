@@ -36,37 +36,37 @@ public class TDAStructFieldParser implements TDAParsing {
 			parser.tryParsing(toks, pt);
 			if (types.isEmpty()) {
 				errors.message(toks, "field must have a valid type definition");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			type = types.get(0);
 		}
 		ValidIdentifierToken field = VarNameToken.from(errors, toks);
 		if (field == null) {
 			errors.message(toks, "field must have a valid field name");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if (field.text.equals("id")) {
 			errors.message(toks, "'id' is a reserved field name");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		ReturnParser ret = new ReturnParser();
-		if (!toks.hasMoreContent()) {
+		ReturnParser ret = new ReturnParser(errors);
+		if (!toks.hasMoreContent(errors)) {
 			if (fieldsType == FieldsType.WRAPS) {
 				errors.message(toks, "wraps fields must have initializers");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			builder.addField(new StructField(field.location, builder.holder(), createAsAccessors, true, type, field.text));
 			ret.noNest(errors);
 		} else {
 			if (fieldsType == FieldsType.ENVELOPE) {
 				errors.message(toks, "envelope fields may not have initializers");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			toks.skipWS();
+			toks.skipWS(errors);
 			ExprToken arrow = ExprToken.from(errors, toks);
 			if (!"<-".equals(arrow.text)) {
 				errors.message(toks, "expected <- or end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			TypeReference ft = type;
 			new TDAExpressionParser(errors, expr -> {
@@ -77,10 +77,10 @@ public class TDAStructFieldParser implements TDAParsing {
 					builder.addField(new StructField(field.location, arrow.location, builder.holder(), createAsAccessors, true, ft, field.text, expr));
 				}
 			}).tryParsing(toks);
-			if (toks.hasMoreContent())
+			if (toks.hasMoreContent(errors))
 				errors.message(toks, "invalid tokens after expression");
 			if (errors.hasErrors())
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 		}
 		return ret.get();
 	}

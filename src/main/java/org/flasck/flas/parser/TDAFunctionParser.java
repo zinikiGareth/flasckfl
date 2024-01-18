@@ -49,13 +49,13 @@ public class TDAFunctionParser implements TDAParsing {
 		while (pp.tryParsing(line, currErr) != null)
 			;
 		if (currErr.hasMoreNow())
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		
 		// And it resets so that we can pull tok again and see it is an equals sign, or else nothing ...
 		InnerPackageNamer innerNamer = new InnerPackageNamer(fcase);
 		final FunctionIntro intro = new FunctionIntro(fcase, args);
 		consumer.functionIntro(intro);
-		if (!line.hasMoreContent()) {
+		if (!line.hasMoreContent(errors)) {
 			return new TDAFunctionGuardedEquationParser(errors, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder));
 		}
 		ExprToken tok = ExprToken.from(errors, line);
@@ -66,7 +66,7 @@ public class TDAFunctionParser implements TDAParsing {
 			errors.message(tok.location, "syntax error");
 			return null;
 		}
-		if (!line.hasMoreContent()) {
+		if (!line.hasMoreContent(errors)) {
 			errors.message(line, "function definition requires expression");
 			return null;
 		}
@@ -78,7 +78,7 @@ public class TDAFunctionParser implements TDAParsing {
 		}).tryParsing(line);
 		
 		if (fcds.isEmpty())
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, holder);
 		return ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder);

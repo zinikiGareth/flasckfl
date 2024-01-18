@@ -13,6 +13,7 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.TestStepNamer;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.TestDescriptionToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDASystemTestParser implements TDAParsing {
@@ -36,13 +37,13 @@ public class TDASystemTestParser implements TDAParsing {
 		KeywordToken tok = KeywordToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		switch (tok.text) {
 		case "configure": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "configure does not have a description");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			SystemTestName stn = namer.special("configure");
 			final SystemTestConfiguration stg = new SystemTestConfiguration(stn, topLevel);
@@ -50,10 +51,13 @@ public class TDASystemTestParser implements TDAParsing {
 			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn.container()), stg, topLevel, modules);
 		}
 		case "test": {
+			toks.skipWS(errors);
+			InputPosition pos = toks.realinfo();
 			final String desc = toks.remainder().trim();
+			errors.logParsingToken(new TestDescriptionToken(pos, desc));
 			if (desc.length() == 0) {
 				errors.message(toks, "each test step must have a description");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			SystemTestName stn = namer.nextStep();
 			final SystemTestStage stage = new SystemTestStage(stn, desc, topLevel);
@@ -61,9 +65,9 @@ public class TDASystemTestParser implements TDAParsing {
 			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn), stage, topLevel, modules);
 		}
 		case "finally": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "finally does not have a description");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			SystemTestName stn = namer.special("finally");
 			final SystemTestCleanup stg = new SystemTestCleanup(stn, topLevel);
@@ -73,7 +77,7 @@ public class TDASystemTestParser implements TDAParsing {
 		default: {
 			toks.reset(mark);
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		}
 	}

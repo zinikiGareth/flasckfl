@@ -2,8 +2,9 @@ package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 
-public class TemplateNameToken {
+public class TemplateNameToken implements LoggableToken {
 	public final InputPosition location;
 	public final String text;
 
@@ -13,7 +14,7 @@ public class TemplateNameToken {
 	}
 
 	public static TemplateNameToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		int mark = line.at();
 		InputPosition pos = line.realinfo();
 		if (!line.hasMore() || !Character.isLowerCase(line.nextChar()))
@@ -26,11 +27,26 @@ public class TemplateNameToken {
 			errors.message(line, "template names may not include upper case characters");
 			return null;
 		}
-		return new TemplateNameToken(pos.copySetEnd(line.at()), line.fromMark(mark));
+		return errors.logParsingToken(new TemplateNameToken(pos.copySetEnd(line.at()), line.fromMark(mark)));
 	}
 	
 	@Override
 	public String toString() {
 		return "TNT["+text+":" + location+"]";
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
+	@Override
+	public String type() {
+		return "templateName";
+	}
+
+	@Override
+	public String text() {
+		return text;
 	}
 }

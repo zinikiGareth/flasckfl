@@ -16,7 +16,7 @@ public class KeywordToken implements LoggableToken {
 	}
 
 	public static KeywordToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 

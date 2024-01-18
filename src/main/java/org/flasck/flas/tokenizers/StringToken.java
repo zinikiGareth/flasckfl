@@ -10,7 +10,7 @@ public class StringToken {
 	 * in the string if doubled, e.g. 'Fred''s world' is the same as "Fred's world"
 	 */
 	public static String from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 		char oq = line.nextChar();

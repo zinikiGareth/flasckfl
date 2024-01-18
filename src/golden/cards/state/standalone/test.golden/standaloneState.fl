@@ -11,7 +11,7 @@
 			y <- f y
 			x <- 10
 			
-		f q = q * x;
+		f q = q * x
 		
 		z = g f 3
 		g a b = a b

@@ -53,9 +53,9 @@ public class TDAObjectElementsParser implements TDAParsing {
 		}
 		switch (kw.text) {
 		case "state": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra characters at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			StateDefinition state = new StateDefinition(toks.realinfo(), ((NamedType)builder).name());
 			builder.defineState(state);
@@ -65,21 +65,21 @@ public class TDAObjectElementsParser implements TDAParsing {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			
-			if (!toks.hasMoreContent()) {
+			if (!toks.hasMoreContent(errors)) {
 				errors.message(toks, "missing variable name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			ValidIdentifierToken var = VarNameToken.from(errors, toks);
 			if (var == null) {
 				errors.message(toks, "invalid service var name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			VarName cv = namer.nameVar(var.location, var.text);
@@ -93,10 +93,10 @@ public class TDAObjectElementsParser implements TDAParsing {
 			ErrorMark em = errors.mark();
 			int pos = builder.templatePosn();
 			NestingChain chain = null;
-			if (toks.hasMoreContent()) 
+			if (toks.hasMoreContent(errors)) 
 				chain = TDACardElementsParser.parseChain(errors, namer, toks);
 			if (em.hasMoreNow())
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			final Template template = new Template(kw.location, tn.location, namer.template(tn.location, tn.text), pos, chain);
 			builder.addTemplate(template);
 			topLevel.newTemplate(errors, template);
@@ -130,9 +130,9 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}, topLevel);
 			while (pp.tryParsing(toks) != null)
 				;
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra characters at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			ObjectCtor ctor = new ObjectCtor(var.location, (Type)builder, fnName, args) {
 				public void done() {

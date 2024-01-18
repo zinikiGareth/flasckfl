@@ -26,6 +26,7 @@ public class PattToken implements LoggableToken {
 	public final InputPosition location;
 	public final int type;
 	public final String text;
+	private String original;
 
 	public PattToken(InputPosition loc, int type, String text, int end) {
 		this.location = loc;
@@ -35,7 +36,7 @@ public class PattToken implements LoggableToken {
 	}
 
 	public static PattToken from(ErrorReporter errors, Tokenizable line) {
-		line.skipWS();
+		line.skipWS(errors);
 		if (!line.hasMore())
 			return null;
 		char c = line.nextChar();
@@ -52,11 +53,12 @@ public class PattToken implements LoggableToken {
 				return errors.logParsingToken(new PattToken(tok.location, Character.isUpperCase(c)?TYPE:VAR, tok.text, line.at()));
 		} else if (c == '"' || c == '\'') {
 			InputPosition loc = line.realinfo();
+			int at = line.at();
 			String s = StringToken.from(errors, line);
-			return errors.logParsingToken(new PattToken(loc, PattToken.STRING, s, line.at()));
+			return errors.logParsingToken(new PattToken(loc, PattToken.STRING, s, line.at()).original(line.fromMark(at)));
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1))) {
-			NumberToken num = NumberToken.from(line);
+			NumberToken num = NumberToken.from(errors, line);
 			return errors.logParsingToken(new PattToken(num.location, NUMBER, num.text, line.at()));
 		} else if ((pos = "()[]{}:,".indexOf(c)) != -1) {
 			InputPosition loc = line.realinfo();
@@ -64,6 +66,11 @@ public class PattToken implements LoggableToken {
 			return errors.logParsingToken(new PattToken(loc, pos+10, new String(new char[] { c }), line.at()));
 		} else
 			return null;
+	}
+
+	private PattToken original(String o) {
+		this.original = o;
+		return this;
 	}
 
 	@Override
@@ -83,6 +90,8 @@ public class PattToken implements LoggableToken {
 
 	@Override
 	public String text() {
+		if (original != null)
+			return original;
 		return text;
 	}
 }

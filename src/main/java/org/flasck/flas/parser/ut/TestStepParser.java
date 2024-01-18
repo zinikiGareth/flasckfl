@@ -48,7 +48,7 @@ public class TestStepParser implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		switch (kw.text) {
 		case "assert": {
@@ -92,7 +92,7 @@ public class TestStepParser implements TDAParsing {
 		default: {
 			toks.reset(mark);
 			errors.message(toks, "unrecognized test step " + kw.text);
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		}
 	}
@@ -102,15 +102,15 @@ public class TestStepParser implements TDAParsing {
 		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> test.add(x));
 		expr.tryParsing(toks);
 		if (errors.hasErrors()){
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if (test.isEmpty()) {
 			errors.message(toks, "assert requires expression to evaluate");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		return new SingleExpressionParser(errors, "assert", ex -> { builder.assertion(test.get(0), ex); });
 	}
@@ -120,15 +120,15 @@ public class TestStepParser implements TDAParsing {
 		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> test.add(x));
 		expr.tryParsing(toks);
 		if (errors.hasErrors()){
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if (test.isEmpty()) {
 			errors.message(toks, "assert requires expression to evaluate");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		return new SingleExpressionParser(errors, "identical", ex -> { builder.identical(test.get(0), ex); });
 	}
@@ -140,7 +140,7 @@ public class TestStepParser implements TDAParsing {
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok == null || tok.type != ExprToken.IDENTIFIER) {
 				errors.message(toks, "field path expected");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			UnresolvedVar v = new UnresolvedVar(tok.location, tok.text);
 			slots.add(v);
@@ -148,7 +148,7 @@ public class TestStepParser implements TDAParsing {
 			if (dot == null) {
 				if (!haveDot) {
 					errors.message(toks, ". expected");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 				break;
 			}
@@ -156,13 +156,13 @@ public class TestStepParser implements TDAParsing {
 				haveDot = true;
 			} else {
 				errors.message(toks, "syntax error");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 		}
 
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 
 		return new SingleExpressionParser(errors, "shove", expr -> { builder.shove(slots, expr); });
@@ -172,26 +172,26 @@ public class TestStepParser implements TDAParsing {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "contract requires a card variable to send the event to");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		TypeNameToken evname = TypeNameToken.qualified(errors, toks);
 		if (evname == null) {
 			errors.message(toks, "contract requires a Contract name");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		List<Expr> eventObj = new ArrayList<>();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
 		expr.tryParsing(toks);
 		if (errors.hasErrors()){
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if (eventObj.isEmpty()) {
 			errors.message(toks, "missing arguments");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
 		return new NoNestingParser(errors);
@@ -201,7 +201,7 @@ public class TestStepParser implements TDAParsing {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "close requires a card variable to close");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		builder.closeCard(new UnresolvedVar(tok.location, tok.text));
 		return new NoNestingParser(errors);
@@ -213,22 +213,22 @@ public class TestStepParser implements TDAParsing {
 
 	protected TDAParsing handleNewdiv(Tokenizable toks) {
 		Integer cnt = null;
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok.type != ExprToken.NUMBER) {
 				errors.message(toks, "integer required");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			try {
 				cnt = Integer.parseInt(tok.text);
 			} catch (NumberFormatException ex) {
 				errors.message(toks, "integer required");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		builder.newdiv(cnt);
 		return new NoNestingParser(errors);
@@ -238,16 +238,16 @@ public class TestStepParser implements TDAParsing {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "must specify a card to be rendered");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		ExprToken arrow = ExprToken.from(errors, toks);
 		if (arrow == null || !"=>".equals(arrow.text)) {
 			errors.message(toks, "=> expected");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		TemplateNameToken template = TemplateNameToken.from(errors, toks);
 		if (template == null)
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		builder.render(new UnresolvedVar(tok.location, tok.text), new TemplateReference(template.location, namer.template(template.location, template.text)));
 		return new NoNestingParser(errors);
 	}
@@ -256,30 +256,30 @@ public class TestStepParser implements TDAParsing {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "must specify a card to receive event");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		TargetZone targetZone = parseTargetZone(toks);
 		if (targetZone == null) {
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		ErrorMark em = errors.mark();
 		List<Expr> eventObj = new ArrayList<>();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
 		expr.tryParsing(toks);
 		if (em.hasMoreNow()){
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if (eventObj.isEmpty()) {
 			errors.message(toks, "must provide an event object");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if (eventObj.size() > 1) {
 			errors.message(toks, "only one event object is allowed");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		builder.event(new UnresolvedVar(tok.location, tok.text), targetZone, eventObj.get(0));
 		return new NoNestingParser(errors);
@@ -289,15 +289,15 @@ public class TestStepParser implements TDAParsing {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "must specify a card to receive event");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		TargetZone targetZone = parseTargetZone(toks);
 		if (targetZone == null) {
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		return new SingleExpressionParser(errors, "input", text -> { builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text); });
 	}
@@ -307,15 +307,15 @@ public class TestStepParser implements TDAParsing {
 		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
 		expr.tryParsing(toks);
 		if (errors.hasErrors()){
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if (eventObj.isEmpty()) {
 			errors.message(toks, "missing expression");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		builder.invokeObjectMethod(eventObj.get(0));
 		return new NoNestingParser(errors);
@@ -331,21 +331,21 @@ public class TestStepParser implements TDAParsing {
 				if (tok.text.equals("<~"))
 					return handleExpectCancel(toks);
 				errors.message(toks, "invalid expect operator " + tok.text);
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			errors.message(toks, "missing contract");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		ValidIdentifierToken meth = VarNameToken.from(errors, toks);
 		if (meth == null) {
 			errors.message(toks, "missing method");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		List<Expr> args = new ArrayList<>();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, namer, x -> args.add(x), false, topLevel);
 		expr.tryParsing(toks);
 		if (errors.hasErrors()){
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		Expr handler = null;
 		if (args.size() >= 2) {
@@ -357,9 +357,9 @@ public class TestStepParser implements TDAParsing {
 		}
 		if (handler == null)
 			handler = new AnonymousVar(meth.location);
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
 		return new TDAMultiParser(errors);
@@ -369,11 +369,11 @@ public class TestStepParser implements TDAParsing {
 		ValidIdentifierToken handler = VarNameToken.from(errors, toks);
 		if (handler == null) {
 			errors.message(toks, "handler name required");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		builder.expectCancel(new UnresolvedVar(handler.location, handler.text));
 		return new NoNestingParser(errors);
@@ -383,12 +383,12 @@ public class TestStepParser implements TDAParsing {
 		ValidIdentifierToken card = VarNameToken.from(errors, toks);
 		if (card == null) {
 			errors.message(toks, "missing card");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		ValidIdentifierToken whattok = VarNameToken.from(errors, toks);
 		if (whattok == null) {
 			errors.message(toks, "missing category");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		MatchedItem what;
 		switch (whattok.text) {
@@ -412,16 +412,16 @@ public class TestStepParser implements TDAParsing {
 			break;
 		default:
 			errors.message(whattok.location, "cannot match '" + whattok.text + "'");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		
 		TargetZone targetZoneTmp = new TargetZone(toks.realinfo(), new ArrayList<>());
 		boolean containsTmp = false;
 		boolean failsTmp = false;
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			targetZoneTmp = parseTargetZone(toks);
 			if (targetZoneTmp == null) {
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			ValidIdentifierToken option = VarNameToken.from(errors, toks);
 			if (option != null) {
@@ -431,13 +431,13 @@ public class TestStepParser implements TDAParsing {
 					failsTmp = true;
 				} else {
 					errors.message(option.location, "invalid match type specification");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 			}
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "unexpected characters at end of match");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		final TargetZone targetZone = targetZoneTmp;
 		final boolean contains = containsTmp;
@@ -452,7 +452,7 @@ public class TestStepParser implements TDAParsing {
 		InputPosition first = null;
 		boolean lastWasNumber = false;
 		while (true) {
-			EventZoneToken tok = EventZoneToken.from(toks);
+			EventZoneToken tok = EventZoneToken.from(errors, toks);
 			if (tok == null) {
 				errors.message(toks, "valid target zone expected");
 				return null;
@@ -484,17 +484,17 @@ public class TestStepParser implements TDAParsing {
 				first = tok.location;
 			}
 				
-			if (!toks.hasMoreContent())
+			if (!toks.hasMoreContent(errors))
 				break;
 			
 			int mark = toks.at();
-			EventZoneToken dot = EventZoneToken.from(toks);
+			EventZoneToken dot = EventZoneToken.from(errors, toks);
 			if (dot == null) {
 				break;
 			} else if (dot.type == EventZoneToken.DOT) {
 				continue; // look for next symbol
 			} else if (dot.type == EventZoneToken.COLON) {
-				EventZoneToken qualifyingTemplate = EventZoneToken.from(toks);
+				EventZoneToken qualifyingTemplate = EventZoneToken.from(errors, toks);
 				if (qualifyingTemplate == null) {
 					errors.message(dot.location, "target zone qualifier missing");
 					return null;
@@ -502,7 +502,7 @@ public class TestStepParser implements TDAParsing {
 					errors.message(dot.location, "target zone qualifier must be a name");
 					return null;
 				}
-				dot = EventZoneToken.from(toks);
+				dot = EventZoneToken.from(errors, toks);
 				if (dot == null)
 					break;
 				if (dot.type != EventZoneToken.DOT) {

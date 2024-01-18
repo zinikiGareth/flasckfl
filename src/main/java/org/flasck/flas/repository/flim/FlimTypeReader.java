@@ -32,12 +32,12 @@ public abstract class FlimTypeReader implements TDAParsing {
 			return new FlimInstanceReader(errors, this);
 		}
 		case "named": {
-			PackageNameToken ty = PackageNameToken.from(toks);
+			PackageNameToken ty = PackageNameToken.from(errors, toks);
 			collect(new PendingNamedType(ty));
 			return new NoNestingParser(errors);
 		}
 		case "poly": {
-			PackageNameToken ty = PackageNameToken.from(toks);
+			PackageNameToken ty = PackageNameToken.from(errors, toks);
 			collect(new PendingPolyType(ty));
 			return new NoNestingParser(errors);
 		}

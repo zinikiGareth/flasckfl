@@ -30,25 +30,25 @@ public class TDAProcessFieldsParser implements TDAParsing {
 		ValidIdentifierToken var = VarNameToken.from(errors, toks);
 		if (var == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		ExprToken send = ExprToken.from(errors, toks);
 		if (send == null) {
 			errors.message(toks, "expected <-");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		} else if (!send.text.equals("<-")) {
 			errors.message(send.location, "expected <-");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		List<Expr> exprs = new ArrayList<>();
 		new TDAExpressionParser(errors, x->exprs.add(x)).tryParsing(toks);
 		if (exprs.isEmpty()) {
 			// it failed
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		data.field(new UnresolvedVar(var.location, var.text), exprs.get(0));
 		return new NoNestingParser(errors);

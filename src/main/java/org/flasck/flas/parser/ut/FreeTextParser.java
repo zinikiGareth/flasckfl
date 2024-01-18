@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.tokenizers.FreeTextToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 /** This is intended to build up arbitrary numbers of lines of text
@@ -34,7 +35,10 @@ public class FreeTextParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		this.buffers.add(toks.remainder());
+		InputPosition pos = toks.realinfo();
+		String tok = toks.remainder();
+		errors.logParsingToken(new FreeTextToken(pos, tok));
+		this.buffers.add(tok);
 		return new FreeTextParser(this);
 	}
 

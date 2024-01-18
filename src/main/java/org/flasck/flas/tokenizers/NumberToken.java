@@ -1,6 +1,7 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 
 public class NumberToken {
 	public final InputPosition location;
@@ -12,11 +13,11 @@ public class NumberToken {
 		this.text = text;
 	}
 
-	public static NumberToken from(Tokenizable line) {
+	public static NumberToken from(ErrorReporter errors, Tokenizable line) {
 		// TODO: should we allow qualifiers such as
 		// 0L
 		// 0.3f
-		line.skipWS();
+		line.skipWS(errors);
 		int mark = line.at();
 		InputPosition pos = line.realinfo();
 		while (line.hasMore() && Character.isDigit(line.nextChar()))

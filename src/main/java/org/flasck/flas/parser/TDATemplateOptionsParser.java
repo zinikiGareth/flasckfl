@@ -45,13 +45,13 @@ public class TDATemplateOptionsParser implements TDAParsing {
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if ("|".equals(tok.text)) {
 			// it's a conditional - we don't know if it's binding, styling or an error; but "toksHasSend" gives us a clue
 			if ((binding == null || binding.defaultBinding != null) && toksHasSend(toks)) {
 				errors.message(toks, "conditional bindings are not permitted after the default has been specified");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			else if (binding != null && binding.defaultBinding != null) {
 				errors.message(tok.location, "cannot mix bindings and customization");
@@ -64,11 +64,11 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			// It's a default send binding
 			if (binding == null) {
 				errors.message(toks, "syntax error");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			if (binding.defaultBinding != null) {
 				errors.message(toks, "multiple default bindings are not permitted");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			return TDAParseTemplateElements.parseDefaultBindingOption(errors, source, namer, toks, field, tbo -> binding.defaultBinding = tbo);
 		} else if ("=>".equals(tok.text)) {
@@ -76,7 +76,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> customizer.events.add(ev));
 		} else {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 	}
 
@@ -91,7 +91,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 	private boolean toksHasSend(Tokenizable toks) {
 		int mark = toks.at();
 		boolean ret = false;
-		while (toks.hasMoreContent()) {
+		while (toks.hasMoreContent(errors)) {
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok == null)
 				break;

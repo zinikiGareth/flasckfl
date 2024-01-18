@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
@@ -16,11 +15,8 @@ import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
-import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.tokenizers.ValidIdentifierToken;
-import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDAParseTemplateElements {
 	public static TDAParsing parseConditionalBindingOption(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer) {
@@ -31,29 +27,29 @@ public class TDAParseTemplateElements {
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		if ("<-".equals(tok.text)) {
 			if (seen.isEmpty()) {
 				errors.message(toks, "no conditional expression");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			TemplateBindingOption tbo = readTemplateBinding(errors, namer, toks, field);
 			if (tbo == null)
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			TemplateBindingOption tc = tbo.conditionalOn(seen.get(0));
 			consumer.accept(tc);
 			return new TDATemplateOptionsParser(errors, source, namer, tc, field);
 		} else {
 			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 	}
 
 	public static TDAParsing parseDefaultBindingOption(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer) {
 		TemplateBindingOption tc = TDAParseTemplateElements.readTemplateBinding(errors, namer, toks, field);
 		if (tc == null)
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		consumer.accept(tc);
 		return new TDATemplateOptionsParser(errors, source, namer, tc, field);
 	}
@@ -73,14 +69,14 @@ public class TDAParseTemplateElements {
 		if ("=>".equals(tok.text)) {
 			TemplateStylingOption tso = readTemplateStyles(errors, expr, toks);
 			if (tso == null)
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			consumer.accept(tso);
 			if (tso.orelse != null)
 				return new NoNestingParser(errors, "cannot nest more options inside a cond-or-else style");
 			return new TDATemplateStylingParser(errors, source, namer, tso);
 		} else {
 			errors.message(toks, "=> required for styling");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 	}
 
@@ -88,15 +84,15 @@ public class TDAParseTemplateElements {
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "event handler name required");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		else if (tok.type != ExprToken.IDENTIFIER) {
 			errors.message(tok.location, "event handler name required");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "surplus text at end of line");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		TemplateEvent ev = new TemplateEvent(tok.location, tok.text, source);
 		consumer.accept(ev);
@@ -113,7 +109,7 @@ public class TDAParseTemplateElements {
 			return null;
 		}
 		TemplateReference sendTo = null;
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			ExprToken sendToTok = ExprToken.from(errors, toks);
 			if (sendToTok != null) {
 				if ("=>".equals(sendToTok.text)) {
@@ -125,7 +121,7 @@ public class TDAParseTemplateElements {
 				}
 			} 
 		}
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
 			return null;
 		}
@@ -136,61 +132,70 @@ public class TDAParseTemplateElements {
 		List<Expr> styles = new ArrayList<>();
 		List<Expr> orelse = null;
 		List<Expr> addTo = styles;
-		while (toks.hasMoreContent()) {
-			InputPosition pos = toks.realinfo();
-			String s = StringToken.from(errors, toks);
-			if (s != null) {
-				addTo.add(new StringLiteral(pos, s));
-				continue;
-			}
-			ValidIdentifierToken var = VarNameToken.from(errors, toks);
-			if (var != null) {
-				addTo.add(new UnresolvedVar(var.location, var.text));
-				continue;
-			}
+		while (toks.hasMoreContent(errors)) {
+//			InputPosition pos = toks.realinfo();
+//			String s = StringToken.from(errors, toks);
+//			if (s != null) {
+//				addTo.add(new StringLiteral(pos, s));
+//				continue;
+//			}
+//			ValidIdentifierToken var = VarNameToken.from(errors, toks);
+//			if (var != null) {
+//				addTo.add(new UnresolvedVar(var.location, var.text));
+//				continue;
+//			}
 			ExprToken et = ExprToken.from(errors, toks);
 			if (et != null) {
-				if (et.text.equals("||")) {
-					if (expr == null) {
-						errors.message(et.location, "cannot use || without a condition");
-						return null;
-					}
-					if (orelse != null) {
-						errors.message(et.location, "cannot use || more than once");
-						return null;
-					}
-					orelse = new ArrayList<>();
-					addTo = orelse;
+				if (et.type == ExprToken.IDENTIFIER) {
+					addTo.add(new UnresolvedVar(et.location, et.text));
 					continue;
-				}
-				if (!et.text.equals("(")) {
-					errors.message(et.location, "valid style expected");
-					return null;
-				}
-				List<Expr> ret = new ArrayList<>();
-				Consumer<Expr> handler = new Consumer<Expr>() {
-					@Override
-					public void accept(Expr t) {
-						ret.add(t);
+				} else if (et.type == ExprToken.STRING) {
+					addTo.add(new StringLiteral(et.location, et.text));
+					continue;
+				} else if (et.type == ExprToken.SYMBOL) {
+					if (et.text.equals("||")) {
+						if (expr == null) {
+							errors.message(et.location, "cannot use || without a condition");
+							return null;
+						}
+						if (orelse != null) {
+							errors.message(et.location, "cannot use || more than once");
+							return null;
+						}
+						orelse = new ArrayList<>();
+						addTo = orelse;
+						continue;
 					}
-				};
-				// then it's an expression, we can allow that ...
-				TDAExpressionParser ep = new TDAExpressionParser(errors, handler);
-				ep.tryParsing(toks);
-				if (ret.size() != 1) {
-					errors.message(et.location, "valid style expected");
-					return null;
+				} else if (et.type == ExprToken.PUNC) {
+					if (et.text.equals("(")) {
+						List<Expr> ret = new ArrayList<>();
+						Consumer<Expr> handler = new Consumer<Expr>() {
+							@Override
+							public void accept(Expr t) {
+								ret.add(t);
+							}
+						};
+						// then it's an expression, we can allow that ...
+						TDAExpressionParser ep = new TDAExpressionParser(errors, handler);
+						ep.tryParsing(toks);
+						if (ret.size() != 1) {
+							errors.message(et.location, "valid style expected");
+							return null;
+						}
+						ExprToken crb = ExprToken.from(errors, toks);
+						if (crb == null) {
+							errors.message(toks, "expected )");
+							return null;
+						} else if (!crb.text.equals(")")) {
+							errors.message(crb.location, "expected )");
+							return null;
+						}
+						addTo.add(ret.get(0));
+						continue;
+					}
 				}
-				ExprToken crb = ExprToken.from(errors, toks);
-				if (crb == null) {
-					errors.message(toks, "expected )");
-					return null;
-				} else if (!crb.text.equals(")")) {
-					errors.message(crb.location, "expected )");
-					return null;
-				}
-				addTo.add(ret.get(0));
-				continue;
+				errors.message(et.location, "valid style expected");
+				return null;
 			}
 			errors.message(toks, "valid style expected");
 			return null;

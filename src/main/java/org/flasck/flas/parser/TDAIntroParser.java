@@ -45,7 +45,7 @@ public class TDAIntroParser implements TDAParsing {
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (!toks.hasMoreContent())
+		if (!toks.hasMoreContent(errors))
 			return null;
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null)
@@ -58,11 +58,11 @@ public class TDAIntroParser implements TDAParsing {
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			
 			CardName qn = namer.cardName(tn.text);
@@ -116,22 +116,22 @@ public class TDAIntroParser implements TDAParsing {
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			SolidName sn = namer.solidName(tn.text);
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
-			while (toks.hasMoreContent()) {
+			while (toks.hasMoreContent(errors)) {
 				PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 				if (ta == null) {
 					errors.message(toks, "invalid type argument");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				} else
 					polys.add(ta.asType(svn));
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "tokens after end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
 			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, sn, true, polys);
@@ -142,21 +142,21 @@ public class TDAIntroParser implements TDAParsing {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing envelope name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			ExprToken send = ExprToken.from(errors, toks);
 			if (toks == null || !"<-".equals(send.text)) {
 				errors.message(toks, "wraps must have <-");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			TypeNameToken from = TypeNameToken.qualified(errors, toks);
 			if (from == null) {
 				errors.message(toks, "invalid or missing wrapped type name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "tokens after end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			SolidName sn = namer.solidName(tn.text);
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
@@ -168,16 +168,16 @@ public class TDAIntroParser implements TDAParsing {
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			SolidName sn = namer.solidName(tn.text);
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
-			while (toks.hasMoreContent()) {
+			while (toks.hasMoreContent(errors)) {
 				PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 				if (ta == null) {
 					errors.message(toks, "invalid type argument");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				} else
 					polys.add(ta.asType(svn));
 			}
@@ -189,22 +189,22 @@ public class TDAIntroParser implements TDAParsing {
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			ObjectName on = namer.objectName(tn.text);
 			SimpleVarNamer svn = new SimpleVarNamer(on);
 			List<PolyType> polys = new ArrayList<>();
-			while (toks.hasMoreContent()) {
+			while (toks.hasMoreContent(errors)) {
 				PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 				if (ta == null) {
 					errors.message(toks, "syntax error");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				} else
 					polys.add(ta.asType(svn));
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "tokens after end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			ObjectDefn od = new ObjectDefn(kw.location, tn.location, on, true, polys);
 			consumer.newObject(errors, od);
@@ -232,18 +232,18 @@ public class TDAIntroParser implements TDAParsing {
 					break;
 				default:
 					errors.message(sh.location, "invalid contract type");
-					return new IgnoreNestedParser();
+					return new IgnoreNestedParser(errors);
 				}
 			}
 			
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "tokens after end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			ContractDecl decl = new ContractDecl(kw.location, tn.location, ct, namer.solidName(tn.text));
 			consumer.newContract(errors, decl);

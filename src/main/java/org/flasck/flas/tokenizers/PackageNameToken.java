@@ -1,6 +1,7 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 
 public class PackageNameToken {
 	public final InputPosition location;
@@ -17,8 +18,8 @@ public class PackageNameToken {
 		text = proto;
 	}
 
-	public static PackageNameToken from(Tokenizable line) {
-		line.skipWS();
+	public static PackageNameToken from(ErrorReporter errors, Tokenizable line) {
+		line.skipWS(errors);
 		if (!line.hasMore() || !Character.isJavaIdentifierStart(line.nextChar()))
 			return null;
 	

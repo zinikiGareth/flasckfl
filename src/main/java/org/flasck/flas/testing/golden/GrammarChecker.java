@@ -58,8 +58,6 @@ public class GrammarChecker {
 		} catch (FileNotFoundException e) {
 			throw WrappedException.wrap(e);
 		}
-		System.out.println(output + "::::");
-		FileUtils.cat(output);
 	}
 
 	public void checkGrammar() {

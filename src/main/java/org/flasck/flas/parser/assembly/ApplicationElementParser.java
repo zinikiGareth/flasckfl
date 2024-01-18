@@ -30,7 +30,7 @@ public class ApplicationElementParser implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "expected assembly keyword");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		
 		switch (kw.text) {
@@ -45,13 +45,13 @@ public class ApplicationElementParser implements TDAParsing {
 			return new NoNestingParser(errors);
 		}
 		case "routes": {
-			if (toks.hasMoreContent()) {
+			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "junk at end of line");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			if (this.routing != null) {
 				errors.message(kw.location, "cannot specify routing table twice");
-				return new IgnoreNestedParser();
+				return new IgnoreNestedParser(errors);
 			}
 			routing = new ApplicationRouting(errors, kw.location, namer.assemblyName(null), namer.assemblyName("Routing"));
 			consumer.routes(routing);
@@ -59,7 +59,7 @@ public class ApplicationElementParser implements TDAParsing {
 		}
 		default: {
 			errors.message(toks, "expected 'title', 'baseuri' or 'routes'");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		}
 	}

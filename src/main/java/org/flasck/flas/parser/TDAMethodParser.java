@@ -35,7 +35,7 @@ public class TDAMethodParser {
 		ValidIdentifierToken var = VarNameToken.from(errors, toks);
 		if (var == null) {
 			errors.message(toks, "no method name provided");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		FunctionName fnName = methodNamer.functionName(var.location, var.text);
 		List<Pattern> args = new ArrayList<>();
@@ -45,11 +45,11 @@ public class TDAMethodParser {
 		while (pp.tryParsing(toks) != null)
 			;
 		if (mark.hasMoreNow()) 
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		
-		if (toks.hasMoreContent()) {
+		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "extra characters at end of line");
-			return new IgnoreNestedParser();
+			return new IgnoreNestedParser(errors);
 		}
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null, holder);
 		builder.addMethod(meth);
