@@ -16,10 +16,12 @@ public class ParsedTokens implements Iterable<GrammarToken> {
 
 	public static class GrammarToken implements Comparable<GrammarToken> {
 		public final InputPosition pos;
+		public final String type;
 		public final String text;
 
-		public GrammarToken(InputPosition pos, String text) {
+		public GrammarToken(InputPosition pos, String type, String text) {
 			this.pos = pos;
+			this.type = type;
 			this.text = text;
 		}
 
@@ -30,7 +32,7 @@ public class ParsedTokens implements Iterable<GrammarToken> {
 		
 		@Override
 		public String toString() {
-			return pos.toString() + ":***" + text + "***";
+			return pos.toString() + " " + type + ":***" + text + "***";
 		}
 
 		public int lineNo() {
@@ -63,7 +65,11 @@ public class ParsedTokens implements Iterable<GrammarToken> {
 				if (pos == null)
 					pos = readPos(tokens.getName(), s);
 				else {
-					ret.tokens.add(readToken(pos, s));
+					GrammarToken tok = readToken(pos, s);
+					if (ret.tokens.contains(tok)) {
+						ret.tokens.remove(tok);
+					}
+					ret.tokens.add(tok);
 					pos = null;
 				}
 			}
@@ -86,7 +92,7 @@ public class ParsedTokens implements Iterable<GrammarToken> {
 
 	private static GrammarToken readToken(InputPosition pos, String s) {
 		int idx = s.indexOf(" ");
-		return new GrammarToken(pos, s.substring(idx+1));
+		return new GrammarToken(pos, s.substring(0, idx), s.substring(idx+1));
 	}
 	
 	@Override
