@@ -8,6 +8,8 @@ import java.util.List;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.FLASError;
@@ -97,5 +99,14 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 	public <T extends LoggableToken> T logParsingToken(T token) {
 		// hard to know if we want to do anything or not...
 		return token;
+	}
+
+	@Override
+	public void logReduction(String ruleId, Locatable from, Locatable to) {
+		logReduction(ruleId, from.location(), to.location());
+	}
+
+	@Override
+	public void logReduction(String ruleId, InputPosition from, InputPosition to) {
 	}
 }

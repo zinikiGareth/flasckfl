@@ -72,6 +72,7 @@ public class TDAFunctionParser implements TDAParsing {
 		}
 		List<FunctionCaseDefn> fcds = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
+			errors.logReduction("function-case-defn", t, e);
 			final FunctionCaseDefn fcd = new FunctionCaseDefn(null, e);
 			fcds.add(fcd);
 			intro.functionCase(fcd);

@@ -14,6 +14,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 	public class ParenCloseRewriter implements ExprTermConsumer {
 		private final InputPosition from;
 		private final String op;
+		private Expr endToken;
 		private int end;
 		private final List<Expr> terms = new ArrayList<>();
 		private String currentVar;
@@ -29,6 +30,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		}
 		
 		public void endAt(Expr term) {
+			endToken = term;
 			end = term.location().pastEnd();
 		}
 
@@ -58,15 +60,20 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			if (terms.size() == 0) {
 				if (op.equals("()"))
 					errors.message(from, "empty tuples are not permitted");
-				else
+				else {
+					errors.logReduction("empty-list-or-hash", from, endToken.location());
 					builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(from, op)));
+				}
 				return;
 			}
 			final Expr ae = terms.get(0);
-			if (terms.size() == 1 && op.equals("()"))
+			if (terms.size() == 1 && op.equals("()")) {
+				errors.logReduction("parenthesis-expr", from, endToken.location());
 				builder.term(ae);
-			else
+			} else {
+				errors.logReduction("tuple-list-or-hash", from, endToken.location());
 				builder.term(new ApplyExpr(ae.location().copySetEnd(end), new UnresolvedOperator(ae.location(), op), terms.toArray()));
+			}
 		}
 
 		@Override

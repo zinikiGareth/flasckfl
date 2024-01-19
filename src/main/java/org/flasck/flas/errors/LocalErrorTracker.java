@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
@@ -89,5 +90,15 @@ public class LocalErrorTracker implements ErrorReporter {
 	@Override
 	public <T extends LoggableToken> T logParsingToken(T token) {
 		return other.logParsingToken(token);
+	}
+
+	@Override
+	public void logReduction(String ruleId, Locatable from, Locatable to) {
+		logReduction(ruleId, from.location(), to.location());
+	}
+
+	@Override
+	public void logReduction(String ruleId, InputPosition from, InputPosition to) {
+		other.logReduction(ruleId, from, to);
 	}
 }

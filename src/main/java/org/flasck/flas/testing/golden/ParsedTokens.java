@@ -4,17 +4,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
+import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.NotImplementedException;
 
-public class ParsedTokens implements Iterable<GrammarToken> {
+public class ParsedTokens {
 
-	public static class GrammarToken implements Comparable<GrammarToken> {
+	public interface GrammarStep {
+
+	}
+
+	public static class GrammarToken implements GrammarStep, Comparable<GrammarToken> {
 		public final InputPosition pos;
 		public final String type;
 		public final String text;
@@ -28,11 +32,6 @@ public class ParsedTokens implements Iterable<GrammarToken> {
 		@Override
 		public int compareTo(GrammarToken o) {
 			return pos.compareTo(o.pos);
-		}
-		
-		@Override
-		public String toString() {
-			return pos.toString() + " " + type + ":***" + text + "***";
 		}
 
 		public int lineNo() {
@@ -50,27 +49,94 @@ public class ParsedTokens implements Iterable<GrammarToken> {
 		public int offset() {
 			return pos.off;
 		}
+		
+		@Override
+		public String toString() {
+			return pos.toString() + " " + type + ":***" + text + "***";
+		}
+	}
+
+	public static class ReductionRule implements GrammarStep, Comparable<ReductionRule> {
+		private final String rule;
+		private InputPosition first;
+		private InputPosition last;
+		private int lineNumber;
+
+		public ReductionRule(String rule) {
+			this.rule = rule;
+		}
+
+		public void range(InputPosition first, InputPosition last) {
+			this.first = first;
+			this.last = last;
+		}
+		
+		public void lineNo(int lineNumber) {
+			this.lineNumber = lineNumber;
+		}
+
+		@Override
+		public int compareTo(ReductionRule o) {
+//			int cmp;
+//			cmp = this.last.compareTo(o.last);
+//			if (cmp != 0)
+//				return cmp;
+//			cmp = this.first.compareTo(o.first);
+//			if (cmp != 0)
+//				return cmp;
+			return Integer.compare(this.lineNumber, o.lineNumber);
+		}
+
+		@Override
+		public String toString() {
+			return rule + ": " + first + " -- " + last;
+		}
+
+		public boolean includes(InputPosition pos) {
+			return pos.compareTo(first) >= 0 && pos.compareTo(last) <= 0;
+		}
+
+		public InputPosition start() {
+			return first;
+		}
 	}
 
 	private Set<GrammarToken> tokens = new TreeSet<>();
+	private Set<ReductionRule> reductions = new TreeSet<>();
+
 	private ParsedTokens() {
 	}
 
 	public static ParsedTokens read(File tokens) {
+		String inFile = tokens.getName();
 		ParsedTokens ret = new ParsedTokens();
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(tokens))) {
 			String s;
 			InputPosition pos = null;
+			ReductionRule pendingRule = null;
 			while ((s = lnr.readLine()) != null) {
-				if (pos == null)
-					pos = readPos(tokens.getName(), s);
-				else {
-					GrammarToken tok = readToken(pos, s);
-					if (ret.tokens.contains(tok)) {
-						ret.tokens.remove(tok);
-					}
-					ret.tokens.add(tok);
+				if (pendingRule != null) {
+					pendingRule.range(pos, readPos(inFile, s));
+					System.out.println("end tok " + s);
+					ret.reductions.add(pendingRule);
+					pendingRule = null;
 					pos = null;
+				} else if (pos == null)
+					pos = readPos(inFile, s);
+				else {
+					GrammarStep step = readToken(pos, s);
+					if (step instanceof GrammarToken) {
+						GrammarToken tok = (GrammarToken) step;
+						if (ret.tokens.contains(tok)) {
+							ret.tokens.remove(tok);
+						}
+						ret.tokens.add(tok);
+						pos = null;
+					} else if (step instanceof ReductionRule) {
+						pendingRule = (ReductionRule)step;
+						pendingRule.lineNo(lnr.getLineNumber());
+					} else
+						throw new NotImplementedException();
 				}
 			}
 		} catch (IOException e) {
@@ -90,13 +156,23 @@ public class ParsedTokens implements Iterable<GrammarToken> {
 		return new InputPosition(file, line, offset, new Indent(tabs, spaces), s);
 	}
 
-	private static GrammarToken readToken(InputPosition pos, String s) {
-		int idx = s.indexOf(" ");
-		return new GrammarToken(pos, s.substring(0, idx), s.substring(idx+1));
+	private static GrammarStep readToken(InputPosition pos, String s) {
+		if (s.startsWith("token ")) {
+			int idx = s.indexOf(" ")+1;
+			int idx2 = s.indexOf(" ", idx);
+			return new GrammarToken(pos, s.substring(idx, idx2), s.substring(idx2+1));
+		} else if (s.startsWith("reduction ")) {
+			int idx = s.indexOf(" ")+1;
+			return new ReductionRule(s.substring(idx));
+		} else
+			throw new CantHappenException("what is this? " + s);
 	}
 	
-	@Override
-	public Iterator<GrammarToken> iterator() {
-		return tokens.iterator();
+	public Iterable<GrammarToken> tokens() {
+		return tokens;
+	}
+	
+	public Iterable<ReductionRule> reductions() {
+		return reductions;
 	}
 }

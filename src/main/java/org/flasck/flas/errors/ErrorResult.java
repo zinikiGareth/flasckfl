@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.utils.Justification;
@@ -134,16 +135,33 @@ public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<
 	@Override
 	public <T extends LoggableToken> T logParsingToken(T token) {
 		if (tokenStream != null) {
-			InputPosition pos = token.location();
-			tokenStream.print(pos.lineNo + ":");
-			if (pos.indent != null)
-				tokenStream.print(pos.indent.tabs+"."+pos.indent.spaces);
-			else
-				tokenStream.print("0.0");
-			tokenStream.println(":" + pos.off);
-			tokenStream.println(token.type() + " " + token.text());
+			logLocation(token.location());
+			tokenStream.println("token " + token.type() + " " + token.text());
 		}
 		return token;
+	}
+
+	@Override
+	public void logReduction(String ruleId, Locatable from, Locatable to) {
+		logReduction(ruleId, from.location(), to.location());
+	}
+
+	@Override
+	public void logReduction(String ruleId, InputPosition from, InputPosition to) {
+		if (tokenStream != null) {
+			logLocation(from);
+			tokenStream.println("reduction " + ruleId);
+			logLocation(to);
+		}
+	}
+
+	private void logLocation(InputPosition pos) {
+		tokenStream.print(pos.lineNo + ":");
+		if (pos.indent != null)
+			tokenStream.print(pos.indent.tabs+"."+pos.indent.spaces);
+		else
+			tokenStream.print("0.0");
+		tokenStream.println(":" + pos.off);
 	}
 	
 	public void closeTokenStream() {

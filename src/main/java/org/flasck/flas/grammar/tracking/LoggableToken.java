@@ -1,9 +1,8 @@
 package org.flasck.flas.grammar.tracking;
 
-import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 
-public interface LoggableToken {
-	public InputPosition location();
+public interface LoggableToken extends Locatable {
 	public String type();
 	public String text();
 }
