@@ -23,8 +23,9 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class TDACardElementsParser extends TDAAgentElementsParser {
-	public TDACardElementsParser(ErrorReporter errors, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
-		super(errors, namer, consumer, topLevel, holder);
+
+	public TDACardElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
+		super(errors, kwloc, namer, consumer, topLevel, holder);
 	}
 
 	@Override
@@ -123,6 +124,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		errors.logReduction("card-definition", kwloc, lastInner != null ? lastInner : kwloc);
 	}
 
 	@Override

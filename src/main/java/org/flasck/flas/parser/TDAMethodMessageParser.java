@@ -64,6 +64,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 		}
+		errors.logReduction("method-message-send", arrowPos, toks.realinfo());
 		return nestedParser;
 	}
 
@@ -107,6 +108,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser(errors);
 		}
+		errors.logReduction("method-message-send", tok.location, toks.realinfo());
 		return nestedParser;
 	}
 

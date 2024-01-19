@@ -78,15 +78,16 @@ public class TDAIntroParser implements TDAParsing {
 				hb = agent;
 				state = agent;
 				consumer.newAgent(errors, agent);
-				sh = errors -> new TDAAgentElementsParser(errors, new ObjectNestedNamer(qn), agent, consumer, agent);
+				sh = errors -> new TDAAgentElementsParser(errors, kw.location, new ObjectNestedNamer(qn), agent, consumer, agent);
 				break;
 			}
 			case "card": {
 				CardDefinition card = new CardDefinition(kw.location, tn.location, qn);
 				hb = card;
 				state = card;
+				errors.logReduction("card-declaration", kw.location, tn.location);
 				consumer.newCard(errors, card);
-				sh = errors -> new TDACardElementsParser(errors, new ObjectNestedNamer(qn), card, consumer, card);
+				sh = errors -> new TDACardElementsParser(errors, kw.location, new ObjectNestedNamer(qn), card, consumer, card);
 				break;
 			}
 			case "service": {

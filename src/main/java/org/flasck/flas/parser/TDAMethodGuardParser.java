@@ -58,6 +58,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			}
 			GuardedMessages dgm = new GuardedMessages(tok.location, null);
 			consumer.guard(dgm);
+			errors.logReduction("method-guard-default", tok.location, tok.location);
 			seenDefault = true;
 			return new TDAMethodMessageParser(errors, dgm, nestedParser);
 		}
@@ -72,6 +73,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			return new IgnoreNestedParser(errors);
 		}
 		firstGuard = false;
+		errors.logReduction("method-guard-default", tok.location, seen.get(seen.size()-1).location());
 		return new TDAMethodMessageParser(errors, seen.get(0), nestedParser);
 
 	}

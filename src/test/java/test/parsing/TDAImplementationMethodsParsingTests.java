@@ -39,6 +39,7 @@ public class TDAImplementationMethodsParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 		parser = new TDAImplementationMethodsParser(errors, namer, consumer, topLevel, null);
 	}

@@ -22,14 +22,17 @@ import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider {
 	protected final ErrorReporter errors;
+	protected final InputPosition kwloc;
 	protected final TemplateNamer namer;
 	protected final AgentElementsConsumer consumer;
 	protected final TopLevelDefinitionConsumer topLevel;
 	protected final StateHolder holder;
 	private boolean seenState;
+	protected InputPosition lastInner;
 
-	public TDAAgentElementsParser(ErrorReporter errors, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
+	public TDAAgentElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
 		this.errors = errors;
+		this.kwloc = kwloc;
 		this.namer = namer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
@@ -112,9 +115,12 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName cin = namer.csn(tn.location, "C");
 			final ImplementsContract ci = new ImplementsContract(kw.location, tn.location, (NamedType)consumer, ctr, cin);
+			errors.logReduction("agent-implements-contract", kw.location, tn.location);
+			lastInner = kw.location;
 			consumer.addContractImplementation(ci);
 			topLevel.newContractImpl(errors, ci);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel, ci);
+			ImplementationMethodConsumer imc = om -> { ci.addImplementationMethod(om); lastInner = om.location(); };
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), imc, topLevel, ci);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
