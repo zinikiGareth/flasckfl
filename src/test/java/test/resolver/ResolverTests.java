@@ -190,7 +190,7 @@ public class ResolverTests {
 		}});
 		final UnresolvedVar var = new UnresolvedVar(pos, "x");
 		final FunctionIntro intro = new FunctionIntro(nameF, new ArrayList<>());
-		intro.functionCase(new FunctionCaseDefn(intro, null, var));
+		intro.functionCase(new FunctionCaseDefn(pos, intro, null, var));
 		fn.intro(intro);
 		Resolver r = new RepositoryResolver(errors, rr);
 		Traverser t = new Traverser(r);
@@ -224,7 +224,7 @@ public class ResolverTests {
 		}});
 		final UnresolvedVar var = new UnresolvedVar(pos, "x");
 		final FunctionIntro intro = new FunctionIntro(nameF, new ArrayList<>());
-		intro.functionCase(new FunctionCaseDefn(intro, var, new StringLiteral(pos, "hello")));
+		intro.functionCase(new FunctionCaseDefn(pos, intro, var, new StringLiteral(pos, "hello")));
 		fn.intro(intro);
 		Resolver r = new RepositoryResolver(errors, rr);
 		Traverser t = new Traverser(r);
@@ -457,7 +457,7 @@ public class ResolverTests {
 		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, null);
 		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
 		acorFn.intro(fi);
-		fi.functionCase(new FunctionCaseDefn(intro, null, new UnresolvedVar(pos, "fld")));
+		fi.functionCase(new FunctionCaseDefn(pos, intro, null, new UnresolvedVar(pos, "fld")));
 		ObjectAccessor oa = new ObjectAccessor(s, acorFn);
 		s.acors.add(oa);
 

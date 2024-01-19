@@ -13,8 +13,10 @@ public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 	public final FunctionIntro intro;
 	public final Expr guard;
 	public final Expr expr;
+	public final InputPosition location;
 
-	public FunctionCaseDefn(FunctionIntro intro, Expr guard, Expr expr) {
+	public FunctionCaseDefn(InputPosition location, FunctionIntro intro, Expr guard, Expr expr) {
+		this.location = location;
 		this.intro = intro;
 		this.guard = guard;
 		if (expr == null)
@@ -24,7 +26,7 @@ public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 
 	@Override
 	public InputPosition location() {
-		return intro.location;
+		return location;
 	}
 
 	public int nargs() {

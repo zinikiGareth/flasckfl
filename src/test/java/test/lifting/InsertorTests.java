@@ -103,20 +103,20 @@ public class InsertorTests {
 		UnresolvedVar gr = new UnresolvedVar(pos, "g");
 		gr.bind(fnG);
 		FunctionIntro fiF = new FunctionIntro(nameF, new ArrayList<>());
-		fiF.cases().add(new FunctionCaseDefn(intro, null, gr));
+		fiF.cases().add(new FunctionCaseDefn(pos, intro, null, gr));
 		fnF.intro(fiF);
 
 		UnresolvedVar hr = new UnresolvedVar(pos, "h");
 		hr.bind(fnH);
 		FunctionIntro fiG = new FunctionIntro(nameG, new ArrayList<>());
-		fiG.cases().add(new FunctionCaseDefn(intro, null, hr));
+		fiG.cases().add(new FunctionCaseDefn(pos, intro, null, hr));
 		fnG.intro(fiG);
 
 		UnresolvedVar xr = new UnresolvedVar(pos, "x");
 		xr.bind(tp);
 
 		FunctionIntro fiH = new FunctionIntro(nameH, new ArrayList<>());
-		fiG.cases().add(new FunctionCaseDefn(intro, null, xr));
+		fiG.cases().add(new FunctionCaseDefn(pos, intro, null, xr));
 		fnH.intro(fiH);
 
 		RepositoryLifter lifter = new RepositoryLifter();

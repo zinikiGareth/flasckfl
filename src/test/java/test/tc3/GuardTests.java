@@ -69,7 +69,7 @@ public class GuardTests {
 		fn.intro(fi);
 		Expr test = new UnresolvedVar(pos, "True");
 		Expr res = new UnresolvedVar(pos, "x");
-		FunctionCaseDefn fic1 = new FunctionCaseDefn(intro, test, res);
+		FunctionCaseDefn fic1 = new FunctionCaseDefn(pos, intro, test, res);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "test.repo.fred slot ArgSlot[0]");

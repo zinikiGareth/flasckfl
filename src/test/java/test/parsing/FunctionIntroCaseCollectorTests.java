@@ -22,7 +22,7 @@ public class FunctionIntroCaseCollectorTests {
 	@Test
 	public void aSimpleIntroByItselfIsAssembled() {
 		FunctionIntro intro = new FunctionIntro(FunctionName.function(pos, pkg, "foo"), new ArrayList<>());
-		intro.functionCase(new FunctionCaseDefn(intro, null, new StringLiteral(pos, "hello")));
+		intro.functionCase(new FunctionCaseDefn(pos, intro, null, new StringLiteral(pos, "hello")));
 		assertEquals(1, intro.cases().size());
 	}
 	

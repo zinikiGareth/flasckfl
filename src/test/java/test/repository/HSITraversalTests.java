@@ -50,7 +50,7 @@ public class HSITraversalTests {
 		VarPattern vp = new VarPattern(pos, vx);
 		CaptureAction slots = new CaptureAction(null);
 		CaptureAction boundSlot = new CaptureAction(null);
-		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, number);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(pos, intro, null, number);
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
@@ -84,7 +84,7 @@ public class HSITraversalTests {
 	public void aConstantConstructorForcesATypeErrorCase() {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1, null);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, number);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(pos, intro, null, number);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		
@@ -121,7 +121,7 @@ public class HSITraversalTests {
 	public void aTypeAnnotationBehavesMuchLikeAConstructorWithoutArgs() {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1, null);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, number);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(pos, intro, null, number);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		

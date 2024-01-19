@@ -48,7 +48,7 @@ public class GuardGenerationJS {
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
 		NumericLiteral expr = new NumericLiteral(pos, "42", 2);
-		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, t, expr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(pos, intro, t, expr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 
@@ -91,10 +91,10 @@ public class GuardGenerationJS {
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
 		NumericLiteral expr = new NumericLiteral(pos, "42", 2);
-		FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, t, expr);
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(pos, intro, t, expr);
 		fi.functionCase(fcd1);
 		StringLiteral expr2 = new StringLiteral(pos, "hello");
-		FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, t, expr2);
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(pos, intro, t, expr2);
 		fi.functionCase(fcd2);
 		fn.intro(fi);
 
@@ -145,11 +145,11 @@ public class GuardGenerationJS {
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
 		NumericLiteral expr = new NumericLiteral(pos, "42", 2);
-		FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, t, expr);
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(pos, intro, t, expr);
 		fi.functionCase(fcd1);
 		UnresolvedVar f = new UnresolvedVar(pos, "False");
 		f.bind(LoadBuiltins.falseT);
-		FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, f, expr);
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(pos, intro, f, expr);
 		fi.functionCase(fcd2);
 		fn.intro(fi);
 

@@ -87,7 +87,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 			} else {
 				errors.logReduction("function-case-default", tok.location, e.location());
 			}
-			final FunctionCaseDefn fcd = new FunctionCaseDefn(intro, guard, e);
+			final FunctionCaseDefn fcd = new FunctionCaseDefn(tok.location, intro, guard, e);
 			fcds.add(fcd);
 			consumer.functionCase(fcd);
 			cases.add(fcd);
