@@ -31,11 +31,13 @@ public class TDAUnionParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
+	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 
 	@Before
 	public void ignoreParserLogging() {
 		context.checking(new Expectations() {{
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 	}
 
@@ -111,7 +113,7 @@ public class TDAUnionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addCase(with(TypeReferenceMatcher.type("Nil")));
 		}});
-		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, consumer);
+		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, pos, consumer);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("Nil"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
@@ -122,7 +124,7 @@ public class TDAUnionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addCase(with(TypeReferenceMatcher.type("Cons").poly("A")));
 		}});
-		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, consumer);
+		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, pos, consumer);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("Cons[A]"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
@@ -134,14 +136,14 @@ public class TDAUnionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "tokens beyond end of line");
 		}});
-		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, consumer);
+		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, pos, consumer);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test
 	public void unionFieldParserDoesNothingAtEnd() {
-		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, null);
+		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, pos, null);
 		parser.scopeComplete(new InputPosition("-", 10, 0, null, "hello"));
 	}
 }

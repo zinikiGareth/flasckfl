@@ -11,9 +11,11 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDAUnionFieldParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final UnionFieldConsumer consumer;
+	private final InputPosition kwloc;
 
-	public TDAUnionFieldParser(ErrorReporter errors, UnionFieldConsumer consumer) {
+	public TDAUnionFieldParser(ErrorReporter errors, InputPosition kwloc, UnionFieldConsumer consumer) {
 		this.errors = errors;
+		this.kwloc = kwloc;
 		this.consumer = consumer;
 	}
 
@@ -31,12 +33,15 @@ public class TDAUnionFieldParser implements TDAParsing {
 			errors.message(toks, "tokens beyond end of line");
 			return new IgnoreNestedParser(errors);
 		}
-		consumer.addCase(types.get(0));
+		TypeReference ty = types.get(0);
+		errors.logReduction("union-member", ty, ty);
+		consumer.addCase(ty);
 		return new NoNestingParser(errors);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		errors.logReduction("union-with-members", kwloc, location);
 	}
 
 }

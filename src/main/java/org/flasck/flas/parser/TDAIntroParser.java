@@ -183,9 +183,10 @@ public class TDAIntroParser implements TDAParsing {
 				} else
 					polys.add(ta.asType(svn));
 			}
+			errors.logReduction("union-defn", kw.location, tn.location);
 			final UnionTypeDefn ud = new UnionTypeDefn(tn.location, true, namer.solidName(tn.text), polys);
 			consumer.newUnion(errors, ud);
-			return new TDAUnionFieldParser(errors, ud);
+			return new TDAUnionFieldParser(errors, kw.location, ud);
 		}
 		case "object": {
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
