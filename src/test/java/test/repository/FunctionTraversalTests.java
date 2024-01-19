@@ -36,8 +36,9 @@ public class FunctionTraversalTests {
 	final Repository r = new Repository();
 	final RepositoryVisitor v = context.mock(RepositoryVisitor.class);
 	final UnresolvedVar var = new UnresolvedVar(pos, "x");
-	final FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, var);
-	final FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, new ApplyExpr(pos, var, number));
+	private final FunctionIntro intro = null;
+	final FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, null, var);
+	final FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, null, new ApplyExpr(pos, var, number));
 	final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Before

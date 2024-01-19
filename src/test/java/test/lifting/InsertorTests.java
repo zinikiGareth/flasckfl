@@ -37,6 +37,7 @@ public class InsertorTests {
 	InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	PackageName pkg = new PackageName("test.foo");
 	HSIVisitor hsi = context.mock(HSIVisitor.class);
+	private final FunctionIntro intro = null;
 
 	@Test
 	public void aFunctionWithNestedVarsGetsThemWhenTraversingPatterns() {
@@ -102,20 +103,20 @@ public class InsertorTests {
 		UnresolvedVar gr = new UnresolvedVar(pos, "g");
 		gr.bind(fnG);
 		FunctionIntro fiF = new FunctionIntro(nameF, new ArrayList<>());
-		fiF.cases().add(new FunctionCaseDefn(null, gr));
+		fiF.cases().add(new FunctionCaseDefn(intro, null, gr));
 		fnF.intro(fiF);
 
 		UnresolvedVar hr = new UnresolvedVar(pos, "h");
 		hr.bind(fnH);
 		FunctionIntro fiG = new FunctionIntro(nameG, new ArrayList<>());
-		fiG.cases().add(new FunctionCaseDefn(null, hr));
+		fiG.cases().add(new FunctionCaseDefn(intro, null, hr));
 		fnG.intro(fiG);
 
 		UnresolvedVar xr = new UnresolvedVar(pos, "x");
 		xr.bind(tp);
 
 		FunctionIntro fiH = new FunctionIntro(nameH, new ArrayList<>());
-		fiG.cases().add(new FunctionCaseDefn(null, xr));
+		fiG.cases().add(new FunctionCaseDefn(intro, null, xr));
 		fnH.intro(fiH);
 
 		RepositoryLifter lifter = new RepositoryLifter();

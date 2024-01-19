@@ -65,7 +65,8 @@ public class ExpressionGenerationJS {
 	private final PackageName pkg = new PackageName("test.repo");
 	private JSFunctionState state = context.mock(JSFunctionState.class);
 	private JSExpr res = context.mock(JSExpr.class, "result");
-	
+	private final FunctionIntro intro = null;
+
 	@Test
 	public void aSimpleInteger() {
 		JSExpr r = context.mock(JSExpr.class, "r");
@@ -316,7 +317,7 @@ public class ExpressionGenerationJS {
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, expr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSIArgsTree hsi = new HSIArgsTree(0);
@@ -346,7 +347,7 @@ public class ExpressionGenerationJS {
 		om.sendMessage(new SendMessage(pos, expr));
 		StandaloneMethod sm = new StandaloneMethod(om);
 		FunctionIntro fi = new FunctionIntro(fnName, new ArrayList<>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, expr);
 		fi.functionCase(fcd);
 		om.conversion(Arrays.asList(fi));
 		HSIArgsTree hsi = new HSIArgsTree(0);

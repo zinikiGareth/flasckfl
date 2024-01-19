@@ -56,7 +56,8 @@ public class TDAFunctionParser implements TDAParsing {
 		final FunctionIntro intro = new FunctionIntro(fcase, args);
 		consumer.functionIntro(intro);
 		if (!line.hasMoreContent(errors)) {
-			return new TDAFunctionGuardedEquationParser(errors, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder));
+			errors.logReduction("function-intro-no-expr", intro.location, line.realinfo());
+			return new TDAFunctionGuardedEquationParser(errors, intro, intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder));
 		}
 		ExprToken tok = ExprToken.from(errors, line);
 		if (tok == null) {
@@ -73,7 +74,7 @@ public class TDAFunctionParser implements TDAParsing {
 		List<FunctionCaseDefn> fcds = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
 			errors.logReduction("function-case-defn", t, e);
-			final FunctionCaseDefn fcd = new FunctionCaseDefn(null, e);
+			final FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, e);
 			fcds.add(fcd);
 			intro.functionCase(fcd);
 		}).tryParsing(line);
@@ -81,6 +82,7 @@ public class TDAFunctionParser implements TDAParsing {
 		if (fcds.isEmpty())
 			return new IgnoreNestedParser(errors);
 
+		errors.logReduction("function-intro-with-expr", intro.location, line.realinfo());
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, holder);
 		return ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder);
 	}

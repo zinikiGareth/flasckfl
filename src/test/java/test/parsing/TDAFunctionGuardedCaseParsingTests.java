@@ -1,9 +1,13 @@
 package test.parsing;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.TDAFunctionGuardedEquationParser;
@@ -24,6 +28,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 	private FunctionGuardedEquationConsumer consumer = context.mock(FunctionGuardedEquationConsumer.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private TDAFunctionGuardedEquationParser parser;
+	private FunctionIntro intro = new FunctionIntro(FunctionName.function(pos, null, "f"), new ArrayList<>());
 
 	@Before
 	public void setup() {
@@ -33,7 +38,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 			allowing(errorsMock).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 			allowing(errorsMock).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
-		parser = new TDAFunctionGuardedEquationParser(errors, pos, consumer, loonp);
+		parser = new TDAFunctionGuardedEquationParser(errors, intro , consumer, loonp);
 	}
 
 	@Test

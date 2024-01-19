@@ -8,21 +8,22 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAFunctionGuardedEquationParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final InputPosition introStart;
+	private final FunctionIntro intro;
 	private final FunctionGuardedEquationConsumer consumer;
 	private final List<FunctionCaseDefn> cases = new ArrayList<>();
 	private InputPosition haveDefault;
 	private LastOneOnlyNestedParser nestedParser;
 	private boolean reportedDefault;
 
-	public TDAFunctionGuardedEquationParser(ErrorReporter errors, InputPosition introStart, FunctionGuardedEquationConsumer consumer, LastOneOnlyNestedParser nestedParser) {
+	public TDAFunctionGuardedEquationParser(ErrorReporter errors, FunctionIntro intro, FunctionGuardedEquationConsumer consumer, LastOneOnlyNestedParser nestedParser) {
 		this.errors = errors;
-		this.introStart = introStart;
+		this.intro = intro;
 		this.consumer = consumer;
 		this.nestedParser = nestedParser;
 	}
@@ -86,7 +87,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 			} else {
 				errors.logReduction("function-case-default", tok.location, e.location());
 			}
-			final FunctionCaseDefn fcd = new FunctionCaseDefn(guard, e);
+			final FunctionCaseDefn fcd = new FunctionCaseDefn(intro, guard, e);
 			fcds.add(fcd);
 			consumer.functionCase(fcd);
 			cases.add(fcd);
@@ -98,7 +99,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 	@Override
 	public void scopeComplete(InputPosition location) {
 		if (cases.isEmpty() && !errors.hasErrors()) {
-			errors.message(introStart, "no function cases specified");
+			errors.message(intro.location, "no function cases specified");
 			consumer.breakIt();
 		}
 	}

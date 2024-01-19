@@ -39,6 +39,7 @@ public class HSITraversalTests {
 	final HSIVisitor v = context.mock(HSIVisitor.class);
 	final FunctionName fname = FunctionName.function(pos, pkg, "f");
 	final Traverser t = new Traverser(v).withHSI();
+	private final FunctionIntro intro = null;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
@@ -49,7 +50,7 @@ public class HSITraversalTests {
 		VarPattern vp = new VarPattern(pos, vx);
 		CaptureAction slots = new CaptureAction(null);
 		CaptureAction boundSlot = new CaptureAction(null);
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, number);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, number);
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
@@ -83,7 +84,7 @@ public class HSITraversalTests {
 	public void aConstantConstructorForcesATypeErrorCase() {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1, null);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, number);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, number);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		
@@ -120,7 +121,7 @@ public class HSITraversalTests {
 	public void aTypeAnnotationBehavesMuchLikeAConstructorWithoutArgs() {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1, null);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, number);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, number);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		

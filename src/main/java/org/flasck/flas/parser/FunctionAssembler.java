@@ -10,7 +10,8 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 	private final ErrorReporter errors;
 	private final FunctionScopeUnitConsumer consumer;
 	private final StateHolder holder;
-	private FunctionDefinition curr;
+	private FunctionDefinition fn;
+	private FunctionIntro curr;
 	private boolean broken;
 
 	public FunctionAssembler(ErrorReporter errors, FunctionScopeUnitConsumer consumer, StateHolder holder) {
@@ -21,8 +22,8 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 
 	@Override
 	public int nextCaseNumber(FunctionName fname) {
-		if (curr != null && curr.name().uniqueName().equals(fname.uniqueName()))
-			return curr.intros().size() + 1;
+		if (fn != null && fn.name().uniqueName().equals(fname.uniqueName()))
+			return fn.intros().size() + 1;
 		else
 			return 1;
 	}
@@ -30,24 +31,41 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 	@Override
 	public void functionIntro(FunctionIntro next) {
 		FunctionName fname = (FunctionName) next.name().inContext;
-		if (curr == null || !fname.equals(curr.name())) {
-			if (curr != null)
-				consumer.functionDefn(errors, curr);
-			curr = new FunctionDefinition(fname, next.args.size(), holder);
-			broken = false;
+		if (curr != null)
+			reduceIntro();
+		if (fn != null && !fname.equals(fn.name())) {
+			reduceFunction();
 		}
-		if (curr.argCount() != next.args.size()) {
+		if (fn == null) {
+			fn = new FunctionDefinition(fname, next.args.size(), holder);
+		} else if (fn.argCount() != next.args.size()) {
 			errors.message(next.location, "inconsistent number of formal parameters");
 			broken = true;
 			return;
 		}
-		curr.intro(next);
+		fn.intro(next);
+		curr = next;
 	}
 
 	@Override
 	public void moveOn() {
-		if (!broken && curr != null)
-			consumer.functionDefn(errors, curr);
+		if (fn != null) {
+			reduceIntro();
+			reduceFunction();
+		}
+	}
+	
+	private void reduceIntro() {
+		if (!curr.cases().isEmpty())
+			errors.logReduction("function-intro", curr, curr.cases().get(curr.cases().size()-1));
+	}
+
+	private void reduceFunction() {
+		if (!broken && fn != null) {
+			consumer.functionDefn(errors, fn);
+			errors.logReduction("function-from-intros", fn, fn.intros().get(fn.intros().size()-1));
+		}
+		fn = null;
 		curr = null;
 		broken = false;
 	}

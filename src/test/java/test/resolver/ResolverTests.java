@@ -90,6 +90,7 @@ public class ResolverTests {
 	private final ContractMethodDecl cmu = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "u"), new ArrayList<>(), null);
 	private final ContractDecl ht = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(pkg, "HandlerType"));
 	private final RepositoryReader rr = context.mock(RepositoryReader.class);
+	private final FunctionIntro intro = null;
 
 	@Before
 	public void doAttaching() {
@@ -189,7 +190,7 @@ public class ResolverTests {
 		}});
 		final UnresolvedVar var = new UnresolvedVar(pos, "x");
 		final FunctionIntro intro = new FunctionIntro(nameF, new ArrayList<>());
-		intro.functionCase(new FunctionCaseDefn(null, var));
+		intro.functionCase(new FunctionCaseDefn(intro, null, var));
 		fn.intro(intro);
 		Resolver r = new RepositoryResolver(errors, rr);
 		Traverser t = new Traverser(r);
@@ -223,7 +224,7 @@ public class ResolverTests {
 		}});
 		final UnresolvedVar var = new UnresolvedVar(pos, "x");
 		final FunctionIntro intro = new FunctionIntro(nameF, new ArrayList<>());
-		intro.functionCase(new FunctionCaseDefn(var, new StringLiteral(pos, "hello")));
+		intro.functionCase(new FunctionCaseDefn(intro, var, new StringLiteral(pos, "hello")));
 		fn.intro(intro);
 		Resolver r = new RepositoryResolver(errors, rr);
 		Traverser t = new Traverser(r);
@@ -456,7 +457,7 @@ public class ResolverTests {
 		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, null);
 		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
 		acorFn.intro(fi);
-		fi.functionCase(new FunctionCaseDefn(null, new UnresolvedVar(pos, "fld")));
+		fi.functionCase(new FunctionCaseDefn(intro, null, new UnresolvedVar(pos, "fld")));
 		ObjectAccessor oa = new ObjectAccessor(s, acorFn);
 		s.acors.add(oa);
 

@@ -52,6 +52,7 @@ public class TreeOrderTraversalTests {
 	final TreeOrderVisitor v = context.mock(TreeOrderVisitor.class);
 	// TODO: the function groups here is not interesting - but it can be applied on a case-by-case basis and is really just an excuse to write this comment to remind me to write some tests like that later ...
 	final Traverser t = new Traverser(v).withNestedPatterns().withFunctionsInDependencyGroups(new FunctionGroupOrdering(new ArrayList<FunctionGroup>()));
+	private final FunctionIntro intro = null;
 
 	@Test
 	public void aVeryDullFunctionHasAlmostNothingToDo() {
@@ -73,11 +74,11 @@ public class TreeOrderTraversalTests {
 	public void aFunctionWithTwoIntrosVisitsAllCasesEvenWithoutPatterns() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 0, null);
 		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>());
-		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, simpleExpr);
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, null, simpleExpr);
 		fi1.functionCase(fcd1);
 		fn.intro(fi1);
 		FunctionIntro fi2 = new FunctionIntro(nameF, new ArrayList<>());
-		FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, number);
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, null, number);
 		fi2.functionCase(fcd2);
 		fn.intro(fi2);
 		fn.bindHsi(new HSIArgsTree(0));
@@ -105,11 +106,11 @@ public class TreeOrderTraversalTests {
 	public void aFunctionWithTwoIntrosAndOneArgVisitsThePatternsFirstThenTheCases() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, simpleExpr);
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, null, simpleExpr);
 		fi1.functionCase(fcd1);
 		fn.intro(fi1);
 		FunctionIntro fi2 = new FunctionIntro(nameF, new ArrayList<>());
-		FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, number);
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, null, number);
 		fi2.functionCase(fcd2);
 		fn.intro(fi2);
 		HSITree hsi = new HSIArgsTree(1);
@@ -152,7 +153,7 @@ public class TreeOrderTraversalTests {
 	public void multipleArgumentsCanBeHandledInTurn() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, simpleExpr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, simpleExpr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSITree hsi = new HSIArgsTree(2);
@@ -191,7 +192,7 @@ public class TreeOrderTraversalTests {
 	public void structsCanMatchFields() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, simpleExpr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, simpleExpr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSITree hsi = new HSIArgsTree(2);
@@ -242,7 +243,7 @@ public class TreeOrderTraversalTests {
 	public void typesAreOKToo() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, simpleExpr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, simpleExpr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSITree hsi = new HSIArgsTree(1);
@@ -276,11 +277,11 @@ public class TreeOrderTraversalTests {
 	public void aFunctionWithTwoIntrosGivesEachOneTheRightVariableArguments() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
 		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, simpleExpr);
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, null, simpleExpr);
 		fi1.functionCase(fcd1);
 		fn.intro(fi1);
 		FunctionIntro fi2 = new FunctionIntro(nameF, new ArrayList<>());
-		FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, number);
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, null, number);
 		fi2.functionCase(fcd2);
 		fn.intro(fi2);
 		VarName vn = new VarName(pos, nameF, "v");

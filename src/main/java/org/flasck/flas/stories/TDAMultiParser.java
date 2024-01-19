@@ -13,8 +13,6 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDAMultiParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final List<TDAParsing> parsers = new ArrayList<>();
-	private final String endRuleName;
-	private final InputPosition parentStart;
 	private TDAParsing chosen;
 
 	@SafeVarargs
@@ -68,5 +66,5 @@ public class TDAMultiParser implements TDAParsing {
 //		if (endRuleName != null) {
 //			errors.logReduction(endRuleName, parentStart, location);
 //		}
-//	}
+	}
 }

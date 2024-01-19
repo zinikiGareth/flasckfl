@@ -47,6 +47,7 @@ public class FunctionGenerationJS {
 	private final JSStorage jss = context.mock(JSStorage.class);
 	private final JSFunctionState state = context.mock(JSFunctionState.class);
 	private final JSMethodCreator meth = context.mock(JSMethodCreator.class);
+	private final FunctionIntro intro = null;
 
 	@Test
 	public void aSimpleFunction() {
@@ -66,7 +67,7 @@ public class FunctionGenerationJS {
 		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new NumericLiteral(pos, "42", 2));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, new NumericLiteral(pos, "42", 2));
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSIArgsTree hsi = new HSIArgsTree(0);
@@ -88,7 +89,7 @@ public class FunctionGenerationJS {
 		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, new StringLiteral(pos, "hello"));
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSIArgsTree hsi = new HSIArgsTree(1);
@@ -136,7 +137,7 @@ public class FunctionGenerationJS {
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
 		ex.bind(new VarPattern(pos, vnx));
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, ex);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, ex);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSIArgsTree hsi = new HSIArgsTree(1);
@@ -165,7 +166,7 @@ public class FunctionGenerationJS {
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
 		ex.bind(new VarPattern(pos, vnx));
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, ex);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, ex);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSIArgsTree hsi = new HSIArgsTree(2);
@@ -208,13 +209,13 @@ public class FunctionGenerationJS {
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
 		FunctionIntro f1 = new FunctionIntro(name, new ArrayList<>());
 		{
-			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
+			FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, new StringLiteral(pos, "hello"));
 			f1.functionCase(fcd);
 			fn.intro(f1);
 		}
 		FunctionIntro f2 = new FunctionIntro(name, new ArrayList<>());
 		{
-			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "goodbye"));
+			FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, new StringLiteral(pos, "goodbye"));
 			f2.functionCase(fcd);
 			fn.intro(f2);
 		}
@@ -257,7 +258,7 @@ public class FunctionGenerationJS {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		intro.functionCase(new FunctionCaseDefn(null, expr));
+		intro.functionCase(new FunctionCaseDefn(intro, null, expr));
 		
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
@@ -307,7 +308,7 @@ public class FunctionGenerationJS {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, expr);
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, null, expr);
 		intro.functionCase(fcd1);
 
 		context.checking(new Expectations() {{
@@ -325,7 +326,7 @@ public class FunctionGenerationJS {
 		final FunctionIntro intro2;
 		intro2 = new FunctionIntro(name, new ArrayList<>());
 		NumericLiteral number = new NumericLiteral(pos, "42", 2);
-		FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, number);
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, null, number);
 		intro2.functionCase(fcd2);
 
 		context.checking(new Expectations() {{
@@ -375,7 +376,7 @@ public class FunctionGenerationJS {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, expr);
 		intro.functionCase(fcd);
 
 		context.checking(new Expectations() {{
@@ -432,7 +433,7 @@ public class FunctionGenerationJS {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, expr);
 		intro.functionCase(fcd);
 
 		context.checking(new Expectations() {{
@@ -492,7 +493,7 @@ public class FunctionGenerationJS {
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, expr);
 		intro.functionCase(fcd);
 
 		context.checking(new Expectations() {{
@@ -557,7 +558,7 @@ public class FunctionGenerationJS {
 		{
 			FunctionIntro intro1 = new FunctionIntro(name, new ArrayList<>());
 			StringLiteral expr1 = new StringLiteral(pos, "hello");
-			FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, expr1);
+			FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, null, expr1);
 			intro1.functionCase(fcd1);
 
 			context.checking(new Expectations() {{
@@ -602,7 +603,7 @@ public class FunctionGenerationJS {
 		{
 			FunctionIntro intro2 = new FunctionIntro(name, new ArrayList<>());
 			StringLiteral expr2 = new StringLiteral(pos, "goodbye");
-			FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, expr2);
+			FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, null, expr2);
 			intro2.functionCase(fcd2);
 
 			context.checking(new Expectations() {{
@@ -650,7 +651,7 @@ public class FunctionGenerationJS {
 		{
 			FunctionDefinition fn = new FunctionDefinition(nameX, 1, null);
 			FunctionIntro fi = new FunctionIntro(nameX, new ArrayList<>());
-			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
+			FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
 			fn.intro(fi);
 			HSIArgsTree hsi = new HSIArgsTree(1);
@@ -677,7 +678,7 @@ public class FunctionGenerationJS {
 		{
 			FunctionDefinition fn = new FunctionDefinition(nameY, 1, null);
 			FunctionIntro fi = new FunctionIntro(nameY, new ArrayList<>());
-			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
+			FunctionCaseDefn fcd = new FunctionCaseDefn(intro, null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
 			fn.intro(fi);
 			HSIArgsTree hsi = new HSIArgsTree(1);

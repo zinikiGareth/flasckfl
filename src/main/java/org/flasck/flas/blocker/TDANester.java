@@ -55,7 +55,9 @@ public class TDANester implements BlockConsumer {
 		// when flushing, we want to make sure our line is later than anything valid
 		// so create a new location past the end of the file, indent 0
 		
-		InputPosition eof = new InputPosition(lastloc.file, lastloc.lineNo+1, 0, new Indent(0, 0), "");
+		InputPosition eof = null;
+		if (lastloc != null)
+			eof = new InputPosition(lastloc.file, lastloc.lineNo+1, 0, new Indent(0, 0), "");
 		
 		while (stack.size() > 0) {
 			TDAParsing endScope = stack.remove(stack.size()-1);

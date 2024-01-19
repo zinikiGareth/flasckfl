@@ -34,6 +34,7 @@ public class GuardGenerationJS {
 	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	JSFunctionState state = context.mock(JSFunctionState.class);
+	private final FunctionIntro intro = null;
 
 	@Test
 	public void aSingleGuard() {
@@ -47,7 +48,7 @@ public class GuardGenerationJS {
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
 		NumericLiteral expr = new NumericLiteral(pos, "42", 2);
-		FunctionCaseDefn fcd = new FunctionCaseDefn(t, expr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(intro, t, expr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
 
@@ -90,10 +91,10 @@ public class GuardGenerationJS {
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
 		NumericLiteral expr = new NumericLiteral(pos, "42", 2);
-		FunctionCaseDefn fcd1 = new FunctionCaseDefn(t, expr);
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, t, expr);
 		fi.functionCase(fcd1);
 		StringLiteral expr2 = new StringLiteral(pos, "hello");
-		FunctionCaseDefn fcd2 = new FunctionCaseDefn(t, expr2);
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, t, expr2);
 		fi.functionCase(fcd2);
 		fn.intro(fi);
 
@@ -144,11 +145,11 @@ public class GuardGenerationJS {
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
 		NumericLiteral expr = new NumericLiteral(pos, "42", 2);
-		FunctionCaseDefn fcd1 = new FunctionCaseDefn(t, expr);
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(intro, t, expr);
 		fi.functionCase(fcd1);
 		UnresolvedVar f = new UnresolvedVar(pos, "False");
 		f.bind(LoadBuiltins.falseT);
-		FunctionCaseDefn fcd2 = new FunctionCaseDefn(f, expr);
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(intro, f, expr);
 		fi.functionCase(fcd2);
 		fn.intro(fi);
 

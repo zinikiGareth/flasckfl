@@ -114,14 +114,14 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 		Expr guard = null;
 		if (msgHasGuard)
 			guard = results.remove(0);
-		fi.functionCase(new FunctionCaseDefn(guard, new Messages(oah.location(), new ArrayList<>(results))));
+		fi.functionCase(new FunctionCaseDefn(fi, guard, new Messages(oah.location(), new ArrayList<>(results))));
 		results.clear();
 	}
 
 	@Override
 	public void leaveObjectMethod(ObjectMethod meth) {
 		if (!haveGuards)
-			fi.functionCase(new FunctionCaseDefn(null, new Messages(meth.location(), results)));
+			fi.functionCase(new FunctionCaseDefn(fi, null, new Messages(meth.location(), results)));
 		meth.conversion(Arrays.asList(fi));
 		sv.result(null);
 	}
@@ -129,7 +129,7 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveObjectCtor(ObjectCtor meth) {
 		if (!haveGuards)
-			fi.functionCase(new FunctionCaseDefn(null, new Messages(meth.location(), results)));
+			fi.functionCase(new FunctionCaseDefn(fi, null, new Messages(meth.location(), results)));
 		meth.conversion(Arrays.asList(fi));
 		sv.result(null);
 	}

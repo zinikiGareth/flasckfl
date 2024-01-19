@@ -48,6 +48,7 @@ public class GuardTests {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
+	private final FunctionIntro intro = null;
 
 	@Before
 	public void allowFC() {
@@ -68,7 +69,7 @@ public class GuardTests {
 		fn.intro(fi);
 		Expr test = new UnresolvedVar(pos, "True");
 		Expr res = new UnresolvedVar(pos, "x");
-		FunctionCaseDefn fic1 = new FunctionCaseDefn(test, res);
+		FunctionCaseDefn fic1 = new FunctionCaseDefn(intro, test, res);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "test.repo.fred slot ArgSlot[0]");

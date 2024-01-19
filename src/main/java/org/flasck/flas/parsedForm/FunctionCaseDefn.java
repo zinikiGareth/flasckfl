@@ -14,8 +14,8 @@ public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 	public final Expr guard;
 	public final Expr expr;
 
-	public FunctionCaseDefn(Expr guard, Expr expr) {
-		this.intro = null;
+	public FunctionCaseDefn(FunctionIntro intro, Expr guard, Expr expr) {
+		this.intro = intro;
 		this.guard = guard;
 		if (expr == null)
 			throw new UtilException("Cannot build function case with null expr");

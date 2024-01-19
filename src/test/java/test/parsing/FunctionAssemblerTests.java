@@ -4,19 +4,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.FunctionAssembler;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.FunctionDefinitionMatcher;
 
@@ -28,6 +32,15 @@ public class FunctionAssemblerTests {
 	private final PackageName pkg = new PackageName("test.pkg");
 	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	Pattern p = new VarPattern(pos, new VarName(pos, pkg, "x"));
+
+	@Before
+	public void ignoreParserLogging() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
+			allowing(errors).logReduction(with(any(String.class)), with(any(Locatable.class)), with(any(Locatable.class)));
+		}});
+	}
 
 	@Test
 	public void nothingHappensWithoutSomethingHappening() {
