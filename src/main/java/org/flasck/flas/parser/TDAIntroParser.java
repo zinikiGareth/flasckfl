@@ -212,12 +212,16 @@ public class TDAIntroParser implements TDAParsing {
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
 			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, od);
 			ObjectNestedNamer onn = new ObjectNestedNamer(on);
-			return new TDAMultiParser(errors, 
-				errors -> {	return new TDAObjectElementsParser(errors, onn, od, consumer); },
+			TDAMultiParser ret = new TDAMultiParser(errors, 
+				errors -> new TDAObjectElementsParser(errors, onn, od, consumer),
 				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer, od),
 				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, od),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od)
 			);
+			ret.onComplete((errors,location) -> {
+				od.complete(errors, location);
+			});
+			return ret;
 		}
 		case "contract": {
 			KeywordToken sh = KeywordToken.from(errors, toks);

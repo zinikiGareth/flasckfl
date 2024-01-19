@@ -178,7 +178,6 @@ public class TDAObjectElementsParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		builder.complete(errors, location);
 		if (currParser != null)
 			currParser.scopeComplete(location);
 	}

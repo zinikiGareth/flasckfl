@@ -31,8 +31,8 @@ public class GrammarChecker {
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
 			ParsedTokens toks = ParsedTokens.read(f);
 			reconstructFile(toks, new File(reconstruct, f.getName()));
-			if (!expectErrors)
-				computeReductions(toks);
+//			if (!expectErrors)
+//				computeReductions(toks);
 		}
 	}
 

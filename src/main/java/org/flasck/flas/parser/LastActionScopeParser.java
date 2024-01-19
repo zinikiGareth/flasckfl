@@ -10,7 +10,7 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	private final ErrorReporter errors;
 	private final String lastThing;
 	private final TDAParsing parser;
-	private Tokenizable seenSomething;
+	private InputPosition seenSomething;
 	private boolean reportedError;
 
 	public LastActionScopeParser(ErrorReporter errors, FunctionScopeNamer namer, FunctionScopeUnitConsumer topLevel, String lastThing, StateHolder holder) {
@@ -29,7 +29,7 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		seenSomething = toks;
+		seenSomething = toks.realinfo();
 		return parser.tryParsing(toks);
 	}
 
