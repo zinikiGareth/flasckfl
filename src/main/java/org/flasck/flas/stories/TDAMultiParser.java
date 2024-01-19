@@ -13,6 +13,9 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDAMultiParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final List<TDAParsing> parsers = new ArrayList<>();
+	private final String endRuleName;
+	private final InputPosition parentStart;
+	private TDAParsing chosen;
 
 	@SafeVarargs
 	public TDAMultiParser(ErrorReporter errors, TDAParserConstructor... klz) {
@@ -34,10 +37,12 @@ public class TDAMultiParser implements TDAParsing {
 		ErrorMark mark = errors.mark();
 		TDAParsing nested = null;
 		for (TDAParsing p : parsers) {
-			toks.reset(0);
-			if (nested == null)
+			if (nested == null) {
+				toks.reset(0);
 				nested = p.tryParsing(toks);
-			else
+				if (nested != null)
+					chosen = p;
+			} else
 				p.choseOther();
 		}
 		if (nested != null)
@@ -58,7 +63,10 @@ public class TDAMultiParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		for (TDAParsing p : parsers)
-			p.scopeComplete(location);
-	}
+		if (chosen != null)
+			chosen.scopeComplete(location);
+//		if (endRuleName != null) {
+//			errors.logReduction(endRuleName, parentStart, location);
+//		}
+//	}
 }

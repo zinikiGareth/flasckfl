@@ -32,7 +32,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 		ErrorMark mark = errors.mark();
 		nestedParser.anotherParent();
 		InputPosition start = line.realinfo();
-		ExprToken tok = ExprToken.from(errors, line);
+		final ExprToken tok = ExprToken.from(errors, line);
 		if (tok == null) {
 			errors.message(line, "syntax error in function case definition");
 			return null;
@@ -64,8 +64,8 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 			if (mark.hasMoreNow())
 				return null;
 	
-			tok = ExprToken.from(errors, line);
-			if (tok == null || !tok.text.equals("=")) {
+			ExprToken equals = ExprToken.from(errors, line);
+			if (equals == null || !equals.text.equals("=")) {
 				errors.message(line, "syntax error");
 				return null;
 			}
@@ -81,6 +81,11 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 		List<FunctionCaseDefn> fcds = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
 			Expr guard = optionalGuard.isEmpty() ? null : optionalGuard.get(0);
+			if (guard != null) {
+				errors.logReduction("function-case-with-guard", tok.location(), e.location());
+			} else {
+				errors.logReduction("function-case-default", tok.location, e.location());
+			}
 			final FunctionCaseDefn fcd = new FunctionCaseDefn(guard, e);
 			fcds.add(fcd);
 			consumer.functionCase(fcd);

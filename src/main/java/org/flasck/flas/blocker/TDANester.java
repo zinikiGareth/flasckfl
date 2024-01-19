@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.ContinuedLine;
+import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.TDAParsing;
@@ -51,9 +52,14 @@ public class TDANester implements BlockConsumer {
 
 	@Override
 	public void flush() {
+		// when flushing, we want to make sure our line is later than anything valid
+		// so create a new location past the end of the file, indent 0
+		
+		InputPosition eof = new InputPosition(lastloc.file, lastloc.lineNo+1, 0, new Indent(0, 0), "");
+		
 		while (stack.size() > 0) {
 			TDAParsing endScope = stack.remove(stack.size()-1);
-			endScope.scopeComplete(lastloc);
+			endScope.scopeComplete(eof);
 		}
 	}
 }

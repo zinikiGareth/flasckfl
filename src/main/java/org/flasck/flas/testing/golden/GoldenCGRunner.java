@@ -271,7 +271,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 //		FileUtils.cat(new File(s, "repo.txt"));
 //		}
 		GrammarChecker r = new GrammarChecker(parseTokens, reconstruct);
-		r.checkParseTokenLogic();
+		r.checkParseTokenLogic(expectedErrors.isDirectory());
 		r.checkGrammar();
 		AssertionError tmp = null;
 //		if (!expectedErrors.isDirectory()) {

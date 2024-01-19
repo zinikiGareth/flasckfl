@@ -25,13 +25,14 @@ public class GrammarChecker {
 		this.reconstruct = reconstruct;
 	}
 
-	public void checkParseTokenLogic() {
+	public void checkParseTokenLogic(boolean expectErrors) {
 		if (parseTokens == null || reconstruct == null)
 			return;
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
 			ParsedTokens toks = ParsedTokens.read(f);
 			reconstructFile(toks, new File(reconstruct, f.getName()));
-			computeReductions(toks);
+			if (!expectErrors)
+				computeReductions(toks);
 		}
 	}
 
@@ -118,6 +119,7 @@ public class GrammarChecker {
 			if (rr.start().indent.tabs != 1 || rr.start().indent.spaces != 0) {
 				// This cannot be a TLF
 				System.out.println("TLFs must have an indent of (1,0): " + rr);
+				fail("TLFs must have an indent of (1,0): " + rr);
 			}
 			// TODO: check against the master list of TLF names
 		}
@@ -135,6 +137,7 @@ public class GrammarChecker {
 			
 			// TODO: this is an error
 			System.out.println("token not reduced: " + t);
+			fail("token not reduced: " + t);
 		}
 
 		// TODO: return an orchard of reductions with a TLF at the top of each tree
