@@ -129,6 +129,7 @@ public class TDAIntroParser implements TDAParsing {
 				} else
 					polys.add(ta.asType(svn));
 			}
+			// todo: need to reduce a poly-type name
 			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser(errors);
@@ -136,7 +137,8 @@ public class TDAIntroParser implements TDAParsing {
 			final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
 			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, sn, true, polys);
 			consumer.newStruct(errors, sd);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true);
+			errors.logReduction("fields-defn", kw.location, tn.location);
+			return new TDAStructFieldParser(errors, sd, new ConsumeStructFields(errors, consumer, svn, sd), ty, true);
 		}
 		case "wraps": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
@@ -162,7 +164,7 @@ public class TDAIntroParser implements TDAParsing {
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, namer.solidName(tn.text), true, new ArrayList<>());
 			consumer.newStruct(errors, sd);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), FieldsType.WRAPS, false);
+			return new TDAStructFieldParser(errors, sd, new ConsumeStructFields(errors, consumer, svn, sd), FieldsType.WRAPS, false);
 		}
 		case "union": {
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);

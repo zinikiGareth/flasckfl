@@ -89,7 +89,7 @@ public class TDAMethodNestingParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
 //			oneOf(topLevel).functionCase(with(FunctionCaseMatcher.called(name, "s")));
-			oneOf(errors).message(line, "nested scope must be after last action");
+			oneOf(errors).message(line.realinfo(), "nested scope must be after last action");
 		}});
 		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
@@ -106,7 +106,7 @@ public class TDAMethodNestingParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
 //			oneOf(topLevel).functionCase(with(FunctionCaseMatcher.called(name, "s")));
-			oneOf(errors).message(line, "nested scope must be after last action");
+			oneOf(errors).message(line.realinfo(), "nested scope must be after last action");
 		}});
 		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));

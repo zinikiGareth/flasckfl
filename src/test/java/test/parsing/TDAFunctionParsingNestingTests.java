@@ -120,7 +120,7 @@ public class TDAFunctionParsingNestingTests {
 		final Tokenizable nestedLine = TDAFunctionParsingTests.line("g = 'hello'");
 		context.checking(new Expectations() {{
 			oneOf(builder).functionDefn(with(tracker), with(FunctionDefinitionMatcher.named("test.pkg.f._1.g")));
-			oneOf(errors).message(nestedLine, "nested scope must be after last case");
+			oneOf(errors).message(nestedLine.realinfo(), "nested scope must be after last case");
 		}});
 		TDAParsing guards = parser.tryParsing(line("f"));
 		TDAParsing nested = guards.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));

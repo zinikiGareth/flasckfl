@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -15,12 +16,14 @@ import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDAStructFieldParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final FieldsDefn inside;
 	private final StructFieldConsumer builder;
 	private final FieldsType fieldsType;
 	private final boolean createAsAccessors;
 
-	public TDAStructFieldParser(ErrorReporter errors, StructFieldConsumer builder, FieldsType fieldsType, boolean createAsAccessors) {
+	public TDAStructFieldParser(ErrorReporter errors, FieldsDefn inside, StructFieldConsumer builder, FieldsType fieldsType, boolean createAsAccessors) {
 		this.errors = errors;
+		this.inside = inside;
 		this.builder = builder;
 		this.fieldsType = fieldsType;
 		this.createAsAccessors = createAsAccessors;
@@ -28,6 +31,7 @@ public class TDAStructFieldParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		final InputPosition startLine = toks.realinfo();
 		TypeReference type = null;
 		if (fieldsType != FieldsType.WRAPS) {
 			TypeExprParser parser = new TypeExprParser(errors);
@@ -55,6 +59,7 @@ public class TDAStructFieldParser implements TDAParsing {
 				errors.message(toks, "wraps fields must have initializers");
 				return new IgnoreNestedParser(errors);
 			}
+			errors.logReduction("struct-field-no-initialization", type.location(), toks.realinfo());
 			builder.addField(new StructField(field.location, builder.holder(), createAsAccessors, true, type, field.text));
 			ret.noNest(errors);
 		} else {
@@ -74,6 +79,7 @@ public class TDAStructFieldParser implements TDAParsing {
 					ret.ignore();
 				} else {
 					ret.noNest(errors);
+					errors.logReduction("struct-field-with-initialization", startLine, toks.realinfo());
 					builder.addField(new StructField(field.location, arrow.location, builder.holder(), createAsAccessors, true, ft, field.text, expr));
 				}
 			}).tryParsing(toks);
@@ -87,5 +93,6 @@ public class TDAStructFieldParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		errors.logReduction("fields-defn-with-fields", inside.kw, location);
 	}
 }

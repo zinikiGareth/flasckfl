@@ -48,11 +48,11 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				errors.message(kw.location, "multiple state declarations");
 				return new IgnoreNestedParser(errors);
 			}
-			final StateDefinition state = new StateDefinition(toks.realinfo(), ((NamedType)consumer).name());
+			final StateDefinition state = new StateDefinition(kw.location, toks.realinfo(), ((NamedType)consumer).name());
 			consumer.defineState(state);
 			seenState = true;
 			
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
+			return new TDAStructFieldParser(errors, state, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}
 		case "provides": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);

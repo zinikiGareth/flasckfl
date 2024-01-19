@@ -15,11 +15,15 @@ public class StateDefinition extends FieldsDefn {
 	}
 	
 	public StateDefinition(InputPosition loc, NameOfThing nameOfThing) {
-		this(null, loc, nameOfThing, false, new ArrayList<>());
+		this(null, loc, nameOfThing);
+	}
+	
+	public StateDefinition(InputPosition kwloc, InputPosition loc, NameOfThing nameOfThing) {
+		this(kwloc, loc, nameOfThing, false, new ArrayList<>());
 	}
 	
 	public StateDefinition(InputPosition kwloc, InputPosition loc, NameOfThing name, boolean generate, List<PolyType> polys) {
-		super(null, loc, FieldsType.STATE, name, false, polys);
+		super(kwloc, loc, FieldsType.STATE, name, false, polys);
 	}
 
 	@Override

@@ -57,9 +57,9 @@ public class TDAObjectElementsParser implements TDAParsing {
 				errors.message(toks, "extra characters at end of line");
 				return new IgnoreNestedParser(errors);
 			}
-			StateDefinition state = new StateDefinition(toks.realinfo(), ((NamedType)builder).name());
+			StateDefinition state = new StateDefinition(kw.location, toks.realinfo(), ((NamedType)builder).name());
 			builder.defineState(state);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
+			return new TDAStructFieldParser(errors, state, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}
 		case "requires": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
