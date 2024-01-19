@@ -21,9 +21,12 @@ public class ContractMethodParser implements TDAParsing {
 	private final ContractMethodConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final SolidName cname;
+	private final InputPosition kwloc;
+	private InputPosition lastMeth;
 
-	public ContractMethodParser(ErrorReporter errors, ContractMethodConsumer builder, FunctionScopeUnitConsumer topLevel, SolidName cname) {
+	public ContractMethodParser(ErrorReporter errors, InputPosition kwloc, ContractMethodConsumer builder, FunctionScopeUnitConsumer topLevel, SolidName cname) {
 		this.errors = errors;
+		this.kwloc = kwloc;
 		this.builder = builder;
 		this.topLevel = topLevel;
 		this.cname = cname;
@@ -34,18 +37,22 @@ public class ContractMethodParser implements TDAParsing {
 		ErrorMark emark = errors.mark();
 		boolean required = true;
 		InputPosition optLoc = null;
+		InputPosition firstLoc = null;
 		int mark = toks.at();
 		KeywordToken ud = KeywordToken.from(errors, toks);
 		if (ud != null) {
 			if (ud.text.equals("optional")) {
 				required = false;
 				optLoc = ud.location;
+				firstLoc = optLoc;
 			} else
 				toks.reset(mark);
 		}
 
 		// Read the function name
 		InputPosition pos = toks.realinfo();
+		if (firstLoc == null)
+			firstLoc = pos;
 		ValidIdentifierToken name = ValidIdentifierToken.from(errors, toks);
 		if (name == null) {
 			if (toks.hasMoreContent(errors))
@@ -57,6 +64,7 @@ public class ContractMethodParser implements TDAParsing {
 			errors.message(pos, "invalid method name");
 			return new NoNestingParser(errors);
 		}
+		InputPosition lastLoc = name.location;
 		FunctionName fnName = FunctionName.contractDecl(name.location, cname, name.text);
 
 		List<Pattern> args = new ArrayList<>();
@@ -67,8 +75,10 @@ public class ContractMethodParser implements TDAParsing {
 		for (Pattern p : args) {
 			if (!(p instanceof TypedPattern))
 				errors.message(p.location(), "contract patterns must be typed");
-			else
+			else {
 				targs.add((TypedPattern) p);
+				lastLoc = p.location();
+			}
 		}
 		if (emark.hasMoreNow())
 			return new IgnoreNestedParser(errors);
@@ -94,6 +104,7 @@ public class ContractMethodParser implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 			handler = (TypedPattern) p;
+			lastLoc = p.location();
 		}
 		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
@@ -102,11 +113,14 @@ public class ContractMethodParser implements TDAParsing {
 
 		ContractMethodDecl ret = new ContractMethodDecl(optLoc, name.location, name.location, required, fnName, targs, handler);
 		builder.addMethod(ret);
+		errors.logReduction("contract-method-decl", firstLoc, lastLoc);
+		lastMeth = lastLoc;
 		((ContractConsumer)topLevel).newContractMethod(errors, ret);
 		return new NoNestingParser(errors);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		errors.logReduction("contract-method-decl", kwloc, lastMeth);
 	}
 }
