@@ -36,6 +36,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			allowing(nestedFunctionScope).anotherParent();
 			allowing(errorsMock).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errorsMock).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 	}
 	

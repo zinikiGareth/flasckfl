@@ -27,7 +27,7 @@ public class TargetZoneParsingTests {
 	private UnitTestNamer namer = context.mock(UnitTestNamer.class);
 	private UnitTestDefinitionConsumer topLevel = context.mock(UnitTestDefinitionConsumer.class);
 	private UnitTestStepConsumer builder = context.mock(UnitTestStepConsumer.class);
-	private TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+	private TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, "target-zone-tests", null);
 
 	@Before
 	public void setup() {

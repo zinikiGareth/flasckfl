@@ -36,8 +36,8 @@ import org.flasck.flas.tokenizers.VarNameToken;
 public class SystemTestStepParser extends TestStepParser {
 	private final TopLevelDefinitionConsumer topLevel;
 
-	public SystemTestStepParser(ErrorReporter errors, UnitDataNamer namer, SystemTestStage stage, TopLevelDefinitionConsumer topLevel) {
-		super(errors, namer, stage, new ConsumeDefinitions(errors, topLevel, null)); // null would have to be stage through an interface
+	public SystemTestStepParser(ErrorReporter errors, UnitDataNamer namer, SystemTestStage stage, TopLevelDefinitionConsumer topLevel, String mainRule, InputPosition parentLocation) {
+		super(errors, namer, stage, new ConsumeDefinitions(errors, topLevel, null), mainRule, parentLocation); // null would have to be stage through an interface
 		this.topLevel = topLevel;
 	}
 
@@ -51,7 +51,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		switch (kw.text) {
 		case "assert": {
-			return handleAssert(toks);
+			return handleAssert(kw, toks);
 		}
 //		case "shove": {
 //			return handleShove(toks);

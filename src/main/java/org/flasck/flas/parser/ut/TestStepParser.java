@@ -34,12 +34,16 @@ public class TestStepParser implements TDAParsing {
 	protected final UnitTestStepConsumer builder;
 	protected final UnitDataNamer namer;
 	private final UnitTestDefinitionConsumer topLevel;
+	private final String mainRule;
+	private final InputPosition parentLocation;
 
-	public TestStepParser(ErrorReporter errors, UnitDataNamer namer, UnitTestStepConsumer builder, UnitTestDefinitionConsumer topLevel) {
+	public TestStepParser(ErrorReporter errors, UnitDataNamer namer, UnitTestStepConsumer builder, UnitTestDefinitionConsumer topLevel, String mainRule, InputPosition parentLocation) {
 		this.errors = errors;
 		this.namer = namer;
 		this.builder = builder;
 		this.topLevel = topLevel;
+		this.mainRule = mainRule;
+		this.parentLocation = parentLocation;
 	}
 
 	@Override
@@ -52,7 +56,7 @@ public class TestStepParser implements TDAParsing {
 		}
 		switch (kw.text) {
 		case "assert": {
-			return handleAssert(toks);
+			return handleAssert(kw, toks);
 		}
 		case "identical": {
 			return handleIdentical(toks);
@@ -97,7 +101,7 @@ public class TestStepParser implements TDAParsing {
 		}
 	}
 
-	protected TDAParsing handleAssert(Tokenizable toks) {
+	protected TDAParsing handleAssert(KeywordToken kw, Tokenizable toks) {
 		List<Expr> test = new ArrayList<>();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> test.add(x));
 		expr.tryParsing(toks);
@@ -112,7 +116,7 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, "assert", ex -> { builder.assertion(test.get(0), ex); });
+		return new SingleExpressionParser(errors, "assert", ex -> { errors.logReduction("ut-assert", kw, ex); builder.assertion(test.get(0), ex); });
 	}
 
 	protected TDAParsing handleIdentical(Tokenizable toks) {
@@ -528,5 +532,6 @@ public class TestStepParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		errors.logReduction(mainRule, parentLocation, location);
 	}
 }

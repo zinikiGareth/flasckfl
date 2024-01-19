@@ -1,5 +1,7 @@
 package org.flasck.flas.testing.golden;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -27,12 +29,13 @@ public class GrammarChecker {
 		if (parseTokens == null || reconstruct == null)
 			return;
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
-			reconstructFile(f, new File(reconstruct, f.getName()));
+			ParsedTokens toks = ParsedTokens.read(f);
+			reconstructFile(toks, new File(reconstruct, f.getName()));
+			computeReductions(toks);
 		}
 	}
 
-	private void reconstructFile(File tokens, File output) {
-		ParsedTokens toks = ParsedTokens.read(tokens);
+	private void reconstructFile(ParsedTokens toks, File output) {
 		try (PrintWriter pw = new PrintWriter(output)) {
 			int lineNo = 1;
 			boolean indented = false;
@@ -65,7 +68,14 @@ public class GrammarChecker {
 		} catch (FileNotFoundException e) {
 			throw WrappedException.wrap(e);
 		}
-		
+	}
+	
+	// TODO: this should:
+	// (a) internally assert that everything was reduced to a TLF
+	// (b) internally assert that every token was part of some reduction
+	// (c) internally assert that the final rules do not overlap
+	// (c) return an orchard of reductions & tokens with a TLF at the top of each tree and tokens at the leaves
+	private void computeReductions(ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
 		for (ReductionRule rr : toks.reductions()) {
 			System.out.println(rr);
@@ -86,12 +96,48 @@ public class GrammarChecker {
 			Iterator<Entry<InputPosition, ReductionRule>> it = mostReduced.entrySet().iterator();
 			while (it.hasNext()) {
 				Entry<InputPosition, ReductionRule> e = it.next();
-				if (rr.includes(e.getKey()))
+				if (rr.includes(e.getKey())) {
 					it.remove();
+				}
 			}
 			mostReduced.put(rr.start(), rr);
 		}
+		
+		// Assert that they do not overlap
+		InputPosition lastEndedAt = null;
+		for (ReductionRule rr : mostReduced.values()) {
+			if (lastEndedAt != null && lastEndedAt.compareTo(rr.start()) >= 0)
+				fail("overlapping reductions: " + lastEndedAt + " X " + rr);
+			lastEndedAt = rr.last();
+		}
+		
+		// TODO: assert that all of these are TLFs
 		System.out.println("most reduced = " + mostReduced.values());
+		
+		for (ReductionRule rr : mostReduced.values()) {
+			if (rr.start().indent.tabs != 1 || rr.start().indent.spaces != 0) {
+				// This cannot be a TLF
+				System.out.println("TLFs must have an indent of (1,0): " + rr);
+			}
+			// TODO: check against the master list of TLF names
+		}
+		
+		tokenLoop:
+		for (GrammarToken t : toks.tokens()) {
+			for (ReductionRule rr : toks.reductions()) {
+				if (rr.includes(t.pos))
+					continue tokenLoop;
+			}
+			
+			// comments are, for want of a better word, TLFs.
+			if (t.type.equals("comment"))
+				continue;
+			
+			// TODO: this is an error
+			System.out.println("token not reduced: " + t);
+		}
+
+		// TODO: return an orchard of reductions with a TLF at the top of each tree
 	}
 
 	public void checkGrammar() {

@@ -39,11 +39,11 @@ public class TDANester implements BlockConsumer {
 		// need to store that as the parser for depth+1
 		// we may want to tell the nested parsers we're closing them
 		final Tokenizable tkz = new Tokenizable(currline);
-		lastloc = tkz.realinfo();
 		while (stack.size() > depth) {
 			TDAParsing endScope = stack.remove(stack.size()-1);
-			endScope.scopeComplete(tkz.realinfo());
+			endScope.scopeComplete(lastloc);
 		}
+		lastloc = tkz.realinfo();
 		TDAParsing nesting = stack.get(depth-1).tryParsing(tkz);
 		if (nesting != null)
 			stack.add(nesting);

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -50,6 +51,7 @@ public class TDAServiceParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).newService(with(tracker), with(ServiceDefnMatcher.called("test.pkg.ServiceA"))); will(captureCard);
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
 		serviceParser = intro.tryParsing(TDABasicIntroParsingTests.line("service ServiceA"));

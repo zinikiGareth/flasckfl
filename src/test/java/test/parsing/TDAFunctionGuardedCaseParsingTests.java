@@ -31,6 +31,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 		context.checking(new Expectations() {{
 			allowing(loonp).anotherParent();
 			allowing(errorsMock).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errorsMock).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 		parser = new TDAFunctionGuardedEquationParser(errors, pos, consumer, loonp);
 	}

@@ -39,14 +39,16 @@ public class TDAUnitTestParser implements TDAParsing {
 			toks.skipWS(errors);
 			InputPosition pos = toks.realinfo();
 			final String desc = toks.remainder().trim();
-			errors.logParsingToken(new TestDescriptionToken(pos, desc));
+			TestDescriptionToken tdt = new TestDescriptionToken(pos, desc);
+			errors.logParsingToken(tdt);
 			if (desc.length() == 0) {
 				errors.message(toks, "test case must have a description");
 				return new IgnoreNestedParser(errors);
 			}
+			errors.logReduction("ut-test-intro", tok, tdt);
 			final UnitTestCase utc = new UnitTestCase(namer.unitTest(), desc);
 			builder.testCase(utc);
-			return new TestStepParser(errors, new TestStepNamer(utc.name), utc, builder);
+			return new TestStepParser(errors, new TestStepNamer(utc.name), utc, builder, "ut-unit-test", tok.location);
 		}
 		case "ignore": {
 			toks.skipWS(errors);

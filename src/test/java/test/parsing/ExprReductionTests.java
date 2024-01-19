@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
+import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -13,8 +14,10 @@ import org.flasck.flas.parser.Punctuator;
 import org.flasck.flas.parser.TDAStackReducer;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 import flas.matchers.ExprMatcher;
 
@@ -26,6 +29,13 @@ public class ExprReductionTests {
 	private final InputPosition pos = new InputPosition("-", 1, 0, null, "");
 	private final TDAStackReducer reducer = new TDAStackReducer(tracker, builder);
 
+	@Before
+	public void setup() {
+		context.checking(new Expectations() {{
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
+		}});
+	}
 	@Test // 42
 	public void aLiteralByItselfIsNotFurtherReduced() {
 		context.checking(new Expectations() {{

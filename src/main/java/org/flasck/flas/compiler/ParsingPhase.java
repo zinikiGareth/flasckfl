@@ -125,9 +125,9 @@ public class ParsingPhase implements ParserScanner {
 		return ret;
 	}
 
-	public static TDAParsing systemTestStep(ErrorReporter errors, TestStepNamer namer, SystemTestStage stg, TopLevelDefinitionConsumer topLevel, Iterable<ParserModule> modules) {
+	public static TDAParsing systemTestStep(ErrorReporter errors, TestStepNamer namer, SystemTestStage stg, TopLevelDefinitionConsumer topLevel, Iterable<ParserModule> modules, String mainRule, InputPosition parentLocation) {
 		TDAMultiParser ret = new TDAMultiParser(errors);
-		ret.add(new SystemTestStepParser(errors, namer, stg, topLevel));
+		ret.add(new SystemTestStepParser(errors, namer, stg, topLevel, mainRule, parentLocation));
 		for (ParserModule m : modules) {
 			TDAParsing r = m.systemTestStepParser(errors, namer, stg, topLevel);
 			if (r != null)

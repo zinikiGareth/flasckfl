@@ -61,6 +61,7 @@ public class TDATopLevelCardParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).newCard(with(tracker), with(CardDefnMatcher.called("test.pkg.CardA"))); will(captureCard);
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
 		cardParser = intro.tryParsing(TDABasicIntroParsingTests.line("card CardA"));

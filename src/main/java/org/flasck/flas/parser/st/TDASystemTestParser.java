@@ -48,7 +48,7 @@ public class TDASystemTestParser implements TDAParsing {
 			SystemTestName stn = namer.special("configure");
 			final SystemTestConfiguration stg = new SystemTestConfiguration(stn, topLevel);
 			builder.configure(stg);
-			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn.container()), stg, topLevel, modules);
+			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn.container()), stg, topLevel, modules, "st-configure-rule", tok.location);
 		}
 		case "test": {
 			toks.skipWS(errors);
@@ -62,7 +62,7 @@ public class TDASystemTestParser implements TDAParsing {
 			SystemTestName stn = namer.nextStep();
 			final SystemTestStage stage = new SystemTestStage(stn, desc, topLevel);
 			builder.test(stage);
-			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn), stage, topLevel, modules);
+			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn), stage, topLevel, modules, "st-test-rule", tok.location);
 		}
 		case "finally": {
 			if (toks.hasMoreContent(errors)) {
@@ -72,7 +72,7 @@ public class TDASystemTestParser implements TDAParsing {
 			SystemTestName stn = namer.special("finally");
 			final SystemTestCleanup stg = new SystemTestCleanup(stn, topLevel);
 			builder.cleanup(stg);
-			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn), stg, topLevel, modules);
+			return ParsingPhase.systemTestStep(errors, new TestStepNamer(stn), stg, topLevel, modules, "st-finally-rule", tok.location);
 		}
 		default: {
 			toks.reset(mark);

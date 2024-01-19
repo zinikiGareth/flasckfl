@@ -86,18 +86,22 @@ public class ParsedTokens {
 //				return cmp;
 			return Integer.compare(this.lineNumber, o.lineNumber);
 		}
-
-		@Override
-		public String toString() {
-			return rule + ": " + first + " -- " + last;
+		
+		public InputPosition start() {
+			return first;
+		}
+		
+		public InputPosition last() {
+			return last;
 		}
 
 		public boolean includes(InputPosition pos) {
 			return pos.compareTo(first) >= 0 && pos.compareTo(last) <= 0;
 		}
 
-		public InputPosition start() {
-			return first;
+		@Override
+		public String toString() {
+			return rule + ": " + first + " -- " + last;
 		}
 	}
 
@@ -117,7 +121,6 @@ public class ParsedTokens {
 			while ((s = lnr.readLine()) != null) {
 				if (pendingRule != null) {
 					pendingRule.range(pos, readPos(inFile, s));
-					System.out.println("end tok " + s);
 					ret.reductions.add(pendingRule);
 					pendingRule = null;
 					pos = null;
