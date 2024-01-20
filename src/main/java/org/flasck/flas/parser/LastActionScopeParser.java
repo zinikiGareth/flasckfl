@@ -10,7 +10,8 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	private final ErrorReporter errors;
 	private final String lastThing;
 	private final TDAParsing parser;
-	private InputPosition seenSomething;
+	private InputPosition from;
+	private InputPosition lastPos;
 	private boolean reportedError;
 
 	public LastActionScopeParser(ErrorReporter errors, FunctionScopeNamer namer, FunctionScopeUnitConsumer topLevel, String lastThing, StateHolder holder) {
@@ -21,21 +22,25 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	}
 
 	public void anotherParent() {
-		if (seenSomething != null && !reportedError) {
-			errors.message(seenSomething, "nested scope must be after last " + lastThing);
+		if (lastPos != null && !reportedError) {
+			errors.message(lastPos, "nested scope must be after last " + lastThing);
 			reportedError = true;
 		}
 	}
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		seenSomething = toks.realinfo();
+		lastPos = toks.realinfo();
+		if (from == null)
+			lastPos = from;
 		return parser.tryParsing(toks);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
 		parser.scopeComplete(location);
+		if (from != null)
+			errors.logReduction("inner-block", from, lastPos);
 	}
 
 }

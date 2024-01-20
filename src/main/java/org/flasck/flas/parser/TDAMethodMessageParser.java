@@ -108,7 +108,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("method-message-send", tok.location, toks.realinfo());
+		errors.logReduction("method-message-assign", slot.location(), toks.realinfo());
 		return nestedParser;
 	}
 

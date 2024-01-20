@@ -15,7 +15,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class ParsedTokens {
 
 	public interface GrammarStep {
-
+		InputPosition location();
 	}
 
 	public static class GrammarToken implements GrammarStep, Comparable<GrammarToken> {
@@ -34,6 +34,11 @@ public class ParsedTokens {
 			return pos.compareTo(o.pos);
 		}
 
+		@Override
+		public InputPosition location() {
+			return pos;
+		}
+
 		public int lineNo() {
 			return pos.lineNo;
 		}
@@ -48,6 +53,10 @@ public class ParsedTokens {
 
 		public int offset() {
 			return pos.off;
+		}
+		
+		public boolean isComment() {
+			return "comment".equals(type);
 		}
 		
 		@Override
@@ -76,6 +85,11 @@ public class ParsedTokens {
 		}
 
 		@Override
+		public InputPosition location() {
+			return first;
+		}
+
+		@Override
 		public int compareTo(ReductionRule o) {
 //			int cmp;
 //			cmp = this.last.compareTo(o.last);
@@ -97,6 +111,10 @@ public class ParsedTokens {
 
 		public boolean includes(InputPosition pos) {
 			return pos.compareTo(first) >= 0 && pos.compareTo(last) <= 0;
+		}
+		
+		public String ruleName() {
+			return rule;
 		}
 
 		@Override

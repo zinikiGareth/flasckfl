@@ -63,6 +63,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 				return;
 			} else {
 				Expr strobj = terms.remove(terms.size() - 1);
+				errors.logReduction("member-expr", strobj.location(), term.location());
 				terms.add(new MemberExpr(strobj.location().copySetEnd(term.location().pastEnd()), strobj, term));
 				haveDot = null;
 				return;

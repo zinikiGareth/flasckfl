@@ -89,6 +89,7 @@ public class TDAImplementationMethodsParser implements TDAParsing, LocationTrack
 	private final FunctionScopeUnitConsumer topLevel;
 	private final StateHolder holder;
 	private InputPosition firstLoc;
+	private InputPosition firstNestedLoc;
 	private InputPosition lastLoc;
 
 	public TDAImplementationMethodsParser(ErrorReporter errors, FunctionNameProvider namer, ImplementationMethodConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
@@ -101,6 +102,8 @@ public class TDAImplementationMethodsParser implements TDAParsing, LocationTrack
 
 	@Override
 	public void updateLoc(InputPosition location) {
+		if (firstNestedLoc == null)
+			firstNestedLoc = location;
 		this.lastLoc = location;
 	}
 
@@ -157,7 +160,9 @@ public class TDAImplementationMethodsParser implements TDAParsing, LocationTrack
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		if (firstNestedLoc != null)
+			errors.logReduction("implementation-method-inner-scope", firstNestedLoc, lastLoc);
 		if (firstLoc != null)
-			errors.logReduction("implemenation-method-with-inner-scope", firstLoc, lastLoc != null ? lastLoc : firstLoc);
+			errors.logReduction("implementation-method-with-inner-scope", firstLoc, lastLoc != null ? lastLoc : firstLoc);
 	}
 }

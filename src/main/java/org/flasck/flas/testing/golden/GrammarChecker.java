@@ -5,12 +5,15 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
 import org.zinutils.exceptions.WrappedException;
@@ -42,7 +45,7 @@ public class GrammarChecker {
 			boolean indented = false;
 			int offset = 0;
 			for (GrammarToken t : toks.tokens()) {
-				System.out.println(t);
+//				System.out.println(t);
 				while (t.lineNo() > lineNo) {
 					pw.println();
 					lineNo++;
@@ -76,10 +79,10 @@ public class GrammarChecker {
 	// (b) internally assert that every token was part of some reduction
 	// (c) internally assert that the final rules do not overlap
 	// (c) return an orchard of reductions & tokens with a TLF at the top of each tree and tokens at the leaves
-	private void computeReductions(ParsedTokens toks) {
+	private GrammarOrchard computeReductions(ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
 		for (ReductionRule rr : toks.reductions()) {
-			System.out.println(rr);
+//			System.out.println(rr);
 			ReductionRule mr = null;
 			for (GrammarToken t : toks.tokens()) {
 				if (rr.includes(t.pos)) {
@@ -88,10 +91,10 @@ public class GrammarChecker {
 					mr = null;
 					if (mostReduced.containsKey(t.pos)) {
 						mr = mostReduced.get(t.pos);
-						System.out.println("  !! " + mr);
+//						System.out.println("  !! " + mr);
 						continue;
 					}
-					System.out.println("  " + t);
+//					System.out.println("  " + t);
 				}
 			}
 			Iterator<Entry<InputPosition, ReductionRule>> it = mostReduced.entrySet().iterator();
@@ -113,12 +116,11 @@ public class GrammarChecker {
 		}
 		
 		// TODO: assert that all of these are TLFs
-		System.out.println("most reduced = " + mostReduced.values());
+//		System.out.println("most reduced = " + mostReduced.values());
 		
 		for (ReductionRule rr : mostReduced.values()) {
 			if (rr.start().indent.tabs != 1 || rr.start().indent.spaces != 0) {
 				// This cannot be a TLF
-				System.out.println("TLFs must have an indent of (1,0): " + rr);
 				fail("TLFs must have an indent of (1,0): " + rr);
 			}
 			// TODO: check against the master list of TLF names
@@ -136,11 +138,69 @@ public class GrammarChecker {
 				continue;
 			
 			// TODO: this is an error
-			System.out.println("token not reduced: " + t);
 			fail("token not reduced: " + t);
 		}
 
 		// TODO: return an orchard of reductions with a TLF at the top of each tree
+		GrammarOrchard ret = new GrammarOrchard();
+		
+		// the reduction rules are in order, and the tokens too ...
+		List<GrammarStep> srstack = new ArrayList<>();
+		Iterator<GrammarToken> tokens = toks.tokens().iterator();
+		Iterator<ReductionRule> rules = toks.reductions().iterator();
+		Iterator<ReductionRule> mit = mostReduced.values().iterator();
+		ReductionRule rr = null;
+		ReductionRule mr = null;
+		GrammarToken nt = null;
+		while (mr != null || mit.hasNext()) {
+			if (mr == null)
+				mr = mit.next();
+
+			if (rr == null && rules.hasNext())
+				rr = rules.next();
+
+			// should we just shift a token
+			if (nt != null || tokens.hasNext()) {
+				if (nt == null)
+					nt = tokens.next();
+				if (nt.isComment()) {
+					nt = null;
+					continue;
+				}
+//				System.out.println(nt);
+	
+				if (rr.includes(nt.pos) || rr.location().compareTo(nt.pos) > 0) {
+					srstack.add(0, nt);
+					nt = null;
+					continue;
+				}
+			}
+			
+			// Now we need to do the reductions, if any
+//			System.out.println("considering rule " + rr + " with " + srstack);
+			GrammarTree tree = new GrammarTree(rr);
+			while (!srstack.isEmpty()) {
+				GrammarStep si = srstack.get(0);
+//				System.out.println("trying to reduce " + si + " with " + rr);
+				if (rr.includes(si.location())) {
+					tree.push(si);
+					srstack.remove(0);
+				} else
+					break;
+			}
+			srstack.add(0, tree);
+			if (rr == mr) {
+				ret.add(tree);
+				mr = null;
+			}
+			rr = null;
+		}
+		
+		PrintWriter pw = new PrintWriter(System.out);
+		ret.dump(pw);
+		pw.flush();
+		
+		return ret;
 	}
 
 	public void checkGrammar() {
