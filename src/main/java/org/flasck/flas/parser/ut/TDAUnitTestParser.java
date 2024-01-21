@@ -33,7 +33,7 @@ public class TDAUnitTestParser implements TDAParsing {
 		}
 		switch (tok.text) {
 		case "data": {
-			return new TDAUnitTestDataParser(errors, false, namer, dd -> builder.data(dd), topLevel).tryParsing(toks);
+			return new TDAUnitTestDataParser(errors, false, tok, namer, dd -> builder.data(dd), topLevel).tryParsing(toks);
 		}
 		case "test": {
 			toks.skipWS(errors);

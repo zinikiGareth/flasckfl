@@ -29,6 +29,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 	protected final StateHolder holder;
 	private boolean seenState;
 	protected InputPosition lastInner;
+	private KeywordToken kw;
 
 	public TDAAgentElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
 		this.errors = errors;
@@ -41,7 +42,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(errors, toks);
+		kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			return null;
 		}
@@ -115,11 +116,14 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName cin = namer.csn(tn.location, "C");
 			final ImplementsContract ci = new ImplementsContract(kw.location, tn.location, (NamedType)consumer, ctr, cin);
-			errors.logReduction("agent-implements-contract", kw.location, tn.location);
+			errors.logReduction("agent-implements-contract-decl", kw.location, tn.location);
 			lastInner = kw.location;
 			consumer.addContractImplementation(ci);
 			topLevel.newContractImpl(errors, ci);
-			ImplementationMethodConsumer imc = om -> { ci.addImplementationMethod(om); lastInner = om.location(); };
+			ImplementationMethodConsumer imc = om -> { 
+				ci.addImplementationMethod(om);
+				lastInner = om.location();
+			};
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), imc, topLevel, ci);
 		}
 		case "method": {

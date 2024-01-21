@@ -160,9 +160,14 @@ public class TDAImplementationMethodsParser implements TDAParsing, LocationTrack
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		// I don't think all three of these should go here, so I think
+		// that when we have multiple methods in a block, these are only going to come out 
+		// for the last method
 		if (firstNestedLoc != null)
 			errors.logReduction("implementation-method-inner-scope", firstNestedLoc, lastLoc);
 		if (firstLoc != null)
 			errors.logReduction("implementation-method-with-inner-scope", firstLoc, lastLoc != null ? lastLoc : firstLoc);
+		if (lastLoc != null)
+			errors.logReduction("agent-implements-contract-block", firstLoc, lastLoc);
 	}
 }

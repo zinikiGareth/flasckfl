@@ -16,11 +16,11 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAProcessFieldsParser implements TDAParsing {
+public class TDAUTDataProcessFieldsParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final UnitDataFieldConsumer data;
 
-	public TDAProcessFieldsParser(ErrorReporter errors, UnitDataFieldConsumer data) {
+	public TDAUTDataProcessFieldsParser(ErrorReporter errors, UnitDataFieldConsumer data) {
 		this.errors = errors;
 		this.data = data;
 	}

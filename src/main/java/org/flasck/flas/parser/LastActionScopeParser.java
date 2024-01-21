@@ -32,7 +32,7 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		lastPos = toks.realinfo();
 		if (from == null)
-			lastPos = from;
+			from = lastPos;
 		return parser.tryParsing(toks);
 	}
 

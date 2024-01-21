@@ -68,10 +68,10 @@ public class TestStepParser implements TDAParsing {
 			return closeCard(toks);
 		}
 		case "contract": {
-			return handleSendToContract(toks);
+			return handleSendToContract(kw, toks);
 		}
 		case "data": {
-			return handleDataDecl(toks);
+			return handleDataDecl(kw, toks);
 		}
 		case "newdiv":
 			return handleNewdiv(toks);
@@ -172,7 +172,7 @@ public class TestStepParser implements TDAParsing {
 		return new SingleExpressionParser(errors, "shove", expr -> { builder.shove(slots, expr); });
 	}
 
-	protected TDAParsing handleSendToContract(Tokenizable toks) {
+	protected TDAParsing handleSendToContract(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "contract requires a card variable to send the event to");
@@ -197,6 +197,7 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		errors.logReduction("test-send-to-contract", kw, eventObj.get(0));
 		builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
 		return new NoNestingParser(errors);
 	}
@@ -211,8 +212,8 @@ public class TestStepParser implements TDAParsing {
 		return new NoNestingParser(errors);
 	}
 
-	protected TDAParsing handleDataDecl(Tokenizable toks) {
-		return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(errors, dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
+	protected TDAParsing handleDataDecl(KeywordToken kw, Tokenizable toks) {
+		return new TDAUnitTestDataParser(errors, false, kw, namer, dd -> { builder.data(errors, dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
 	}
 
 	protected TDAParsing handleNewdiv(Tokenizable toks) {

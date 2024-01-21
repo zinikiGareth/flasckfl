@@ -21,7 +21,7 @@ import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.ut.TDAProcessFieldsParser;
+import org.flasck.flas.parser.ut.TDAUTDataProcessFieldsParser;
 import org.flasck.flas.parser.ut.TDAUnitTestParser;
 import org.flasck.flas.parser.ut.TestStepParser;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -97,7 +97,7 @@ public class UnitTestTopLevelParsingTests {
 		}});
 		TDAUnitTestParser utp = new TDAUnitTestParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(line("data SomeCard card"));
-		assertTrue(nested instanceof TDAProcessFieldsParser);
+		assertTrue(nested instanceof TDAUTDataProcessFieldsParser);
 		
 		UnitDataDeclaration data = (UnitDataDeclaration) captureIt.get(0);
 		assertEquals("test.pkg._ut_file.card", data.name.uniqueName());
@@ -110,7 +110,7 @@ public class UnitTestTopLevelParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(udc).field((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(ExprMatcher.number(86)));
 		}});
-		TDAProcessFieldsParser utp = new TDAProcessFieldsParser(tracker, udc);
+		TDAUTDataProcessFieldsParser utp = new TDAUTDataProcessFieldsParser(tracker, udc);
 		TDAParsing nested = utp.tryParsing(line("x <- 86"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
@@ -123,7 +123,7 @@ public class UnitTestTopLevelParsingTests {
 			oneOf(udc).field((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(ExprMatcher.number(86)));
 			oneOf(udc).field((UnresolvedVar) with(ExprMatcher.unresolved("y")), with(ExprMatcher.string("hello")));
 		}});
-		TDAProcessFieldsParser utp = new TDAProcessFieldsParser(tracker, udc);
+		TDAUTDataProcessFieldsParser utp = new TDAUTDataProcessFieldsParser(tracker, udc);
 		TDAParsing nested = utp.tryParsing(line("x <- 86"));
 		assertTrue(nested instanceof NoNestingParser);
 		utp.tryParsing(line("y <- 'hello'"));

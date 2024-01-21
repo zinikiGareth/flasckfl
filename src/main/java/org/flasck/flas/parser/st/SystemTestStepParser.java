@@ -57,10 +57,10 @@ public class SystemTestStepParser extends TestStepParser {
 //			return handleShove(toks);
 //		}
 		case "contract": {
-			return handleSendToContract(toks);
+			return handleSendToContract(kw, toks);
 		}
 		case "data": {
-			return handleDataDecl(toks);
+			return handleDataDecl(kw, toks);
 		}
 //		case "newdiv":
 //			return handleNewdiv(toks);
