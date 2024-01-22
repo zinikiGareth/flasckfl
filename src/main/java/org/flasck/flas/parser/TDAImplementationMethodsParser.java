@@ -88,16 +88,18 @@ public class TDAImplementationMethodsParser implements TDAParsing, LocationTrack
 	private final FunctionNameProvider namer;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final StateHolder holder;
+	private final LocationTracker locTracker;
 	private InputPosition firstLoc;
 	private InputPosition firstNestedLoc;
 	private InputPosition lastLoc;
 
-	public TDAImplementationMethodsParser(ErrorReporter errors, FunctionNameProvider namer, ImplementationMethodConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
+	public TDAImplementationMethodsParser(ErrorReporter errors, FunctionNameProvider namer, ImplementationMethodConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
 		this.errors = errors;
 		this.namer = namer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 		this.holder = holder;
+		this.locTracker = locTracker;
 	}
 
 	@Override
@@ -150,6 +152,7 @@ public class TDAImplementationMethodsParser implements TDAParsing, LocationTrack
 		}
 		final ObjectMethod meth = new ObjectMethod(name.location, methName, args, handler, holder);
 		errors.logReduction("contract-method-implementation-declaration", methName.location, lastLoc);
+		locTracker.updateLoc(firstLoc);
 		consumer.addImplementationMethod(meth);
 		topLevel.newObjectMethod(errors, meth);
 		InnerPackageNamer innerNamer = new InnerPackageNamer(methName);
@@ -167,7 +170,5 @@ public class TDAImplementationMethodsParser implements TDAParsing, LocationTrack
 			errors.logReduction("implementation-method-inner-scope", firstNestedLoc, lastLoc);
 		if (firstLoc != null)
 			errors.logReduction("implementation-method-with-inner-scope", firstLoc, lastLoc != null ? lastLoc : firstLoc);
-		if (lastLoc != null)
-			errors.logReduction("agent-implements-contract-block", firstLoc, lastLoc);
 	}
 }

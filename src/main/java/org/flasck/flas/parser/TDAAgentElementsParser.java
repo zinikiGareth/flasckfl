@@ -82,7 +82,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final CSName csn = namer.csn(tn.location, "S");
 			final Provides contractService = new Provides(kw.location, tn.location, (NamedType)consumer, ctr, csn);
 			consumer.addProvidedService(contractService);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel, holder);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel, holder, this);
 		}
 		case "requires": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
@@ -134,7 +134,10 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				ci.addImplementationMethod(om);
 				lastInner = om.location();
 			};
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), imc, topLevel, ci);
+			currentItem = () -> { errors.logReduction("agent-implements-contract-block", kw.location, lastInner);};
+			if (tracker != null)
+				tracker.updateLoc(kw.location);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), imc, topLevel, ci, this);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);

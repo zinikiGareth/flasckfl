@@ -57,7 +57,7 @@ public class TDAMethodParser implements LocationTracker {
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null, holder);
 		builder.addMethod(meth);
 		FunctionScopeNamer nestedNamer = new InnerPackageNamer(fnName);
-		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder, null), this);
+		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder, this), this);
 	}
 
 	@Override

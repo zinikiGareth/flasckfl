@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -15,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
 
-public class HandlerLambda implements RepositoryEntry {
+public class HandlerLambda implements RepositoryEntry, Locatable {
 	public final static Logger unilogger = LoggerFactory.getLogger("TCUnification");
 	public final Pattern patt;
 	public final boolean isNested;

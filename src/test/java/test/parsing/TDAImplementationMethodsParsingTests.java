@@ -41,7 +41,7 @@ public class TDAImplementationMethodsParsingTests {
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
-		parser = new TDAImplementationMethodsParser(errors, namer, consumer, topLevel, null);
+		parser = new TDAImplementationMethodsParser(errors, namer, consumer, topLevel, null, null);
 	}
 
 	@Test

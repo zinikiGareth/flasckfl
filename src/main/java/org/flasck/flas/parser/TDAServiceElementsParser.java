@@ -65,7 +65,7 @@ public class TDAServiceElementsParser implements TDAParsing, LocationTracker {
 			final CSName csn = namer.csn(tn.location, "S");
 			final Provides cs = new Provides(kw.location, tn.location, (NamedType)service, ctr, csn);
 			consumer.addProvidedService(cs);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), cs, topLevel, null);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), cs, topLevel, null, this);
 		}
 		case "requires": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);

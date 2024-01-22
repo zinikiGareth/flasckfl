@@ -108,7 +108,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			onComplete = () -> { errors.logReduction("card-definition", kw.location, lastInner); };
 			return new TDAMultiParser(errors, 
 				sh,
-				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer, holder),
+				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer, holder, this),
 				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, holder, this),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, holder)
 			);
@@ -225,7 +225,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			ObjectNestedNamer onn = new ObjectNestedNamer(on);
 			TDAMultiParser ret = new TDAMultiParser(errors, 
 				errors -> new TDAObjectElementsParser(errors, onn, od, consumer),
-				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer, od),
+				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer, od, this),
 				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, od, this),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od)
 			);
@@ -268,7 +268,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 		}
 		case "handler": {
 //			HandlerNameProvider provider = text -> consumer.handlerName(text);
-			return new TDAHandlerParser(errors, null, namer, consumer, null).parseHandler(kw.location, false, toks);
+			return new TDAHandlerParser(errors, null, namer, consumer, null, this).parseHandler(kw.location, false, toks);
 		}
 		case "method": {
 //			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
@@ -283,7 +283,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 	
 	@Override
 	public void updateLoc(InputPosition location) {
-		if (location != null)
+		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
 			lastInner = location;
 	}
 

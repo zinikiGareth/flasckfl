@@ -142,6 +142,6 @@ public class ParsingPhase implements ParserScanner {
 	}
 	
 	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
-		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel, holder), TDAMethodParser.constructor(namer, sb, topLevel, holder, locTracker), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel, holder, locTracker), TDATupleDeclarationParser.constructor(namer, topLevel, holder));
+		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel, holder, locTracker), TDAMethodParser.constructor(namer, sb, topLevel, holder, locTracker), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel, holder, locTracker), TDATupleDeclarationParser.constructor(namer, topLevel, holder));
 	}
 }
