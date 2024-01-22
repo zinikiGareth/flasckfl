@@ -59,10 +59,10 @@ public class TestStepParser implements TDAParsing {
 			return handleAssert(kw, toks);
 		}
 		case "identical": {
-			return handleIdentical(toks);
+			return handleIdentical(kw, toks);
 		}
 		case "shove": {
-			return handleShove(toks);
+			return handleShove(kw, toks);
 		}
 		case "close": {
 			return closeCard(toks);
@@ -82,7 +82,7 @@ public class TestStepParser implements TDAParsing {
 			return handleEvent(toks);
 		}
 		case "input": {
-			return handleInput(toks);
+			return handleInput(kw, toks);
 		}
 		case "invoke": {
 			return handleInvoke(toks);
@@ -91,7 +91,7 @@ public class TestStepParser implements TDAParsing {
 			return handleExpect(toks);
 		}
 		case "match": {
-			return handleMatch(toks);
+			return handleMatch(kw, toks);
 		}
 		default: {
 			toks.reset(mark);
@@ -116,10 +116,10 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, "assert", ex -> { errors.logReduction("ut-assert", kw, ex); builder.assertion(test.get(0), ex); });
+		return new SingleExpressionParser(errors, kw, "assert", ex -> { errors.logReduction("ut-assert", kw, ex); builder.assertion(test.get(0), ex); });
 	}
 
-	protected TDAParsing handleIdentical(Tokenizable toks) {
+	protected TDAParsing handleIdentical(KeywordToken kw, Tokenizable toks) {
 		List<Expr> test = new ArrayList<>();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> test.add(x));
 		expr.tryParsing(toks);
@@ -134,10 +134,10 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, "identical", ex -> { builder.identical(test.get(0), ex); });
+		return new SingleExpressionParser(errors, kw, "identical", ex -> { builder.identical(test.get(0), ex); });
 	}
 
-	protected TDAParsing handleShove(Tokenizable toks) {
+	protected TDAParsing handleShove(KeywordToken kw, Tokenizable toks) {
 		List<UnresolvedVar> slots = new ArrayList<>();
 		boolean haveDot = false;
 		while (true) {
@@ -169,7 +169,8 @@ public class TestStepParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 
-		return new SingleExpressionParser(errors, "shove", expr -> { builder.shove(slots, expr); });
+		errors.logReduction("test-step-shove", kw, slots.get(slots.size()-1));
+		return new SingleExpressionParser(errors, kw, "shove", expr -> { builder.shove(slots, expr); });
 	}
 
 	protected TDAParsing handleSendToContract(KeywordToken kw, Tokenizable toks) {
@@ -290,7 +291,7 @@ public class TestStepParser implements TDAParsing {
 		return new NoNestingParser(errors);
 	}
 
-	protected TDAParsing handleInput(Tokenizable toks) {
+	protected TDAParsing handleInput(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "must specify a card to receive event");
@@ -304,7 +305,7 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, "input", text -> { builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text); });
+		return new SingleExpressionParser(errors, kw, "input", text -> { builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text); });
 	}
 
 	protected TDAParsing handleInvoke(Tokenizable toks) {
@@ -384,7 +385,7 @@ public class TestStepParser implements TDAParsing {
 		return new NoNestingParser(errors);
 	}
 
-	protected TDAParsing handleMatch(Tokenizable toks) {
+	protected TDAParsing handleMatch(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken card = VarNameToken.from(errors, toks);
 		if (card == null) {
 			errors.message(toks, "missing card");
@@ -423,13 +424,16 @@ public class TestStepParser implements TDAParsing {
 		TargetZone targetZoneTmp = new TargetZone(toks.realinfo(), new ArrayList<>());
 		boolean containsTmp = false;
 		boolean failsTmp = false;
+		InputPosition lastLoc = whattok.location;
 		if (toks.hasMoreContent(errors)) {
 			targetZoneTmp = parseTargetZone(toks);
 			if (targetZoneTmp == null) {
 				return new IgnoreNestedParser(errors);
 			}
+			lastLoc = targetZoneTmp.location;
 			ValidIdentifierToken option = VarNameToken.from(errors, toks);
 			if (option != null) {
+				lastLoc = option.location;
 				if ("contains".equals(option.text)) {
 					containsTmp = true;
 				} else if ("fails".equals(option.text)) {
@@ -447,8 +451,12 @@ public class TestStepParser implements TDAParsing {
 		final TargetZone targetZone = targetZoneTmp;
 		final boolean contains = containsTmp;
 		final boolean fails = failsTmp;
+		errors.logReduction("unittest-match-command", kw.location, lastLoc);
 		// TODO: should we return an expression parser for scroll matching?
-		return new FreeTextParser(errors, text -> { builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, fails, text); });
+		return new FreeTextParser(kw, errors, (lastPos, text) -> {
+			errors.logReduction("unit-test-match-with-free-text", kw.location, lastPos);
+			builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, fails, text);
+		});
 	}
 
 	public TargetZone parseTargetZone(Tokenizable toks) {

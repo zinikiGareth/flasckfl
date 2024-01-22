@@ -9,16 +9,20 @@ import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class SingleExpressionParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final KeywordToken kw;
 	private final String op;
 	private final Consumer<Expr> builder;
 	private int exprCount = 0;
+	private Expr exprLoc;
 
-	public SingleExpressionParser(ErrorReporter errors, String op, Consumer<Expr> builder) {
+	public SingleExpressionParser(ErrorReporter errors, KeywordToken kw, String op, Consumer<Expr> builder) {
 		this.errors = errors;
+		this.kw = kw;
 		this.op = op;
 		this.builder = builder;
 	}
@@ -27,7 +31,7 @@ public class SingleExpressionParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (++exprCount > 1)
 			return new IgnoreNestedParser(errors);
-		TDAExpressionParser expr = new TDAExpressionParser(errors, builder);
+		TDAExpressionParser expr = new TDAExpressionParser(errors, e -> { exprLoc = e; builder.accept(e); });
 		expr.tryParsing(toks);
 		if (toks.hasMoreContent(errors)){
 			errors.message(toks, "syntax error");
@@ -40,6 +44,8 @@ public class SingleExpressionParser implements TDAParsing {
 	public void scopeComplete(InputPosition location) {
 		if (exprCount != 1)
 			errors.message(location, op + " requires exactly one match expression");
+		if (kw != null)
+			errors.logReduction("match-or-shove-with-expression", kw, exprLoc);
 	}
 
 }

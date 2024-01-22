@@ -12,6 +12,8 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.resolver.NestingChain;
@@ -22,7 +24,29 @@ import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
-public class TDACardElementsParser extends TDAAgentElementsParser {
+public class TDACardElementsParser extends TDAAgentElementsParser implements LocationTracker {
+
+	private static class TemplateBindingCaptureLoc implements TemplateBindingConsumer {
+		private final LocationTracker tracker;
+		private final Template template;
+
+		private TemplateBindingCaptureLoc(LocationTracker tracker, Template template) {
+			this.tracker = tracker;
+			this.template = template;
+		}
+
+		@Override
+		public void addStyling(TemplateStylingOption style) {
+			tracker.updateLoc(style.location());
+			template.addStyling(style);
+		}
+
+		@Override
+		public void addBinding(TemplateBinding binding) {
+			tracker.updateLoc(binding.location());
+			template.addBinding(binding);
+		}
+	}
 
 	public TDACardElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
 		super(errors, kwloc, namer, consumer, topLevel, holder);
@@ -38,6 +62,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				errors.message(toks, "template must have a name");
 				return new IgnoreNestedParser(errors);
 			}
+			InputPosition lastLoc = tn.location;
 			int pos = consumer.templatePosn();
 			if (pos == 0 && toks.hasMoreContent(errors)) {
 				errors.message(toks, "main template cannot declare chain");
@@ -49,11 +74,15 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				chain = parseChain(errors, namer, toks);
 				if (em.hasMoreNow())
 					return new IgnoreNestedParser(errors);
+				lastLoc = chain.location();
 			}
+			errors.logReduction("card-template-intro", kw.location, lastLoc);
+			lastInner = kw.location;
 			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.location, tn.text), pos, chain);
 			consumer.addTemplate(template);
 			topLevel.newTemplate(errors, template);
-			return new TDATemplateBindingParser(errors, template, namer, template);
+			TemplateBindingConsumer c = new TemplateBindingCaptureLoc(this, template);
+			return new TDATemplateBindingParser(errors, template, namer, c);
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
@@ -127,6 +156,11 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 		errors.logReduction("card-definition", kwloc, lastInner != null ? lastInner : kwloc);
 	}
 
+	@Override
+	public void updateLoc(InputPosition location) {
+		this.lastInner = location;
+	}
+	
 	@Override
 	public FunctionName functionName(InputPosition location, String base) {
 		return FunctionName.function(location, consumer.cardName(), base);

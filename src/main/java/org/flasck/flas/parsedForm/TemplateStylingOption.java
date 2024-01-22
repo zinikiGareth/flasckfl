@@ -2,18 +2,25 @@ package org.flasck.flas.parsedForm;
 
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 
 public class TemplateStylingOption extends TemplateCustomization {
+	private final InputPosition barPos;
 	public final Expr cond;
 	public final List<Expr> styles;
 	public final List<Expr> orelse;
 
-	public TemplateStylingOption(Expr cond, List<Expr> styles, List<Expr> orelse) {
+	public TemplateStylingOption(InputPosition barPos, Expr cond, List<Expr> styles, List<Expr> orelse) {
+		this.barPos = barPos;
 		this.cond = cond;
 		this.styles = styles;
 		this.orelse = orelse;
+	}
+
+	public InputPosition location() {
+		return barPos;
 	}
 
 	public String strings() {

@@ -3,6 +3,8 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class TemplateBinding extends TemplateCustomization {
 	public final TemplateField assignsTo;
 	public final List<TemplateBindingOption> conditionalBindings = new ArrayList<>();
@@ -25,6 +27,10 @@ public class TemplateBinding extends TemplateCustomization {
 		if (!conditionalBindings.isEmpty())
 			return true;
 		return defaultBinding != null && defaultBinding.expr != null;
+	}
+	
+	public InputPosition location() {
+		return assignsTo.location();
 	}
 	
 	@Override

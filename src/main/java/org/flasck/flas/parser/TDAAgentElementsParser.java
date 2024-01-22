@@ -55,6 +55,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final StateDefinition state = new StateDefinition(kw.location, toks.realinfo(), ((NamedType)consumer).name());
 			consumer.defineState(state);
 			seenState = true;
+			lastInner = kw.location;
 			
 			return new TDAStructFieldParser(errors, state, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}
@@ -128,7 +129,10 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
-			MethodConsumer smConsumer = om -> { topLevel.newStandaloneMethod(errors, new StandaloneMethod(om)); };
+			MethodConsumer smConsumer = om -> { 
+				topLevel.newStandaloneMethod(errors, new StandaloneMethod(om));
+				lastInner = om.location();
+			};
 			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, holder).parseMethod(namer, toks);
 		}
 		default:

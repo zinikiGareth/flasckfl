@@ -15,17 +15,19 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDATemplateBindingParser implements TDAParsing {
+public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 	private final ErrorReporter errors;
 	private final Template source;
 	private final TemplateNamer namer;
 	private final TemplateBindingConsumer consumer;
+	private InputPosition lastInner;
 
 	public TDATemplateBindingParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingConsumer consumer) {
 		this.errors = errors;
 		this.source = source;
 		this.namer = namer;
 		this.consumer = consumer;
+		this.lastInner = source.location();
 	}
 
 	@Override
@@ -34,13 +36,15 @@ public class TDATemplateBindingParser implements TDAParsing {
 		if (tok == null) {
 			ExprToken et = ExprToken.from(errors, toks);
 			if (et != null && et.text.equals("|")) {
-				return TDAParseTemplateElements.parseStyling(errors, source, namer, toks, x -> consumer.addStyling(x));
+				return TDAParseTemplateElements.parseStyling(errors, et.location, source, namer, toks, x -> consumer.addStyling(x));
 			} else {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
 			}
 		}
 		TemplateField field = new TemplateField(tok.location, tok.text);
+		InputPosition lastLoc = field.location();
+		lastInner = lastLoc;
 		TemplateBindingOption simple = null;
 		if (toks.hasMoreContent(errors)) {
 			ExprToken send = ExprToken.from(errors, toks);
@@ -60,6 +64,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 			Expr expr = seen.get(0);
+			lastLoc = expr.location();
 			TemplateReference sendsTo = null;
 			if (toks.hasMoreContent(errors)) {
 				ExprToken format = ExprToken.from(errors, toks);
@@ -72,20 +77,27 @@ public class TDATemplateBindingParser implements TDAParsing {
 					errors.message(toks, "missing template name");
 					return new IgnoreNestedParser(errors);
 				}
+				lastLoc = dest.location;
 				sendsTo = new TemplateReference(dest.location, namer.template(dest.location, dest.text));
 			}
 			simple = new TemplateBindingOption(field, null, expr, sendsTo);
 		}
+		errors.logReduction("template-binding-first-line", tok.location, lastLoc);
 		final TemplateBinding binding = new TemplateBinding(field, simple);
 		consumer.addBinding(binding);
 		if (simple != null)
-			return new TDATemplateOptionsParser(errors, source, namer, simple, field);
+			return new TDATemplateOptionsParser(errors, source, namer, simple, field, this);
 		else
-			return new TDATemplateOptionsParser(errors, source, namer, binding, field);
+			return new TDATemplateOptionsParser(errors, source, namer, binding, field, this);
+	}
+
+	@Override
+	public void updateLoc(InputPosition location) {
+		this.lastInner = location;
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		errors.logReduction("something-about-template-bindings-being-complete", source.location(), lastInner);
 	}
-
 }

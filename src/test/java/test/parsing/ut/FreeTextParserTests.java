@@ -2,14 +2,14 @@ package test.parsing.ut;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.function.Consumer;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
+import org.flasck.flas.parser.LocatableConsumer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.ut.FreeTextParser;
+import org.flasck.flas.tokenizers.KeywordToken;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -22,8 +22,9 @@ public class FreeTextParserTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	@SuppressWarnings("unchecked")
-	private Consumer<String> handler = context.mock(Consumer.class);
+	private LocatableConsumer<String> handler = context.mock(LocatableConsumer.class);
 	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
+	private KeywordToken kw = new KeywordToken(pos, "match", 5);
 
 	@Before
 	public void setup() {
@@ -35,9 +36,9 @@ public class FreeTextParserTests {
 	@Test
 	public void aSimpleOneLiner() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept("hello");
+			oneOf(handler).accept(pos, "hello");
 		}});
-		FreeTextParser p = new FreeTextParser(tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		p.scopeComplete(pos);
 	}
@@ -45,9 +46,9 @@ public class FreeTextParserTests {
 	@Test
 	public void twoLinesSameIndentation() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept("hello world");
+			oneOf(handler).accept(pos, "hello world");
 		}});
-		FreeTextParser p = new FreeTextParser(tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		p.tryParsing(UnitTestTopLevelParsingTests.line("world"));
 		p.scopeComplete(pos);
@@ -56,9 +57,9 @@ public class FreeTextParserTests {
 	@Test
 	public void twoLinesSecondIndented() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept("hello world");
+			oneOf(handler).accept(pos, "hello world");
 		}});
-		FreeTextParser p = new FreeTextParser(tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		TDAParsing indented = p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		assertTrue(indented instanceof FreeTextParser);
 		indented.tryParsing(UnitTestTopLevelParsingTests.line("world"));
@@ -69,9 +70,9 @@ public class FreeTextParserTests {
 	@Test
 	public void threeLinesSecondThirdIndented() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept("hello there world");
+			oneOf(handler).accept(pos, "hello there world");
 		}});
-		FreeTextParser p = new FreeTextParser(tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		TDAParsing indented = p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		assertTrue(indented instanceof FreeTextParser);
 		indented.tryParsing(UnitTestTopLevelParsingTests.line("there"));
@@ -83,9 +84,9 @@ public class FreeTextParserTests {
 	@Test
 	public void threeLinesSecondIndentedThirdNot() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept("hello there world");
+			oneOf(handler).accept(pos, "hello there world");
 		}});
-		FreeTextParser p = new FreeTextParser(tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		TDAParsing indented = p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		assertTrue(indented instanceof FreeTextParser);
 		indented.tryParsing(UnitTestTopLevelParsingTests.line("there"));

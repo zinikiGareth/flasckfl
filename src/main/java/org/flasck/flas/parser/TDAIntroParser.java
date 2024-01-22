@@ -195,6 +195,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser(errors);
 			}
+			InputPosition lastLoc = tn.location;
 			ObjectName on = namer.objectName(tn.text);
 			SimpleVarNamer svn = new SimpleVarNamer(on);
 			List<PolyType> polys = new ArrayList<>();
@@ -205,11 +206,13 @@ public class TDAIntroParser implements TDAParsing {
 					return new IgnoreNestedParser(errors);
 				} else
 					polys.add(ta.asType(svn));
+				lastLoc = ta.location;
 			}
 			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser(errors);
 			}
+			errors.logReduction("object-defn-decl", kw.location, lastLoc);
 			ObjectDefn od = new ObjectDefn(kw.location, tn.location, on, true, polys);
 			consumer.newObject(errors, od);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
@@ -223,6 +226,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od)
 			);
 			ret.onComplete((errors,location) -> {
+				errors.logReduction("object-defn-complete", kw.location, location);
 				od.complete(errors, location);
 			});
 			return ret;

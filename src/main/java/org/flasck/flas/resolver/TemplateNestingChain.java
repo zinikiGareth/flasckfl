@@ -50,6 +50,10 @@ public class TemplateNestingChain implements NestingChain {
 		public void clean() {
 			this.actual = null;
 		}
+
+		public InputPosition location() {
+			return name.loc;
+		}
 	}
 
 	private final TemplateNamer namer;
@@ -57,6 +61,11 @@ public class TemplateNestingChain implements NestingChain {
 
 	public TemplateNestingChain(TemplateNamer namer) {
 		this.namer = namer;
+	}
+
+	@Override
+	public InputPosition location() {
+		return links.get(links.size()-1).location();
 	}
 
 	@Override

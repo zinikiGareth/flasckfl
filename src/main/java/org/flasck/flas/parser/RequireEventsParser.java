@@ -32,7 +32,7 @@ public class RequireEventsParser implements TDAParsing {
 		}
 		if ("|".equals(tok.text)) {
 			seenHandler = true;
-			return TDAParseTemplateElements.parseStyling(errors, source, namer, toks, nested -> tso.conditionalStylings.add(nested));
+			return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, nested -> tso.conditionalStylings.add(nested));
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
 			seenHandler = true;

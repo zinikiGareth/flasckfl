@@ -17,23 +17,26 @@ public class TDATemplateOptionsParser implements TDAParsing {
 	private final TemplateBinding binding;
 	private final TemplateCustomization customizer;
 	private final TemplateField field;
+	private final LocationTracker endOfTemplate;
 	private boolean seenContent;
 
-	public TDATemplateOptionsParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBinding binding, TemplateField field) {
+	public TDATemplateOptionsParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBinding binding, TemplateField field, LocationTracker endofTemplate) {
 		this.errors = errors;
 		this.source = source;
 		this.namer = namer;
 		this.binding = binding;
 		this.customizer = binding;
 		this.field = field;
+		this.endOfTemplate = endofTemplate;
 	}
 
-	public TDATemplateOptionsParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingOption option, TemplateField field) {
+	public TDATemplateOptionsParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingOption option, TemplateField field, LocationTracker endOfTemplate) {
 		this.errors = errors;
 		this.source = source;
 		this.namer = namer;
 		this.customizer = option;
 		this.field = field;
+		this.endOfTemplate = endOfTemplate;
 		this.binding = null;
 	}
 
@@ -57,9 +60,16 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(tok.location, "cannot mix bindings and customization");
 			}
 			if (toksHasSend(toks))
-				return TDAParseTemplateElements.parseConditionalBindingOption(errors, source, namer, toks, field, tbo -> binding.conditionalBindings.add(tbo));
+				return TDAParseTemplateElements.parseConditionalBindingOption(errors, source, namer, toks, field, tbo -> {
+					binding.conditionalBindings.add(tbo);
+					endOfTemplate.updateLoc(tbo.location());
+				}, endOfTemplate);
 			else
-				return TDAParseTemplateElements.parseStyling(errors, source, namer, toks, tso -> customizer.conditionalStylings.add(tso));
+				return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> {
+					customizer.conditionalStylings.add(tso);
+					endOfTemplate.updateLoc(tso.location());
+				});
+			
 		} else if ("<-".equals(tok.text)) {
 			// It's a default send binding
 			if (binding == null) {
@@ -70,7 +80,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(toks, "multiple default bindings are not permitted");
 				return new IgnoreNestedParser(errors);
 			}
-			return TDAParseTemplateElements.parseDefaultBindingOption(errors, source, namer, toks, field, tbo -> binding.defaultBinding = tbo);
+			return TDAParseTemplateElements.parseDefaultBindingOption(errors, source, namer, toks, field, tbo -> binding.defaultBinding = tbo, loc -> {});
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
 			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> customizer.events.add(ev));

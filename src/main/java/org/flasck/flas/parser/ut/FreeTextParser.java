@@ -2,12 +2,13 @@ package org.flasck.flas.parser.ut;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.LocatableConsumer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.FreeTextToken;
+import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 /** This is intended to build up arbitrary numbers of lines of text
@@ -17,35 +18,54 @@ import org.flasck.flas.tokenizers.Tokenizable;
  *
  */
 public class FreeTextParser implements TDAParsing {
+	private final KeywordToken kw;
 	private final ErrorReporter errors;
+	private final LocatableConsumer<String> handler;
+	private final FreeTextParser parent;
 	private final List<String> buffers;
-	private final Consumer<String> handler;
+	private InputPosition firstLoc;
+	private InputPosition lastLoc;
 	
-	public FreeTextParser(ErrorReporter errors, Consumer<String> freeTextHandler) {
+	public FreeTextParser(KeywordToken kw, ErrorReporter errors, LocatableConsumer<String> freeTextHandler) {
+		this.kw = kw;
 		this.errors = errors;
 		this.handler = freeTextHandler;
+		this.parent = null;
 		this.buffers = new ArrayList<>();
+		this.lastLoc = kw.location();
 	}
 
-	public FreeTextParser(FreeTextParser parent) {
+	public FreeTextParser(KeywordToken kw, FreeTextParser parent) {
+		this.kw = kw;
 		this.errors = parent.errors;
 		this.handler = null;
+		this.parent = parent;
 		this.buffers = parent.buffers;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		InputPosition pos = toks.realinfo();
+		if (firstLoc == null)
+			firstLoc = pos;
+		lastLoc = pos;
 		String tok = toks.remainder();
 		errors.logParsingToken(new FreeTextToken(pos, tok));
 		this.buffers.add(tok);
-		return new FreeTextParser(this);
+		return new FreeTextParser(kw, this);
+	}
+
+	private void seenTextAt(InputPosition later) {
+		if (later != null)
+			lastLoc = later;
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
 		if (this.handler != null)
-			this.handler.accept(String.join(" ", buffers));
+			this.handler.accept(lastLoc, String.join(" ", buffers));
+		else if (parent != null) {
+			parent.seenTextAt(lastLoc);
+		}
 	}
-
 }

@@ -71,7 +71,7 @@ public class SystemTestStepParser extends TestStepParser {
 			return handleEvent(toks);
 		}
 		case "input": {
-			return handleInput(toks);
+			return handleInput(kw, toks);
 		}
 //		case "invoke": {
 //			return handleInvoke(toks);
@@ -80,7 +80,7 @@ public class SystemTestStepParser extends TestStepParser {
 //			return handleExpect(toks);
 //		}
 		case "match": {
-			return handleMatch(toks);
+			return handleMatch(kw, toks);
 		}
 		case "ajax": {
 			return handleAjax(toks);

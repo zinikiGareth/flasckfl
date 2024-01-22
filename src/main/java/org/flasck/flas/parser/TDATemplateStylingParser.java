@@ -29,7 +29,7 @@ public class TDATemplateStylingParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		if ("|".equals(tok.text)) {
-			return TDAParseTemplateElements.parseStyling(errors, source, namer, toks, tso -> customizer.conditionalStylings.add(tso));
+			return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> customizer.conditionalStylings.add(tso));
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
 			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> customizer.events.add(ev));

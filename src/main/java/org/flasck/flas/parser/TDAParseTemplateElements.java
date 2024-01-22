@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
@@ -19,7 +20,7 @@ import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAParseTemplateElements {
-	public static TDAParsing parseConditionalBindingOption(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer) {
+	public static TDAParsing parseConditionalBindingOption(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer, LocationTracker tracker) {
 		List<Expr> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
 			seen.add(t);
@@ -39,22 +40,22 @@ public class TDAParseTemplateElements {
 				return new IgnoreNestedParser(errors);
 			TemplateBindingOption tc = tbo.conditionalOn(seen.get(0));
 			consumer.accept(tc);
-			return new TDATemplateOptionsParser(errors, source, namer, tc, field);
+			return new TDATemplateOptionsParser(errors, source, namer, tc, field, tracker);
 		} else {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
 	}
 
-	public static TDAParsing parseDefaultBindingOption(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer) {
+	public static TDAParsing parseDefaultBindingOption(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer, LocationTracker tracker) {
 		TemplateBindingOption tc = TDAParseTemplateElements.readTemplateBinding(errors, namer, toks, field);
 		if (tc == null)
 			return new IgnoreNestedParser(errors);
 		consumer.accept(tc);
-		return new TDATemplateOptionsParser(errors, source, namer, tc, field);
+		return new TDATemplateOptionsParser(errors, source, namer, tc, field, tracker);
 	}
 
-	public static TDAParsing parseStyling(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, Consumer<TemplateStylingOption> consumer) {
+	public static TDAParsing parseStyling(ErrorReporter errors, InputPosition barPos, Template source, TemplateNamer namer, Tokenizable toks, Consumer<TemplateStylingOption> consumer) {
 		List<Expr> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
 			seen.add(t);
@@ -62,12 +63,12 @@ public class TDAParseTemplateElements {
 		Expr expr = seen.size() == 0 ? null : seen.get(0);
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
-			TemplateStylingOption tso = new TemplateStylingOption(expr, new ArrayList<>(), null);
+			TemplateStylingOption tso = new TemplateStylingOption(barPos, expr, new ArrayList<>(), null);
 			consumer.accept(tso);
 			return new RequireEventsParser(errors, toks.realinfo(), source, namer, tso);
 		}
 		if ("=>".equals(tok.text)) {
-			TemplateStylingOption tso = readTemplateStyles(errors, expr, toks);
+			TemplateStylingOption tso = readTemplateStyles(barPos, errors, expr, toks);
 			if (tso == null)
 				return new IgnoreNestedParser(errors);
 			consumer.accept(tso);
@@ -128,24 +129,17 @@ public class TDAParseTemplateElements {
 		return new TemplateBindingOption(field, null, seen.get(0), sendTo);
 	}
 
-	public static TemplateStylingOption readTemplateStyles(ErrorReporter errors, Expr expr, Tokenizable toks) {
+	public static TemplateStylingOption readTemplateStyles(InputPosition barPos, ErrorReporter errors, Expr expr, Tokenizable toks) {
 		List<Expr> styles = new ArrayList<>();
 		List<Expr> orelse = null;
 		List<Expr> addTo = styles;
+		InputPosition lastLoc = barPos;
+		if (expr != null)
+			lastLoc = expr.location();
 		while (toks.hasMoreContent(errors)) {
-//			InputPosition pos = toks.realinfo();
-//			String s = StringToken.from(errors, toks);
-//			if (s != null) {
-//				addTo.add(new StringLiteral(pos, s));
-//				continue;
-//			}
-//			ValidIdentifierToken var = VarNameToken.from(errors, toks);
-//			if (var != null) {
-//				addTo.add(new UnresolvedVar(var.location, var.text));
-//				continue;
-//			}
 			ExprToken et = ExprToken.from(errors, toks);
 			if (et != null) {
+				lastLoc = et.location;
 				if (et.type == ExprToken.IDENTIFIER) {
 					addTo.add(new UnresolvedVar(et.location, et.text));
 					continue;
@@ -200,6 +194,7 @@ public class TDAParseTemplateElements {
 			errors.message(toks, "valid style expected");
 			return null;
 		}
-		return new TemplateStylingOption(expr, styles, orelse);
+		errors.logReduction("template-styling-option", barPos, lastLoc);
+		return new TemplateStylingOption(barPos, expr, styles, orelse);
 	}
 }
