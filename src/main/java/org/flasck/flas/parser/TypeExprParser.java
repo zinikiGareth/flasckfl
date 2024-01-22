@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.TupleTypeReference;
@@ -27,7 +28,7 @@ public class TypeExprParser {
 			curr = new TypeReference(tt.location, tt.text);
 		} else if (tt.type == TypeExprToken.ORB) {
 			List<TypeReference> trs = new ArrayList<>();
-			parseInsideRB(line, x -> trs.add(x));
+			parseInsideRB(tt.location, line, x -> trs.add(x));
 			if (trs.isEmpty())
 				return;
 			curr = trs.get(0);
@@ -162,7 +163,7 @@ public class TypeExprParser {
 		pt.provide(curr);
 	}
 
-	private void parseInsideRB(Tokenizable line, TDAProvideType pt) {
+	private void parseInsideRB(InputPosition orbLoc, Tokenizable line, TDAProvideType pt) {
 		List<TypeReference> trs = new ArrayList<>();
 		while (true) {
 			tryParsing(line, x -> trs.add(x));
@@ -174,7 +175,7 @@ public class TypeExprParser {
 				if (trs.size() == 1) // the parenthesis case
 					pt.provide(trs.get(0));
 				else { // the tuple case
-					pt.provide(new TupleTypeReference(trs.get(0).location(), trs));
+					pt.provide(new TupleTypeReference(orbLoc, trs));
 				}
 				return;
 			} else if (tt.type == TypeExprToken.COMMA) {

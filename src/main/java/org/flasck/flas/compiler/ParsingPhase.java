@@ -61,7 +61,7 @@ public class ParsingPhase implements ParserScanner {
 
 	public ParsingPhase(ErrorReporter errors, UnitTestFileName fn, SystemTestDefinitionConsumer stdc, TopLevelDefinitionConsumer tldc, Iterable<ParserModule> modules) {
 		this.errors = errors;
-		TDANester story = new TDANester(errors, systemTestUnit(errors, new SystemTestPackageNamer(fn), stdc, tldc, modules));
+		TDANester story = new TDANester(errors, systemTestUnit(errors, new SystemTestPackageNamer(fn), stdc, tldc, modules, null));
 		this.blocker = new Blocker(errors, story);
 	}
 
@@ -115,9 +115,9 @@ public class ParsingPhase implements ParserScanner {
 		return new TDAUnitTestParser(errors, namer, utdc, utdc);
 	}
 
-	public static TDAParsing systemTestUnit(ErrorReporter errors, SystemTestNamer namer, SystemTestDefinitionConsumer stdc, TopLevelDefinitionConsumer tldc, Iterable<ParserModule> modules) {
+	public static TDAParsing systemTestUnit(ErrorReporter errors, SystemTestNamer namer, SystemTestDefinitionConsumer stdc, TopLevelDefinitionConsumer tldc, Iterable<ParserModule> modules, LocationTracker locTracker) {
 		TDAMultiParser ret = new TDAMultiParser(errors);
-		ret.add(new TDASystemTestParser(errors, namer, stdc, tldc, modules));
+		ret.add(new TDASystemTestParser(errors, namer, stdc, tldc, modules, locTracker));
 		for (ParserModule m : modules) {
 			TDAParsing r = m.systemTestParser(errors, namer, stdc, tldc);
 			if (r != null)
@@ -126,9 +126,9 @@ public class ParsingPhase implements ParserScanner {
 		return ret;
 	}
 
-	public static TDAParsing systemTestStep(ErrorReporter errors, TestStepNamer namer, SystemTestStage stg, TopLevelDefinitionConsumer topLevel, Iterable<ParserModule> modules, String mainRule, InputPosition parentLocation) {
+	public static TDAParsing systemTestStep(ErrorReporter errors, TestStepNamer namer, SystemTestStage stg, TopLevelDefinitionConsumer topLevel, Iterable<ParserModule> modules, LocationTracker locTracker) {
 		TDAMultiParser ret = new TDAMultiParser(errors);
-		ret.add(new SystemTestStepParser(errors, namer, stg, topLevel, mainRule, parentLocation));
+		ret.add(new SystemTestStepParser(errors, namer, stg, topLevel, locTracker));
 		for (ParserModule m : modules) {
 			TDAParsing r = m.systemTestStepParser(errors, namer, stg, topLevel);
 			if (r != null)

@@ -47,6 +47,10 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		if (onComplete != null) {
+			onComplete.run();
+			onComplete = null;
+		} 
 		if (!toks.hasMoreContent(errors))
 			return null;
 		KeywordToken kw = KeywordToken.from(errors, toks);

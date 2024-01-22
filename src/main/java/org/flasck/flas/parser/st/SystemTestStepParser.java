@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -36,19 +37,26 @@ import org.flasck.flas.tokenizers.VarNameToken;
 public class SystemTestStepParser extends TestStepParser {
 	private final TopLevelDefinitionConsumer topLevel;
 
-	public SystemTestStepParser(ErrorReporter errors, UnitDataNamer namer, SystemTestStage stage, TopLevelDefinitionConsumer topLevel, String mainRule, InputPosition parentLocation) {
-		super(errors, namer, stage, new ConsumeDefinitions(errors, topLevel, null), mainRule, parentLocation); // null would have to be stage through an interface
+	public SystemTestStepParser(ErrorReporter errors, UnitDataNamer namer, SystemTestStage stage, TopLevelDefinitionConsumer topLevel, LocationTracker locTracker) {
+		super(errors, namer, stage, new ConsumeDefinitions(errors, topLevel, null), locTracker); // null would have to be stage through an interface
 		this.topLevel = topLevel;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		if (onComplete != null) {
+			onComplete.run();
+			onComplete = null;
+		}
 		int mark = toks.at();
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		onComplete = () -> {
+			locTracker.updateLoc(lastInner); 
+		};
 		switch (kw.text) {
 		case "assert": {
 			return handleAssert(kw, toks);
@@ -258,9 +266,4 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		return new NoNestingParser(errors);
 	}
-
-	@Override
-	public void scopeComplete(InputPosition location) {
-	}
-
 }

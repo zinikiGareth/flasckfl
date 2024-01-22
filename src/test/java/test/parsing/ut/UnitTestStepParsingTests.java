@@ -64,7 +64,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).assertion(with(ExprMatcher.unresolved("x")), with(ExprMatcher.number(86)));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("assert x"));
 		assertTrue(nested instanceof SingleExpressionParser);
 		TDAParsing nnp = nested.tryParsing(UnitTestTopLevelParsingTests.line("86"));
@@ -80,7 +80,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "assert requires expression to evaluate");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(line);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -91,7 +91,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "assert requires exactly one match expression");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(line);
 		assertTrue(nested instanceof SingleExpressionParser);
 		nested.scopeComplete(pos);
@@ -103,7 +103,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(with(line), with("syntax error"));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(line);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -114,7 +114,7 @@ public class UnitTestStepParsingTests {
 			oneOf(builder).assertion(with(ExprMatcher.unresolved("x")), with(ExprMatcher.number(86)));
 			oneOf(errors).message(pos, "assert requires exactly one match expression");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("assert x"));
 		assertTrue(nested instanceof SingleExpressionParser);
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("86"));
@@ -129,7 +129,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).shove((List<UnresolvedVar>) with(Matchers.contains(ExprMatcher.unresolved("card"), ExprMatcher.unresolved("x"))), with(ExprMatcher.number(86)));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("shove card.x"));
 		assertTrue(nested instanceof SingleExpressionParser);
 		TDAParsing nnp = nested.tryParsing(UnitTestTopLevelParsingTests.line("86"));
@@ -145,7 +145,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "field path expected");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -156,7 +156,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, ". expected");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -167,7 +167,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "field path expected");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -178,7 +178,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, ". expected");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -189,7 +189,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "field path expected");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -200,7 +200,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "field path expected");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -210,7 +210,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).event((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(TargetZoneMatcher.path("target")), with(ExprMatcher.apply(ExprMatcher.typeref("ClickEvent"), ExprMatcher.apply(ExprMatcher.operator("{}"), any(Expr.class), any(Expr.class)))));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("event card target (ClickEvent { x: 42, y: 31 })"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
@@ -227,7 +227,7 @@ public class UnitTestStepParsingTests {
 							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))),
 					with(any(AnonymousVar.class)));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth 22 (length 'hello')"));
 		assertTrue(nested instanceof TDAMultiParser);
 		nested.scopeComplete(pos);
@@ -240,7 +240,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "must specify a card to receive event");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 		nested.scopeComplete(pos);
@@ -253,7 +253,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "valid target zone expected");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 		nested.scopeComplete(pos);
@@ -266,7 +266,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "must provide an event object");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 		nested.scopeComplete(pos);
@@ -278,7 +278,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.apply(ExprMatcher.unresolved("method"), ExprMatcher.unresolved("true"), ExprMatcher.number(86), ExprMatcher.string("hello"))));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("contract card SomeContract method true 86 'hello'"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
@@ -290,7 +290,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.unresolved("method")));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("contract card SomeContract method"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
@@ -303,7 +303,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "missing arguments");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 		nested.scopeComplete(pos);
@@ -315,7 +315,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).invokeObjectMethod(with(ExprMatcher.apply(ExprMatcher.member(ExprMatcher.unresolved("obj"), ExprMatcher.unresolved("meth")), ExprMatcher.string("hello"))));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("invoke obj.meth 'hello'"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
@@ -327,7 +327,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(TargetZoneMatcher.path()), with(false), with(false), with("hello"));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text"));
 		assertTrue(nested instanceof FreeTextParser);
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
@@ -340,7 +340,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("h")), with(MatchedItem.STYLE), with(TargetZoneMatcher.path()), with(false), with(false), with("hello"));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match h style"));
 		assertTrue(nested instanceof FreeTextParser);
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
@@ -353,7 +353,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(TargetZoneMatcher.path("selector-tbd")), with(false), with(false), with("hello"));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text selector-tbd"));
 		assertTrue(nested instanceof FreeTextParser);
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
@@ -366,7 +366,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(TargetZoneMatcher.path()), with(true), with(false), with("hello"));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text contains"));
 		assertTrue(nested instanceof FreeTextParser);
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
@@ -379,7 +379,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(TargetZoneMatcher.path("selector-tbd")), with(true), with(false), with("hello"));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text selector-tbd contains"));
 		assertTrue(nested instanceof FreeTextParser);
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
@@ -394,7 +394,7 @@ public class UnitTestStepParsingTests {
 			oneOf(builder).data(with(tracker), with(any(UnitDataDeclaration.class)));
 			oneOf(topLevel).nestedData(with(any(UnitDataDeclaration.class)));
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("data Number x <- 86"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
@@ -407,7 +407,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "unrecognized test step foo");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(line);
 		assertTrue(nested instanceof IgnoreNestedParser);
 		nested.scopeComplete(pos);
@@ -420,7 +420,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(line);
 		assertTrue(nested instanceof IgnoreNestedParser);
 		nested.scopeComplete(pos);
@@ -434,7 +434,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(new InputPosition("fred", 1, 25, null, ""), "unterminated string");
 		}});
-		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, mainRule, parentLocation);
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(line);
 		assertTrue(nested instanceof IgnoreNestedParser);
 		nested.scopeComplete(pos);

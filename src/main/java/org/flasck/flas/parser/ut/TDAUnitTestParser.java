@@ -5,16 +5,22 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TestDescriptionToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TDAUnitTestParser implements TDAParsing {
+public class TDAUnitTestParser implements TDAParsing, LocationTracker {
+	public static final Logger logger = LoggerFactory.getLogger("UTParser");
 	private final ErrorReporter errors;
 	private final UnitTestNamer namer;
 	private final UnitTestDefinitionConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
+	protected Runnable onComplete;
+	protected InputPosition lastInner;
 
 	public TDAUnitTestParser(ErrorReporter errors, UnitTestNamer namer, UnitTestDefinitionConsumer builder, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
@@ -25,6 +31,10 @@ public class TDAUnitTestParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		if (onComplete != null) {
+			onComplete.run();
+			onComplete = null;
+		} 
 		int mark = toks.at();
 		KeywordToken tok = KeywordToken.from(errors, toks);
 		if (tok == null) {
@@ -33,7 +43,7 @@ public class TDAUnitTestParser implements TDAParsing {
 		}
 		switch (tok.text) {
 		case "data": {
-			return new TDAUnitTestDataParser(errors, false, tok, namer, dd -> builder.data(dd), topLevel).tryParsing(toks);
+			return new TDAUnitTestDataParser(errors, false, tok, namer, dd -> builder.data(dd), topLevel, this).tryParsing(toks);
 		}
 		case "test": {
 			toks.skipWS(errors);
@@ -46,9 +56,10 @@ public class TDAUnitTestParser implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 			errors.logReduction("ut-test-intro", tok, tdt);
+			onComplete = () -> { errors.logReduction("ut-test-with-steps", tok.location, lastInner); lastInner = null; };
 			final UnitTestCase utc = new UnitTestCase(namer.unitTest(), desc);
 			builder.testCase(utc);
-			return new TestStepParser(errors, new TestStepNamer(utc.name), utc, builder, "ut-unit-test", tok.location);
+			return new TestStepParser(errors, new TestStepNamer(utc.name), utc, builder, this);
 		}
 		case "ignore": {
 			toks.skipWS(errors);
@@ -66,8 +77,18 @@ public class TDAUnitTestParser implements TDAParsing {
 		}
 		}
 	}
+	
+	@Override
+	public void updateLoc(InputPosition location) {
+		logger.info("UTP loc = " + location);
+		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
+			lastInner = location;
+	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		if (onComplete != null) {
+			onComplete.run();
+		} 
 	}
 }

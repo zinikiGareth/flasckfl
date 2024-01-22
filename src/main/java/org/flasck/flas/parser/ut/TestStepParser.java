@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.MatchedItem;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -29,31 +30,37 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TestStepParser implements TDAParsing {
+public class TestStepParser implements TDAParsing, LocationTracker {
 	protected final ErrorReporter errors;
 	protected final UnitTestStepConsumer builder;
 	protected final UnitDataNamer namer;
 	private final UnitTestDefinitionConsumer topLevel;
-	private final String mainRule;
-	private final InputPosition parentLocation;
+	protected final LocationTracker locTracker;
+	protected Runnable onComplete;
+	protected InputPosition lastInner;
 
-	public TestStepParser(ErrorReporter errors, UnitDataNamer namer, UnitTestStepConsumer builder, UnitTestDefinitionConsumer topLevel, String mainRule, InputPosition parentLocation) {
+	public TestStepParser(ErrorReporter errors, UnitDataNamer namer, UnitTestStepConsumer builder, UnitTestDefinitionConsumer topLevel, LocationTracker locTracker) {
 		this.errors = errors;
 		this.namer = namer;
 		this.builder = builder;
 		this.topLevel = topLevel;
-		this.mainRule = mainRule;
-		this.parentLocation = parentLocation;
+		this.locTracker = locTracker;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		if (onComplete != null) {
+			onComplete.run();
+			onComplete = null;
+		} 
 		int mark = toks.at();
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		onComplete = () -> { locTracker.updateLoc(lastInner); };
+		lastInner = kw.location;
 		switch (kw.text) {
 		case "assert": {
 			return handleAssert(kw, toks);
@@ -100,6 +107,12 @@ public class TestStepParser implements TDAParsing {
 		}
 		}
 	}
+	
+	@Override
+	public void updateLoc(InputPosition location) {
+		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
+			lastInner = location;
+	}
 
 	protected TDAParsing handleAssert(KeywordToken kw, Tokenizable toks) {
 		List<Expr> test = new ArrayList<>();
@@ -116,7 +129,7 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, kw, "assert", ex -> { errors.logReduction("ut-assert", kw, ex); builder.assertion(test.get(0), ex); });
+		return new SingleExpressionParser(errors, "assert", ex -> { errors.logReduction("ut-assert", kw, ex); builder.assertion(test.get(0), ex); }, this);
 	}
 
 	protected TDAParsing handleIdentical(KeywordToken kw, Tokenizable toks) {
@@ -134,7 +147,7 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, kw, "identical", ex -> { builder.identical(test.get(0), ex); });
+		return new SingleExpressionParser(errors, "identical", ex -> { builder.identical(test.get(0), ex); }, this);
 	}
 
 	protected TDAParsing handleShove(KeywordToken kw, Tokenizable toks) {
@@ -170,7 +183,7 @@ public class TestStepParser implements TDAParsing {
 		}
 
 		errors.logReduction("test-step-shove", kw, slots.get(slots.size()-1));
-		return new SingleExpressionParser(errors, kw, "shove", expr -> { builder.shove(slots, expr); });
+		return new SingleExpressionParser(errors, "shove", expr -> { builder.shove(slots, expr); }, this);
 	}
 
 	protected TDAParsing handleSendToContract(KeywordToken kw, Tokenizable toks) {
@@ -214,7 +227,7 @@ public class TestStepParser implements TDAParsing {
 	}
 
 	protected TDAParsing handleDataDecl(KeywordToken kw, Tokenizable toks) {
-		return new TDAUnitTestDataParser(errors, false, kw, namer, dd -> { builder.data(errors, dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
+		return new TDAUnitTestDataParser(errors, false, kw, namer, dd -> { builder.data(errors, dd); topLevel.nestedData(dd); }, topLevel, this).tryParsing(toks);
 	}
 
 	protected TDAParsing handleNewdiv(Tokenizable toks) {
@@ -305,7 +318,7 @@ public class TestStepParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, kw, "input", text -> { builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text); });
+		return new SingleExpressionParser(errors, "input", text -> { builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text); }, this);
 	}
 
 	protected TDAParsing handleInvoke(Tokenizable toks) {
@@ -455,6 +468,8 @@ public class TestStepParser implements TDAParsing {
 		// TODO: should we return an expression parser for scroll matching?
 		return new FreeTextParser(kw, errors, (lastPos, text) -> {
 			errors.logReduction("unit-test-match-with-free-text", kw.location, lastPos);
+			if (lastPos.compareTo(lastInner) > 0)
+				lastInner = lastPos;
 			builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, fails, text);
 		});
 	}
@@ -541,6 +556,8 @@ public class TestStepParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		errors.logReduction(mainRule, parentLocation, location);
+		if (onComplete != null) {
+			onComplete.run();
+		} 
 	}
 }

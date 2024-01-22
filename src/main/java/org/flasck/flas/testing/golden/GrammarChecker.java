@@ -82,7 +82,7 @@ public class GrammarChecker {
 	private GrammarOrchard computeReductions(ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
 		for (ReductionRule rr : toks.reductions()) {
-//			System.out.println(rr);
+			System.out.println(rr);
 			ReductionRule mr = null;
 			for (GrammarToken t : toks.tokens()) {
 				if (rr.includes(t.pos)) {
@@ -91,10 +91,10 @@ public class GrammarChecker {
 					mr = null;
 					if (mostReduced.containsKey(t.pos)) {
 						mr = mostReduced.get(t.pos);
-//						System.out.println("  !! " + mr);
+						System.out.println("  !! " + mr);
 						continue;
 					}
-//					System.out.println("  " + t);
+					System.out.println("  " + t);
 				}
 			}
 			Iterator<Entry<InputPosition, ReductionRule>> it = mostReduced.entrySet().iterator();

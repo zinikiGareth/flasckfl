@@ -6,25 +6,25 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class SingleExpressionParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final KeywordToken kw;
 	private final String op;
 	private final Consumer<Expr> builder;
+	private final LocationTracker locTracker;
 	private int exprCount = 0;
 	private Expr exprLoc;
 
-	public SingleExpressionParser(ErrorReporter errors, KeywordToken kw, String op, Consumer<Expr> builder) {
+	public SingleExpressionParser(ErrorReporter errors, String op, Consumer<Expr> builder, LocationTracker locTracker) {
 		this.errors = errors;
-		this.kw = kw;
 		this.op = op;
 		this.builder = builder;
+		this.locTracker = locTracker;
 	}
 
 	@Override
@@ -37,6 +37,7 @@ public class SingleExpressionParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		locTracker.updateLoc(exprLoc.location());
 		return new NoNestingParser(errors);
 	}
 
@@ -44,8 +45,6 @@ public class SingleExpressionParser implements TDAParsing {
 	public void scopeComplete(InputPosition location) {
 		if (exprCount != 1)
 			errors.message(location, op + " requires exactly one match expression");
-		if (kw != null && exprLoc != null)
-			errors.logReduction("match-or-shove-with-expression", kw, exprLoc);
 	}
 
 }

@@ -13,10 +13,13 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.grammar.tracking.LoggableToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.utils.Justification;
 
 public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<FLASError> {
+	public static final Logger logger = LoggerFactory.getLogger("ErrorResult");
 	private final Set<FLASError> errors = new TreeSet<FLASError>();
 	private final File saveParsingTokens;
 	private PrintWriter tokenStream;
@@ -148,6 +151,7 @@ public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<
 
 	@Override
 	public void logReduction(String ruleId, InputPosition from, InputPosition to) {
+		logger.info("reducing " + ruleId + " from " + from + " - " + to);
 		if (tokenStream != null) {
 			logLocation(from);
 			tokenStream.println("reduction " + ruleId);

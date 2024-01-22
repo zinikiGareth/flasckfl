@@ -11,6 +11,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -28,14 +29,16 @@ public class TDAUnitTestDataParser implements TDAParsing {
 	private final UnitDataNamer namer;
 	private final Consumer<UnitDataDeclaration> builder;
 	private final FunctionScopeUnitConsumer topLevel;
+	private final LocationTracker locTracker;
 
-	public TDAUnitTestDataParser(ErrorReporter errors, boolean atTopLevel, KeywordToken kw, UnitDataNamer namer, Consumer<UnitDataDeclaration> builder, FunctionScopeUnitConsumer topLevel) {
+	public TDAUnitTestDataParser(ErrorReporter errors, boolean atTopLevel, KeywordToken kw, UnitDataNamer namer, Consumer<UnitDataDeclaration> builder, FunctionScopeUnitConsumer topLevel, LocationTracker locTracker) {
 		this.errors = errors;
 		this.atTopLevel = atTopLevel;
 		this.kw = kw;
 		this.namer = namer;
 		this.builder = builder;
 		this.topLevel = topLevel;
+		this.locTracker = locTracker;
 	}
 
 	@Override
@@ -55,6 +58,8 @@ public class TDAUnitTestDataParser implements TDAParsing {
 		FunctionName fnName = namer.dataName(var.location, var.text);
 		if (!toks.hasMoreContent(errors)) {
 			errors.logReduction("test-data-declaration", kw, var);
+			if (locTracker != null)
+				locTracker.updateLoc(kw.location);
 			UnitDataDeclaration data = new UnitDataDeclaration(pos, atTopLevel, tr.get(0), fnName, null);
 			builder.accept(data);
 			return new TDAUTDataProcessFieldsParser(errors, data);
@@ -75,6 +80,8 @@ public class TDAUnitTestDataParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		errors.logReduction("test-data-declaration-with-init", kw, exprs.get(0));
+		if (locTracker != null)
+			locTracker.updateLoc(kw.location);
 		UnitDataDeclaration data = new UnitDataDeclaration(pos, atTopLevel, tr.get(0), fnName, exprs.get(0));
 		builder.accept(data);
 		return new NoNestingParser(errors);
