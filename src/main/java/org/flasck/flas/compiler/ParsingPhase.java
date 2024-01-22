@@ -18,6 +18,7 @@ import org.flasck.flas.parser.FunctionAssembler;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionScopeNamer;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAFunctionParser;
 import org.flasck.flas.parser.TDAHandlerParser;
@@ -98,7 +99,7 @@ public class ParsingPhase implements ParserScanner {
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb, null);
 		TDAMultiParser ret = new TDAMultiParser(errors,
 			TDAIntroParser.constructor(namer, sb),
-			TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb, null),
+			TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb, null, null),
 			TDATupleDeclarationParser.constructor(namer, sb, null));
 		for (ParserModule m : modules) {
 			TDAParsing r = m.introParser(errors, namer, sb);
@@ -140,7 +141,7 @@ public class ParsingPhase implements ParserScanner {
 		return new TDAAssemblyUnitParser(errors, namer, adc);
 	}
 	
-	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
-		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel, holder), TDAMethodParser.constructor(namer, sb, topLevel, holder), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel, holder), TDATupleDeclarationParser.constructor(namer, topLevel, holder));
+	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
+		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel, holder), TDAMethodParser.constructor(namer, sb, topLevel, holder), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel, holder, locTracker), TDATupleDeclarationParser.constructor(namer, topLevel, holder));
 	}
 }

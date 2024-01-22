@@ -27,7 +27,7 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 		this.source = source;
 		this.namer = namer;
 		this.consumer = consumer;
-		this.lastInner = source.location();
+		this.lastInner = source.kwlocation();
 	}
 
 	@Override
@@ -98,6 +98,6 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		errors.logReduction("something-about-template-bindings-being-complete", source.location(), lastInner);
+		errors.logReduction("something-about-template-bindings-being-complete", source.kwlocation(), lastInner);
 	}
 }

@@ -91,7 +91,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 		}).tryParsing(line);
 
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder);
-		return ParsingPhase.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder);
+		return ParsingPhase.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder, null);
 	}
 
 	@Override

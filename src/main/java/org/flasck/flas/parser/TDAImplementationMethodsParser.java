@@ -154,7 +154,7 @@ public class TDAImplementationMethodsParser implements TDAParsing, LocationTrack
 		topLevel.newObjectMethod(errors, meth);
 		InnerPackageNamer innerNamer = new InnerPackageNamer(methName);
 		FunctionScopeUnitConsumer fsuc = new UpdateLocConsumer(this, topLevel);
-		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, fsuc, "action", holder);
+		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, fsuc, "action", holder, null);
 		return new TDAMethodGuardParser(errors, meth, nestedParser);
 	}
 

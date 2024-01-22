@@ -21,13 +21,15 @@ public class TDAServiceElementsParser implements TDAParsing {
 	private final ServiceElementsConsumer consumer;
 	private final TopLevelDefinitionConsumer topLevel;
 	private final ServiceElementsConsumer service;
+	private final LocationTracker tracker;
 
-	public TDAServiceElementsParser(ErrorReporter errors, TemplateNamer namer, ServiceElementsConsumer service, TopLevelDefinitionConsumer topLevel) {
+	public TDAServiceElementsParser(ErrorReporter errors, TemplateNamer namer, ServiceElementsConsumer service, TopLevelDefinitionConsumer topLevel, LocationTracker tracker) {
 		this.errors = errors;
 		this.namer = namer;
 		this.service = service;
 		this.consumer = service;
 		this.topLevel = topLevel;
+		this.tracker = tracker;
 	}
 
 	@Override

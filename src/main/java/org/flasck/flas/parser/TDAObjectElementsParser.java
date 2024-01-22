@@ -30,7 +30,7 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAObjectElementsParser implements TDAParsing {
+public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 	private final ErrorReporter errors;
 	private final TemplateNamer namer;
 	private final ObjectElementsConsumer builder;
@@ -149,13 +149,13 @@ public class TDAObjectElementsParser implements TDAParsing {
 				currParser = null;
 			}
 			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
-			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder));
+			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this));
 		}
 		case "acor": {
 			if (currParser != null)
 				currParser.scopeComplete(location);
 			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, (errors, f) -> { ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f); f.isObjAccessor(true); builder.addAccessor(oa); topLevel.newObjectAccessor(errors, oa); }), (StateHolder)builder);
-			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, (StateHolder)builder);
+			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, (StateHolder)builder, this);
 			currParser = fcp;
 			return fcp.tryParsing(toks);
 		}
@@ -174,6 +174,11 @@ public class TDAObjectElementsParser implements TDAParsing {
 			return null;
 		}
 		}
+	}
+
+	@Override
+	public void updateLoc(InputPosition location) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

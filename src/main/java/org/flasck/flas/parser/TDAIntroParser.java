@@ -32,10 +32,12 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class TDAIntroParser implements TDAParsing {
+public class TDAIntroParser implements TDAParsing, LocationTracker {
 	private final ErrorReporter errors;
 	private final TopLevelDefinitionConsumer consumer;
 	private final TopLevelNamer namer;
+	private Runnable onComplete;
+	private InputPosition lastInner;
 
 	public TDAIntroParser(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer consumer) {
 		this.errors = errors;
@@ -51,6 +53,7 @@ public class TDAIntroParser implements TDAParsing {
 		if (kw == null)
 			return null; // in the "nothing doing" sense
 
+		lastInner = kw.location;
 		switch (kw.text) {
 		case "agent":
 		case "card":
@@ -78,7 +81,7 @@ public class TDAIntroParser implements TDAParsing {
 				hb = agent;
 				state = agent;
 				consumer.newAgent(errors, agent);
-				sh = errors -> new TDAAgentElementsParser(errors, kw.location, new ObjectNestedNamer(qn), agent, consumer, agent);
+				sh = errors -> new TDAAgentElementsParser(errors, kw.location, new ObjectNestedNamer(qn), agent, consumer, agent, this);
 				break;
 			}
 			case "card": {
@@ -87,14 +90,14 @@ public class TDAIntroParser implements TDAParsing {
 				state = card;
 				errors.logReduction("card-declaration", kw.location, tn.location);
 				consumer.newCard(errors, card);
-				sh = errors -> new TDACardElementsParser(errors, kw.location, new ObjectNestedNamer(qn), card, consumer, card);
+				sh = errors -> new TDACardElementsParser(errors, kw.location, new ObjectNestedNamer(qn), card, consumer, card, this);
 				break;
 			}
 			case "service": {
 				ServiceDefinition svc = new ServiceDefinition(kw.location, tn.location, qn);
 				hb = svc;
 				consumer.newService(errors, svc);
-				sh = errors -> new TDAServiceElementsParser(errors, new ObjectNestedNamer(qn), svc, consumer);
+				sh = errors -> new TDAServiceElementsParser(errors, new ObjectNestedNamer(qn), svc, consumer, this);
 				break;
 			}
 			default:
@@ -102,10 +105,11 @@ public class TDAIntroParser implements TDAParsing {
 			}
 			final StateHolder holder = state;
 			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder);
+			onComplete = () -> { errors.logReduction("card-definition", kw.location, lastInner); };
 			return new TDAMultiParser(errors, 
 				sh,
 				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer, holder),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, holder),
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, holder, this),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, holder)
 			);
 		}
@@ -222,7 +226,7 @@ public class TDAIntroParser implements TDAParsing {
 			TDAMultiParser ret = new TDAMultiParser(errors, 
 				errors -> new TDAObjectElementsParser(errors, onn, od, consumer),
 				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer, od),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, od),
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, od, this),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od)
 			);
 			ret.onComplete((errors,location) -> {
@@ -276,9 +280,19 @@ public class TDAIntroParser implements TDAParsing {
 			return null;
 		}
 	}
+	
+	@Override
+	public void updateLoc(InputPosition location) {
+		if (location != null)
+			lastInner = location;
+	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		if (onComplete != null) {
+			onComplete.run();
+		} else 
+			System.out.println("Did not have onComplete set at " + location);
 	}
 
 	public static TDAParserConstructor constructor(TopLevelNamer namer, TopLevelDefinitionConsumer consumer) {

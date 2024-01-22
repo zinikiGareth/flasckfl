@@ -25,7 +25,6 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class TDACardElementsParser extends TDAAgentElementsParser implements LocationTracker {
-
 	private static class TemplateBindingCaptureLoc implements TemplateBindingConsumer {
 		private final LocationTracker tracker;
 		private final Template template;
@@ -48,8 +47,8 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 		}
 	}
 
-	public TDACardElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
-		super(errors, kwloc, namer, consumer, topLevel, holder);
+	public TDACardElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder, LocationTracker tracker) {
+		super(errors, kwloc, namer, consumer, topLevel, holder, tracker);
 	}
 
 	@Override
@@ -78,6 +77,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 			}
 			errors.logReduction("card-template-intro", kw.location, lastLoc);
 			lastInner = kw.location;
+			tracker.updateLoc(lastInner);
 			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.location, tn.text), pos, chain);
 			consumer.addTemplate(template);
 			topLevel.newTemplate(errors, template);
@@ -153,7 +153,6 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		errors.logReduction("card-definition", kwloc, lastInner != null ? lastInner : kwloc);
 	}
 
 	@Override

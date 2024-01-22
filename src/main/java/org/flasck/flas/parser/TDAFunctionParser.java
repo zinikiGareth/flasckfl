@@ -23,14 +23,16 @@ public class TDAFunctionParser implements TDAParsing {
 	private final FunctionIntroConsumer consumer;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final StateHolder holder;
+	private final LocationTracker locTracker;
 
-	public TDAFunctionParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionCaseNameProvider functionCaseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
+	public TDAFunctionParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionCaseNameProvider functionCaseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
 		this.errors = errors;
 		this.functionNamer = functionNamer;
 		this.functionCaseNamer = functionCaseNamer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 		this.holder = holder;
+		this.locTracker = locTracker;
 	}
 	
 	@Override
@@ -57,7 +59,7 @@ public class TDAFunctionParser implements TDAParsing {
 		consumer.functionIntro(intro);
 		if (!line.hasMoreContent(errors)) {
 			errors.logReduction("function-intro-no-expr", intro.location, line.realinfo());
-			return new TDAFunctionGuardedEquationParser(errors, intro, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder));
+			return new TDAFunctionGuardedEquationParser(errors, intro, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder, null));
 		}
 		ExprToken tok = ExprToken.from(errors, line);
 		if (tok == null) {
@@ -83,8 +85,10 @@ public class TDAFunctionParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 
 		errors.logReduction("function-intro-with-expr", intro.location, line.realinfo());
+		if (locTracker != null)
+			locTracker.updateLoc(t.location);
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, holder);
-		return ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder);
+		return ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder, null);
 	}
 
 	@Override
@@ -97,11 +101,11 @@ public class TDAFunctionParser implements TDAParsing {
 		consumer.moveOn();
 	}
 
-	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionCaseNameProvider caseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
+	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionCaseNameProvider caseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
-				return new TDAFunctionParser(errors, namer, caseNamer, consumer, topLevel, holder);
+				return new TDAFunctionParser(errors, namer, caseNamer, consumer, topLevel, holder, locTracker);
 			}
 		};
 	}

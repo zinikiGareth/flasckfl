@@ -30,14 +30,16 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 	private boolean seenState;
 	protected InputPosition lastInner;
 	private KeywordToken kw;
+	protected final LocationTracker tracker;
 
-	public TDAAgentElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
+	public TDAAgentElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder, LocationTracker tracker) {
 		this.errors = errors;
 		this.kwloc = kwloc;
 		this.namer = namer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 		this.holder = holder;
+		this.tracker = tracker;
 	}
 
 	@Override
@@ -56,6 +58,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			consumer.defineState(state);
 			seenState = true;
 			lastInner = kw.location;
+			tracker.updateLoc(lastInner);
 			
 			return new TDAStructFieldParser(errors, state, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}

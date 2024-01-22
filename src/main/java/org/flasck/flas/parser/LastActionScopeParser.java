@@ -14,11 +14,11 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	private InputPosition lastPos;
 	private boolean reportedError;
 
-	public LastActionScopeParser(ErrorReporter errors, FunctionScopeNamer namer, FunctionScopeUnitConsumer topLevel, String lastThing, StateHolder holder) {
+	public LastActionScopeParser(ErrorReporter errors, FunctionScopeNamer namer, FunctionScopeUnitConsumer topLevel, String lastThing, StateHolder holder, LocationTracker locTracker) {
 		this.errors = errors;
 		this.lastThing = lastThing;
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, holder);
-		this.parser = ParsingPhase.functionScopeUnit(errors, namer, assembler, topLevel, holder);
+		this.parser = ParsingPhase.functionScopeUnit(errors, namer, assembler, topLevel, holder, locTracker);
 	}
 
 	public void anotherParent() {
