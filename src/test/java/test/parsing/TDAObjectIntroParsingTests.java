@@ -3,6 +3,7 @@ package test.parsing;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
@@ -63,7 +64,7 @@ public class TDAObjectIntroParsingTests {
 		assertTrue(nested instanceof TDAMultiParser);
 		nested.tryParsing(TDABasicIntroParsingTests.line("ctor obligatory"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
-		nested.scopeComplete(null);
+		nested.scopeComplete(new InputPosition("fred", 3, 0, new Indent(0, 0), null));
 	}
 	
 	@Test

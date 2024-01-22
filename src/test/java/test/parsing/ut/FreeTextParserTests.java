@@ -23,7 +23,7 @@ public class FreeTextParserTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	@SuppressWarnings("unchecked")
 	private LocatableConsumer<String> handler = context.mock(LocatableConsumer.class);
-	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
+	private InputPosition pos = new InputPosition("fred", 1, 0, null, "hello");
 	private KeywordToken kw = new KeywordToken(pos, "match", 5);
 
 	@Before

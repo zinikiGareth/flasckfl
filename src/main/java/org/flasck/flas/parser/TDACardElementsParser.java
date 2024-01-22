@@ -73,7 +73,8 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 				chain = parseChain(errors, namer, toks);
 				if (em.hasMoreNow())
 					return new IgnoreNestedParser(errors);
-				lastLoc = chain.location();
+				if (chain.location() != null)
+					lastLoc = chain.location();
 			}
 			errors.logReduction("card-template-intro", kw.location, lastLoc);
 			lastInner = kw.location;

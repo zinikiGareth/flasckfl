@@ -1,9 +1,9 @@
 package test.parsing;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
@@ -55,7 +56,8 @@ public class TDATemplateParsingTests {
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
-		parser = new TDATemplateBindingParser(tracker, null, namer, consumer, null);
+		Template source = new Template(pos, pos, null, 0, null);
+		parser = new TDATemplateBindingParser(tracker, source, namer, consumer, null);
 	}
 
 	@Test

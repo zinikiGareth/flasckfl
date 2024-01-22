@@ -65,6 +65,8 @@ public class TemplateNestingChain implements NestingChain {
 
 	@Override
 	public InputPosition location() {
+		if (links.isEmpty())
+			return null;
 		return links.get(links.size()-1).location();
 	}
 

@@ -44,7 +44,7 @@ public class SingleExpressionParser implements TDAParsing {
 	public void scopeComplete(InputPosition location) {
 		if (exprCount != 1)
 			errors.message(location, op + " requires exactly one match expression");
-		if (kw != null)
+		if (kw != null && exprLoc != null)
 			errors.logReduction("match-or-shove-with-expression", kw, exprLoc);
 	}
 
