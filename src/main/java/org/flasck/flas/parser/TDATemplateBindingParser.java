@@ -20,13 +20,15 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 	private final Template source;
 	private final TemplateNamer namer;
 	private final TemplateBindingConsumer consumer;
+	private final LocationTracker locTracker;
 	private InputPosition lastInner;
 
-	public TDATemplateBindingParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingConsumer consumer) {
+	public TDATemplateBindingParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingConsumer consumer, LocationTracker locTracker) {
 		this.errors = errors;
 		this.source = source;
 		this.namer = namer;
 		this.consumer = consumer;
+		this.locTracker = locTracker;
 		this.lastInner = source.kwlocation();
 	}
 
@@ -36,12 +38,14 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 		if (tok == null) {
 			ExprToken et = ExprToken.from(errors, toks);
 			if (et != null && et.text.equals("|")) {
-				return TDAParseTemplateElements.parseStyling(errors, et.location, source, namer, toks, x -> consumer.addStyling(x));
+				return TDAParseTemplateElements.parseStyling(errors, et.location, source, namer, toks, x -> consumer.addStyling(x), this);
 			} else {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
 			}
 		}
+		if (locTracker != null)
+			locTracker.updateLoc(tok.location);
 		TemplateField field = new TemplateField(tok.location, tok.text);
 		InputPosition lastLoc = field.location();
 		lastInner = lastLoc;

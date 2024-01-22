@@ -8,7 +8,7 @@ import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDATemplateStylingParser implements TDAParsing {
+public class TDATemplateStylingParser implements TDAParsing, LocationTracker {
 	private final ErrorReporter errors;
 	private final Template source;
 	private final TemplateNamer namer;
@@ -29,7 +29,7 @@ public class TDATemplateStylingParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		if ("|".equals(tok.text)) {
-			return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> customizer.conditionalStylings.add(tso));
+			return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> customizer.conditionalStylings.add(tso), this);
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
 			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> customizer.events.add(ev));
@@ -37,6 +37,12 @@ public class TDATemplateStylingParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+	}
+	
+	@Override
+	public void updateLoc(InputPosition location) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

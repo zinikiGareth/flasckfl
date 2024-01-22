@@ -7,7 +7,7 @@ import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class RequireEventsParser implements TDAParsing {
+public class RequireEventsParser implements TDAParsing, LocationTracker {
 	private final ErrorReporter errors;
 	private final InputPosition loc;
 	private final Template source;
@@ -32,7 +32,7 @@ public class RequireEventsParser implements TDAParsing {
 		}
 		if ("|".equals(tok.text)) {
 			seenHandler = true;
-			return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, nested -> tso.conditionalStylings.add(nested));
+			return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, nested -> tso.conditionalStylings.add(nested), this);
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
 			seenHandler = true;
@@ -41,6 +41,12 @@ public class RequireEventsParser implements TDAParsing {
 			errors.message(toks, "event handler expected");
 			return new IgnoreNestedParser(errors);
 		}
+	}
+
+	@Override
+	public void updateLoc(InputPosition location) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

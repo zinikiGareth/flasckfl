@@ -55,7 +55,7 @@ public class TDATemplateParsingTests {
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
-		parser = new TDATemplateBindingParser(tracker, null, namer, consumer);
+		parser = new TDATemplateBindingParser(tracker, null, namer, consumer, null);
 	}
 
 	@Test

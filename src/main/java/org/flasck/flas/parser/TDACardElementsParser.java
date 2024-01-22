@@ -82,7 +82,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 			consumer.addTemplate(template);
 			topLevel.newTemplate(errors, template);
 			TemplateBindingConsumer c = new TemplateBindingCaptureLoc(this, template);
-			return new TDATemplateBindingParser(errors, template, namer, c);
+			return new TDATemplateBindingParser(errors, template, namer, c, this);
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);

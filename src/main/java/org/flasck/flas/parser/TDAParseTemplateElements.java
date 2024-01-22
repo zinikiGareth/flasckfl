@@ -55,7 +55,7 @@ public class TDAParseTemplateElements {
 		return new TDATemplateOptionsParser(errors, source, namer, tc, field, tracker);
 	}
 
-	public static TDAParsing parseStyling(ErrorReporter errors, InputPosition barPos, Template source, TemplateNamer namer, Tokenizable toks, Consumer<TemplateStylingOption> consumer) {
+	public static TDAParsing parseStyling(ErrorReporter errors, InputPosition barPos, Template source, TemplateNamer namer, Tokenizable toks, Consumer<TemplateStylingOption> consumer, LocationTracker locTracker) {
 		List<Expr> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
 			seen.add(t);
@@ -68,7 +68,7 @@ public class TDAParseTemplateElements {
 			return new RequireEventsParser(errors, toks.realinfo(), source, namer, tso);
 		}
 		if ("=>".equals(tok.text)) {
-			TemplateStylingOption tso = readTemplateStyles(barPos, errors, expr, toks);
+			TemplateStylingOption tso = readTemplateStyles(barPos, errors, expr, toks, locTracker);
 			if (tso == null)
 				return new IgnoreNestedParser(errors);
 			consumer.accept(tso);
@@ -129,7 +129,7 @@ public class TDAParseTemplateElements {
 		return new TemplateBindingOption(field, null, seen.get(0), sendTo);
 	}
 
-	public static TemplateStylingOption readTemplateStyles(InputPosition barPos, ErrorReporter errors, Expr expr, Tokenizable toks) {
+	public static TemplateStylingOption readTemplateStyles(InputPosition barPos, ErrorReporter errors, Expr expr, Tokenizable toks, LocationTracker locTracker) {
 		List<Expr> styles = new ArrayList<>();
 		List<Expr> orelse = null;
 		List<Expr> addTo = styles;
@@ -195,6 +195,8 @@ public class TDAParseTemplateElements {
 			return null;
 		}
 		errors.logReduction("template-styling-option", barPos, lastLoc);
+		if (locTracker != null)
+			locTracker.updateLoc(barPos);
 		return new TemplateStylingOption(barPos, expr, styles, orelse);
 	}
 }

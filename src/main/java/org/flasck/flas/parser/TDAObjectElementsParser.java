@@ -100,7 +100,7 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 			final Template template = new Template(kw.location, tn.location, namer.template(tn.location, tn.text), pos, chain);
 			builder.addTemplate(template);
 			topLevel.newTemplate(errors, template);
-			return new TDATemplateBindingParser(errors, template, namer, template);
+			return new TDATemplateBindingParser(errors, template, namer, template, this);
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, builder.name(), text);

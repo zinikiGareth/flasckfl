@@ -60,15 +60,9 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(tok.location, "cannot mix bindings and customization");
 			}
 			if (toksHasSend(toks))
-				return TDAParseTemplateElements.parseConditionalBindingOption(errors, source, namer, toks, field, tbo -> {
-					binding.conditionalBindings.add(tbo);
-					endOfTemplate.updateLoc(tbo.location());
-				}, endOfTemplate);
+				return TDAParseTemplateElements.parseConditionalBindingOption(errors, source, namer, toks, field, tbo -> binding.conditionalBindings.add(tbo), endOfTemplate);
 			else
-				return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> {
-					customizer.conditionalStylings.add(tso);
-					endOfTemplate.updateLoc(tso.location());
-				});
+				return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> customizer.conditionalStylings.add(tso), endOfTemplate);
 			
 		} else if ("<-".equals(tok.text)) {
 			// It's a default send binding
