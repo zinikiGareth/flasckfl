@@ -90,7 +90,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			consumer.tupleDefn(errors, vars, leadName, pkgName, e);
 		}).tryParsing(line);
 
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder);
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder, null);
 		return ParsingPhase.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder, null);
 	}
 

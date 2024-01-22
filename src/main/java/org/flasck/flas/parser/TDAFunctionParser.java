@@ -87,8 +87,8 @@ public class TDAFunctionParser implements TDAParsing {
 		errors.logReduction("function-intro-with-expr", intro.location, line.realinfo());
 		if (locTracker != null)
 			locTracker.updateLoc(t.location);
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, holder);
-		return ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder, null);
+		FunctionAssembler assembler = new FunctionAssembler(errors, topLevel, holder, locTracker);
+		return ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder, assembler);
 	}
 
 	@Override

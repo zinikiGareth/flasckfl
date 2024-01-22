@@ -17,8 +17,8 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	public LastActionScopeParser(ErrorReporter errors, FunctionScopeNamer namer, FunctionScopeUnitConsumer topLevel, String lastThing, StateHolder holder, LocationTracker locTracker) {
 		this.errors = errors;
 		this.lastThing = lastThing;
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, holder);
-		this.parser = ParsingPhase.functionScopeUnit(errors, namer, assembler, topLevel, holder, locTracker);
+		FunctionAssembler assembler = new FunctionAssembler(errors, topLevel, holder, locTracker);
+		this.parser = ParsingPhase.functionScopeUnit(errors, namer, assembler, topLevel, holder, assembler);
 	}
 
 	public void anotherParent() {

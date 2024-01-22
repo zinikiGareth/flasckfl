@@ -10,15 +10,15 @@ import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAParsing {
+public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAParsing, LocationTracker {
 	enum Mode { FIRST, WANTGUARDS, WANTMESSAGES };
 	private Mode mode = Mode.FIRST;
 	private final GuardedMessagesConsumer consumer;
 	private boolean firstGuard = true;
 	private boolean seenDefault = false;
 
-	public TDAMethodGuardParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser) {
-		super(errors, builder, nestedParser);
+	public TDAMethodGuardParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker tracker) {
+		super(errors, builder, nestedParser, tracker);
 		consumer = (GuardedMessagesConsumer) builder;
 	}
 
@@ -60,7 +60,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			consumer.guard(dgm);
 			errors.logReduction("method-guard-default", tok.location, tok.location);
 			seenDefault = true;
-			return new TDAMethodMessageParser(errors, dgm, nestedParser);
+			return new TDAMethodMessageParser(errors, dgm, nestedParser, this);
 		}
 		List<GuardedMessages> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
@@ -74,10 +74,15 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 		}
 		firstGuard = false;
 		errors.logReduction("method-guard-default", tok.location, seen.get(seen.size()-1).location());
-		return new TDAMethodMessageParser(errors, seen.get(0), nestedParser);
-
+		return new TDAMethodMessageParser(errors, seen.get(0), nestedParser, this);
 	}
 
+	@Override
+	public void updateLoc(InputPosition location) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	@Override
 	public void scopeComplete(InputPosition location) {
 		builder.done();

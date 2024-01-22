@@ -104,7 +104,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 				throw new NotImplementedException(kw.text);
 			}
 			final StateHolder holder = state;
-			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder);
+			FunctionAssembler assembler = new FunctionAssembler(errors, consumer, holder, this);
 			onComplete = () -> { errors.logReduction("card-definition", kw.location, lastInner); };
 			return new TDAMultiParser(errors, 
 				sh,
@@ -221,7 +221,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			consumer.newObject(errors, od);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
-			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, od);
+			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, od, this);
 			ObjectNestedNamer onn = new ObjectNestedNamer(on);
 			TDAMultiParser ret = new TDAMultiParser(errors, 
 				errors -> new TDAObjectElementsParser(errors, onn, od, consumer),
@@ -274,7 +274,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 //			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
 //			HandlerNameProvider hnamer = text -> new HandlerName(pkg, text);
 			MethodConsumer smConsumer = om -> { consumer.newStandaloneMethod(errors, new StandaloneMethod(om)); };
-			return new TDAMethodParser(errors, namer, smConsumer, consumer, null).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, namer, smConsumer, consumer, null, this).parseMethod(namer, toks);
 		}
 		default:
 			return null;

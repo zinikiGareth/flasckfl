@@ -96,10 +96,10 @@ public class ParsingPhase implements ParserScanner {
 	}
 	
 	public static TDAParsing topLevelUnit(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer sb, Iterable<ParserModule> modules) {
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb, null);
+		FunctionAssembler assembler = new FunctionAssembler(errors, sb, null, null);
 		TDAMultiParser ret = new TDAMultiParser(errors,
 			TDAIntroParser.constructor(namer, sb),
-			TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb, null, null),
+			TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb, null, assembler),
 			TDATupleDeclarationParser.constructor(namer, sb, null));
 		for (ParserModule m : modules) {
 			TDAParsing r = m.introParser(errors, namer, sb);
@@ -142,6 +142,6 @@ public class ParsingPhase implements ParserScanner {
 	}
 	
 	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
-		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel, holder), TDAMethodParser.constructor(namer, sb, topLevel, holder), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel, holder, locTracker), TDATupleDeclarationParser.constructor(namer, topLevel, holder));
+		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel, holder), TDAMethodParser.constructor(namer, sb, topLevel, holder, locTracker), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel, holder, locTracker), TDATupleDeclarationParser.constructor(namer, topLevel, holder));
 	}
 }

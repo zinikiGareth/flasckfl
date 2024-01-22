@@ -86,6 +86,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 			return new TDATemplateBindingParser(errors, template, namer, c, this);
 		}
 		case "event": {
+			tracker.updateLoc(kw.location);
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
 			MethodConsumer evConsumer = em -> {
 				if (em.args().size() != 1) {
@@ -101,8 +102,12 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 				em.eventFor((CardDefinition)consumer);
 				consumer.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);
+				errors.logReduction("event-from-method", kw.location, ev.location());
+				currentItem = () -> { 
+					errors.logReduction("event-with-method-actions", kw.location, lastInner);
+				};
 			};
-			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this).parseMethod(namer, toks);
 		}
 		default:
 			return null;
@@ -152,15 +157,6 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 		return true;
 	}
 
-	@Override
-	public void scopeComplete(InputPosition location) {
-	}
-
-	@Override
-	public void updateLoc(InputPosition location) {
-		this.lastInner = location;
-	}
-	
 	@Override
 	public FunctionName functionName(InputPosition location, String base) {
 		return FunctionName.function(location, consumer.cardName(), base);

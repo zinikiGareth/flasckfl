@@ -17,11 +17,13 @@ public class TDAMethodMessageParser implements TDAParsing {
 	protected final ErrorReporter errors;
 	protected final MethodMessagesConsumer builder;
 	protected final LastOneOnlyNestedParser nestedParser;
+	private final LocationTracker tracker;
 
-	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser) {
+	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker tracker) {
 		this.errors = errors;
 		this.builder = builder;
 		this.nestedParser = nestedParser;
+		this.tracker = tracker;
 	}
 
 	@Override
@@ -64,6 +66,8 @@ public class TDAMethodMessageParser implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 		}
+		if (tracker != null)
+			tracker.updateLoc(arrowPos);
 		errors.logReduction("method-message-send", arrowPos, toks.realinfo());
 		return nestedParser;
 	}
@@ -108,7 +112,9 @@ public class TDAMethodMessageParser implements TDAParsing {
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("method-message-assign", slot.location(), toks.realinfo());
+		if (tracker != null)
+			tracker.updateLoc(slot.location());
+		errors.logReduction("method-message-assign", slot, seen.get(seen.size()-1));
 		return nestedParser;
 	}
 

@@ -17,17 +17,19 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAMethodParser {
+public class TDAMethodParser implements LocationTracker {
 	private final ErrorReporter errors;
 	private final MethodConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final StateHolder holder;
+	private final LocationTracker locTracker;
 
-	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
+	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
 		this.errors = errors;
 		this.builder = builder;
 		this.topLevel = topLevel;
 		this.holder = holder;
+		this.locTracker = locTracker;
 	}
 	
 	public TDAParsing parseMethod(FunctionNameProvider methodNamer, Tokenizable toks) {
@@ -51,13 +53,19 @@ public class TDAMethodParser {
 			errors.message(toks, "extra characters at end of line");
 			return new IgnoreNestedParser(errors);
 		}
+		locTracker.updateLoc(var.location);
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null, holder);
 		builder.addMethod(meth);
 		FunctionScopeNamer nestedNamer = new InnerPackageNamer(fnName);
-		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder, null));
+		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder, null), this);
 	}
 
-	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
+	@Override
+	public void updateLoc(InputPosition location) {
+		locTracker.updateLoc(location);
+	}
+
+	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
@@ -67,7 +75,7 @@ public class TDAMethodParser {
 						KeywordToken kw = KeywordToken.from(errors, toks);
 						if (kw == null || !"method".equals(kw.text))
 							return null;
-						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder).parseMethod(namer, toks);
+						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder, locTracker).parseMethod(namer, toks);
 					}
 					
 					@Override

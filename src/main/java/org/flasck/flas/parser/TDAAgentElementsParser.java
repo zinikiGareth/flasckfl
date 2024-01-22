@@ -20,7 +20,7 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider {
+public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider, LocationTracker {
 	protected final ErrorReporter errors;
 	protected final InputPosition kwloc;
 	protected final TemplateNamer namer;
@@ -31,6 +31,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 	protected InputPosition lastInner;
 	private KeywordToken kw;
 	protected final LocationTracker tracker;
+	protected Runnable currentItem;
 
 	public TDAAgentElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder, LocationTracker tracker) {
 		this.errors = errors;
@@ -44,6 +45,11 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		if (currentItem != null) {
+			currentItem.run();
+			currentItem = null;
+		}
+		lastInner = null;
 		kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			return null;
@@ -136,11 +142,16 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				topLevel.newStandaloneMethod(errors, new StandaloneMethod(om));
 				lastInner = om.location();
 			};
-			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, holder).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, holder, this).parseMethod(namer, toks);
 		}
 		default:
 			return strategy(kw, toks);
 		}
+	}
+
+	@Override
+	public void updateLoc(InputPosition location) {
+		this.lastInner = location;
 	}
 
 	// for children
@@ -150,6 +161,8 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		if (currentItem != null)
+			currentItem.run();
 	}
 
 	@Override

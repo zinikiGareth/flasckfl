@@ -1,23 +1,27 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StateHolder;
 
-public class FunctionAssembler implements FunctionIntroConsumer {
+public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker {
 	private final ErrorReporter errors;
 	private final FunctionScopeUnitConsumer consumer;
 	private final StateHolder holder;
 	private FunctionDefinition fn;
 	private FunctionIntro curr;
 	private boolean broken;
+	private InputPosition lastLoc = null;
+	private final LocationTracker tracker;
 
-	public FunctionAssembler(ErrorReporter errors, FunctionScopeUnitConsumer consumer, StateHolder holder) {
+	public FunctionAssembler(ErrorReporter errors, FunctionScopeUnitConsumer consumer, StateHolder holder, LocationTracker tracker) {
 		this.errors = errors;
 		this.consumer = consumer;
 		this.holder = holder;
+		this.tracker = tracker;
 	}
 
 	@Override
@@ -45,6 +49,7 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 		}
 		fn.intro(next);
 		curr = next;
+		lastLoc = next.location();
 	}
 
 	@Override
@@ -52,18 +57,36 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 		if (fn != null) {
 			reduceIntro();
 			reduceFunction();
+			fn = null;
 		}
 	}
 	
+	@Override
+	public void updateLoc(InputPosition location) {
+		if (lastLoc != null) {
+			if (fn != null)
+				lastLoc = location;
+			else 
+				tracker.updateLoc(location);
+		}
+		System.out.println("Assembling " + fn.name() + " " + location + " => " + lastLoc);
+	}
+	
 	private void reduceIntro() {
-		if (!curr.cases().isEmpty())
+		if (!curr.cases().isEmpty()) {
 			errors.logReduction("function-intro", curr, curr.cases().get(curr.cases().size()-1));
+		}
+		if (curr.location().compareTo(lastLoc) > 0)
+			lastLoc = curr.location();
 	}
 
 	private void reduceFunction() {
 		if (!broken && fn != null) {
 			consumer.functionDefn(errors, fn);
-			errors.logReduction("function-from-intros", fn, fn.intros().get(fn.intros().size()-1));
+			System.out.println("reducing " + fn.name() + " with " + lastLoc);
+			errors.logReduction("function-from-intros", fn.location(), lastLoc);
+			if (tracker != null)
+				tracker.updateLoc(lastLoc);
 		}
 		fn = null;
 		curr = null;

@@ -15,7 +15,7 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAServiceElementsParser implements TDAParsing {
+public class TDAServiceElementsParser implements TDAParsing, LocationTracker {
 	private final ErrorReporter errors;
 	private final TemplateNamer namer;
 	private final ServiceElementsConsumer consumer;
@@ -49,7 +49,7 @@ public class TDAServiceElementsParser implements TDAParsing {
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
 			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(errors, new StandaloneMethod(sm)); };
-			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, null).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, null, this).parseMethod(namer, toks);
 		}
 		case "provides": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
@@ -103,5 +103,11 @@ public class TDAServiceElementsParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+	}
+
+	@Override
+	public void updateLoc(InputPosition location) {
+		// TODO Auto-generated method stub
+		
 	}
 }

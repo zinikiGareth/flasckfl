@@ -51,7 +51,7 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
 			oneOf(builder).done();
 		}});
-		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
+		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.fetchRoot"));
 		assertTrue(nested instanceof LastOneOnlyNestedParser);
 		parser.scopeComplete(pos);
@@ -63,7 +63,7 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.typeref("True")))));
 			oneOf(builder).done();
 		}});
-		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
+		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 		parser.scopeComplete(pos);
@@ -74,7 +74,7 @@ public class TDAMethodGuardsTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.typeref("True")))));
 		}});
-		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
+		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 		context.assertIsSatisfied();
@@ -93,7 +93,7 @@ public class TDAMethodGuardsTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
 		}});
-		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
+		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.fetchRoot"));
 		assertTrue(nested instanceof LastOneOnlyNestedParser);
 		context.assertIsSatisfied();
@@ -112,7 +112,7 @@ public class TDAMethodGuardsTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.typeref("True")))));
 		}});
-		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
+		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 		context.assertIsSatisfied();
@@ -132,7 +132,7 @@ public class TDAMethodGuardsTests {
 			oneOf(errorsMock).message(with(any(InputPosition.class)), with("first guard cannot be default"));
 			oneOf(builder).done();
 		}});
-		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
+		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("|"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 		parser.scopeComplete(pos);
@@ -146,7 +146,7 @@ public class TDAMethodGuardsTests {
 			oneOf(errorsMock).message(with(any(InputPosition.class)), with("cannot provide two default guards"));
 			oneOf(builder).done();
 		}});
-		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope);
+		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
 		nested = parser.tryParsing(TDABasicIntroParsingTests.line("|"));
 		nested = parser.tryParsing(TDABasicIntroParsingTests.line("|"));

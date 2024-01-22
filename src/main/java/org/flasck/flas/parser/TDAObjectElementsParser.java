@@ -36,6 +36,7 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 	private final ObjectElementsConsumer builder;
 	private final TopLevelDefinitionConsumer topLevel;
 	private TDAParsing currParser;
+	private InputPosition lastInner;
 
 	public TDAObjectElementsParser(ErrorReporter errors, TemplateNamer namer, ObjectElementsConsumer od, TopLevelDefinitionConsumer topLevel) {
 		this.errors = errors;
@@ -119,7 +120,7 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 				builder.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);
 			};
-			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this).parseMethod(namer, toks);
 		}
 		case "ctor": {
 			ValidIdentifierToken var = VarNameToken.from(errors, toks);
@@ -149,12 +150,12 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 				currParser = null;
 			}
 			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
-			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this));
+			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this), this);
 		}
 		case "acor": {
 			if (currParser != null)
 				currParser.scopeComplete(location);
-			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, (errors, f) -> { ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f); f.isObjAccessor(true); builder.addAccessor(oa); topLevel.newObjectAccessor(errors, oa); }), (StateHolder)builder);
+			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, (errors, f) -> { ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f); f.isObjAccessor(true); builder.addAccessor(oa); topLevel.newObjectAccessor(errors, oa); }), (StateHolder)builder, this);
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, (StateHolder)builder, this);
 			currParser = fcp;
 			return fcp.tryParsing(toks);
@@ -168,7 +169,7 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 					topLevel.newObjectMethod(errors, method);
 				}
 			};
-			return new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder).parseMethod(methodNamer, toks);
+			return new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this).parseMethod(methodNamer, toks);
 		}
 		default: {
 			return null;
@@ -178,7 +179,7 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 
 	@Override
 	public void updateLoc(InputPosition location) {
-		// TODO Auto-generated method stub
+		this.lastInner = location;
 	}
 
 	@Override
