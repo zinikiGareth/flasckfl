@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain;
+import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
@@ -126,16 +127,25 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 				if (!readChainElement(errors, namer, toks, chain))
 					return null;
 			}
+			InputPosition chain0 = null;
+			InputPosition chainN = null;
+			for (Link l : chain) {
+				if (chain0 == null)
+					chain0 = l.location();
+				chainN = l.location();
+			}
+			errors.logReduction("chain-element-list", chain0, chainN);
 		}
 		return chain;
 	}
 
 	private static boolean readChainElement(ErrorReporter errors, TemplateNamer namer, Tokenizable toks, NestingChain chain) {
 		ExprToken tok = ExprToken.from(errors, toks);
-		if (!"(".equals(tok.text)) {
+		if (tok == null || !"(".equals(tok.text)) {
 			errors.message(toks, "( expected");
 			return false;
 		}
+		InputPosition orb = tok.location;
 		List<TypeReference> ref = new ArrayList<>();
 		if (new TDATypeReferenceParser(errors, namer, x->ref.add(x), null).tryParsing(toks) == null) {
 			// it didn't parse, so give up hope
@@ -153,6 +163,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 			errors.message(toks, ") expected");
 			return false;
 		}
+		errors.logReduction("chain-element-link", orb, tok.location);
 		chain.declare(tr, namer.nameVar(var.location, var.text));
 		return true;
 	}
