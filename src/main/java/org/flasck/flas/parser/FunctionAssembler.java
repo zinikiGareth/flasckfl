@@ -63,12 +63,13 @@ public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker
 	
 	@Override
 	public void updateLoc(InputPosition location) {
-		if (lastLoc != null) {
-			if (fn != null)
+		if (location == null)
+			return;
+		if (fn != null) {
+			if (location.compareTo(lastLoc) > 0)
 				lastLoc = location;
-			else 
-				tracker.updateLoc(location);
-		}
+		} else 
+			tracker.updateLoc(location);
 //		System.out.println("Assembling " + fn.name() + " " + location + " => " + lastLoc);
 	}
 	
