@@ -83,7 +83,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return handleDataDecl(kw, toks);
 		}
 		case "newdiv":
-			return handleNewdiv(toks);
+			return handleNewdiv(kw, toks);
 		case "render": {
 			return handleRender(toks);
 		}
@@ -238,14 +238,16 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 		return new TDAUnitTestDataParser(errors, false, kw, namer, dd -> { builder.data(errors, dd); topLevel.nestedData(dd); }, topLevel, this).tryParsing(toks);
 	}
 
-	protected TDAParsing handleNewdiv(Tokenizable toks) {
+	protected TDAParsing handleNewdiv(KeywordToken kw, Tokenizable toks) {
 		Integer cnt = null;
+		InputPosition cntLoc = null;
 		if (toks.hasMoreContent(errors)) {
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok.type != ExprToken.NUMBER) {
 				errors.message(toks, "integer required");
 				return new IgnoreNestedParser(errors);
 			}
+			cntLoc = tok.location;
 			try {
 				cnt = Integer.parseInt(tok.text);
 			} catch (NumberFormatException ex) {
@@ -258,6 +260,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return new IgnoreNestedParser(errors);
 		}
 		builder.newdiv(cnt);
+		errors.logReduction("test-newdiv-cnt", kw.location, cntLoc);
 		return new NoNestingParser(errors);
 	}
 
