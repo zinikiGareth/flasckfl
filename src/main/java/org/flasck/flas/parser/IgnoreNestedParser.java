@@ -7,15 +7,23 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class IgnoreNestedParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final LocationTracker locTracker;
 
 	public IgnoreNestedParser(ErrorReporter errors) {
-		this.errors = errors;
+		this(errors, null);
 	}
 	
+	public IgnoreNestedParser(ErrorReporter errors, LocationTracker locTracker) {
+		this.errors = errors;
+		this.locTracker = locTracker;
+	}
+
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		InputPosition pos = toks.realinfo();
 		errors.logParsingToken(new CommentToken(pos, toks.remainder()));
+		if (locTracker != null)
+			locTracker.updateLoc(pos);
 		return this;
 	}
 

@@ -65,10 +65,13 @@ public class TDAUnitTestParser implements TDAParsing, LocationTracker {
 			toks.skipWS(errors);
 			InputPosition pos = toks.realinfo();
 			final String desc = toks.remainder().trim();
-			errors.logParsingToken(new TestDescriptionToken(pos, desc));
+			TestDescriptionToken tdt = new TestDescriptionToken(pos, desc);
+			errors.logReduction("ut-ignore-test-intro", tok, tdt);
+			onComplete = () -> { errors.logReduction("ut-ignore-test-with-steps", tok.location, lastInner); lastInner = null; };
+			errors.logParsingToken(tdt);
 
 			// Do what it says on the can ... ignore this line and all nested lines
-			return new IgnoreNestedParser(errors);
+			return new IgnoreNestedParser(errors, this);
 		}
 		default: {
 			toks.reset(mark);
