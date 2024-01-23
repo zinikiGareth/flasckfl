@@ -6,9 +6,9 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
-import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.StructFieldConsumer;
 import org.flasck.flas.parser.TDAParsing;
@@ -30,7 +30,7 @@ public class TDAStructFieldParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private StructFieldConsumer builder = context.mock(StructFieldConsumer.class);
-	private FieldsDefn sd = null;
+	private LocationTracker locTracker = null;
 
 	@Before
 	public void ignoreParserLogging() {
@@ -46,7 +46,7 @@ public class TDAStructFieldParsingTests {
 			allowing(builder).holder(); will(returnValue(null));
 			oneOf(builder).addField(with(StructFieldMatcher.match("A", "head")));
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.STRUCT, true);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("A head"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
@@ -57,7 +57,7 @@ public class TDAStructFieldParsingTests {
 			allowing(builder).holder(); will(returnValue(null));
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").locs(0, 7)));
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.STRUCT, true);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("String msg"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
@@ -68,7 +68,7 @@ public class TDAStructFieldParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "field must have a valid type definition");
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.STRUCT, true);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -79,7 +79,7 @@ public class TDAStructFieldParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "field must have a valid field name");
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.STRUCT, true);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -90,7 +90,7 @@ public class TDAStructFieldParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "'id' is a reserved field name");
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.STRUCT, true);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -101,7 +101,7 @@ public class TDAStructFieldParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "expected <- or end of line");
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.STRUCT, true);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -113,7 +113,7 @@ public class TDAStructFieldParsingTests {
 			allowing(builder).holder(); will(returnValue(null));
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").assign(11, new StringLiteralMatcher("foo"))));
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.STRUCT, true);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("String msg <- 'foo'"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
@@ -126,7 +126,7 @@ public class TDAStructFieldParsingTests {
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").assign(11, ExprMatcher.number(13))));
 			oneOf(errors).message(with(toks), with("invalid tokens after expression"));
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.STRUCT, true);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -137,7 +137,7 @@ public class TDAStructFieldParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "envelope fields may not have initializers");
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.ENVELOPE, false);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.ENVELOPE, false, locTracker);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -148,7 +148,7 @@ public class TDAStructFieldParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "wraps fields must have initializers");
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, sd, builder, FieldsType.WRAPS, false);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.WRAPS, false, locTracker);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}

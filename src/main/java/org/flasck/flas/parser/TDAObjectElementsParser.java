@@ -62,7 +62,7 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 			}
 			StateDefinition state = new StateDefinition(kw.location, toks.realinfo(), ((NamedType)builder).name());
 			builder.defineState(state);
-			return new TDAStructFieldParser(errors, state, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false, this);
 		}
 		case "requires": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);

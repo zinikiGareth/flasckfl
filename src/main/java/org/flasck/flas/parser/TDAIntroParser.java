@@ -147,7 +147,8 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, sn, true, polys);
 			consumer.newStruct(errors, sd);
 			errors.logReduction("fields-defn", kw.location, tn.location);
-			return new TDAStructFieldParser(errors, sd, new ConsumeStructFields(errors, consumer, svn, sd), ty, true);
+			onComplete = () -> { errors.logReduction("struct-defn-with-fields", kw.location, lastInner); };
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true, this);
 		}
 		case "wraps": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
@@ -173,7 +174,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, namer.solidName(tn.text), true, new ArrayList<>());
 			consumer.newStruct(errors, sd);
-			return new TDAStructFieldParser(errors, sd, new ConsumeStructFields(errors, consumer, svn, sd), FieldsType.WRAPS, false);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), FieldsType.WRAPS, false, this);
 		}
 		case "union": {
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);

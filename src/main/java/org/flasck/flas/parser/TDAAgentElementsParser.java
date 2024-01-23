@@ -68,7 +68,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			if (tracker != null)
 				tracker.updateLoc(lastInner);
 			
-			return new TDAStructFieldParser(errors, state, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false, this);
 		}
 		case "provides": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
@@ -164,6 +164,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 
 	@Override
 	public void updateLoc(InputPosition location) {
+		System.out.println("AEP loc = " + location);
 		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
 			lastInner = location;
 	}

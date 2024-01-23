@@ -43,8 +43,10 @@ public class TDAHandlerParser implements TDAParsing, LocationTracker {
 		if (!toks.hasMoreContent(errors))
 			return null;
 		kw = KeywordToken.from(errors, toks);
-		if (kw == null || !kw.text.equals("handler"))
+		if (kw == null || !kw.text.equals("handler")) {
+			kw = null;
 			return null; // in the "nothing doing" sense
+		}
 
 		lastInner = kw.location;
 		return parseHandler(kw.location, false, toks);
@@ -53,7 +55,7 @@ public class TDAHandlerParser implements TDAParsing, LocationTracker {
 
 	@Override
 	public void updateLoc(InputPosition location) {
-		if (location != null)
+		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
 			lastInner = location;
 	}
 
