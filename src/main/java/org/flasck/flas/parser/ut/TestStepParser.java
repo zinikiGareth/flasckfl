@@ -262,7 +262,10 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return new IgnoreNestedParser(errors);
 		}
 		builder.newdiv(cnt);
-		errors.logReduction("test-newdiv-cnt", kw.location, cntLoc);
+		if (cntLoc != null)
+			errors.logReduction("test-newdiv-cnt", kw.location, cntLoc);
+		else
+			errors.logReduction("test-newdiv", kw.location, kw.location);
 		return new NoNestingParser(errors);
 	}
 
