@@ -31,7 +31,10 @@ public class SingleExpressionParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (++exprCount > 1)
 			return new IgnoreNestedParser(errors);
-		TDAExpressionParser expr = new TDAExpressionParser(errors, e -> { exprLoc = e; builder.accept(e); });
+		TDAExpressionParser expr = new TDAExpressionParser(errors, e -> {
+			exprLoc = e; 
+			builder.accept(e);
+		});
 		expr.tryParsing(toks);
 		if (toks.hasMoreContent(errors)){
 			errors.message(toks, "syntax error");

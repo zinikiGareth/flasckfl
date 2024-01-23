@@ -35,14 +35,16 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 	private final TemplateNamer namer;
 	private final ObjectElementsConsumer builder;
 	private final TopLevelDefinitionConsumer topLevel;
+	private final LocationTracker locTracker;
 	private TDAParsing currParser;
 	private InputPosition lastInner;
 
-	public TDAObjectElementsParser(ErrorReporter errors, TemplateNamer namer, ObjectElementsConsumer od, TopLevelDefinitionConsumer topLevel) {
+	public TDAObjectElementsParser(ErrorReporter errors, TemplateNamer namer, ObjectElementsConsumer od, TopLevelDefinitionConsumer topLevel, LocationTracker locTracker) {
 		this.errors = errors;
 		this.namer = namer;
 		this.builder = od;
 		this.topLevel = topLevel;
+		this.locTracker = locTracker;
 	}
 
 	@Override
@@ -155,8 +157,17 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 		case "acor": {
 			if (currParser != null)
 				currParser.scopeComplete(location);
-			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, (errors, f) -> { ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f); f.isObjAccessor(true); builder.addAccessor(oa); topLevel.newObjectAccessor(errors, oa); }), (StateHolder)builder, this);
-			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, (StateHolder)builder, this);
+			FunctionDefnConsumer consumer = (errors, f) -> {
+				ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f);
+				f.isObjAccessor(true);
+				builder.addAccessor(oa);
+				topLevel.newObjectAccessor(errors, oa);
+				errors.logReduction("object-acor", kw.location, this.lastInner);
+				if (locTracker != null)
+					locTracker.updateLoc(kw.location);
+			};
+			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, consumer), (StateHolder)builder, this);
+			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, (StateHolder)builder, fa);
 			currParser = fcp;
 			return fcp.tryParsing(toks);
 		}
@@ -179,7 +190,8 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 
 	@Override
 	public void updateLoc(InputPosition location) {
-		this.lastInner = location;
+		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
+			this.lastInner = location;
 	}
 
 	@Override

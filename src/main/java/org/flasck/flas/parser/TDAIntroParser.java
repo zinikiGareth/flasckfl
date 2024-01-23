@@ -228,7 +228,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, od, this);
 			ObjectNestedNamer onn = new ObjectNestedNamer(on);
 			TDAMultiParser ret = new TDAMultiParser(errors, 
-				errors -> new TDAObjectElementsParser(errors, onn, od, consumer),
+				errors -> new TDAObjectElementsParser(errors, onn, od, consumer, this),
 				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer, od, this),
 				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, od, this),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od)

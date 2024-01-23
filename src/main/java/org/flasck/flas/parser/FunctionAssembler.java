@@ -69,7 +69,7 @@ public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker
 			else 
 				tracker.updateLoc(location);
 		}
-		System.out.println("Assembling " + fn.name() + " " + location + " => " + lastLoc);
+//		System.out.println("Assembling " + fn.name() + " " + location + " => " + lastLoc);
 	}
 	
 	private void reduceIntro() {
@@ -82,11 +82,11 @@ public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker
 
 	private void reduceFunction() {
 		if (!broken && fn != null) {
-			consumer.functionDefn(errors, fn);
-			System.out.println("reducing " + fn.name() + " with " + lastLoc);
+//			System.out.println("reducing " + fn.name() + " with " + lastLoc);
 			errors.logReduction("function-from-intros", fn.location(), lastLoc);
 			if (tracker != null)
 				tracker.updateLoc(lastLoc);
+			consumer.functionDefn(errors, fn);
 		}
 		fn = null;
 		curr = null;

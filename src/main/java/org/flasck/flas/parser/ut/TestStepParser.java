@@ -2,6 +2,7 @@ package org.flasck.flas.parser.ut;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
@@ -130,7 +131,13 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, "assert", ex -> { errors.logReduction("ut-assert", kw, ex); builder.assertion(test.get(0), ex); }, this);
+		Consumer<Expr> exprConsumer = ex -> {
+			errors.logReduction("ut-assert", kw, ex);
+			builder.assertion(test.get(0), ex);
+			if (locTracker != null)
+				locTracker.updateLoc(kw.location);
+		};
+		return new SingleExpressionParser(errors, "assert", exprConsumer, this);
 	}
 
 	protected TDAParsing handleIdentical(KeywordToken kw, Tokenizable toks) {

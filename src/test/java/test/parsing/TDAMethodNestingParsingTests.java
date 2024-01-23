@@ -12,6 +12,7 @@ import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateHolder;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.parser.ObjectNestedNamer;
 import org.flasck.flas.parser.TDAMethodMessageParser;
@@ -41,6 +42,7 @@ public class TDAMethodNestingParsingTests {
 	private SolidName name = new SolidName(null, "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(name);
 	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
+	private LocationTracker locTracker = null;
 	
 	@Before
 	public void ignoreParserLogging() {
@@ -61,7 +63,7 @@ public class TDAMethodNestingParsingTests {
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class))); will(captureIt);
 		}});
-		TDAObjectElementsParser oep = new TDAObjectElementsParser(errors, namer, builder, topLevel);
+		TDAObjectElementsParser oep = new TDAObjectElementsParser(errors, namer, builder, topLevel, locTracker);
 		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("<- ds.getReady"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("x <- 'hello'"));
@@ -76,7 +78,7 @@ public class TDAMethodNestingParsingTests {
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
 //			oneOf(topLevel).functionCase(with(FunctionCaseMatcher.called(name, "s")));
 		}});
-		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
+		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
 		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("<- ds.send y"));
 		TDAParsing fsParser = nested.tryParsing(TDABasicIntroParsingTests.line("x <- y"));
@@ -93,7 +95,7 @@ public class TDAMethodNestingParsingTests {
 //			oneOf(topLevel).functionCase(with(FunctionCaseMatcher.called(name, "s")));
 			oneOf(errors).message(line.realinfo(), "nested scope must be after last action");
 		}});
-		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
+		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
 		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
 		TDAParsing fsParser = nested.tryParsing(TDABasicIntroParsingTests.line("<- ds.send y"));
 		fsParser.tryParsing(line);
@@ -110,7 +112,7 @@ public class TDAMethodNestingParsingTests {
 //			oneOf(topLevel).functionCase(with(FunctionCaseMatcher.called(name, "s")));
 			oneOf(errors).message(line.realinfo(), "nested scope must be after last action");
 		}});
-		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
+		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
 		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
 		TDAParsing fsParser = nested.tryParsing(TDABasicIntroParsingTests.line("<- ds.send y"));
 		fsParser.tryParsing(line);
@@ -130,7 +132,7 @@ public class TDAMethodNestingParsingTests {
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
 			oneOf(errors).message(with(any(InputPosition.class)), with("expected <-"));
 		}});
-		TDAObjectElementsParser oep = new TDAObjectElementsParser(errors, namer, builder, topLevel);
+		TDAObjectElementsParser oep = new TDAObjectElementsParser(errors, namer, builder, topLevel, locTracker);
 		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
 		nested.tryParsing(line);
 	}
