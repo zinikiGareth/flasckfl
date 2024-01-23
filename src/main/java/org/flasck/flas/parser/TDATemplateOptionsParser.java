@@ -51,6 +51,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		if ("|".equals(tok.text)) {
+			InputPosition barPos = tok.location;
 			// it's a conditional - we don't know if it's binding, styling or an error; but "toksHasSend" gives us a clue
 			if ((binding == null || binding.defaultBinding != null) && toksHasSend(toks)) {
 				errors.message(toks, "conditional bindings are not permitted after the default has been specified");
@@ -60,7 +61,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(tok.location, "cannot mix bindings and customization");
 			}
 			if (toksHasSend(toks))
-				return TDAParseTemplateElements.parseConditionalBindingOption(errors, source, namer, toks, field, tbo -> binding.conditionalBindings.add(tbo), endOfTemplate);
+				return TDAParseTemplateElements.parseConditionalBindingOption(errors, barPos, source, namer, toks, field, tbo -> binding.conditionalBindings.add(tbo), endOfTemplate);
 			else
 				return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> customizer.conditionalStylings.add(tso), endOfTemplate);
 			
@@ -74,7 +75,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(toks, "multiple default bindings are not permitted");
 				return new IgnoreNestedParser(errors);
 			}
-			return TDAParseTemplateElements.parseDefaultBindingOption(errors, source, namer, toks, field, tbo -> binding.defaultBinding = tbo, loc -> {});
+			return TDAParseTemplateElements.parseDefaultBindingOption(errors, tok.location, source, namer, toks, field, tbo -> binding.defaultBinding = tbo, endOfTemplate);
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
 			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> customizer.events.add(ev));

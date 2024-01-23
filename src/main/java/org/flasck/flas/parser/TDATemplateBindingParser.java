@@ -21,6 +21,7 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 	private final TemplateNamer namer;
 	private final TemplateBindingConsumer consumer;
 	private final LocationTracker locTracker;
+	private Runnable onComplete;
 	private InputPosition lastInner;
 
 	public TDATemplateBindingParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingConsumer consumer, LocationTracker locTracker) {
@@ -34,6 +35,10 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		if (onComplete != null) {
+			onComplete.run();
+			onComplete = null;
+		} 
 		final TemplateNameToken tok = TemplateNameToken.from(errors, toks);
 		if (tok == null) {
 			ExprToken et = ExprToken.from(errors, toks);
@@ -44,8 +49,11 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 				return new IgnoreNestedParser(errors);
 			}
 		}
-		if (locTracker != null)
-			locTracker.updateLoc(tok.location);
+		onComplete = () -> {
+			errors.logReduction("something-about-template-bindings-being-complete", tok.location(), lastInner);
+			if (locTracker != null)
+				locTracker.updateLoc(tok.location);
+		};
 		TemplateField field = new TemplateField(tok.location, tok.text);
 		InputPosition lastLoc = field.location();
 		lastInner = lastLoc;
@@ -84,7 +92,7 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 				lastLoc = dest.location;
 				sendsTo = new TemplateReference(dest.location, namer.template(dest.location, dest.text));
 			}
-			simple = new TemplateBindingOption(field, null, expr, sendsTo);
+			simple = new TemplateBindingOption(tok.location, field, null, expr, sendsTo);
 		}
 		errors.logReduction("template-binding-first-line", tok.location, lastLoc);
 		final TemplateBinding binding = new TemplateBinding(field, simple);
@@ -102,6 +110,8 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		errors.logReduction("something-about-template-bindings-being-complete", source.kwlocation(), lastInner);
+		if (onComplete != null) {
+			onComplete.run();
+		} 
 	}
 }

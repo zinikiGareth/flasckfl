@@ -20,7 +20,7 @@ import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAParseTemplateElements {
-	public static TDAParsing parseConditionalBindingOption(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer, LocationTracker tracker) {
+	public static TDAParsing parseConditionalBindingOption(ErrorReporter errors, InputPosition barPos, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer, LocationTracker tracker) {
 		List<Expr> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
 			seen.add(t);
@@ -38,8 +38,11 @@ public class TDAParseTemplateElements {
 			TemplateBindingOption tbo = readTemplateBinding(errors, namer, toks, field);
 			if (tbo == null)
 				return new IgnoreNestedParser(errors);
-			TemplateBindingOption tc = tbo.conditionalOn(seen.get(0));
+			TemplateBindingOption tc = tbo.conditionalOn(barPos, seen.get(0));
 			consumer.accept(tc);
+			errors.logReduction("template-conditional-binding", barPos, tbo.location());
+			if (tracker != null)
+				tracker.updateLoc(barPos);
 			return new TDATemplateOptionsParser(errors, source, namer, tc, field, tracker);
 		} else {
 			errors.message(toks, "syntax error");
@@ -47,11 +50,14 @@ public class TDAParseTemplateElements {
 		}
 	}
 
-	public static TDAParsing parseDefaultBindingOption(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer, LocationTracker tracker) {
+	public static TDAParsing parseDefaultBindingOption(ErrorReporter errors, InputPosition sendPos, Template source, TemplateNamer namer, Tokenizable toks, TemplateField field, Consumer<TemplateBindingOption> consumer, LocationTracker tracker) {
 		TemplateBindingOption tc = TDAParseTemplateElements.readTemplateBinding(errors, namer, toks, field);
 		if (tc == null)
 			return new IgnoreNestedParser(errors);
 		consumer.accept(tc);
+		errors.logReduction("template-default-binding", sendPos, tc.location());
+		if (tracker != null)
+			tracker.updateLoc(sendPos);
 		return new TDATemplateOptionsParser(errors, source, namer, tc, field, tracker);
 	}
 
@@ -126,7 +132,7 @@ public class TDAParseTemplateElements {
 			errors.message(toks, "syntax error");
 			return null;
 		}
-		return new TemplateBindingOption(field, null, seen.get(0), sendTo);
+		return new TemplateBindingOption(seen.get(0).location(), field, null, seen.get(0), sendTo);
 	}
 
 	public static TemplateStylingOption readTemplateStyles(InputPosition barPos, ErrorReporter errors, Expr expr, Tokenizable toks, LocationTracker locTracker) {
