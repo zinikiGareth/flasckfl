@@ -74,7 +74,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return handleShove(kw, toks);
 		}
 		case "close": {
-			return closeCard(toks);
+			return closeCard(kw, toks);
 		}
 		case "contract": {
 			return handleSendToContract(kw, toks);
@@ -224,13 +224,15 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 		return new NoNestingParser(errors);
 	}
 
-	protected TDAParsing closeCard(Tokenizable toks) {
+	protected TDAParsing closeCard(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "close requires a card variable to close");
 			return new IgnoreNestedParser(errors);
 		}
 		builder.closeCard(new UnresolvedVar(tok.location, tok.text));
+		errors.logReduction("ut-close-card", kw.location, tok.location);
+		lastInner = kw.location;
 		return new NoNestingParser(errors);
 	}
 
