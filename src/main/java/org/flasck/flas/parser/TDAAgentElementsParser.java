@@ -64,7 +64,9 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			consumer.defineState(state);
 			seenState = true;
 			lastInner = kw.location;
-			tracker.updateLoc(lastInner);
+			currentItem = () -> { errors.logReduction("agent-state-block", kw.location, lastInner);};
+			if (tracker != null)
+				tracker.updateLoc(lastInner);
 			
 			return new TDAStructFieldParser(errors, state, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}
@@ -82,6 +84,10 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final CSName csn = namer.csn(tn.location, "S");
 			final Provides contractService = new Provides(kw.location, tn.location, (NamedType)consumer, ctr, csn);
 			consumer.addProvidedService(contractService);
+			lastInner = kw.location;
+			currentItem = () -> { errors.logReduction("agent-provides-block", kw.location, lastInner);};
+			if (tracker != null)
+				tracker.updateLoc(lastInner);
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel, holder, this);
 		}
 		case "requires": {
@@ -90,7 +96,8 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser(errors);
 			}
-			
+
+			lastInner = tn.location;
 			InputPosition varloc = null;
 			String varname = null;
 			if (toks.hasMoreContent(errors)) {
@@ -101,6 +108,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				}
 				varloc = var.location;
 				varname = var.text;
+				lastInner = varloc;
 			}
 			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
@@ -111,6 +119,9 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final RequiresContract rc = new RequiresContract(kw.location, tn.location, (NamedType)consumer, ctr, cin, varloc, varname);
 			consumer.addRequiredContract(rc);
 			topLevel.newRequiredContract(errors, rc);
+			errors.logReduction("agent-requires", kw.location, lastInner);
+			if (tracker != null)
+				tracker.updateLoc(lastInner);
 			return new NoNestingParser(errors);
 		}
 		case "implements": {
