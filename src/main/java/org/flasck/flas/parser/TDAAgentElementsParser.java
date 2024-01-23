@@ -121,7 +121,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			topLevel.newRequiredContract(errors, rc);
 			errors.logReduction("agent-requires", kw.location, lastInner);
 			if (tracker != null)
-				tracker.updateLoc(lastInner);
+				tracker.updateLoc(kw.location);
 			return new NoNestingParser(errors);
 		}
 		case "implements": {
@@ -154,7 +154,6 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
 			MethodConsumer smConsumer = om -> { 
 				topLevel.newStandaloneMethod(errors, new StandaloneMethod(om));
-				lastInner = om.location();
 			};
 			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, holder, this).parseMethod(namer, toks);
 		}
@@ -165,7 +164,8 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 
 	@Override
 	public void updateLoc(InputPosition location) {
-		this.lastInner = location;
+		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
+			lastInner = location;
 	}
 
 	// for children

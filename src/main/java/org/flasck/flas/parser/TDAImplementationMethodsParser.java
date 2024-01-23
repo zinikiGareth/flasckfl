@@ -152,7 +152,8 @@ public class TDAImplementationMethodsParser implements TDAParsing, LocationTrack
 		}
 		final ObjectMethod meth = new ObjectMethod(name.location, methName, args, handler, holder);
 		errors.logReduction("contract-method-implementation-declaration", methName.location, lastLoc);
-		locTracker.updateLoc(firstLoc);
+		if (locTracker != null)
+			locTracker.updateLoc(firstLoc);
 		consumer.addImplementationMethod(meth);
 		topLevel.newObjectMethod(errors, meth);
 		InnerPackageNamer innerNamer = new InnerPackageNamer(methName);

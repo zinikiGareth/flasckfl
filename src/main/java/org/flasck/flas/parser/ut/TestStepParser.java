@@ -59,7 +59,8 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		onComplete = () -> { locTracker.updateLoc(lastInner); };
+		if (locTracker != null)
+			onComplete = () -> { locTracker.updateLoc(lastInner); };
 		lastInner = kw.location;
 		switch (kw.text) {
 		case "assert": {
@@ -92,10 +93,10 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return handleInput(kw, toks);
 		}
 		case "invoke": {
-			return handleInvoke(toks);
+			return handleInvoke(kw, toks);
 		}
 		case "expect": {
-			return handleExpect(toks);
+			return handleExpect(kw, toks);
 		}
 		case "match": {
 			return handleMatch(kw, toks);
@@ -321,7 +322,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 		return new SingleExpressionParser(errors, "input", text -> { builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text); }, this);
 	}
 
-	protected TDAParsing handleInvoke(Tokenizable toks) {
+	protected TDAParsing handleInvoke(KeywordToken kw, Tokenizable toks) {
 		List<Expr> eventObj = new ArrayList<>();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
 		expr.tryParsing(toks);
@@ -332,15 +333,17 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "missing expression");
 			return new IgnoreNestedParser(errors);
 		}
+		InputPosition lastLoc = eventObj.get(eventObj.size()-1).location();
 		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		errors.logReduction("test-step-invoke", kw.location, lastLoc);
 		builder.invokeObjectMethod(eventObj.get(0));
 		return new NoNestingParser(errors);
 	}
 
-	protected TDAParsing handleExpect(Tokenizable toks) {
+	protected TDAParsing handleExpect(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken svc = VarNameToken.from(errors, toks);
 		if (svc == null) {
 			// If we don't have a service name, then it could be a contract.
@@ -360,11 +363,15 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "missing method");
 			return new IgnoreNestedParser(errors);
 		}
+		InputPosition lastLoc = meth.location;
 		List<Expr> args = new ArrayList<>();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, namer, x -> args.add(x), false, topLevel);
 		expr.tryParsing(toks);
 		if (errors.hasErrors()){
 			return new IgnoreNestedParser(errors);
+		}
+		if (!args.isEmpty()) {
+			lastLoc = args.get(args.size()-1).location();
 		}
 		Expr handler = null;
 		if (args.size() >= 2) {
@@ -380,6 +387,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		errors.logReduction("test-step-expect", kw.location, lastLoc);
 		builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
 		return new TDAMultiParser(errors);
 	}
