@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -12,7 +13,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAFunctionGuardedEquationParser implements TDAParsing {
+public class TDAFunctionGuardedEquationParser implements TDAParsing, LocationTracker {
 	private final ErrorReporter errors;
 	private final FunctionIntro intro;
 	private final InputPosition afterIntro;
@@ -21,6 +22,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 	private InputPosition haveDefault;
 	private LastOneOnlyNestedParser nestedParser;
 	private boolean reportedDefault;
+	private InputPosition lastInner;
 
 	public TDAFunctionGuardedEquationParser(ErrorReporter errors, FunctionIntro intro, InputPosition afterIntro, FunctionGuardedEquationConsumer consumer, LastOneOnlyNestedParser nestedParser) {
 		this.errors = errors;
@@ -28,6 +30,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 		this.afterIntro = afterIntro;
 		this.consumer = consumer;
 		this.nestedParser = nestedParser;
+		nestedParser.bindLocationTracker(this);
 	}
 
 	@Override
@@ -95,7 +98,16 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 			cases.add(fcd);
 		}).tryParsing(line);
 		
-		return nestedParser;
+		lastInner = tok.location;
+		return new TDAParsingWithAction(nestedParser, () -> { 
+			errors.logReduction("function-guard-with-block", tok.location, lastInner);
+		});
+	}
+	
+	@Override
+	public void updateLoc(InputPosition location) {
+		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
+			lastInner = location;
 	}
 
 	@Override

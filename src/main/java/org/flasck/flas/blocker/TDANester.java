@@ -12,7 +12,7 @@ import org.flasck.flas.tokenizers.CommentToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDANester implements BlockConsumer {
-	private final List<TDAParsing> stack = new ArrayList<>();
+	private final List<TDAParsingWithAction> stack = new ArrayList<>();
 	private InputPosition lastloc;
 	private final ErrorReporter errors;
 	private final TDAParsing topLevel;
@@ -25,7 +25,7 @@ public class TDANester implements BlockConsumer {
 	@Override
 	public void newFile() {
 		lastloc = null;
-		stack.add(topLevel);
+		add(topLevel);
 	}
 
 	@Override
@@ -41,13 +41,12 @@ public class TDANester implements BlockConsumer {
 		// we may want to tell the nested parsers we're closing them
 		final Tokenizable tkz = new Tokenizable(currline);
 		while (stack.size() > depth) {
-			TDAParsing endScope = stack.remove(stack.size()-1);
-			endScope.scopeComplete(lastloc);
+			pop();
 		}
 		lastloc = tkz.realinfo();
 		TDAParsing nesting = stack.get(depth-1).tryParsing(tkz);
 		if (nesting != null)
-			stack.add(nesting);
+			add(nesting);
 	}
 
 	@Override
@@ -55,13 +54,26 @@ public class TDANester implements BlockConsumer {
 		// when flushing, we want to make sure our line is later than anything valid
 		// so create a new location past the end of the file, indent 0
 		
-		InputPosition eof = null;
 		if (lastloc != null)
-			eof = new InputPosition(lastloc.file, lastloc.lineNo+1, 0, new Indent(0, 0), "");
+			lastloc = new InputPosition(lastloc.file, lastloc.lineNo+1, 0, new Indent(0, 0), "");
 		
 		while (stack.size() > 0) {
-			TDAParsing endScope = stack.remove(stack.size()-1);
-			endScope.scopeComplete(eof);
+			pop();
 		}
+	}
+
+	private void add(TDAParsing parser) {
+		if (parser instanceof TDAParsingWithAction) {
+			stack.add((TDAParsingWithAction) parser);
+		} else {
+			stack.add(new TDAParsingWithAction(parser, null));
+		}
+	}
+
+	private void pop() {
+		TDAParsingWithAction endScope = stack.remove(stack.size()-1);
+		endScope.scopeComplete(lastloc);
+		if (endScope.afterParsing != null)
+			endScope.afterParsing.run();
 	}
 }

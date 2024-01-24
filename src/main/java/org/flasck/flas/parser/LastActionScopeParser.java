@@ -9,16 +9,22 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	private final ErrorReporter errors;
 	private final String lastThing;
-	private final TDAParsing parser;
+	private TDAParsing parser;
 	private InputPosition from;
 	private InputPosition lastPos;
 	private boolean reportedError;
+	private FunctionScopeNamer namer;
+	private FunctionScopeUnitConsumer topLevel;
+	private StateHolder holder;
+	private LocationTracker locTracker;
 
 	public LastActionScopeParser(ErrorReporter errors, FunctionScopeNamer namer, FunctionScopeUnitConsumer topLevel, String lastThing, StateHolder holder, LocationTracker locTracker) {
 		this.errors = errors;
+		this.namer = namer;
+		this.topLevel = topLevel;
 		this.lastThing = lastThing;
-		FunctionAssembler assembler = new FunctionAssembler(errors, topLevel, holder, locTracker);
-		this.parser = ParsingPhase.functionScopeUnit(errors, namer, assembler, topLevel, holder, assembler);
+		this.holder = holder;
+		this.locTracker = locTracker;
 	}
 
 	public void anotherParent() {
@@ -29,7 +35,19 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	}
 	
 	@Override
+	public void bindLocationTracker(LocationTracker locTracker) {
+		this.locTracker = locTracker;
+	}
+
+	private void createParser() {
+		FunctionAssembler assembler = new FunctionAssembler(errors, topLevel, holder, locTracker);
+		this.parser = ParsingPhase.functionScopeUnit(errors, namer, assembler, topLevel, holder, assembler);
+	}
+
+	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		if (parser == null)
+			createParser();
 		lastPos = toks.realinfo();
 		if (from == null)
 			from = lastPos;
@@ -38,9 +56,10 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		if (parser == null)
+			createParser();
 		parser.scopeComplete(location);
 		if (from != null)
 			errors.logReduction("inner-block", from, lastPos);
 	}
-
 }
