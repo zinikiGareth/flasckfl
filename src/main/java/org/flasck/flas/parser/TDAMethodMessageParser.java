@@ -17,17 +17,23 @@ public class TDAMethodMessageParser implements TDAParsing {
 	protected final ErrorReporter errors;
 	protected final MethodMessagesConsumer builder;
 	protected final LastOneOnlyNestedParser nestedParser;
-	private final LocationTracker tracker;
+	protected final LocationTracker locTracker;
+	protected Runnable onComplete;
+	protected InputPosition lastInner;
 
-	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker tracker) {
+	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker locTracker) {
 		this.errors = errors;
 		this.builder = builder;
 		this.nestedParser = nestedParser;
-		this.tracker = tracker;
+		this.locTracker = locTracker;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		if (onComplete != null) {
+			onComplete.run();
+			onComplete = null;
+		}
 		nestedParser.anotherParent();
 		ExprToken tok = ExprToken.from(errors, toks);
 		if ("<-".equals(tok.text))
@@ -66,8 +72,8 @@ public class TDAMethodMessageParser implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 		}
-		if (tracker != null)
-			tracker.updateLoc(arrowPos);
+		if (locTracker != null)
+			locTracker.updateLoc(arrowPos);
 		errors.logReduction("method-message-send", arrowPos, toks.realinfo());
 		return nestedParser;
 	}
@@ -112,14 +118,17 @@ public class TDAMethodMessageParser implements TDAParsing {
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser(errors);
 		}
-		if (tracker != null)
-			tracker.updateLoc(slot.location());
+		if (locTracker != null)
+			locTracker.updateLoc(slot.location());
 		errors.logReduction("method-message-assign", slot, seen.get(seen.size()-1));
 		return nestedParser;
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		if (onComplete != null) {
+			onComplete.run();
+		}
 		builder.done();
 	}
 }

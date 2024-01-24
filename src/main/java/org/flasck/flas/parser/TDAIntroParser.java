@@ -276,9 +276,12 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			return new TDAHandlerParser(errors, null, namer, consumer, null, this).parseHandler(kw.location, false, toks);
 		}
 		case "method": {
-//			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
-//			HandlerNameProvider hnamer = text -> new HandlerName(pkg, text);
-			MethodConsumer smConsumer = om -> { consumer.newStandaloneMethod(errors, new StandaloneMethod(om)); };
+			onComplete = () -> {
+				errors.logReduction("standalone-method-definition", kw.location, lastInner);
+			};
+			MethodConsumer smConsumer = om -> {
+				consumer.newStandaloneMethod(errors, new StandaloneMethod(om));
+			};
 			return new TDAMethodParser(errors, namer, smConsumer, consumer, null, this).parseMethod(namer, toks);
 		}
 		default:
@@ -296,8 +299,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 	public void scopeComplete(InputPosition location) {
 		if (onComplete != null) {
 			onComplete.run();
-		} else 
-			System.out.println("Did not have onComplete set at " + location);
+		}
 	}
 
 	public static TDAParserConstructor constructor(TopLevelNamer namer, TopLevelDefinitionConsumer consumer) {

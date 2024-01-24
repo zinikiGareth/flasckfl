@@ -17,8 +17,8 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 	private boolean firstGuard = true;
 	private boolean seenDefault = false;
 
-	public TDAMethodGuardParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker tracker) {
-		super(errors, builder, nestedParser, tracker);
+	public TDAMethodGuardParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker locTracker) {
+		super(errors, builder, nestedParser, locTracker);
 		consumer = (GuardedMessagesConsumer) builder;
 	}
 
@@ -42,7 +42,12 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 	}
 
 	private TDAParsing parseGuard(Tokenizable toks) {
+		if (onComplete != null) {
+			onComplete.run();
+			onComplete = null;
+		}
 		ExprToken tok = ExprToken.from(errors, toks);
+		onComplete = () -> { errors.logReduction("method-guard-block", tok.location, lastInner); };
 		if (!("|".equals(tok.text))) {
 			errors.message(tok.location, "guard expected");
 			return new IgnoreNestedParser(errors);
@@ -59,6 +64,8 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			GuardedMessages dgm = new GuardedMessages(tok.location, null);
 			consumer.guard(dgm);
 			errors.logReduction("method-guard-default", tok.location, tok.location);
+			if (locTracker != null)
+				locTracker.updateLoc(tok.location);
 			seenDefault = true;
 			return new TDAMethodMessageParser(errors, dgm, nestedParser, this);
 		}
@@ -73,18 +80,15 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			return new IgnoreNestedParser(errors);
 		}
 		firstGuard = false;
-		errors.logReduction("method-guard-default", tok.location, seen.get(seen.size()-1).location());
+		errors.logReduction("method-guard-with-cond", tok.location, seen.get(seen.size()-1).location());
+		if (locTracker != null)
+			locTracker.updateLoc(tok.location);
 		return new TDAMethodMessageParser(errors, seen.get(0), nestedParser, this);
 	}
 
 	@Override
 	public void updateLoc(InputPosition location) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public void scopeComplete(InputPosition location) {
-		builder.done();
+		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
+			lastInner = location;
 	}
 }

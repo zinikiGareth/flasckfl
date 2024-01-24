@@ -17,7 +17,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAMethodParser implements LocationTracker {
+public class TDAMethodParser {
 	private final ErrorReporter errors;
 	private final MethodConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
@@ -39,6 +39,7 @@ public class TDAMethodParser implements LocationTracker {
 			errors.message(toks, "no method name provided");
 			return new IgnoreNestedParser(errors);
 		}
+		InputPosition endOf = var.location;
 		FunctionName fnName = methodNamer.functionName(var.location, var.text);
 		List<Pattern> args = new ArrayList<>();
 		TDAPatternParser pp = new TDAPatternParser(errors, new SimpleVarNamer(fnName), p -> {
@@ -53,16 +54,15 @@ public class TDAMethodParser implements LocationTracker {
 			errors.message(toks, "extra characters at end of line");
 			return new IgnoreNestedParser(errors);
 		}
+		if (!args.isEmpty()) {
+			endOf = args.get(args.size()-1).location();
+		}
 		locTracker.updateLoc(var.location);
+		errors.logReduction("method-intro", var.location, endOf);
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null, holder);
 		builder.addMethod(meth);
 		FunctionScopeNamer nestedNamer = new InnerPackageNamer(fnName);
-		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder, this), this);
-	}
-
-	@Override
-	public void updateLoc(InputPosition location) {
-		locTracker.updateLoc(location);
+		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder, locTracker), locTracker);
 	}
 
 	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
