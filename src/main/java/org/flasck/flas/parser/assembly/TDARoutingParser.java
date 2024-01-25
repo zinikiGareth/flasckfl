@@ -1,12 +1,15 @@
 package org.flasck.flas.parser.assembly;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
+import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -16,12 +19,11 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDARoutingParser implements TDAParsing {
-	private final ErrorReporter errors;
+public class TDARoutingParser extends BlockLocationTracker implements TDAParsing {
 	private final RoutingGroupConsumer consumer;
 
-	public TDARoutingParser(ErrorReporter errors, RoutingGroupConsumer consumer) {
-		this.errors = errors;
+	public TDARoutingParser(ErrorReporter errors, RoutingGroupConsumer consumer, LocationTracker parentTracker) {
+		super(errors, parentTracker);
 		this.consumer = consumer;
 	}
 
@@ -33,6 +35,7 @@ public class TDARoutingParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		
+		toks.skipWS(errors);
 		switch (kw.text) {
 		case "enter": {
 			if (toks.hasMoreContent(errors)) {
@@ -41,7 +44,9 @@ public class TDARoutingParser implements TDAParsing {
 			}
 			RoutingActions enter = new RoutingActions(kw.location);
 			consumer.enter(enter);
-			return new TDAEnterExitParser(errors, enter);
+			errors.logReduction("fa-route-enter", kw.location, kw.location);
+			super.tellParent(kw.location);
+			return new TDAParsingWithAction(new TDAEnterExitParser(errors, enter, this), reduction(kw.location, "fa-route-enter-block"));
 		}
 		case "at": {
 			if (toks.hasMoreContent(errors)) {
@@ -50,7 +55,9 @@ public class TDARoutingParser implements TDAParsing {
 			}
 			RoutingActions at = new RoutingActions(kw.location);
 			consumer.at(at);
-			return new TDAEnterExitParser(errors, at);
+			errors.logReduction("fa-route-at", kw.location, kw.location);
+			super.tellParent(kw.location);
+			return new TDAParsingWithAction(new TDAEnterExitParser(errors, at, this), reduction(kw.location, "fa-route-at-block"));
 		}
 		case "exit": {
 			if (toks.hasMoreContent(errors)) {
@@ -59,7 +66,9 @@ public class TDARoutingParser implements TDAParsing {
 			}
 			RoutingActions exit = new RoutingActions(kw.location);
 			consumer.exit(exit);
-			return new TDAEnterExitParser(errors, exit);
+			errors.logReduction("fa-route-exit", kw.location, kw.location);
+			super.tellParent(kw.location);
+			return new TDAParsingWithAction(new TDAEnterExitParser(errors, exit, this), reduction(kw.location, "fa-route-exit-block"));
 		}
 		case "secure": {
 			if (toks.hasMoreContent(errors)) {
@@ -67,6 +76,8 @@ public class TDARoutingParser implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 			consumer.isSecure();
+			errors.logReduction("fa-route-secure", kw.location, kw.location);
+			super.tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}
 		case "route": {
@@ -84,7 +95,9 @@ public class TDARoutingParser implements TDAParsing {
 			}
 			RoutingGroupConsumer group = new SubRouting(errors, pos, s, consumer);
 			consumer.route(group);
-			return new TDARoutingParser(errors, group);
+			errors.logReduction("fa-route-nested", kw.location, pos);
+			super.tellParent(kw.location);
+			return new TDAParsingWithAction(new TDARoutingParser(errors, group, this), reduction(kw.location, "fa-route-nested-block"));
 		}
 		case "title": {
 			int mark = toks.at();
@@ -100,6 +113,8 @@ public class TDARoutingParser implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 			consumer.title(pos, s);
+			errors.logReduction("fa-route-title", kw.location, pos);
+			super.tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}
 		default: {
@@ -125,6 +140,8 @@ public class TDARoutingParser implements TDAParsing {
 			consumer.assignCard(new UnresolvedVar(kw.location, kw.text), tr);
 			if (kw.text.equals("main"))
 				((MainRoutingGroupConsumer) consumer).provideMainCard(tr);
+			errors.logReduction("fa-route-action", kw.location, card.location);
+			super.tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}
 		}
@@ -132,8 +149,6 @@ public class TDARoutingParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

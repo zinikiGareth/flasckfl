@@ -96,10 +96,10 @@ public class SystemTestStepParser extends TestStepParser {
 			return handleAjax(kw, toks);
 		}
 		case "application": {
-			return handleApplication(toks);
+			return handleApplication(kw, toks);
 		}
 		case "route": {
-			return handleRoute(toks);
+			return handleRoute(kw, toks);
 		}
 		case "login": {
 			return handleLogin(toks);
@@ -172,7 +172,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 	}
 
-	private TDAParsing handleApplication(Tokenizable toks) {
+	private TDAParsing handleApplication(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "no application name provided");
@@ -188,13 +188,16 @@ public class SystemTestStepParser extends TestStepParser {
 		MockApplication ma = new MockApplication(vn, pn);
 		topLevel.mockApplication(errors, ma);
 		((SystemTestStage)builder).mockApplication(errors, vn, ma);
+		
+		errors.logReduction("st-application", kw.location, tok.location);
+		locTracker.updateLoc(kw.location);
 
 		// TODO: theoretically, it should be possible to have a nested parser
 		// this would allow you to say "package <name>" rather than the default
 		return new NoNestingParser(errors);
 	}
 
-	private TDAParsing handleRoute(Tokenizable toks) {
+	private TDAParsing handleRoute(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "no application name provided");
@@ -218,6 +221,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 
 		Expr route = expr.get(0);
+		InputPosition last = route.location();
 		IntroduceVar iv = null;
 		if (k != -1) {
 			toks.reset(k);
@@ -239,6 +243,7 @@ public class SystemTestStepParser extends TestStepParser {
 				errors.message(name.location, "introduce vars must start with _");
 				return new NoNestingParser(errors);
 			}
+			last = name.location;
 			iv = new IntroduceVar(name.location, namer, name.text.substring(1));
 			((IntroductionConsumer)builder).newIntroduction(errors, iv);
 		}
@@ -247,6 +252,8 @@ public class SystemTestStepParser extends TestStepParser {
 		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "junk at end of line");
 		}
+		
+		errors.logReduction("st-route", kw.location, last);
 		return new NoNestingParser(errors);
 	}
 

@@ -9,6 +9,8 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parser.BlockLocationTracker;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -19,12 +21,11 @@ import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class TDAEnterExitParser implements TDAParsing {
-	private final ErrorReporter errors;
+public class TDAEnterExitParser extends BlockLocationTracker implements TDAParsing {
 	private final RoutingActionConsumer consumer;
 
-	public TDAEnterExitParser(ErrorReporter errors, RoutingActionConsumer consumer) {
-		this.errors = errors;
+	public TDAEnterExitParser(ErrorReporter errors, RoutingActionConsumer consumer, LocationTracker parentTracker) {
+		super(errors, parentTracker);
 		this.consumer = consumer;
 	}
 
@@ -77,6 +78,8 @@ public class TDAEnterExitParser implements TDAParsing {
 			} else
 				throw new NotImplementedException();
 			consumer.method(card, ctr, uv.var, exprs);
+			errors.logReduction("fa-route-action", card.location, have.location());
+			super.tellParent(card.location);
 			break;
 		}
 		default: {

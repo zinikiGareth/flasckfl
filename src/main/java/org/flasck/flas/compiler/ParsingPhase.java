@@ -138,7 +138,7 @@ public class ParsingPhase implements ParserScanner {
 	}
 
 	public static TDAParsing assemblyUnit(ErrorReporter errors, TopLevelNamer namer, AssemblyDefinitionConsumer adc) {
-		return new TDAAssemblyUnitParser(errors, namer, adc);
+		return new TDAAssemblyUnitParser(errors, namer, adc, null);
 	}
 	
 	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {

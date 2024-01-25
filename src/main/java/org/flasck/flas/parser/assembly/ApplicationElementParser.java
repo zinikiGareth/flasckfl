@@ -1,9 +1,12 @@
 package org.flasck.flas.parser.assembly;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelNamer;
@@ -12,15 +15,14 @@ import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class ApplicationElementParser implements TDAParsing {
-	private final ErrorReporter errors;
+public class ApplicationElementParser extends BlockLocationTracker implements TDAParsing {
 	private final InputPosition startPos;
 	private final TopLevelNamer namer;
 	private final ApplicationElementConsumer consumer;
 	private ApplicationRouting routing;
 
-	public ApplicationElementParser(ErrorReporter errors, InputPosition startPos, TopLevelNamer namer, ApplicationElementConsumer consumer) {
-		this.errors = errors;
+	public ApplicationElementParser(ErrorReporter errors, InputPosition startPos, TopLevelNamer namer, ApplicationElementConsumer consumer, LocationTracker parentTracker) {
+		super(errors, parentTracker);
 		this.startPos = startPos;
 		this.namer = namer;
 		this.consumer = consumer;
@@ -34,6 +36,8 @@ public class ApplicationElementParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		
+		toks.skipWS(errors);
+		
 		switch (kw.text) {
 		case "title": {
 			int mark = toks.at();
@@ -41,6 +45,8 @@ public class ApplicationElementParser implements TDAParsing {
 			String s = StringToken.from(errors, toks);
 			errors.logParsingToken(new ExprToken(pos, ExprToken.STRING, s).original(toks.fromMark(mark)));
 			consumer.title(s);
+			errors.logReduction("fa-appl-title", kw.location, pos);
+			super.tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}
 		case "baseuri": {
@@ -49,6 +55,8 @@ public class ApplicationElementParser implements TDAParsing {
 			String s = StringToken.from(errors, toks);
 			errors.logParsingToken(new ExprToken(pos, ExprToken.STRING, s).original(toks.fromMark(mark)));
 			consumer.baseuri(s);
+			errors.logReduction("fa-appl-baseuri", kw.location, pos);
+			super.tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}
 		case "routes": {
@@ -62,7 +70,9 @@ public class ApplicationElementParser implements TDAParsing {
 			}
 			routing = new ApplicationRouting(errors, kw.location, namer.assemblyName(null), namer.assemblyName("Routing"));
 			consumer.routes(routing);
-			return new TDARoutingParser(errors, routing);
+			errors.logReduction("fa-appl-routes", kw.location, kw.location);
+			super.tellParent(kw.location);
+			return new TDAParsingWithAction(new TDARoutingParser(errors, routing, this), reduction(kw.location, "fa-appl-routes-block"));
 		}
 		default: {
 			errors.message(toks, "expected 'title', 'baseuri' or 'routes'");

@@ -1,10 +1,13 @@
 package org.flasck.flas.parser.assembly;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
+import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelNamer;
@@ -12,13 +15,12 @@ import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class TDAAssemblyUnitParser implements TDAParsing {
-	private final ErrorReporter errors;
+public class TDAAssemblyUnitParser extends BlockLocationTracker implements TDAParsing {
 	private final TopLevelNamer namer;
 	private final AssemblyDefinitionConsumer adc;
 
-	public TDAAssemblyUnitParser(ErrorReporter errors, TopLevelNamer namer, AssemblyDefinitionConsumer adc) {
-		this.errors = errors;
+	public TDAAssemblyUnitParser(ErrorReporter errors, TopLevelNamer namer, AssemblyDefinitionConsumer adc, LocationTracker parentTracker) {
+		super(errors,parentTracker);
 		this.namer = namer;
 		this.adc = adc;
 	}
@@ -35,7 +37,9 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 		case "application": {
 			ApplicationAssembly consumer = new ApplicationAssembly(kw.location, namer.assemblyName(null), adc);
 			adc.assembly(consumer);
-			return new ApplicationElementParser(errors, kw.location, namer, consumer);
+			errors.logReduction("fa-application-intro", kw.location, kw.location);
+			super.tellParent(kw.location);
+			return new TDAParsingWithAction(new ApplicationElementParser(errors, kw.location, namer, consumer, this), reduction(kw.location, "fa-application"));
 		}
 		case "card": {
 			throw new NotImplementedException();
@@ -43,6 +47,8 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 		case "library": {
 			LibraryAssembly consumer = new LibraryAssembly(kw.location, namer.assemblyName(null));
 			adc.assembly(consumer);
+			errors.logReduction("fa-library", kw.location, kw.location);
+			super.tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}
 		default: {
