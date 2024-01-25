@@ -294,6 +294,14 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
 			lastInner = location;
 	}
+	
+	@Override
+	public void choseOther() {
+		if (onComplete != null) {
+			onComplete.run();
+			onComplete = null;
+		}
+	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
