@@ -72,9 +72,9 @@ public class TDAMethodMessageParser implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 		}
+		errors.logReduction("method-message-send", arrowPos, toks.realinfo());
 		if (locTracker != null)
 			locTracker.updateLoc(arrowPos);
-		errors.logReduction("method-message-send", arrowPos, toks.realinfo());
 		return nestedParser;
 	}
 
@@ -118,9 +118,9 @@ public class TDAMethodMessageParser implements TDAParsing {
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser(errors);
 		}
+		errors.logReduction("method-message-assign", slot, seen.get(seen.size()-1));
 		if (locTracker != null)
 			locTracker.updateLoc(slot.location());
-		errors.logReduction("method-message-assign", slot, seen.get(seen.size()-1));
 		return nestedParser;
 	}
 

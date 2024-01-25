@@ -206,6 +206,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 			errors.message(type.location(), "syntax error in cast");
 			return null;
 		}
+		errors.logReduction("cast-expr", t0, terms.get(to-1));
 		return new CastExpr(t0.location().copySetEnd(type.location().pastEnd()), type.location(), val.location(), tr, val);
 	}
 
