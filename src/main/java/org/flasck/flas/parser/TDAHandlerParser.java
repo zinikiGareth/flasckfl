@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
@@ -25,7 +26,6 @@ public class TDAHandlerParser implements TDAParsing, LocationTracker {
 	private final HandlerNameProvider namer;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final StateHolder holder;
-	private KeywordToken kw;
 	private InputPosition lastInner;
 	private LocationTracker locTracker;
 
@@ -42,13 +42,12 @@ public class TDAHandlerParser implements TDAParsing, LocationTracker {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (!toks.hasMoreContent(errors))
 			return null;
-		kw = KeywordToken.from(errors, toks);
+		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null || !kw.text.equals("handler")) {
 			kw = null;
 			return null; // in the "nothing doing" sense
 		}
 
-		lastInner = kw.location;
 		return parseHandler(kw.location, false, toks);
 	}
 
@@ -60,26 +59,9 @@ public class TDAHandlerParser implements TDAParsing, LocationTracker {
 	}
 
 	@Override
-	public void choseOther() {
-		logreduction();
-	}
-	
-	@Override
 	public void scopeComplete(InputPosition location) {
-		logreduction();
 	}
 	
-	private void logreduction() {
-		if (kw == null)
-			return;
-		
-		errors.logReduction("handler-with-inner-block", kw.location, lastInner);
-		if (locTracker != null) {
-			locTracker.updateLoc(kw.location);
-		}
-		kw = null;
-	}
-
 	public TDAParsing parseHandler(InputPosition kw, boolean inCard, Tokenizable line) {
 		ErrorMark mark = errors.mark();
 		if (!line.hasMoreContent(errors)) {
@@ -113,11 +95,20 @@ public class TDAHandlerParser implements TDAParsing, LocationTracker {
 			upto = hl;
 		}
 		errors.logReduction("handler-intro", kw, upto.location());
+		lastInner = kw;
 		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, (NamedType) holder, hn, new TypeReference(tn.location, tn.text), inCard, lambdas);
 		if (builder != null)
 			builder.newHandler(errors, hi);
 		topLevel.newHandler(errors, hi);
-		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hn, text), hi, topLevel, hi, this);
+		return new TDAParsingWithAction(
+			new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hn, text), hi, topLevel, hi, this),
+			() -> {
+				errors.logReduction("handler-with-inner-block", kw, lastInner);
+				if (locTracker != null) {
+					locTracker.updateLoc(kw);
+				}
+			}
+		);
 	}
 
 	public static TDAParserConstructor constructor(HandlerBuilder builder, HandlerNameProvider namer, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
