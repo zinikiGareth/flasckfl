@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorReporter;
@@ -14,11 +15,12 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDATupleDeclarationParser implements TDAParsing {
+public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 	private final ErrorReporter errors;
 	private final FunctionNameProvider functionNamer;
 	private final FunctionScopeUnitConsumer consumer;
 	private final StateHolder holder;
+	private InputPosition lastInner;
 
 	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionScopeUnitConsumer consumer, StateHolder holder) {
 		this.errors = errors;
@@ -34,7 +36,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			return null;
 
 		List<LocatedName> vars = new ArrayList<>();
-		boolean haveCRB = false;
+		InputPosition last = null;
 		while (line.hasMoreContent(errors)) {
 			PattToken nx = PattToken.from(errors, line);
 			if (nx.type == PattToken.CRB) {
@@ -55,7 +57,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 				return null;
 			}
 			if (cm.type == PattToken.CRB) {
-				haveCRB = true;
+				last = cm.location;
 				break;
 			} else if (cm.type != PattToken.COMMA) {
 				errors.message(line, "syntax error");
@@ -63,7 +65,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			}
 		}
 		
-		if (!haveCRB) {
+		if (last == null) {
 			errors.message(line, "syntax error");
 			return null;
 		}
@@ -75,6 +77,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			errors.message(line, "syntax error");
 			return null;
 		}
+		errors.logReduction("tuple-declaration-vars", orb.location, last);
 		ExprToken tok = ExprToken.from(errors, line);
 		if (!tok.text.equals("=")) {
 			errors.message(line, "syntax error");
@@ -88,12 +91,23 @@ public class TDATupleDeclarationParser implements TDAParsing {
 		FunctionName pkgName = functionNamer.functionName(vars.get(0).location, vars.get(0).text);
 		new TDAExpressionParser(errors, e -> {
 			consumer.tupleDefn(errors, vars, leadName, pkgName, e);
+			errors.logReduction("tuple-declaration", orb.location, e.location());
 		}).tryParsing(line);
 
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder, null);
-		return ParsingPhase.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder, null);
+		lastInner = last;
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder, this);
+		return new TDAParsingWithAction(
+				ParsingPhase.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder, this),
+				() -> {
+					errors.logReduction("tuple-declaration-with-block", orb.location, lastInner);
+				});
 	}
 
+	@Override
+	public void updateLoc(InputPosition location) {
+		this.lastInner = location;
+	}
+	
 	@Override
 	public void scopeComplete(InputPosition location) {
 	}
