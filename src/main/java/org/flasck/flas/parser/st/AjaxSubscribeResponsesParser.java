@@ -8,18 +8,19 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
+import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class AjaxSubscribeResponsesParser implements TDAParsing {
-	private final ErrorReporter errors;
+public class AjaxSubscribeResponsesParser extends BlockLocationTracker implements TDAParsing {
 	private final AjaxSubscribe sub;
 
-	public AjaxSubscribeResponsesParser(ErrorReporter errors, AjaxSubscribe sub) {
-		this.errors = errors;
+	public AjaxSubscribeResponsesParser(ErrorReporter errors, AjaxSubscribe sub, LocationTracker parentTracker) {
+		super(errors, parentTracker);
 		this.sub = sub;
 	}
 
@@ -62,6 +63,7 @@ public class AjaxSubscribeResponsesParser implements TDAParsing {
 		errors.message(expr.location(), "response must be hash literal");
 		return new IgnoreNestedParser();
 		*/
+		tellParent(expr.location());
 		sub.response(expr);
 		return new NoNestingParser(errors);
 	}

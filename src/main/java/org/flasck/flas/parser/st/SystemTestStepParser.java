@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -91,7 +92,7 @@ public class SystemTestStepParser extends TestStepParser {
 			return handleMatch(kw, toks);
 		}
 		case "ajax": {
-			return handleAjax(toks);
+			return handleAjax(kw, toks);
 		}
 		case "application": {
 			return handleApplication(toks);
@@ -109,7 +110,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 	}
 
-	private TDAParsing handleAjax(Tokenizable toks) {
+	private TDAParsing handleAjax(KeywordToken kw, Tokenizable toks) {
 		KeywordToken op = KeywordToken.from(errors, toks);
 		if (op == null) {
 			errors.message(toks, "ajax command requires an operator");
@@ -139,7 +140,14 @@ public class SystemTestStepParser extends TestStepParser {
 			StringLiteral baseUrl = new StringLiteral(loc, sl);
 			AjaxCreate ac = new AjaxCreate(op.location, vn, baseUrl);
 			((SystemTestStage)builder).ajaxCreate(errors, ac);
-			return new AjaxCreateActionsParser(errors, ac);
+			errors.logReduction("ajax-create-rule", kw.location, baseUrl.location);
+			lastInner = kw.location;
+			return new TDAParsingWithAction(
+				new AjaxCreateActionsParser(errors, ac, this),
+				() -> {
+					errors.logReduction("ajax-create-block", kw.location, lastInner);
+					locTracker.updateLoc(kw.location);
+				});
 		}
 		case "pump": {
 			ValidIdentifierToken tok = VarNameToken.from(errors, toks);

@@ -1,19 +1,21 @@
 package org.flasck.flas.parser.st;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocationTracker;
+import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class AjaxSubscribeOptionsParser implements TDAParsing {
-	private final ErrorReporter errors;
+public class AjaxSubscribeOptionsParser extends BlockLocationTracker implements TDAParsing {
 	private final AjaxSubscribe sub;
 
-	public AjaxSubscribeOptionsParser(ErrorReporter errors, AjaxSubscribe sub) {
-		this.errors = errors;
+	public AjaxSubscribeOptionsParser(ErrorReporter errors, AjaxSubscribe sub, LocationTracker parentTracker) {
+		super(errors, parentTracker);
 		this.sub = sub;
 	}
 
@@ -30,7 +32,11 @@ public class AjaxSubscribeOptionsParser implements TDAParsing {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
 			}
-			return new AjaxSubscribeResponsesParser(errors, sub);
+			return new TDAParsingWithAction(
+					new AjaxSubscribeResponsesParser(errors, sub, this),
+//					() -> { errors.logReduction("ajax-responses-block", kw.location, lastInner); }
+					reduction(kw.location, "ajax-responses-block")//; }
+			);
 		}
 		case "html": {
 			if (toks.hasMoreContent(errors)) {
