@@ -3,6 +3,8 @@ package test.parsing;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
@@ -12,6 +14,7 @@ import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.TDAIntroParser;
+import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAImplementationMethodsParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -38,6 +41,7 @@ public class TDAHandlerIntroParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
+			allowing(errors).logReduction(with(any(String.class)), with(any(Locatable.class)), with(any(Locatable.class)));
 		}});
 	}
 
@@ -48,7 +52,8 @@ public class TDAHandlerIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));
-		assertTrue(nested instanceof TDAImplementationMethodsParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
 
 	@Test
@@ -58,7 +63,8 @@ public class TDAHandlerIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName"));
-		assertTrue(nested instanceof TDAImplementationMethodsParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
 
 	@Test
@@ -71,7 +77,8 @@ public class TDAHandlerIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName x (String s)"));
-		assertTrue(nested instanceof TDAImplementationMethodsParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
 
 	@Test
@@ -83,7 +90,8 @@ public class TDAHandlerIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName (List[List[Integer]] mrtho)"));
-		assertTrue(nested instanceof TDAImplementationMethodsParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
 
 	@Test
@@ -96,7 +104,8 @@ public class TDAHandlerIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName (String s) (List[List[Integer]] mrtho)"));
-		assertTrue(nested instanceof TDAImplementationMethodsParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
 
 	@Test
@@ -108,7 +117,8 @@ public class TDAHandlerIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));
-		assertTrue(nested instanceof TDAImplementationMethodsParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 		nested.tryParsing(TDABasicIntroParsingTests.line("foo x"));
 	}
 

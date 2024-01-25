@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorReporter;
@@ -97,7 +98,8 @@ public class TDAFunctionParsingNestingTests {
 		TDAParsing guards = parser.tryParsing(line("f"));
 		guards.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
 		TDAParsing nested = guards.tryParsing(TDAFunctionParsingTests.line("= 42"));
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof LastOneOnlyNestedParser);
 		nested.tryParsing(TDAFunctionParsingTests.line("g = 'hello'"));
 		nested.scopeComplete(pos);
 		guards.scopeComplete(pos);
@@ -111,7 +113,8 @@ public class TDAFunctionParsingNestingTests {
 		TDAParsing guards = parser.tryParsing(line("f"));
 		guards.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
 		TDAParsing nested = guards.tryParsing(TDAFunctionParsingTests.line("| x == 12 = 42"));
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof LastOneOnlyNestedParser);
 		nested.tryParsing(TDAFunctionParsingTests.line("g = 'hello'"));
 		nested.scopeComplete(pos);
 		guards.scopeComplete(pos);
@@ -126,7 +129,8 @@ public class TDAFunctionParsingNestingTests {
 		}});
 		TDAParsing guards = parser.tryParsing(line("f"));
 		TDAParsing nested = guards.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof LastOneOnlyNestedParser);
 		nested.tryParsing(nestedLine);
 		nested.scopeComplete(pos);
 		guards.tryParsing(TDAFunctionParsingTests.line("= 42"));

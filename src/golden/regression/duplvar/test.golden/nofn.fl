@@ -1,0 +1,12 @@
+In this error from the same thing, o is not in the repository for some reason.
+It would seem to be that when the test was written, functions did not get written
+to the repository if they were followed by tuples.
+
+	goo = 'hello'
+		(a,b) = (True, False)
+			method f
+				| True
+			o Nil = []
+			o (Cons[A] l) = []
+			(x, y) = (14, 'fred')
+				k = 19

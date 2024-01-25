@@ -38,8 +38,10 @@ public class TDAFunctionParser implements TDAParsing {
 	@Override
 	public TDAParsing tryParsing(Tokenizable line) {
 		ExprToken t = ExprToken.from(errors, line);
-		if (t == null || t.type != ExprToken.IDENTIFIER)
+		if (t == null || t.type != ExprToken.IDENTIFIER) {
+			consumer.moveOn();
 			return null;
+		}
 		final FunctionName fname = functionNamer.functionName(t.location, t.text);
 		final FunctionName fcase = functionCaseNamer.functionCaseName(t.location, t.text, consumer.nextCaseNumber(fname));
 		
@@ -93,6 +95,7 @@ public class TDAFunctionParser implements TDAParsing {
 
 	@Override
 	public void choseOther() {
+		System.out.println("chose other with " + consumer);
 		consumer.moveOn();
 	}
 	

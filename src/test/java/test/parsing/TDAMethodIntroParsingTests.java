@@ -2,11 +2,15 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
@@ -32,6 +36,8 @@ public class TDAMethodIntroParsingTests {
 	public void ignoreParserLogging() {
 		context.checking(new Expectations() {{
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
+			allowing(errors).logReduction(with(any(String.class)), with(any(Locatable.class)), with(any(Locatable.class)));
 		}});
 	}
 

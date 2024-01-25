@@ -55,6 +55,7 @@ public class TDAFunctionParsingTests {
 	@Test
 	public void aBlankLineReturnsNothingAndDoesNothing() {
 		context.checking(new Expectations() {{
+			oneOf(intro).moveOn();
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line(""));

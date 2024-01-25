@@ -1,0 +1,13 @@
+This came from a parser regression example.  I thought the problem was "o" being defined twice;
+but of course that was just two cases of a function.
+
+I have left it here though because it was the only case I had of a tuple inside a function and that
+led to errors.
+
+The name, however, is misleading.
+
+	ozkdyjz = 'c_cbwdc8hJam@g1'
+		( zoc , daihmp , nfcqrm ) = (True, False, False)
+			o Nil = 0
+
+			o (Cons[Any] c) = 46

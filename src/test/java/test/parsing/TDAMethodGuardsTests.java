@@ -3,6 +3,7 @@ package test.parsing;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
@@ -39,6 +40,7 @@ public class TDAMethodGuardsTests {
 		context.checking(new Expectations() {{
 			allowing(nestedFunctionScope).anotherParent();
 			allowing(errorsMock).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
+			allowing(errorsMock).logReduction(with(any(String.class)), with(any(Locatable.class)), with(any(Locatable.class)));
 			allowing(errorsMock).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 		}});
 	}

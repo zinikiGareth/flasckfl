@@ -47,6 +47,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			onComplete = null;
 		}
 		ExprToken tok = ExprToken.from(errors, toks);
+		lastInner = tok.location;
 		onComplete = () -> { errors.logReduction("method-guard-block", tok.location, lastInner); };
 		if (!("|".equals(tok.text))) {
 			errors.message(tok.location, "guard expected");

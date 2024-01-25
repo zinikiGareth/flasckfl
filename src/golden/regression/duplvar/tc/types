@@ -1,0 +1,13 @@
+test.golden.goo :: String
+test.golden.goo._1.a :: True
+test.golden.goo._1.b :: False
+test.golden.goo._1.a.x :: Number
+test.golden.goo._1.a.y :: String
+test.golden.goo._1.a.f :: Nil
+test.golden.goo._1.a.o :: List[A]->Nil
+test.golden.goo._1.a.x.k :: Number
+test.golden.ozkdyjz :: String
+test.golden.ozkdyjz._1.zoc :: True
+test.golden.ozkdyjz._1.daihmp :: False
+test.golden.ozkdyjz._1.nfcqrm :: False
+test.golden.ozkdyjz._1.zoc.o :: List[Any]->Number

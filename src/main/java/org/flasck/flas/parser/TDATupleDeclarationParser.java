@@ -20,13 +20,15 @@ public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 	private final FunctionNameProvider functionNamer;
 	private final FunctionScopeUnitConsumer consumer;
 	private final StateHolder holder;
+	private final LocationTracker locTracker;
 	private InputPosition lastInner;
 
-	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionScopeUnitConsumer consumer, StateHolder holder) {
+	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionScopeUnitConsumer consumer, StateHolder holder, LocationTracker locTracker) {
 		this.errors = errors;
 		this.functionNamer = functionNamer;
 		this.consumer = consumer;
 		this.holder = holder;
+		this.locTracker = locTracker;
 	}
 	
 	@Override
@@ -100,6 +102,7 @@ public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 				ParsingPhase.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder, this),
 				() -> {
 					errors.logReduction("tuple-declaration-with-block", orb.location, lastInner);
+					locTracker.updateLoc(orb.location);
 				});
 	}
 
@@ -112,11 +115,11 @@ public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 	public void scopeComplete(InputPosition location) {
 	}
 
-	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
+	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
-				return new TDATupleDeclarationParser(errors, namer, topLevel, holder);
+				return new TDATupleDeclarationParser(errors, namer, topLevel, holder, locTracker);
 			}
 		};
 	}

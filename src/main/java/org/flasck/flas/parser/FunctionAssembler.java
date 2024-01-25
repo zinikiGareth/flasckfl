@@ -68,7 +68,7 @@ public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker
 		if (fn != null) {
 			if (location.compareTo(lastLoc) > 0)
 				lastLoc = location;
-		} else 
+		} else if (tracker != null)
 			tracker.updateLoc(location);
 //		System.out.println("Assembling " + fn.name() + " " + location + " => " + lastLoc);
 	}
@@ -92,5 +92,15 @@ public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker
 		fn = null;
 		curr = null;
 		broken = false;
+	}
+
+	@Override
+	public String toString() {
+		if (curr == null && fn == null)
+			return "Assembler[]";
+		else if (fn != null)
+			return "Assembler[" + fn.name() + "]";
+		else
+			return "Assembler[" + curr + "]";
 	}
 }

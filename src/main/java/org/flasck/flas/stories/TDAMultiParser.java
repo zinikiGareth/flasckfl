@@ -36,8 +36,9 @@ public class TDAMultiParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		ErrorMark mark = errors.mark();
 		TDAParsing nested = null;
+		chosen = null;
 		for (TDAParsing p : parsers) {
-			if (nested == null) {
+			if (chosen == null) {
 				toks.reset(0);
 				nested = p.tryParsing(toks);
 				if (nested != null)

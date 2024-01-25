@@ -114,7 +114,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 				sh,
 				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer, holder, this),
 				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, holder, this),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, holder)
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, holder, this)
 			);
 		}
 		case "struct":
@@ -232,7 +232,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 				errors -> new TDAObjectElementsParser(errors, onn, od, consumer, this),
 				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer, od, this),
 				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, od, this),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od)
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od, this)
 			);
 			ret.onComplete((errors,location) -> {
 				errors.logReduction("object-defn-complete", kw.location, location);

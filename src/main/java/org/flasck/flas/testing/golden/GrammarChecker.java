@@ -45,7 +45,7 @@ public class GrammarChecker {
 			boolean indented = false;
 			int offset = 0;
 			for (GrammarToken t : toks.tokens()) {
-//				System.out.println(t);
+				System.out.println(t);
 				while (t.lineNo() > lineNo) {
 					pw.println();
 					lineNo++;

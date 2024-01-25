@@ -10,6 +10,7 @@ import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.TDAFunctionGuardedEquationParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
@@ -35,6 +36,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 		LastOneOnlyNestedParser loonp = context.mock(LastOneOnlyNestedParser.class);
 		context.checking(new Expectations() {{
 			allowing(loonp).anotherParent();
+			allowing(loonp).bindLocationTracker(with(any(LocationTracker.class)));
 			allowing(errorsMock).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 			allowing(errorsMock).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
