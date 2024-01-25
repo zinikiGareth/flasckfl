@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
@@ -30,21 +31,17 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
-	private final ErrorReporter errors;
+public class TDAObjectElementsParser extends BlockLocationTracker implements TDAParsing {
 	private final TemplateNamer namer;
 	private final ObjectElementsConsumer builder;
 	private final TopLevelDefinitionConsumer topLevel;
-	private final LocationTracker locTracker;
 	private TDAParsing currParser;
-	private InputPosition lastInner;
 
 	public TDAObjectElementsParser(ErrorReporter errors, TemplateNamer namer, ObjectElementsConsumer od, TopLevelDefinitionConsumer topLevel, LocationTracker locTracker) {
-		this.errors = errors;
+		super(errors, locTracker);
 		this.namer = namer;
 		this.builder = od;
 		this.topLevel = topLevel;
-		this.locTracker = locTracker;
 	}
 
 	@Override
@@ -155,21 +152,29 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this), this);
 		}
 		case "acor": {
-			if (currParser != null)
-				currParser.scopeComplete(location);
+//			if (currParser != null)
+//				currParser.scopeComplete(location);
 			FunctionDefnConsumer consumer = (errors, f) -> {
 				ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f);
 				f.isObjAccessor(true);
 				builder.addAccessor(oa);
 				topLevel.newObjectAccessor(errors, oa);
-				errors.logReduction("object-acor", kw.location, this.lastInner);
-				if (locTracker != null)
-					locTracker.updateLoc(kw.location);
 			};
+			
+			toks.skipWS(errors);
+			updateLoc(toks.realinfo());
 			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, consumer), (StateHolder)builder, this);
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, (StateHolder)builder, fa);
 			currParser = fcp;
-			return fcp.tryParsing(toks);
+			TDAParsing ret = fcp.tryParsing(toks);
+			if (ret == null)
+				return null;
+			else {
+				return new TDAParsingWithAction(ret, () -> {
+					currParser.scopeComplete(lastInner());
+					reduce(kw.location, "object-acor");
+				});
+			}
 		}
 		case "method": {
 			FunctionNameProvider methodNamer = (loc, text) -> namer.method(loc, text);
@@ -186,12 +191,6 @@ public class TDAObjectElementsParser implements TDAParsing, LocationTracker {
 			return null;
 		}
 		}
-	}
-
-	@Override
-	public void updateLoc(InputPosition location) {
-		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
-			this.lastInner = location;
 	}
 
 	@Override

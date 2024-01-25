@@ -1,6 +1,7 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.compiler.ParsingPhase;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -46,7 +47,7 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (parser == null)
+		if (parser == null || ((parser instanceof TDAParsingWithAction && ((TDAParsingWithAction)parser).parser == null)))
 			createParser();
 		lastPos = toks.realinfo();
 		if (from == null)

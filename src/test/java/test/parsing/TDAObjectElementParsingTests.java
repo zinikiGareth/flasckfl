@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -16,6 +17,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.parser.ObjectNestedNamer;
@@ -135,7 +137,8 @@ public class TDAObjectElementParsingTests {
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAMultiParser);
 		nested.scopeComplete(pos);
 		parser.scopeComplete(pos);
 	}
@@ -153,7 +156,8 @@ public class TDAObjectElementParsingTests {
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname x (Number y) = x + y"));
 		parser.scopeComplete(pos);
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAMultiParser);
 	}
 
 	@Test
@@ -168,10 +172,14 @@ public class TDAObjectElementParsingTests {
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAMultiParser);
 		nested.scopeComplete(pos);
+		((TDAParsingWithAction)nested).afterParsing.run();
 		nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor othername = 76"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(nested instanceof TDAParsingWithAction);
+		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAMultiParser);
+		((TDAParsingWithAction)nested).afterParsing.run();
 		nested.scopeComplete(pos);
 		parser.scopeComplete(pos);
 	}

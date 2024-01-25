@@ -19,9 +19,12 @@ public class BlockLocationTracker implements LocationTracker {
 			lastInner = location;
 	}
 	
+	protected InputPosition lastInner() {
+		return lastInner;
+	}
+
 	protected void reduce(InputPosition from, String rule) {
-		if (lastInner == null)
-			lastInner = from;
+		updateLoc(from);
 		errors.logReduction(rule, from, lastInner);
 		if (parent != null)
 			parent.updateLoc(from);
