@@ -55,6 +55,7 @@ public class SystemTestStepParser extends TestStepParser {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		lastInner = kw.location;
 		onComplete = () -> {
 			locTracker.updateLoc(lastInner); 
 		};

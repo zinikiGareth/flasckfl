@@ -61,7 +61,9 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return new IgnoreNestedParser(errors);
 		}
 		if (locTracker != null)
-			onComplete = () -> { locTracker.updateLoc(lastInner); };
+			onComplete = () -> { 
+				locTracker.updateLoc(lastInner); 
+			};
 		lastInner = kw.location;
 		switch (kw.text) {
 		case "assert": {
@@ -577,6 +579,14 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 		return new TargetZone(first, tz);
 	}
 
+	@Override
+	public void choseOther() {
+		if (onComplete != null) {
+			onComplete.run();
+			onComplete = null;
+		} 
+	}
+	
 	@Override
 	public void scopeComplete(InputPosition location) {
 		if (onComplete != null) {

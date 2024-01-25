@@ -130,7 +130,7 @@ public class ParsingPhase implements ParserScanner {
 		TDAMultiParser ret = new TDAMultiParser(errors);
 		ret.add(new SystemTestStepParser(errors, namer, stg, topLevel, locTracker));
 		for (ParserModule m : modules) {
-			TDAParsing r = m.systemTestStepParser(errors, namer, stg, topLevel);
+			TDAParsing r = m.systemTestStepParser(errors, namer, stg, topLevel, locTracker);
 			if (r != null)
 				ret.add(r);
 		}
