@@ -16,13 +16,12 @@ import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.flasck.flas.testsupport.matchers.PolyInstanceMatcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.PolyInstanceMatcher;
 
 public class ListBuilding {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

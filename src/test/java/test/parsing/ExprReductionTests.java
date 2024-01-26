@@ -12,14 +12,13 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ExprTermConsumer;
 import org.flasck.flas.parser.Punctuator;
 import org.flasck.flas.parser.TDAStackReducer;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.ExprMatcher;
 
 public class ExprReductionTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

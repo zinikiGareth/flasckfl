@@ -17,6 +17,8 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
+import org.flasck.flas.testsupport.matchers.ApplyMatcher;
+import org.flasck.flas.testsupport.matchers.PosMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -24,9 +26,6 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.ApplyMatcher;
-import flas.matchers.PosMatcher;
 
 public class TypeConsolidation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

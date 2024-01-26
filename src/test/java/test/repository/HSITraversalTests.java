@@ -23,13 +23,12 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.testsupport.matchers.SlotMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
-
-import flas.matchers.SlotMatcher;
 
 public class HSITraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

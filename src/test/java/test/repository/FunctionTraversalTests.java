@@ -18,13 +18,12 @@ import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.RepositoryVisitor;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.ExprMatcher;
 
 public class FunctionTraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

@@ -18,6 +18,7 @@ import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
+import org.flasck.flas.testsupport.TestSupport;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -49,7 +50,7 @@ public class TDAContractIntroParsingTests {
 			oneOf(builder).newContract(with(errors), with(any(ContractDecl.class))); will(captureIt);
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract Data"));
 		assertTrue(nested instanceof ContractMethodParser);
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(ContractType.CONTRACT, cd.type);
@@ -62,7 +63,7 @@ public class TDAContractIntroParsingTests {
 			oneOf(builder).newContract(with(errors), with(any(ContractDecl.class))); will(captureIt);
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract service Data"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract service Data"));
 		assertTrue(nested instanceof ContractMethodParser);
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(ContractType.SERVICE, cd.type);
@@ -75,7 +76,7 @@ public class TDAContractIntroParsingTests {
 			oneOf(builder).newContract(with(errors), with(any(ContractDecl.class))); will(captureIt);
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract handler Data"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract handler Data"));
 		assertTrue(nested instanceof ContractMethodParser);
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(ContractType.HANDLER, cd.type);
@@ -89,8 +90,8 @@ public class TDAContractIntroParsingTests {
 			oneOf(builder).newContractMethod(with(tracker), with(any(ContractMethodDecl.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("foo"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract Data"));
+		nested.tryParsing(TestSupport.tokline("foo"));
 		nested.scopeComplete(new InputPosition("-", 10, 0, null, "hello"));
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(1, cd.methods.size());
@@ -104,9 +105,9 @@ public class TDAContractIntroParsingTests {
 			exactly(2).of(builder).newContractMethod(with(tracker), with(any(ContractMethodDecl.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("foo"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("bar"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract Data"));
+		nested.tryParsing(TestSupport.tokline("foo"));
+		nested.tryParsing(TestSupport.tokline("bar"));
 		nested.scopeComplete(new InputPosition("-", 10, 0, null, "hello"));
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(2, cd.methods.size());
@@ -114,7 +115,7 @@ public class TDAContractIntroParsingTests {
 
 	@Test
 	public void thereMustBeATypeName() {
-		Tokenizable toks = TDABasicIntroParsingTests.line("contract");
+		Tokenizable toks = TestSupport.tokline("contract");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
@@ -126,7 +127,7 @@ public class TDAContractIntroParsingTests {
 
 	@Test
 	public void theTypeNameMustBeTheValidKind() {
-		Tokenizable toks = TDABasicIntroParsingTests.line("contract fred");
+		Tokenizable toks = TestSupport.tokline("contract fred");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(with(any(InputPosition.class)), with("invalid contract type"));
 		}});
@@ -138,7 +139,7 @@ public class TDAContractIntroParsingTests {
 
 	@Test
 	public void junkMayNotFollowTheTypeName() {
-		Tokenizable toks = TDABasicIntroParsingTests.line("contract Fred 42");
+		Tokenizable toks = TestSupport.tokline("contract Fred 42");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "tokens after end of line");
 		}});

@@ -16,6 +16,9 @@ import org.flasck.flas.parser.TDAUnionFieldParser;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.parser.UnionFieldConsumer;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.TypeReferenceMatcher;
+import org.flasck.flas.testsupport.matchers.UnionDefnMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -23,9 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.TypeReferenceMatcher;
-import flas.matchers.UnionDefnMatcher;
 
 public class TDAUnionParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -49,7 +49,7 @@ public class TDAUnionParsingTests {
 			oneOf(builder).newUnion(with(errors), with(UnionDefnMatcher.match("test.pkg.Foo")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("union Foo"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("union Foo"));
 		assertTrue(nested instanceof TDAUnionFieldParser);
 	}
 
@@ -59,13 +59,13 @@ public class TDAUnionParsingTests {
 			oneOf(builder).newUnion(with(errors), with(UnionDefnMatcher.match("test.pkg.List").poly("A")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("union List A"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("union List A"));
 		assertTrue(nested instanceof TDAUnionFieldParser);
 	}
 
 	@Test
 	public void thereMustBeATypeName() {
-		Tokenizable toks = TDABasicIntroParsingTests.line("union");
+		Tokenizable toks = TestSupport.tokline("union");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
@@ -77,7 +77,7 @@ public class TDAUnionParsingTests {
 
 	@Test
 	public void theTypeNameMustBeTheValidKind() {
-		Tokenizable toks = TDABasicIntroParsingTests.line("union fred");
+		Tokenizable toks = TestSupport.tokline("union fred");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
@@ -89,7 +89,7 @@ public class TDAUnionParsingTests {
 
 	@Test
 	public void polymorphicVarsMustBeWhatTheyClaim() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("union List a");
+		final Tokenizable toks = TestSupport.tokline("union List a");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid type argument");
 		}});
@@ -100,7 +100,7 @@ public class TDAUnionParsingTests {
 
 	@Test
 	public void polymorphicVarsCannotBeRealTypes() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("union List Croset");
+		final Tokenizable toks = TestSupport.tokline("union List Croset");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid type argument");
 		}});
@@ -116,7 +116,7 @@ public class TDAUnionParsingTests {
 			oneOf(consumer).addCase(with(TypeReferenceMatcher.type("Nil")));
 		}});
 		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, pos, consumer);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("Nil"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("Nil"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
 
@@ -127,14 +127,14 @@ public class TDAUnionParsingTests {
 			oneOf(consumer).addCase(with(TypeReferenceMatcher.type("Cons").poly("A")));
 		}});
 		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, pos, consumer);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("Cons[A]"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("Cons[A]"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
 
 	@Test
 	public void unionFieldsCannotHaveFieldNames() {
 		final UnionFieldConsumer consumer = context.mock(UnionFieldConsumer.class);
-		final Tokenizable toks = TDABasicIntroParsingTests.line("Nil name");
+		final Tokenizable toks = TestSupport.tokline("Nil name");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "tokens beyond end of line");
 		}});

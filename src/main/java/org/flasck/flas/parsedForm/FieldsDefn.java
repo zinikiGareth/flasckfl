@@ -14,7 +14,7 @@ public abstract class FieldsDefn implements AsString, Locatable, PolyHolder, Fie
 		ENTITY,
 		STATE,
 		
-		// TODO: all of these should be in Ziniki; I think this means this class basically needs to become some kind of (wrapped) "String"
+		// TODO: all of these should be in Ziniki; we need to change all of this to be a dispatcher rather than an enum with switches
 		ENVELOPE,
 		WRAPS,
 		DEAL,

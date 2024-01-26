@@ -21,6 +21,9 @@ import org.flasck.flas.parser.TDAFunctionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.TypedPatternMatcher;
+import org.flasck.flas.testsupport.matchers.VarPatternMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -28,10 +31,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.TypedPatternMatcher;
-import flas.matchers.VarPatternMatcher;
-import test.flas.stories.TDAStoryTests;
 
 public class TDAFunctionParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -175,7 +174,7 @@ public class TDAFunctionParsingTests {
 	}
 
 	public static Tokenizable line(String string) {
-		return new Tokenizable(TDAStoryTests.line(string));
+		return new Tokenizable(TestSupport.line(string));
 	}
 
 }

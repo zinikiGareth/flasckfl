@@ -64,14 +64,13 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.tc3.Primitive;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.exceptions.NotImplementedException;
-
-import flas.matchers.ExprMatcher;
 
 public class TraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

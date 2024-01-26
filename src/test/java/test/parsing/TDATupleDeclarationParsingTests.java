@@ -12,6 +12,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.testsupport.TestSupport;
 import org.flasck.flas.parser.FunctionNameProvider;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATupleDeclarationParser;
@@ -22,8 +23,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import test.flas.stories.TDAStoryTests;
 
 public class TDATupleDeclarationParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -218,6 +217,6 @@ public class TDATupleDeclarationParsingTests {
 	}
 
 	public static Tokenizable line(String string) {
-		return new Tokenizable(TDAStoryTests.line(string));
+		return new Tokenizable(TestSupport.line(string));
 	}
 }

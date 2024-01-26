@@ -15,14 +15,13 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.FunctionAssembler;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
+import org.flasck.flas.testsupport.matchers.FunctionDefinitionMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.FunctionDefinitionMatcher;
 
 public class FunctionAssemblerTests {
 	@Rule

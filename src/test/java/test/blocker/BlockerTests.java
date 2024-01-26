@@ -6,14 +6,13 @@ import org.flasck.flas.blocker.BlockConsumer;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
+import org.flasck.flas.testsupport.matchers.LineMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.LineMatcher;
 
 public class BlockerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

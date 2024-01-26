@@ -48,6 +48,7 @@ import org.flasck.flas.tc3.CurryArgumentType;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.flasck.flas.testsupport.matchers.ApplyMatcher;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
@@ -65,8 +66,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
-
-import flas.matchers.ApplyMatcher;
 
 public class StackVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

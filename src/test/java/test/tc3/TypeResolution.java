@@ -27,6 +27,8 @@ import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
+import org.flasck.flas.testsupport.matchers.ApplyMatcher;
+import org.flasck.flas.testsupport.matchers.PolyInstanceMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -35,9 +37,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.ApplyMatcher;
-import flas.matchers.PolyInstanceMatcher;
 
 public class TypeResolution {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

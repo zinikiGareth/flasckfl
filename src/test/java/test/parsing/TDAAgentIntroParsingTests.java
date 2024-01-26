@@ -16,6 +16,9 @@ import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.AgentDefnMatcher;
+import org.flasck.flas.testsupport.matchers.HandlerImplementsMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -23,9 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.AgentDefnMatcher;
-import flas.matchers.HandlerImplementsMatcher;
 
 public class TDAAgentIntroParsingTests {
 	interface AgentConsumer extends NamedType, TopLevelDefinitionConsumer {};
@@ -49,7 +49,7 @@ public class TDAAgentIntroParsingTests {
 			oneOf(builder).newAgent(with(errors), with(AgentDefnMatcher.match("test.pkg.JamesBond")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("agent JamesBond"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("agent JamesBond"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}
 
@@ -60,9 +60,9 @@ public class TDAAgentIntroParsingTests {
 			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("agent JamesBond"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("agent JamesBond"));
 		assertTrue(nested instanceof TDAMultiParser);
-		nested.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
+		nested.tryParsing(TestSupport.tokline("f = 42"));
 		nested.scopeComplete(null);
 	}
 	
@@ -73,13 +73,13 @@ public class TDAAgentIntroParsingTests {
 			oneOf(builder).newHandler(with(tracker), with(HandlerImplementsMatcher.named("test.pkg.JamesBond.Handler")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("agent JamesBond"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("agent JamesBond"));
+		nested.tryParsing(TestSupport.tokline("handler Contract Handler"));
 	}
 
 	@Test
 	public void thereMustBeATypeName() {
-		Tokenizable toks = TDABasicIntroParsingTests.line("agent");
+		Tokenizable toks = TestSupport.tokline("agent");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
@@ -91,7 +91,7 @@ public class TDAAgentIntroParsingTests {
 
 	@Test
 	public void theTypeNameMustBeTheValidKind() {
-		Tokenizable toks = TDABasicIntroParsingTests.line("agent fred");
+		Tokenizable toks = TestSupport.tokline("agent fred");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
@@ -103,7 +103,7 @@ public class TDAAgentIntroParsingTests {
 
 	@Test
 	public void aPolymorphicAgentDefinitionCreatesTheRightScopeEntryAndReturnsAFieldParser() {
-		Tokenizable toks = TDABasicIntroParsingTests.line("agent JamesBond A");
+		Tokenizable toks = TestSupport.tokline("agent JamesBond A");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "extra tokens at end of line");
 		}});
@@ -118,7 +118,7 @@ public class TDAAgentIntroParsingTests {
 			oneOf(builder).newAgent(with(errors), with(AgentDefnMatcher.match("test.pkg.InPackage")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("agent InPackage"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("agent InPackage"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}
 }

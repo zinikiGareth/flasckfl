@@ -59,17 +59,11 @@
   <lex token='DATA' pattern='data'>
   	<p>The <tt>data</tt> keyword introduces a data declaration in a unit test.</p>
   </lex>
-  <lex token='DEAL' pattern='deal'>
-  	<p>The <tt>deal</tt> keyword introduces a deal declaration.</p>
-  </lex>
   <lex token='DOCWORD' pattern='[a-zA-Z_0-9]+'>
     <p>Words that can appear in the documentation of a test case.</p>
   </lex>
   <lex token='ENTITY' pattern='entity'>
   	<p>The <tt>entity</tt> keyword introduces an entity definition.</p>
-  </lex>
-  <lex token='ENVELOPE' pattern='envelope'>
-  	<p>The <tt>envelope</tt> keyword introduces an envelope definition.</p>
   </lex>
   <lex token='EOL' pattern='\n'>
   	<p>Specifies the end of a line.</p>
@@ -123,9 +117,6 @@
   </lex>
   <lex token='OCB' pattern='\{'>
   	<p>An opening curly bracket introduces a constructor pattern match or object creation.</p>
-  </lex>
-  <lex token='OFFER' pattern='offer'>
-  	<p>The <tt>offer</tt> keyword introduces an offer declaration.</p>
   </lex>
   <lex token='OPTIONAL' pattern='optional'>
   	<p>The <tt>optional</tt> keyword indicates that a contract method does not need to be implemented.</p>
@@ -199,9 +190,6 @@
   <lex token='UNOP' pattern='[\-]'>
   	<p>One of the standard unary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
-  </lex>
-  <lex token='WRAPS' pattern='wraps'>
-  	<p>The <tt>wraps</tt> keyword introduces a definition that wraps an entity in an envelope.</p>
   </lex>
   <lex token='event-name' pattern='[a-z][a-z0-9-]*'>
   	<p>The mnemonic name of an event, such as 'click' or 'scroll-down'.</p>
@@ -290,10 +278,6 @@
       <ref production='struct-declaration'/>
       <ref production='union-declaration'/>
       <ref production='entity-declaration'/>
-      <ref production='deal-declaration'/>
-      <ref production='offer-declaration'/>
-      <ref production='envelope-declaration'/>
-      <ref production='wraps-declaration'/>
       <ref production='contract-declaration'/>
       <ref production='object-declaration'/>
       <ref production='service-declaration'/>
@@ -355,34 +339,6 @@
       </indent>
     </seq>
   </production>
-  <production name='deal-declaration'>
-    <section title='Data Declarations' />
-	<tested by='test.parsing.TDADealIntroParsingTests' />
-    <seq>
-      <token type='DEAL'/>
-      <token type='type-name' names='DEAL\[${name}.*\]' scope='true'/>
-      <many>
-        <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
-      </many>
-      <indent>
-        <ref production='struct-field-decl'/>
-      </indent>
-    </seq>
-  </production>
-  <production name='offer-declaration'>
-    <section title='Data Declarations' />
-	<tested by='test.parsing.TDAOfferIntroParsingTests'/>
-    <seq>
-      <token type='OFFER'/>
-      <token type='type-name' names='OFFER\[${name}.*\]' scope='true'/>
-      <many>
-        <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
-      </many>
-      <indent>
-        <ref production='struct-field-decl'/>
-      </indent>
-    </seq>
-  </production>
   <production name='struct-field-decl'>
     <section title='Data Declarations'/>
 	<tested by='test.parsing.TDAStructFieldParsingTests' />
@@ -411,73 +367,6 @@
       <indent-non-zero>
         <ref production='type-reference'/>
       </indent-non-zero>
-    </seq>
-  </production>
-  <production name='envelope-declaration'>
-    <section title='Envelopes'>
-    	  <description>
-    	    <p>Envelopes are used to provide consistent access to a range of entities.  In this way, they can be considered similar to <tt>union</tt> objects or <tt>typeclasses</tt> in Haskell.</p>
-    	    <p>An envelope is defined in the same way as an entity, and all <i>instances</i> of an envelope must be <tt>entity</tt> declarations.</p>
-    	    <p>The <tt>wraps</tt> definition specifies that an <tt>envelope</tt> can be represented by a specific <tt>entity</tt>.  This is then implemented by identifying how each variable in the envelope is made available from expressions which are phrased in terms of the members of the entity.</p>
-    	    <p>This mapping is strictly one way.  It is not possible to <i>assign</i> to fields of an envelope.</p>
-    	    <p>For more details, see <a href='index.html#envelopes'>envelopes</a>.</p>
-    	  </description>
-    </section>
-	<tested by='test.parsing.TDAStructIntroParsingTests' />
-    <seq>
-      <token type='ENVELOPE'/>
-      <token type='type-name' names='ENVELOPE\[${name}.*\]'/>
-      <many>
-        <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
-      </many>
-      <indent>
-        <ref production='envelope-field-list'/>
-      </indent>
-    </seq>
-  </production>
-  <production name='envelope-field-list'>
-    <section title='Envelopes'/>
-	<tested by='test.parsing.TDAStructFieldParsingTests' />
-    <many>
-      <ref production='envelope-field-decl'/>
-    </many>
-  </production>
-  <production name='envelope-field-decl'>
-    <section title='Envelopes'/>
-	<tested by='test.parsing.TDAStructFieldParsingTests' />
-    <seq>
-      <ref production='type-reference'/>
-      <token type='var-name' names='StructField\[.*${final}.*\]'/>
-      <token type='EOL'/>
-    </seq>
-  </production>
-  <production name='wraps-declaration'>
-    <section title='Envelopes' />
-	<tested by='test.parsing.TDAStructIntroParsingTests' />
-    <seq>
-      <token type='WRAPS'/>
-      <token type='type-name' names='WRAPS\[${name}.*\]'/>
-      <token type='SEND' />
-      <token type='type-name'/>
-      <indent>
-        <ref production='wraps-binding-list'/>
-      </indent>
-    </seq>
-  </production>
-  <production name='wraps-binding-list'>
-    <section title='Envelopes'/>
-	<tested by='test.parsing.TDAStructFieldParsingTests' />
-    <many>
-      <ref production='wraps-binding-decl'/>
-    </many>
-  </production>
-  <production name='wraps-binding-decl'>
-    <section title='Envelopes'/>
-	<tested by='test.parsing.TDAStructFieldParsingTests' />
-    <seq>
-      <token type='var-name' names='StructField\[${name}.*\]'/>
-      <ref production='struct-initializer'/>
-      <token type='EOL'/>
     </seq>
   </production>
   <production name='contract-declaration'>

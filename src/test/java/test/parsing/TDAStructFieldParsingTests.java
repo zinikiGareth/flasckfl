@@ -13,6 +13,10 @@ import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.StructFieldConsumer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAStructFieldParser;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
+import org.flasck.flas.testsupport.matchers.StringLiteralMatcher;
+import org.flasck.flas.testsupport.matchers.StructFieldMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -20,10 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.ExprMatcher;
-import flas.matchers.StringLiteralMatcher;
-import flas.matchers.StructFieldMatcher;
 
 public class TDAStructFieldParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -47,7 +47,7 @@ public class TDAStructFieldParsingTests {
 			oneOf(builder).addField(with(StructFieldMatcher.match("A", "head")));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("A head"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("A head"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
 
@@ -58,13 +58,13 @@ public class TDAStructFieldParsingTests {
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").locs(0, 7)));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("String msg"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("String msg"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
 
 	@Test
 	public void theFieldMustHaveAValidTypeName() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("head");
+		final Tokenizable toks = TestSupport.tokline("head");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "field must have a valid type definition");
 		}});
@@ -75,7 +75,7 @@ public class TDAStructFieldParsingTests {
 
 	@Test
 	public void theFieldMustHaveAValidVarName() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("String A");
+		final Tokenizable toks = TestSupport.tokline("String A");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "field must have a valid field name");
 		}});
@@ -86,7 +86,7 @@ public class TDAStructFieldParsingTests {
 
 	@Test
 	public void theNameIDIsReserved() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("String id");
+		final Tokenizable toks = TestSupport.tokline("String id");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "'id' is a reserved field name");
 		}});
@@ -97,7 +97,7 @@ public class TDAStructFieldParsingTests {
 
 	@Test
 	public void junkIsNotPermittedAtTheEndOfTheLine() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg for");
+		final Tokenizable toks = TestSupport.tokline("String msg for");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "expected <- or end of line");
 		}});
@@ -114,13 +114,13 @@ public class TDAStructFieldParsingTests {
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").assign(11, new StringLiteralMatcher("foo"))));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true, locTracker);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("String msg <- 'foo'"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("String msg <- 'foo'"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
 
 	@Test
 	public void junkIsNotPermittedAfterAnAssignment() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg <- 13)");
+		final Tokenizable toks = TestSupport.tokline("String msg <- 13)");
 		context.checking(new Expectations() {{
 			oneOf(builder).holder(); will(returnValue(null));
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").assign(11, ExprMatcher.number(13))));
@@ -133,7 +133,7 @@ public class TDAStructFieldParsingTests {
 
 	@Test
 	public void envelopeFieldsMayNotHaveInitializers() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg <- 13");
+		final Tokenizable toks = TestSupport.tokline("String msg <- 13");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "envelope fields may not have initializers");
 		}});
@@ -144,7 +144,7 @@ public class TDAStructFieldParsingTests {
 
 	@Test
 	public void wrapsFieldsMustHaveInitializers() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("msg");
+		final Tokenizable toks = TestSupport.tokline("msg");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "wraps fields must have initializers");
 		}});

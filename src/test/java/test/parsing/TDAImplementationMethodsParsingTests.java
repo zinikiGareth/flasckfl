@@ -15,6 +15,9 @@ import org.flasck.flas.parser.TDAImplementationMethodsParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.ObjectMethodMatcher;
+import org.flasck.flas.testsupport.matchers.VarPatternMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -22,9 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.ObjectMethodMatcher;
-import flas.matchers.VarPatternMatcher;
 
 public class TDAImplementationMethodsParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -51,13 +51,13 @@ public class TDAImplementationMethodsParsingTests {
 			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "foo").withArgs(0)));
 			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectMethod.class)));
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("foo"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("foo"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
 
 	@Test
 	public void anImplementationMayHaveASimpleArgument() {
-		final Tokenizable line = TDABasicIntroParsingTests.line("bar x");
+		final Tokenizable line = TestSupport.tokline("bar x");
 		context.checking(new Expectations() {{
 			oneOf(namer).functionName(with(any(InputPosition.class)), with("bar")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, null, "bar x"), null, "bar")));
 			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "bar").withArgs(1)));
@@ -72,7 +72,7 @@ public class TDAImplementationMethodsParsingTests {
 
 	@Test
 	public void anImplementationMayHaveASimpleArgumentAndAHandler() {
-		final Tokenizable line = TDABasicIntroParsingTests.line("bar x -> h");
+		final Tokenizable line = TestSupport.tokline("bar x -> h");
 		context.checking(new Expectations() {{
 			oneOf(namer).functionName(with(any(InputPosition.class)), with("bar")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, null, "bar x"), null, "bar")));
 			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "bar").withArgs(1).withHandler("bar.h")));
@@ -93,7 +93,7 @@ public class TDAImplementationMethodsParsingTests {
 
 	@Test
 	public void methodsCannotBeNamedForSymbols() {
-		final Tokenizable line = TDABasicIntroParsingTests.line("+");
+		final Tokenizable line = TestSupport.tokline("+");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "invalid method name");
 		}});

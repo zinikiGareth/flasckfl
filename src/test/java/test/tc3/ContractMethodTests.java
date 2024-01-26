@@ -28,6 +28,8 @@ import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.flasck.flas.testsupport.matchers.ApplyMatcher;
+import org.flasck.flas.testsupport.matchers.PosMatcher;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.hamcrest.Matcher;
@@ -38,8 +40,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import flas.matchers.ApplyMatcher;
-import flas.matchers.PosMatcher;
 import test.tc3.MethodTests.RAV;
 
 public class ContractMethodTests {

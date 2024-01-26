@@ -1,5 +1,4 @@
 src/golden/banned/symbols
-src/golden/deals/errors
 src/golden/agents/errors
 src/golden/agents/typeerrors
 src/golden/cards/errors
@@ -24,7 +23,6 @@ src/golden/objects/converrors
 src/golden/objects/errors
 src/golden/objects/typeerrors
 src/golden/unittests/typeerrors
-src/golden/offers/errors
 src/golden/services/errors
 src/golden/structs/errors
 src/golden/unittests/errors

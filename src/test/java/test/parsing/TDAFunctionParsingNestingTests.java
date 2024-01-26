@@ -17,6 +17,8 @@ import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.FunctionDefinitionMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -24,9 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.FunctionDefinitionMatcher;
-import test.flas.stories.TDAStoryTests;
 
 public class TDAFunctionParsingNestingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -138,7 +137,7 @@ public class TDAFunctionParsingNestingTests {
 	}
 
 	public static Tokenizable line(String string) {
-		return new Tokenizable(TDAStoryTests.line(string));
+		return new Tokenizable(TestSupport.line(string));
 	}
 
 }

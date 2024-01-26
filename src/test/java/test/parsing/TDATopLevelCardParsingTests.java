@@ -32,6 +32,8 @@ import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.CardDefnMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -40,8 +42,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.CardDefnMatcher;
 
 public class TDATopLevelCardParsingTests {
 	interface CardConsumer extends NamedType, TopLevelDefinitionConsumer {};
@@ -64,7 +64,7 @@ public class TDATopLevelCardParsingTests {
 			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
-		cardParser = intro.tryParsing(TDABasicIntroParsingTests.line("card CardA"));
+		cardParser = intro.tryParsing(TestSupport.tokline("card CardA"));
 		card = (CardDefinition) captureCard.get(1);
 	}
 
@@ -77,18 +77,18 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void aCardCanHaveAStateDeclaration() {
 		assertNull(card.state);
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("state"));
+		cardParser.tryParsing(TestSupport.tokline("state"));
 		assertTrue(card.state instanceof StateDefinition);
 	}
 
 	@Test
 	public void theCardCannotHaveTwoStateDeclarations() {
-		final Tokenizable line = TDABasicIntroParsingTests.line("state");
+		final Tokenizable line = TestSupport.tokline("state");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line.realinfo().copySetEnd(5), "multiple state declarations");
 		}});
 		assertNull(card.state);
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("state"));
+		cardParser.tryParsing(TestSupport.tokline("state"));
 		cardParser.tryParsing(line);
 	}
 
@@ -97,14 +97,14 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newTemplate(with(tracker), with(any(Template.class)));
 		}});
-		TDAParsing nested = cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
+		TDAParsing nested = cardParser.tryParsing(TestSupport.tokline("template my-template-name"));
 		assertEquals(1, card.templates.size());
 		assertTrue(nested instanceof TDATemplateBindingParser);
 	}
 
 	@Test
 	public void aTemplateDeclarationMustIncludeAName() {
-		Tokenizable line = TDABasicIntroParsingTests.line("template");
+		Tokenizable line = TestSupport.tokline("template");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "template must have a name");
 		}});
@@ -118,8 +118,8 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			exactly(2).of(builder).newTemplate(with(tracker), with(any(Template.class)));
 		}});
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("template other-template-name"));
+		cardParser.tryParsing(TestSupport.tokline("template my-template-name"));
+		cardParser.tryParsing(TestSupport.tokline("template other-template-name"));
 		assertEquals(2, card.templates.size());
 	}
 	
@@ -129,7 +129,7 @@ public class TDATopLevelCardParsingTests {
 			oneOf(builder).newObjectMethod(with(tracker), with(any(ObjectActionHandler.class)));
 			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
 		}});
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("event foo (ClickEvent ev)"));
+		cardParser.tryParsing(TestSupport.tokline("event foo (ClickEvent ev)"));
 		assertEquals(1, card.eventHandlers.size());
 	}
 
@@ -138,7 +138,7 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newStandaloneMethod(with(tracker), with(any(StandaloneMethod.class)));
 		}});
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("method m"));
+		cardParser.tryParsing(TestSupport.tokline("method m"));
 	}
 
 	@Test
@@ -149,7 +149,7 @@ public class TDATopLevelCardParsingTests {
 		}});
 		// throw an error to simulate cascade
 		tracker.fakeErrorWithoutNeedingAssertion();
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("method m (String s)"));
+		cardParser.tryParsing(TestSupport.tokline("method m (String s)"));
 	}
 
 	@Test
@@ -157,7 +157,7 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
-		TDAParsing nested = cardParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
+		TDAParsing nested = cardParser.tryParsing(TestSupport.tokline("f = 42"));
 		nested.scopeComplete(pos);
 		cardParser.scopeComplete(pos);
 	}
@@ -167,13 +167,13 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
+		cardParser.tryParsing(TestSupport.tokline("handler Contract Handler"));
 		assertEquals(1, card.handlers.size());
 	}
 
 	@Test
 	public void cardsCanProvideServicesThroughContracts() {
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("provides org.ziniki.ContractName"));
+		cardParser.tryParsing(TestSupport.tokline("provides org.ziniki.ContractName"));
 		assertEquals(1, card.services.size());
 	}
 
@@ -182,7 +182,7 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newContractImpl(with(tracker), with(any(ImplementsContract.class)));
 		}});
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("implements org.ziniki.ContractName"));
+		cardParser.tryParsing(TestSupport.tokline("implements org.ziniki.ContractName"));
 		assertEquals(1, card.contracts.size());
 	}
 
@@ -191,7 +191,7 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newRequiredContract(with(tracker), with(any(RequiresContract.class)));
 		}});
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("requires org.ziniki.ContractName var"));
+		cardParser.tryParsing(TestSupport.tokline("requires org.ziniki.ContractName var"));
 		assertEquals(1, card.requires.size());
 	}
 
@@ -201,6 +201,6 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).tupleDefn(with(tracker), with(any(List.class)), with(any(FunctionName.class)), with(any(FunctionName.class)), with(any(Expr.class)));
 		}});
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("(x,y) = f 2"));
+		cardParser.tryParsing(TestSupport.tokline("(x,y) = f 2"));
 	}
 }

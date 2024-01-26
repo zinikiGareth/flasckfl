@@ -25,12 +25,11 @@ import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.testsupport.matchers.PatternMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.PatternMatcher;
 
 public class InsertorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

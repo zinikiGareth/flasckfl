@@ -14,6 +14,10 @@ import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.parser.TDAMethodGuardParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
+import org.flasck.flas.testsupport.matchers.GuardedMessagesMatcher;
+import org.flasck.flas.testsupport.matchers.SendMessageMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -21,10 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.ExprMatcher;
-import flas.matchers.GuardedMessagesMatcher;
-import flas.matchers.SendMessageMatcher;
 
 public class TDAMethodGuardsTests {
 	interface GM extends MethodMessagesConsumer, GuardedMessagesConsumer {}
@@ -54,7 +54,7 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).done();
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.fetchRoot"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.fetchRoot"));
 		assertTrue(nested instanceof LastOneOnlyNestedParser);
 		parser.scopeComplete(pos);
 	}
@@ -66,7 +66,7 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).done();
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("| True"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 		parser.scopeComplete(pos);
 	}
@@ -77,10 +77,10 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.typeref("True")))));
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("| True"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 		context.assertIsSatisfied();
-		Tokenizable toks = TDABasicIntroParsingTests.line("<- data.fetchRoot");
+		Tokenizable toks = TestSupport.tokline("<- data.fetchRoot");
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(with(any(InputPosition.class)), with("guard expected"));
 			oneOf(builder).done();
@@ -96,10 +96,10 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.fetchRoot"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.fetchRoot"));
 		assertTrue(nested instanceof LastOneOnlyNestedParser);
 		context.assertIsSatisfied();
-		Tokenizable toks = TDABasicIntroParsingTests.line("| True");
+		Tokenizable toks = TestSupport.tokline("| True");
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(with(toks), with("expected assign or send message"));
 			oneOf(builder).done();
@@ -115,10 +115,10 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).guard(with(GuardedMessagesMatcher.of(ExprMatcher.apply(ExprMatcher.typeref("True")))));
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("| True"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 		context.assertIsSatisfied();
-		Tokenizable toks = TDABasicIntroParsingTests.line("|");
+		Tokenizable toks = TestSupport.tokline("|");
 		context.checking(new Expectations() {{
 			oneOf(builder).guard(with(GuardedMessagesMatcher.of(null)));
 			oneOf(builder).done();
@@ -135,7 +135,7 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).done();
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("|"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("|"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 		parser.scopeComplete(pos);
 	}
@@ -149,9 +149,9 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).done();
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("| True"));
-		nested = parser.tryParsing(TDABasicIntroParsingTests.line("|"));
-		nested = parser.tryParsing(TDABasicIntroParsingTests.line("|"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("| True"));
+		nested = parser.tryParsing(TestSupport.tokline("|"));
+		nested = parser.tryParsing(TestSupport.tokline("|"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 		parser.scopeComplete(pos);
 	}

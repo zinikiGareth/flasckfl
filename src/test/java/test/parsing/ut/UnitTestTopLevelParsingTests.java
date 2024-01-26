@@ -28,6 +28,8 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataFieldConsumer;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitTestNamer;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
+import org.flasck.flas.testsupport.matchers.UnitTestCaseMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -36,9 +38,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.ExprMatcher;
-import flas.matchers.UnitTestCaseMatcher;
 
 public class UnitTestTopLevelParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

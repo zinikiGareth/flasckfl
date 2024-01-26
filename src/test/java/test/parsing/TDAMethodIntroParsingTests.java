@@ -3,28 +3,26 @@ package test.parsing;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.VarPatternMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.VarPatternMatcher;
 
 public class TDAMethodIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -51,7 +49,7 @@ public class TDAMethodIntroParsingTests {
 			oneOf(builder).newStandaloneMethod(with(errors), with(any(StandaloneMethod.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method foo"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("method foo"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
 
@@ -66,7 +64,7 @@ public class TDAMethodIntroParsingTests {
 			oneOf(builder).argument(with(aNull(ErrorReporter.class)), (VarPattern) with(VarPatternMatcher.var("test.pkg.foo.x")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method foo x"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("method foo x"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
 

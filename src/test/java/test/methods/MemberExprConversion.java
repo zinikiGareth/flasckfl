@@ -26,15 +26,14 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
+import org.flasck.flas.testsupport.matchers.MakeAcorMatcher;
+import org.flasck.flas.testsupport.matchers.MakeSendMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.ExprMatcher;
-import flas.matchers.MakeAcorMatcher;
-import flas.matchers.MakeSendMatcher;
 
 public class MemberExprConversion {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

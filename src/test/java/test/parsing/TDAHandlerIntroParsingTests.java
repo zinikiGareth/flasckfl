@@ -13,21 +13,20 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parser.TDAIntroParser;
-import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAImplementationMethodsParser;
+import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.VarPatternMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.VarPatternMatcher;
 
 public class TDAHandlerIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -51,7 +50,7 @@ public class TDAHandlerIntroParsingTests {
 			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("handler ContractName HandlerName"));
 		assertTrue(nested instanceof TDAParsingWithAction);
 		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
@@ -62,7 +61,7 @@ public class TDAHandlerIntroParsingTests {
 			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("handler org.ziniki.ContractName HandlerName"));
 		assertTrue(nested instanceof TDAParsingWithAction);
 		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
@@ -76,7 +75,7 @@ public class TDAHandlerIntroParsingTests {
 			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName x (String s)"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("handler org.ziniki.ContractName HandlerName x (String s)"));
 		assertTrue(nested instanceof TDAParsingWithAction);
 		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
@@ -89,7 +88,7 @@ public class TDAHandlerIntroParsingTests {
 			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName (List[List[Integer]] mrtho)"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("handler ContractName HandlerName (List[List[Integer]] mrtho)"));
 		assertTrue(nested instanceof TDAParsingWithAction);
 		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
@@ -103,7 +102,7 @@ public class TDAHandlerIntroParsingTests {
 			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName (String s) (List[List[Integer]] mrtho)"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("handler ContractName HandlerName (String s) (List[List[Integer]] mrtho)"));
 		assertTrue(nested instanceof TDAParsingWithAction);
 		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
 	}
@@ -116,10 +115,10 @@ public class TDAHandlerIntroParsingTests {
 			oneOf(builder).argument(with(tracker), (VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.foo.x")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("handler ContractName HandlerName"));
 		assertTrue(nested instanceof TDAParsingWithAction);
 		assertTrue(((TDAParsingWithAction)nested).parser instanceof TDAImplementationMethodsParser);
-		nested.tryParsing(TDABasicIntroParsingTests.line("foo x"));
+		nested.tryParsing(TestSupport.tokline("foo x"));
 	}
 
 

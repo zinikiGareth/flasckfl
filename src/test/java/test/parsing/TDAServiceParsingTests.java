@@ -22,6 +22,9 @@ import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.HandlerImplementsMatcher;
+import org.flasck.flas.testsupport.matchers.ServiceDefnMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -30,9 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.HandlerImplementsMatcher;
-import flas.matchers.ServiceDefnMatcher;
 
 public class TDAServiceParsingTests {
 	interface ServiceConsumer extends NamedType, TopLevelDefinitionConsumer {};
@@ -54,7 +54,7 @@ public class TDAServiceParsingTests {
 			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
-		serviceParser = intro.tryParsing(TDABasicIntroParsingTests.line("service ServiceA"));
+		serviceParser = intro.tryParsing(TestSupport.tokline("service ServiceA"));
 		svc = (ServiceDefinition) captureCard.get(1);
 	}
 
@@ -66,7 +66,7 @@ public class TDAServiceParsingTests {
 
 	@Test
 	public void aServiceCannotHaveAStateDeclaration() {
-		Tokenizable line = TDABasicIntroParsingTests.line("state");
+		Tokenizable line = TestSupport.tokline("state");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line.realinfo().copySetEnd(5), "services may not have state");
 		}});
@@ -78,7 +78,7 @@ public class TDAServiceParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newStandaloneMethod(with(tracker), with(any(StandaloneMethod.class)));
 		}});
-		serviceParser.tryParsing(TDABasicIntroParsingTests.line("method m"));
+		serviceParser.tryParsing(TestSupport.tokline("method m"));
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class TDAServiceParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
-		serviceParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
+		serviceParser.tryParsing(TestSupport.tokline("f = 42"));
 		serviceParser.scopeComplete(null);
 	}
 
@@ -95,7 +95,7 @@ public class TDAServiceParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newHandler(with(tracker), with(HandlerImplementsMatcher.named("test.pkg.ServiceA.Handler")));
 		}});
-		serviceParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
+		serviceParser.tryParsing(TestSupport.tokline("handler Contract Handler"));
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class TDAServiceParsingTests {
 		context.checking(new Expectations() {{
 //			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
 		}});
-		serviceParser.tryParsing(TDABasicIntroParsingTests.line("provides org.ziniki.ContractName"));
+		serviceParser.tryParsing(TestSupport.tokline("provides org.ziniki.ContractName"));
 		assertEquals(1, svc.provides.size());
 	}
 
@@ -113,6 +113,6 @@ public class TDAServiceParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).tupleDefn(with(tracker), with(any(List.class)), with(any(FunctionName.class)), with(any(FunctionName.class)), with(any(Expr.class)));
 		}});
-		serviceParser.tryParsing(TDABasicIntroParsingTests.line("(x,y) = f 2"));
+		serviceParser.tryParsing(TestSupport.tokline("(x,y) = f 2"));
 	}
 }

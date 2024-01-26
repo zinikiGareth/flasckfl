@@ -28,14 +28,13 @@ import org.flasck.flas.tc3.CurryArgumentType;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
+import org.flasck.flas.testsupport.matchers.ExprResultMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.ExprResultMatcher;
 
 public class ExpressionVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

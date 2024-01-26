@@ -19,13 +19,12 @@ import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.StructTypeConstraints;
 import org.flasck.flas.tc3.UnifiableType;
+import org.flasck.flas.testsupport.matchers.PolyInstanceMatcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.PolyInstanceMatcher;
 
 public class ConstraintUnification {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

@@ -30,6 +30,8 @@ import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
+import org.flasck.flas.testsupport.matchers.ApplyMatcher;
+import org.flasck.flas.testsupport.matchers.PosMatcher;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.PosType;
@@ -44,9 +46,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
-
-import flas.matchers.ApplyMatcher;
-import flas.matchers.PosMatcher;
 
 public class GroupTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

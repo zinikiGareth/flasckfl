@@ -26,6 +26,9 @@ import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestStepConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
+import org.flasck.flas.testsupport.matchers.TargetZoneMatcher;
+import org.flasck.flas.testsupport.matchers.TypeReferenceMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -34,10 +37,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.ExprMatcher;
-import flas.matchers.TargetZoneMatcher;
-import flas.matchers.TypeReferenceMatcher;
 
 public class UnitTestStepParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

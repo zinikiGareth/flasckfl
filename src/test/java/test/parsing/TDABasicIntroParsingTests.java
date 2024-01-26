@@ -8,15 +8,13 @@ import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
-import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.testsupport.TestSupport;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import test.flas.stories.TDAStoryTests;
 
 public class TDABasicIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -37,7 +35,7 @@ public class TDABasicIntroParsingTests {
 		context.checking(new Expectations() {{
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(line(""));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline(""));
 		assertNull(nested);
 	}
 
@@ -46,7 +44,7 @@ public class TDABasicIntroParsingTests {
 		context.checking(new Expectations() {{
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(line("+x"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("+x"));
 		assertNull(nested);
 	}
 
@@ -55,12 +53,7 @@ public class TDABasicIntroParsingTests {
 		context.checking(new Expectations() {{
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
-		TDAParsing nested = parser.tryParsing(line("garbage"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("garbage"));
 		assertNull(nested);
 	}
-
-	public static Tokenizable line(String string) {
-		return new Tokenizable(TDAStoryTests.line(string));
-	}
-
 }

@@ -16,6 +16,9 @@ import org.flasck.flas.parser.ContractMethodParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.ContractMethodMatcher;
+import org.flasck.flas.testsupport.matchers.TypedPatternMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -23,9 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.ContractMethodMatcher;
-import flas.matchers.TypedPatternMatcher;
 
 public class TDAContractMethodParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -52,7 +52,7 @@ public class TDAContractMethodParsingTests {
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred")));
 			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 		}});
-		Tokenizable line = TDABasicIntroParsingTests.line("fred");
+		Tokenizable line = TestSupport.tokline("fred");
 		ContractMethodParser parser = new ContractMethodParser(errors, line.realinfo(), builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(line);
 		assertTrue(nested instanceof NoNestingParser);
@@ -61,7 +61,7 @@ public class TDAContractMethodParsingTests {
 	@Test
 	public void methodsMayNotHaveTypeNames() {
 		ErrorMark mark = context.mock(ErrorMark.class);
-		Tokenizable toks = TDABasicIntroParsingTests.line("Fred");
+		Tokenizable toks = TestSupport.tokline("Fred");
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			allowing(errors).mark(); will(returnValue(mark));
@@ -83,7 +83,7 @@ public class TDAContractMethodParsingTests {
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fredBloggs")));
 			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 		}});
-		Tokenizable toks = TDABasicIntroParsingTests.line("fredBloggs");
+		Tokenizable toks = TestSupport.tokline("fredBloggs");
 		ContractMethodParser parser = new ContractMethodParser(errors, toks.realinfo(), builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof NoNestingParser);
@@ -99,7 +99,7 @@ public class TDAContractMethodParsingTests {
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred").optional()));
 			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 		}});
-		Tokenizable toks = TDABasicIntroParsingTests.line("optional fred");
+		Tokenizable toks = TestSupport.tokline("optional fred");
 		ContractMethodParser parser = new ContractMethodParser(errors, toks.realinfo(), builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof NoNestingParser);
@@ -116,7 +116,7 @@ public class TDAContractMethodParsingTests {
 			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 			oneOf(topLevel).argument(with(errors), with(any(TypedPattern.class)));
 		}});
-		Tokenizable line = TDABasicIntroParsingTests.line("fred (Number x)");
+		Tokenizable line = TestSupport.tokline("fred (Number x)");
 		ContractMethodParser parser = new ContractMethodParser(errors, line.realinfo(), builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(line);
 		assertTrue(nested instanceof NoNestingParser);
@@ -133,7 +133,7 @@ public class TDAContractMethodParsingTests {
 			oneOf(topLevel).argument(with(errors), (TypedPattern)with(TypedPatternMatcher.typed("Handler", "h")));
 			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 		}});
-		Tokenizable line = TDABasicIntroParsingTests.line("fred -> (Handler h)");
+		Tokenizable line = TestSupport.tokline("fred -> (Handler h)");
 		ContractMethodParser parser = new ContractMethodParser(errors, line.realinfo(), builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(line);
 		assertTrue(nested instanceof NoNestingParser);
@@ -153,7 +153,7 @@ public class TDAContractMethodParsingTests {
 			// but it does complain and that should stop it doing the wrong thing later ...
 			oneOf(errors).message(with(any(InputPosition.class)), with("contract patterns must be typed"));
 		}});
-		Tokenizable toks = TDABasicIntroParsingTests.line("fred x");
+		Tokenizable toks = TestSupport.tokline("fred x");
 		ContractMethodParser parser = new ContractMethodParser(errors, toks.realinfo(), builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof NoNestingParser);

@@ -31,6 +31,10 @@ import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
+import org.flasck.flas.testsupport.matchers.ApplyMatcher;
+import org.flasck.flas.testsupport.matchers.PolyInstanceMatcher;
+import org.flasck.flas.testsupport.matchers.PolyTypeMatcher;
+import org.flasck.flas.testsupport.matchers.ResolvedUTMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -38,11 +42,6 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.ApplyMatcher;
-import flas.matchers.PolyInstanceMatcher;
-import flas.matchers.PolyTypeMatcher;
-import flas.matchers.ResolvedUTMatcher;
 
 public class TCStateTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

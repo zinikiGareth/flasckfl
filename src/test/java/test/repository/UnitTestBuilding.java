@@ -26,12 +26,11 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
+import org.flasck.flas.testsupport.matchers.TypeReferenceMatcher;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.ExprMatcher;
-import flas.matchers.TypeReferenceMatcher;
 
 public class UnitTestBuilding {
 	public @Rule JUnitRuleMockery context = new JUnitRuleMockery();

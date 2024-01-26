@@ -19,6 +19,7 @@ import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAObjectElementsParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.testsupport.TestSupport;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -64,9 +65,9 @@ public class TDAMethodNestingParsingTests {
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class))); will(captureIt);
 		}});
 		TDAObjectElementsParser oep = new TDAObjectElementsParser(errors, namer, builder, topLevel, locTracker);
-		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("<- ds.getReady"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("x <- 'hello'"));
+		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TestSupport.tokline("ctor testMe"));
+		nested.tryParsing(TestSupport.tokline("<- ds.getReady"));
+		nested.tryParsing(TestSupport.tokline("x <- 'hello'"));
 		final ObjectActionHandler ctor = (ObjectActionHandler) captureIt.get(0);
 		assertEquals(2, ctor.messages().size());
 	}
@@ -79,16 +80,16 @@ public class TDAMethodNestingParsingTests {
 //			oneOf(topLevel).functionCase(with(FunctionCaseMatcher.called(name, "s")));
 		}});
 		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
-		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("<- ds.send y"));
-		TDAParsing fsParser = nested.tryParsing(TDABasicIntroParsingTests.line("x <- y"));
-		fsParser.tryParsing(TDABasicIntroParsingTests.line("s = 'hello'"));
+		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TestSupport.tokline("ctor testMe"));
+		nested.tryParsing(TestSupport.tokline("<- ds.send y"));
+		TDAParsing fsParser = nested.tryParsing(TestSupport.tokline("x <- y"));
+		fsParser.tryParsing(TestSupport.tokline("s = 'hello'"));
 	}
 
 	@Test
 	public void anActionCannotHaveANestedScopeIfItIsNotTheLastOne() {
 		// extract this here since we want to check it's the one that errors, but we only supply it later ...
-		final Tokenizable line = TDABasicIntroParsingTests.line("s = 'hello'");
+		final Tokenizable line = TestSupport.tokline("s = 'hello'");
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
@@ -96,16 +97,16 @@ public class TDAMethodNestingParsingTests {
 			oneOf(errors).message(line.realinfo(), "nested scope must be after last action");
 		}});
 		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
-		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
-		TDAParsing fsParser = nested.tryParsing(TDABasicIntroParsingTests.line("<- ds.send y"));
+		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TestSupport.tokline("ctor testMe"));
+		TDAParsing fsParser = nested.tryParsing(TestSupport.tokline("<- ds.send y"));
 		fsParser.tryParsing(line);
-		nested.tryParsing(TDABasicIntroParsingTests.line("x <- y"));
+		nested.tryParsing(TestSupport.tokline("x <- y"));
 	}
 
 	@Test
 	public void checkWeDontGetMultipleMessagesForTheSameOffence() {
 		// extract this here since we want to check it's the one that errors, but we only supply it later ...
-		final Tokenizable line = TDABasicIntroParsingTests.line("s = 'hello'");
+		final Tokenizable line = TestSupport.tokline("s = 'hello'");
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
@@ -113,17 +114,17 @@ public class TDAMethodNestingParsingTests {
 			oneOf(errors).message(line.realinfo(), "nested scope must be after last action");
 		}});
 		TDAObjectElementsParser oep = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
-		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
-		TDAParsing fsParser = nested.tryParsing(TDABasicIntroParsingTests.line("<- ds.send y"));
+		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TestSupport.tokline("ctor testMe"));
+		TDAParsing fsParser = nested.tryParsing(TestSupport.tokline("<- ds.send y"));
 		fsParser.tryParsing(line);
-		nested.tryParsing(TDABasicIntroParsingTests.line("x <- y"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("v <- 42"));
+		nested.tryParsing(TestSupport.tokline("x <- y"));
+		nested.tryParsing(TestSupport.tokline("v <- 42"));
 	}
 
 	@Test
 	public void cannotDirectlyNestScopeUnderMethodWithoutActions() {
 		// extract this here since we want to check it's the one that errors, but we only supply it later ...
-		final Tokenizable line = TDABasicIntroParsingTests.line("s = 'hello'");
+		final Tokenizable line = TestSupport.tokline("s = 'hello'");
 		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
@@ -133,7 +134,7 @@ public class TDAMethodNestingParsingTests {
 			oneOf(errors).message(with(any(InputPosition.class)), with("expected <-"));
 		}});
 		TDAObjectElementsParser oep = new TDAObjectElementsParser(errors, namer, builder, topLevel, locTracker);
-		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));
+		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TestSupport.tokline("ctor testMe"));
 		nested.tryParsing(line);
 	}
 }

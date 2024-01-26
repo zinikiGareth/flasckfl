@@ -27,6 +27,10 @@ import org.flasck.flas.parser.TDATemplateOptionsParser;
 import org.flasck.flas.parser.TDATemplateStylingParser;
 import org.flasck.flas.parser.TemplateBindingConsumer;
 import org.flasck.flas.parser.TemplateNamer;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
+import org.flasck.flas.testsupport.matchers.StringLiteralMatcher;
+import org.flasck.flas.testsupport.matchers.TemplateBindingMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -35,10 +39,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.ExprMatcher;
-import flas.matchers.StringLiteralMatcher;
-import flas.matchers.TemplateBindingMatcher;
 
 public class TDATemplateParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -65,7 +65,7 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area")));
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
 		assertTrue(nested instanceof TDATemplateOptionsParser);
 		parser.scopeComplete(pos);
 	}
@@ -75,7 +75,7 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member")));
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area <- member"));
 		assertTrue(nested instanceof TDATemplateOptionsParser);
 	}
 
@@ -86,13 +86,13 @@ public class TDATemplateParsingTests {
 			oneOf(namer).template(with(any(InputPosition.class)), with("object-template")); will(returnValue(ot));
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo(ot)));
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area <- member => object-template"));
 		assertTrue(nested instanceof TDATemplateOptionsParser);
 	}
 
 	@Test
 	public void aTemplateNameWithSendMustHaveAnExpression() {
-		final Tokenizable line = TDABasicIntroParsingTests.line("styling-area <-");
+		final Tokenizable line = TestSupport.tokline("styling-area <-");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "no expression to send");
 		}});
@@ -102,7 +102,7 @@ public class TDATemplateParsingTests {
 
 	@Test
 	public void aSimpleNameIsNotAllowedAsAnArgument() {
-		final Tokenizable line = TDABasicIntroParsingTests.line("styling-area member");
+		final Tokenizable line = TestSupport.tokline("styling-area member");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
@@ -112,7 +112,7 @@ public class TDATemplateParsingTests {
 
 	@Test
 	public void aTemplateNameWithSendToMustHaveDoneSendFirst() {
-		final Tokenizable line = TDABasicIntroParsingTests.line("styling-area => object-template");
+		final Tokenizable line = TestSupport.tokline("styling-area => object-template");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "missing expression");
 		}});
@@ -122,7 +122,7 @@ public class TDATemplateParsingTests {
 
 	@Test
 	public void aTemplateNameWithSendToMustHaveATemplateNameToSendTo() {
-		final Tokenizable line = TDABasicIntroParsingTests.line("styling-area <- obj =>");
+		final Tokenizable line = TestSupport.tokline("styling-area <- obj =>");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "missing template name");
 		}});
@@ -136,8 +136,8 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		TDAParsing styling = nested.tryParsing(TestSupport.tokline("<- 'hello'"));
 		assertTrue(styling instanceof TDATemplateOptionsParser);
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
@@ -155,8 +155,8 @@ public class TDATemplateParsingTests {
 			oneOf(namer).template(with(any(InputPosition.class)), with("template-7")); will(returnValue(tn));
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("<- obj => template-7"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		nested.tryParsing(TestSupport.tokline("<- obj => template-7"));
 		nested.scopeComplete(pos);
 		final TemplateBindingOption db = ((TemplateBinding)captureIt.get(0)).defaultBinding;
 		assertNotNull(db);
@@ -170,8 +170,8 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("| true <- 'hello'"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		nested.tryParsing(TestSupport.tokline("| true <- 'hello'"));
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(1, binding.conditionalBindings.size());
@@ -190,8 +190,8 @@ public class TDATemplateParsingTests {
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 			oneOf(namer).template(with(any(InputPosition.class)), with("my-template")); will(returnValue(tn));
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("| true <- obj => my-template"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		nested.tryParsing(TestSupport.tokline("| true <- obj => my-template"));
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(1, binding.conditionalBindings.size());
@@ -208,9 +208,9 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("| true <- 'hello'"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("| false <- 42"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		nested.tryParsing(TestSupport.tokline("| true <- 'hello'"));
+		nested.tryParsing(TestSupport.tokline("| false <- 42"));
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(2, binding.conditionalBindings.size());
@@ -223,10 +223,10 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("| true <- 'hello'"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("| false <- 42"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("<- 86"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		nested.tryParsing(TestSupport.tokline("| true <- 'hello'"));
+		nested.tryParsing(TestSupport.tokline("| false <- 42"));
+		nested.tryParsing(TestSupport.tokline("<- 86"));
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(2, binding.conditionalBindings.size());
@@ -239,8 +239,8 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("| true => 'style1'"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		TDAParsing styling = nested.tryParsing(TestSupport.tokline("| true => 'style1'"));
 		assertTrue(styling instanceof TDATemplateStylingParser);
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
@@ -258,9 +258,9 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
-		TDAParsing nestedStyling = styling.tryParsing(TDABasicIntroParsingTests.line("| true => 'style1'"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		TDAParsing styling = nested.tryParsing(TestSupport.tokline("<- 'hello'"));
+		TDAParsing nestedStyling = styling.tryParsing(TestSupport.tokline("| true => 'style1'"));
 		assertTrue(nestedStyling instanceof TDATemplateStylingParser);
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
@@ -278,8 +278,8 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("=> handle"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		nested.tryParsing(TestSupport.tokline("=> handle"));
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(1, binding.events.size());
@@ -293,9 +293,9 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
-		TDAParsing nomore = styling.tryParsing(TDABasicIntroParsingTests.line("=> handle"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		TDAParsing styling = nested.tryParsing(TestSupport.tokline("<- 'hello'"));
+		TDAParsing nomore = styling.tryParsing(TestSupport.tokline("=> handle"));
 		assertTrue(nomore instanceof NoNestingParser);
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
@@ -311,8 +311,8 @@ public class TDATemplateParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("mmhhezj").expr("(- true eg)"))); will(captureIt);
 		}});
-		TDAParsing styling = parser.tryParsing(TDABasicIntroParsingTests.line("mmhhezj <- true - eg"));
-		TDAParsing nested = styling.tryParsing(TDABasicIntroParsingTests.line("| 'bsCy+/n5r7Rh-VjPK' => 'yhbLy_?e.7<sn'"));
+		TDAParsing styling = parser.tryParsing(TestSupport.tokline("mmhhezj <- true - eg"));
+		TDAParsing nested = styling.tryParsing(TestSupport.tokline("| 'bsCy+/n5r7Rh-VjPK' => 'yhbLy_?e.7<sn'"));
 		assertTrue(nested instanceof TDATemplateStylingParser);
 		styling.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
@@ -327,7 +327,7 @@ public class TDATemplateParsingTests {
 
 	@Test
 	public void aNameByItselfMustHaveSomeNestedContent() {
-		Tokenizable line = TDABasicIntroParsingTests.line("styling-area");
+		Tokenizable line = TestSupport.tokline("styling-area");
 		InputPosition ep = line.realinfo().copySetEnd(12);
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area")));
@@ -340,13 +340,13 @@ public class TDATemplateParsingTests {
 	@Test
 	public void multipleDefaultBindingsAreNotPermitted() {
 		CaptureAction captureIt = new CaptureAction(null);
-		final Tokenizable errline = TDABasicIntroParsingTests.line("<- 42");
+		final Tokenizable errline = TestSupport.tokline("<- 42");
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 			oneOf(errors).message(errline, "multiple default bindings are not permitted");
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		nested.tryParsing(TestSupport.tokline("<- 'hello'"));
 		nested.tryParsing(errline);
 		nested.scopeComplete(pos);
 		assertNotNull(((TemplateBinding)captureIt.get(0)).defaultBinding);
@@ -355,12 +355,12 @@ public class TDATemplateParsingTests {
 	@Test
 	public void defaultBindingsCannotHaveJunkAtTheEnd() {
 		CaptureAction captureIt = new CaptureAction(null);
-		final Tokenizable errline = TDABasicIntroParsingTests.line("<- 42 =");
+		final Tokenizable errline = TestSupport.tokline("<- 42 =");
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 			oneOf(errors).message(errline, "syntax error");
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
 		nested.tryParsing(errline);
 		nested.scopeComplete(pos);
 	}
@@ -368,14 +368,14 @@ public class TDATemplateParsingTests {
 	@Test
 	public void aTemplateBindingOnOneLineCannotHaveNestedOptions() {
 		CaptureAction captureIt = new CaptureAction(null);
-		final Tokenizable errline = TDABasicIntroParsingTests.line("<- 42");
+		final Tokenizable errline = TestSupport.tokline("<- 42");
 		TemplateName ot = new TemplateName(pos, new CardName(pkg, "Card"), "object-template");
 		context.checking(new Expectations() {{
 			oneOf(namer).template(with(any(InputPosition.class)), with("object-template")); will(returnValue(ot));
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo(ot))); will(captureIt);
 			oneOf(errors).message(errline, "syntax error");
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area <- member => object-template"));
 		nested.tryParsing(errline);
 		nested.scopeComplete(pos);
 	}
@@ -383,14 +383,14 @@ public class TDATemplateParsingTests {
 	@Test
 	public void aTemplateBindingOnOneLineCannotHaveNestedConditionals() {
 		CaptureAction captureIt = new CaptureAction(null);
-		final Tokenizable errline = TDABasicIntroParsingTests.line("| true <- 42");
+		final Tokenizable errline = TestSupport.tokline("| true <- 42");
 		TemplateName ot = new TemplateName(pos, new CardName(pkg, "Card"), "object-template");
 		context.checking(new Expectations() {{
 			oneOf(namer).template(with(any(InputPosition.class)), with("object-template")); will(returnValue(ot));
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo(ot))); will(captureIt);
 			oneOf(errors).message(errline, "conditional bindings are not permitted after the default has been specified");
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area <- member => object-template"));
 		nested.tryParsing(errline);
 		nested.scopeComplete(pos);
 	}
@@ -398,13 +398,13 @@ public class TDATemplateParsingTests {
 	@Test
 	public void aTemplateBindingCannotHaveNestedConditionalsAfterANestedDefault() {
 		CaptureAction captureIt = new CaptureAction(null);
-		final Tokenizable errline = TDABasicIntroParsingTests.line("| true <- 42");
+		final Tokenizable errline = TestSupport.tokline("| true <- 42");
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 			oneOf(errors).message(errline, "conditional bindings are not permitted after the default has been specified");
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("<- 86"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		nested.tryParsing(TestSupport.tokline("<- 86"));
 		nested.tryParsing(errline);
 		nested.scopeComplete(pos);
 	}
@@ -412,13 +412,13 @@ public class TDATemplateParsingTests {
 	@Test
 	public void cannotMixBindingsAndCustomization() {
 		CaptureAction captureIt = new CaptureAction(null);
-		final Tokenizable errline = TDABasicIntroParsingTests.line("| true => 'style1'");
+		final Tokenizable errline = TestSupport.tokline("| true => 'style1'");
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 			oneOf(errors).message(with(any(InputPosition.class)), with("cannot mix bindings and customization"));
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("<- 86"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
+		nested.tryParsing(TestSupport.tokline("<- 86"));
 		nested.tryParsing(errline);
 		nested.scopeComplete(pos);
 	}
@@ -426,12 +426,12 @@ public class TDATemplateParsingTests {
 	@Test
 	public void cannotHaveRandomNestedLines() {
 		CaptureAction captureIt = new CaptureAction(null);
-		final Tokenizable errline = TDABasicIntroParsingTests.line("= 91");
+		final Tokenizable errline = TestSupport.tokline("= 91");
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 			oneOf(errors).message(errline, "syntax error");
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
 		nested.tryParsing(errline);
 		nested.scopeComplete(pos);
 	}

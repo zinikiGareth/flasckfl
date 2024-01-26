@@ -23,6 +23,8 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.ExpressionChecker.GuardResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
+import org.flasck.flas.testsupport.matchers.ApplyMatcher;
+import org.flasck.flas.testsupport.matchers.PosMatcher;
 import org.flasck.flas.tc3.SlotChecker;
 import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matcher;
@@ -33,9 +35,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
-
-import flas.matchers.ApplyMatcher;
-import flas.matchers.PosMatcher;
 
 // These are not really "unit" types because they are covering too much ground
 // To do what they purport to do, you need to cut into the pattern analyzer and see the type constraints that come out using visitInTheTCWay ...

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
@@ -13,6 +14,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -22,25 +24,21 @@ import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.TDAParserConstructor;
-import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class TDAIntroParser implements TDAParsing, LocationTracker {
-	private final ErrorReporter errors;
+public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 	private final TopLevelDefinitionConsumer consumer;
 	private final TopLevelNamer namer;
 	private Runnable onComplete;
-	private InputPosition lastInner;
 
 	public TDAIntroParser(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer consumer) {
-		this.errors = errors;
+		super(errors, null);
 		this.namer = namer;
 		this.consumer = consumer;
 	}
@@ -57,7 +55,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 		if (kw == null)
 			return null; // in the "nothing doing" sense
 
-		lastInner = kw.location;
+		updateLoc(kw.location);
 		switch (kw.text) {
 		case "agent":
 		case "card":
@@ -109,7 +107,7 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			}
 			final StateHolder holder = state;
 			FunctionAssembler assembler = new FunctionAssembler(errors, consumer, holder, this);
-			onComplete = () -> { errors.logReduction("card-definition", kw.location, lastInner); };
+			onComplete = () -> { errors.logReduction("card-definition", kw.location, lastInner()); };
 			return new TDAMultiParser(errors, 
 				sh,
 				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer, holder, this),
@@ -118,63 +116,8 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			);
 		}
 		case "struct":
-		case "entity":
-		case "envelope":
-		case "deal":
-		case "offer": {
-			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
-			if (tn == null) {
-				errors.message(toks, "invalid or missing type name");
-				return new IgnoreNestedParser(errors);
-			}
-			SolidName sn = namer.solidName(tn.text);
-			SimpleVarNamer svn = new SimpleVarNamer(sn);
-			List<PolyType> polys = new ArrayList<>();
-			while (toks.hasMoreContent(errors)) {
-				PolyTypeToken ta = PolyTypeToken.from(errors, toks);
-				if (ta == null) {
-					errors.message(toks, "invalid type argument");
-					return new IgnoreNestedParser(errors);
-				} else
-					polys.add(ta.asType(svn));
-			}
-			// todo: need to reduce a poly-type name
-			if (toks.hasMoreContent(errors)) {
-				errors.message(toks, "tokens after end of line");
-				return new IgnoreNestedParser(errors);
-			}
-			final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
-			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, sn, true, polys);
-			consumer.newStruct(errors, sd);
-			errors.logReduction("fields-defn", kw.location, tn.location);
-			onComplete = () -> { errors.logReduction("struct-defn-with-fields", kw.location, lastInner); };
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true, this);
-		}
-		case "wraps": {
-			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
-			if (tn == null) {
-				errors.message(toks, "invalid or missing envelope name");
-				return new IgnoreNestedParser(errors);
-			}
-			ExprToken send = ExprToken.from(errors, toks);
-			if (toks == null || !"<-".equals(send.text)) {
-				errors.message(toks, "wraps must have <-");
-				return new IgnoreNestedParser(errors);
-			}
-			TypeNameToken from = TypeNameToken.qualified(errors, toks);
-			if (from == null) {
-				errors.message(toks, "invalid or missing wrapped type name");
-				return new IgnoreNestedParser(errors);
-			}
-			if (toks.hasMoreContent(errors)) {
-				errors.message(toks, "tokens after end of line");
-				return new IgnoreNestedParser(errors);
-			}
-			SolidName sn = namer.solidName(tn.text);
-			SimpleVarNamer svn = new SimpleVarNamer(sn);
-			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, namer.solidName(tn.text), true, new ArrayList<>());
-			consumer.newStruct(errors, sd);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), FieldsType.WRAPS, false, this);
+		case "entity": {
+			return handleStructLike(errors, kw, toks, consumer, namer, this);
 		}
 		case "union": {
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
@@ -272,12 +215,11 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			return new ContractMethodParser(errors, kw.location, decl, consumer, decl.name());
 		}
 		case "handler": {
-//			HandlerNameProvider provider = text -> consumer.handlerName(text);
 			return new TDAHandlerParser(errors, null, namer, consumer, null, this).parseHandler(kw.location, false, toks);
 		}
 		case "method": {
 			onComplete = () -> {
-				errors.logReduction("standalone-method-definition", kw.location, lastInner);
+				errors.logReduction("standalone-method-definition", kw.location, lastInner());
 			};
 			MethodConsumer smConsumer = om -> {
 				consumer.newStandaloneMethod(errors, new StandaloneMethod(om));
@@ -288,11 +230,34 @@ public class TDAIntroParser implements TDAParsing, LocationTracker {
 			return null;
 		}
 	}
-	
-	@Override
-	public void updateLoc(InputPosition location) {
-		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
-			lastInner = location;
+
+	public static TDAParsing handleStructLike(ErrorReporter errors, KeywordToken kw, Tokenizable toks, TopLevelDefinitionConsumer consumer, TopLevelNamer namer, BlockLocationTracker locTracker) {
+		TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
+		if (tn == null) {
+			errors.message(toks, "invalid or missing type name");
+			return new IgnoreNestedParser(errors);
+		}
+		SolidName sn = namer.solidName(tn.text);
+		SimpleVarNamer svn = new SimpleVarNamer(sn);
+		List<PolyType> polys = new ArrayList<>();
+		while (toks.hasMoreContent(errors)) {
+			PolyTypeToken ta = PolyTypeToken.from(errors, toks);
+			if (ta == null) {
+				errors.message(toks, "invalid type argument");
+				return new IgnoreNestedParser(errors);
+			} else
+				polys.add(ta.asType(svn));
+		}
+		// todo: need to reduce a poly-type name
+		if (toks.hasMoreContent(errors)) {
+			errors.message(toks, "tokens after end of line");
+			return new IgnoreNestedParser(errors);
+		}
+		final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
+		final StructDefn sd = new StructDefn(kw.location, tn.location, ty, sn, true, polys);
+		consumer.newStruct(errors, sd);
+		errors.logReduction("fields-defn", kw.location, tn.location);
+		return new TDAParsingWithAction(new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true, locTracker), locTracker.reduction(kw.location, "struct-defn-with-fields"));
 	}
 	
 	@Override

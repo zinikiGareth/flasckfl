@@ -56,6 +56,7 @@ import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Tuple;
+import org.flasck.flas.testsupport.matchers.ApplyMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -63,8 +64,6 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.ApplyMatcher;
 
 public class ResolverTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

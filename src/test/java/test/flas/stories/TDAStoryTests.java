@@ -1,18 +1,15 @@
 package test.flas.stories;
 
-import org.flasck.flas.blockForm.ContinuedLine;
-import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.blockForm.SingleLine;
 import org.flasck.flas.blocker.TDANester;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.testsupport.TestSupport;
+import org.flasck.flas.testsupport.matchers.TokenizableMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.TokenizableMatcher;
 
 /* This is testing that the whole nesting thing works
  * It is not a test of any parsers.  They are tested separately
@@ -42,7 +39,7 @@ public class TDAStoryTests {
 		}});
 		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
-		story.line(1, line("hello, world"));
+		story.line(1, TestSupport.line("hello, world"));
 		story.flush();
 	}
 
@@ -56,8 +53,8 @@ public class TDAStoryTests {
 		}});
 		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
-		story.line(1, line("hello, world"));
-		story.line(1, line("a second line"));
+		story.line(1, TestSupport.line("hello, world"));
+		story.line(1, TestSupport.line("a second line"));
 		story.flush();
 	}
 
@@ -73,8 +70,8 @@ public class TDAStoryTests {
 		}});
 		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
-		story.line(1, line("hello, world"));
-		story.line(2, line("a second line"));
+		story.line(1, TestSupport.line("hello, world"));
+		story.line(2, TestSupport.line("a second line"));
 		story.flush();
 	}
 
@@ -87,8 +84,8 @@ public class TDAStoryTests {
 		}});
 		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
-		story.line(1, line("hello, world"));
-		story.line(2, line("a second line"));
+		story.line(1, TestSupport.line("hello, world"));
+		story.line(2, TestSupport.line("a second line"));
 		story.flush();
 	}
 
@@ -105,10 +102,10 @@ public class TDAStoryTests {
 		}});
 		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
-		story.line(1, line("hello, world"));
-		story.line(2, line("a second line"));
-		story.line(1, line("back at top"));
-		story.line(2, line("will be ignored"));
+		story.line(1, TestSupport.line("hello, world"));
+		story.line(2, TestSupport.line("a second line"));
+		story.line(1, TestSupport.line("back at top"));
+		story.line(2, TestSupport.line("will be ignored"));
 		story.flush();
 	}
 
@@ -128,10 +125,10 @@ public class TDAStoryTests {
 		}});
 		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
-		story.line(1, line("hello, world"));
-		story.line(2, line("a second line"));
-		story.line(1, line("back at top"));
-		story.line(2, line("second nesting"));
+		story.line(1, TestSupport.line("hello, world"));
+		story.line(2, TestSupport.line("a second line"));
+		story.line(1, TestSupport.line("back at top"));
+		story.line(2, TestSupport.line("second nesting"));
 		story.flush();
 	}
 
@@ -146,10 +143,10 @@ public class TDAStoryTests {
 		}});
 		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
-		story.line(1, line("hello, world"));
+		story.line(1, TestSupport.line("hello, world"));
 		story.flush();
 		story.newFile();
-		story.line(1, line("hello, world"));
+		story.line(1, TestSupport.line("hello, world"));
 		story.flush();
 	}
 
@@ -163,15 +160,9 @@ public class TDAStoryTests {
 		}});
 		TDANester story = new TDANester(errors, topLevel);
 		story.newFile();
-		story.line(1, line("hello, world"));
+		story.line(1, TestSupport.line("hello, world"));
 		story.flush();
 		story.newFile();
 		story.flush();
-	}
-
-	public static ContinuedLine line(String string) {
-		ContinuedLine ret = new ContinuedLine();
-		ret.lines.add(new SingleLine("fred", 1, new Indent(1,0), string));
-		return ret;
 	}
 }

@@ -21,12 +21,11 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-
-import flas.matchers.ExprMatcher;
 
 public class ApplyExprModifiedTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

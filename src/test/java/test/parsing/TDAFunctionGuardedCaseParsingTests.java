@@ -12,6 +12,7 @@ import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.TDAFunctionGuardedEquationParser;
+import org.flasck.flas.testsupport.matchers.FunctionCaseDefnMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -19,8 +20,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.FunctionCaseDefnMatcher;
 
 public class TDAFunctionGuardedCaseParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

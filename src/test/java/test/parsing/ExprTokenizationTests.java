@@ -8,6 +8,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.ExprTermConsumer;
 import org.flasck.flas.parser.TDAExprParser;
+import org.flasck.flas.testsupport.matchers.ExprMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
@@ -16,8 +17,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.ReturnInvoker;
-
-import flas.matchers.ExprMatcher;
 
 public class ExprTokenizationTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
