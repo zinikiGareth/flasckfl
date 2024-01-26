@@ -194,6 +194,8 @@ public class Grammar {
 			return cond(ruleName, rule);
 		case "can-repeat-with-case-number":
 			return handleCaseNumbering(ruleName, rule);
+		case "reduces-as":
+			return reducesAs(ruleName, rule);
 		default:
 			throw new RuntimeException("Production '" + ruleName + "' references unknown operation " + rule.tag());
 		}
@@ -227,7 +229,14 @@ public class Grammar {
 		else
 			throw new NotImplementedException("Cannot find something useful to use in optional " + rule);
 		rule.attributesDone();
-		return new OptionalDefinition(defn);
+		ElseClause elseClause = null;
+		if (!rule.elementChildren("else-reduces-as").isEmpty()) {
+			var era = rule.uniqueElement("else-reduces-as");
+			var elseRuleName = era.required("rule");
+			era.attributesDone();
+			elseClause = new ElseClause(elseRuleName);
+		}
+		return new OptionalDefinition(defn, elseClause);
 	}
 
 	private Definition handleRef(String ruleName, XMLElement rule) {
@@ -327,6 +336,11 @@ public class Grammar {
 		if (rule.elementChildren().size() != 1)
 			throw new RuntimeException("cond needs 1 child, not " + rule.elementChildren().size());
 		return new CondDefinition(var, ne, Boolean.parseBoolean(notset), parseDefn(ruleName, rule.elementChildren().get(0)));
+	}
+
+	private Definition reducesAs(String ruleName, XMLElement rule) {
+		String reducesAs = rule.required("rule");
+		return new ReducesAs();
 	}
 
 	public Iterable<Section> sections() {

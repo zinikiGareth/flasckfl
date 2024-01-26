@@ -9,12 +9,11 @@ import java.util.TreeSet;
 
 import org.flasck.flas.grammar.Generator;
 import org.flasck.flas.grammar.Grammar;
+import org.flasck.flas.grammar.GrammarSupport;
 import org.junit.Test;
 import org.zinutils.utils.FileUtils;
-import org.zinutils.xml.XML;
 
 public class GenerateGrammarDoc {
-	final File srcDir = new File("src/test/resources/gh-grammar");
 
 	@Test
 	public void generateAllTheGrammarPages() throws FileNotFoundException {
@@ -26,11 +25,10 @@ public class GenerateGrammarDoc {
 			return;
 		}
 		File out = new File(gd);
-		for (File f : FileUtils.findFilesMatching(srcDir, "*.css")) {
+		for (File f : FileUtils.findFilesMatching(GrammarSupport.srcDir(), "*.css")) {
 			FileUtils.copy(f, out);
 		}
-		XML grammarAsXML = XML.fromFile(new File(srcDir, "grammar.xml"));
-		Grammar grammar = Grammar.from(grammarAsXML);
+		Grammar grammar = GrammarSupport.loadGrammar();
 		Generator gen = new Generator(out);
 		gen.generateGrammarHTML(grammar);
 		checkTokens(grammar);

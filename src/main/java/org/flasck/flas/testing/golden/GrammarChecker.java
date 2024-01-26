@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -13,30 +15,57 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.grammar.Grammar;
+import org.flasck.flas.grammar.GrammarSupport;
+import org.flasck.flas.grammar.Production;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
 
 public class GrammarChecker {
+	public class MyPreferredTestSorting implements Comparator<String> {
+		String[] exts = { ".fl", ".fa", ".ut", ".st" };
+		@Override
+		public int compare(String lhs, String rhs) {
+			String lext = FileUtils.extension(lhs);
+			String rext = FileUtils.extension(rhs);
+			int lp = Arrays.binarySearch(exts, 0, exts.length, lext);
+			int rp = Arrays.binarySearch(exts, 0, exts.length, rext);
+			if (lp == -1 || rp == -1)
+				throw new CantHappenException("can't find " + lext + " = " + lp + " or " + rext + " = " + rp);
+			if (lp < rp)
+				return -1;
+			else if (rp > lp)
+				return 1;
+			else
+				return lhs.compareTo(rhs);
+		}
+	}
+
 	private final File parseTokens;
 	private final File reconstruct;
+	private final Grammar grammar;
 
 	public GrammarChecker(File parseTokens, File reconstruct) {
 		this.parseTokens = parseTokens;
 		this.reconstruct = reconstruct;
+		this.grammar = GrammarSupport.loadGrammar();
 	}
 
-	public void checkParseTokenLogic(boolean expectErrors) {
+	public Map<String, GrammarOrchard> checkParseTokenLogic(boolean expectErrors) {
 		if (parseTokens == null || reconstruct == null)
-			return;
+			return null;
+		Map<String, GrammarOrchard> ret = new TreeMap<>(new MyPreferredTestSorting());
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
 			ParsedTokens toks = ParsedTokens.read(f);
 			reconstructFile(toks, new File(reconstruct, f.getName()));
 			if (!expectErrors)
-				computeReductions(toks);
+				ret.put(f.getName(), computeReductions(toks));
 		}
+		return ret;
 	}
 
 	private void reconstructFile(ParsedTokens toks, File output) {
@@ -196,16 +225,43 @@ public class GrammarChecker {
 			rr = null;
 		}
 		
-//		PrintWriter pw = new PrintWriter(System.out);
-//		ret.dump(pw);
-//		pw.flush();
+		PrintWriter pw = new PrintWriter(System.out);
+		ret.dump(pw);
+		pw.flush();
 		
 		return ret;
 	}
 
-	public void checkGrammar() {
-		if (parseTokens == null)
-			return;
+	public void checkGrammar(Map<String, GrammarOrchard> fileOrchards) {
+		for (Entry<String, GrammarOrchard> e : fileOrchards.entrySet()) {
+			String name = e.getKey();
+			String ext = FileUtils.extension(name);
+			String topRule = getTopRule(ext);
+			for (GrammarTree o : e.getValue()) {
+				checkProductionsAgainstGrammar(o, topRule);
+			}
+		}
+	}
+
+	private String getTopRule(String ext) {
+		switch (ext) {
+		case ".fl":
+			return "top-level-unit";
+		case ".fa":
+			return "assembly-unit";
+		case ".ut":
+			return "unit-test-unit";
+		case ".st":
+			return "system-test-unit";
+		default:
+			throw new CantHappenException("there is no top rule for file type " + ext);
+		}
+	}
+
+	private void checkProductionsAgainstGrammar(GrammarTree tree, String currRule) {
+		Production grammarRule = grammar.findRule(currRule);
+		if (grammarRule == null)
+			throw new CantHappenException("there is no rule in the grammar for the production " + currRule);
 	}
 
 }

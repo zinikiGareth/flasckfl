@@ -6,7 +6,7 @@ import java.util.Set;
 public class OptionalDefinition extends Definition {
 	private final Definition child;
 
-	public OptionalDefinition(Definition child) {
+	public OptionalDefinition(Definition child, ElseClause elseClause) {
 		this.child = child;
 	}
 

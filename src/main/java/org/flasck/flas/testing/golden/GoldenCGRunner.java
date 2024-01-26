@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -271,8 +272,9 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 //		FileUtils.cat(new File(s, "repo.txt"));
 //		}
 		GrammarChecker r = new GrammarChecker(parseTokens, reconstruct);
-		r.checkParseTokenLogic(expectedErrors.isDirectory());
-		r.checkGrammar();
+		// TODO: allow it to merge in other grammars such as Ziniki
+		Map<String, GrammarOrchard> fileOrchards = r.checkParseTokenLogic(expectedErrors.isDirectory());
+		r.checkGrammar(fileOrchards);
 		AssertionError tmp = null;
 //		if (!expectedErrors.isDirectory()) {
 			try {

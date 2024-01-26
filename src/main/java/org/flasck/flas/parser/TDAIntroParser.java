@@ -257,7 +257,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 		final StructDefn sd = new StructDefn(kw.location, tn.location, ty, sn, true, polys);
 		consumer.newStruct(errors, sd);
 		errors.logReduction("fields-defn", kw.location, tn.location);
-		return new TDAParsingWithAction(new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true, locTracker), locTracker.reduction(kw.location, "struct-defn-with-fields"));
+		return new TDAParsingWithAction(new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true, locTracker), locTracker.reduction(kw.location, "struct-declaration"));
 	}
 	
 	@Override

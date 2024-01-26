@@ -2,9 +2,10 @@ package org.flasck.flas.testing.golden;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class GrammarOrchard {
+public class GrammarOrchard implements Iterable<GrammarTree> {
 	private List<GrammarTree> trees = new ArrayList<>();
 
 	public void add(GrammarTree tree) {
@@ -19,5 +20,10 @@ public class GrammarOrchard {
 		for (GrammarTree t : trees) {
 			t.dump(pw, "  ");
 		}
+	}
+
+	@Override
+	public Iterator<GrammarTree> iterator() {
+		return trees.iterator();
 	}
 }

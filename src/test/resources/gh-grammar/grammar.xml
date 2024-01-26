@@ -224,6 +224,7 @@
 	</section>
     <or>
       <ref production='source-file' />
+      <ref production='assembly-file' />
       <ref production='unit-test-file' />
       <ref production='protocol-test-file' />
       <ref production='system-test-file' />
@@ -234,6 +235,13 @@
 	<tested by='test.parsing.' /> <!-- spread over many -->
     <many>
       <ref production='top-level-unit' />
+    </many>
+  </production>
+  <production name='assembly-file'>
+    <section title='Files' />
+	<tested by='test.parsing.' /> <!-- spread over many -->
+    <many>
+      <ref production='assembly-unit' />
     </many>
   </production>
   <production name='unit-test-file'>
@@ -320,6 +328,7 @@
       <many>
         <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
+      <reduces-as rule="fields-defn" />
       <indent>
         <ref production='struct-field-decl'/>
       </indent>
@@ -347,6 +356,8 @@
       <token type='var-name' names='StructField\[${name}\]'/>
       <optional>
       	<ref production='struct-initializer'/>
+      	<reduces-as rule="struct-field-with-initialization" />
+      	<else-reduces-as rule="struct-field-no-initialization" />  
       </optional>
     </seq>
   </production>
@@ -1441,6 +1452,20 @@
       <token type='SENDTO'/>
       <token type='var-name'/>
     </seq>
+  </production>
+  <production name='assembly-unit'>
+    <section title='Assembly Files'>
+		<description>
+			<p>Applications and libraries in FLAS are assembled into components using an assembly file.</p>
+		</description>
+    </section>
+    	<ref production="top-level-definition" /> <!-- WRONG!!!! -->
+    <!--
+    <or>
+      <ref production='top-level-definition'/>
+      <ref production='function-scope-unit'/>
+    </or>
+    -->
   </production>
   <production name='unit-test-unit'>
     <section title='Unit Test Files'>
