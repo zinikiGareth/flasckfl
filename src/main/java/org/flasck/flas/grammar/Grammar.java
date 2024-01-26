@@ -1,6 +1,8 @@
 package org.flasck.flas.grammar;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,6 +12,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.grammar.SentenceProducer.UseNameForScoping;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XML;
@@ -22,6 +25,7 @@ public class Grammar {
 	private final HashMap<String, String> burbles = new HashMap<>();
 	private final Set<Lexer> lexers = new TreeSet<>();
 	private List<String> cssFiles = new ArrayList<>();
+	private static final String[] mergeableRules = new String[] { "top-level-definition" };
 
 	private Grammar(String title) {
 		this.title = title;
@@ -41,6 +45,17 @@ public class Grammar {
 		return ret;
 	}
 
+	public void mergeIn(XML merge) {
+		final XMLElement xe = merge.top();
+		xe.assertTag("grammar");
+		xe.required("title");
+		xe.attributesDone();
+		readCSSFiles(xe);
+		readBurbles(xe);
+		parseLexers(xe);
+		parseProductions(xe);
+	}
+	
 	private void readCSSFiles(XMLElement xe) {
 		List<XMLElement> css = xe.elementChildren("css");
 		for (XMLElement ce : css) {
@@ -119,13 +134,30 @@ public class Grammar {
 				theProd = new Production(ruleNumber++, ruleName, defn);
 			}
 			if (this.productions.containsKey(theProd.name)) {
-				throw new RuntimeException("Duplicate definition of production " + theProd.name);
+				if (Arrays.binarySearch(mergeableRules, theProd.name) >= 0) {
+					mergeInProductions(this.productions.get(theProd.name), theProd);
+				} else 
+					throw new RuntimeException("Duplicate definition of production " + theProd.name);
 			}
 			if (needsMoreTesting)
 				theProd.needsMoreTesting();
 			this.productions.put(theProd.name, theProd);
 			s.add(theProd);
 		}
+	}
+
+	private void mergeInProductions(Production original, Production toMerge) {
+		if (!original.name.equals(toMerge.name))
+			throw new CantHappenException("can't merge rules with different names");
+		if (!(original instanceof OrProduction)) {
+			throw new CantHappenException("the original rule must be an OrProduction to merge");
+		}
+		OrProduction mergeInto = (OrProduction) original;
+		if (toMerge instanceof OrProduction) {
+			for (Definition r : ((OrProduction)toMerge).allOptions())
+				mergeInto.add(r);
+		}
+//		mergeInto.show(new PrintWriter(System.out));
 	}
 
 	private Section requireSection(XMLElement xe) {
@@ -454,4 +486,5 @@ public class Grammar {
 			return Float.parseFloat(o2.substring(0, idx));
 		}
 	}
+
 }

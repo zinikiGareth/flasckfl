@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 public class OrProduction extends Production {
-	private final List<Definition> defns = new ArrayList<>();
+	private final List<Definition> otherDefns = new ArrayList<>();
 	private final List<Definition> choices;
 	private final boolean repeatVarName;
 	private int maxProb;
@@ -16,13 +16,23 @@ public class OrProduction extends Production {
 		super(ruleNumber, ruleName, defns.get(0));
 		this.choices = defns;
 		this.repeatVarName = repeatVarName;
-		this.defns.addAll(defns);
-		this.defns.remove(0);
+		this.otherDefns.addAll(defns);
+		this.otherDefns.remove(0);
 		this.maxProb = defns.size();
 		for (int i=0;i<maxProb;i++)
 			this.probs.add(i+1);
 	}
 
+	public List<Definition> allOptions() {
+		return choices;
+	}
+
+	public void add(Definition r) {
+		choices.add(r);
+		otherDefns.add(r);
+		this.probs.add(choices.size());
+	}
+	
 	public int size() {
 		return choices.size();
 	}
@@ -30,25 +40,26 @@ public class OrProduction extends Production {
 	@Override
 	public void show(PrintWriter str) {
 		super.show(str);
-		for (Definition d : this.defns) {
+		for (Definition d : this.otherDefns) {
 			str.println("<div class='production-or-block'>");
 			str.println("  <div class='production-or'>|</div>");
 			d.showGrammarFor(str);
 			str.println("</div>");
 		}
+		str.flush();
 	}
 
 	@Override
 	public void collectReferences(Set<String> ret) {
 		super.collectReferences(ret);
-		for (Definition d : defns)
+		for (Definition d : otherDefns)
 			d.collectReferences(ret);
 	}
 
 	@Override
 	public void collectTokens(Set<String> ret) {
 		super.collectTokens(ret);
-		for (Definition d : defns)
+		for (Definition d : otherDefns)
 			d.collectTokens(ret);
 	}
 
