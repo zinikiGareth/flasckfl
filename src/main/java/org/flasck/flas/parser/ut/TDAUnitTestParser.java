@@ -83,7 +83,6 @@ public class TDAUnitTestParser implements TDAParsing, LocationTracker {
 	
 	@Override
 	public void updateLoc(InputPosition location) {
-		logger.info("UTP loc = " + location);
 		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
 			lastInner = location;
 	}

@@ -17,7 +17,6 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.IgnoreNestedParser;
-import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.parser.ObjectNestedNamer;

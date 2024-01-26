@@ -95,7 +95,6 @@ public class TDAFunctionParser implements TDAParsing {
 
 	@Override
 	public void choseOther() {
-		System.out.println("chose other with " + consumer);
 		consumer.moveOn();
 	}
 	

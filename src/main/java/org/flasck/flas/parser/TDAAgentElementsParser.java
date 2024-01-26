@@ -164,7 +164,6 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 
 	@Override
 	public void updateLoc(InputPosition location) {
-		System.out.println("AEP loc = " + location);
 		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
 			lastInner = location;
 	}

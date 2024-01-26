@@ -196,9 +196,9 @@ public class GrammarChecker {
 			rr = null;
 		}
 		
-		PrintWriter pw = new PrintWriter(System.out);
-		ret.dump(pw);
-		pw.flush();
+//		PrintWriter pw = new PrintWriter(System.out);
+//		ret.dump(pw);
+//		pw.flush();
 		
 		return ret;
 	}

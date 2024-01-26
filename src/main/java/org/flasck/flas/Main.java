@@ -184,6 +184,8 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("Security", level);
 		StaticLoggerBinder.defaultLevel("Uploader", level);
 		
+		StaticLoggerBinder.defaultLevel("ErrorResult", level);
+
 		StaticLoggerBinder.defaultLevel("DebugLog", Level.INFO);
 
 		// Turn on HTTP tracing
