@@ -40,24 +40,25 @@ public class DoUTMatchGeneratorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveUnitTestMatch(UnitTestMatch m) {
+		String freeText = m.text.text();
 		switch (m.what) {
 		case TEXT:
-			block.assertable(runner, "matchText", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.literal(Boolean.toString(m.fails)), block.string(m.text));
+			block.assertable(runner, "matchText", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.literal(Boolean.toString(m.fails)), block.string(freeText));
 			break;
 		case TITLE:
-			block.assertable(runner, "matchTitle", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(m.text));
+			block.assertable(runner, "matchTitle", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(freeText));
 			break;
 		case STYLE:
-			block.assertable(runner, "matchStyle", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(m.text));
+			block.assertable(runner, "matchStyle", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(freeText));
 			break;
 		case SCROLL:
-			block.assertable(runner, "matchScroll", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.literal(Double.toString(Double.parseDouble(m.text))));
+			block.assertable(runner, "matchScroll", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.literal(Double.toString(Double.parseDouble(freeText))));
 			break;
 		case IMAGE_URI:
-			block.assertable(runner, "matchImageUri", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.string(m.text));
+			block.assertable(runner, "matchImageUri", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.string(freeText));
 			break;
 		case HREF:
-			block.assertable(runner, "matchHref", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.string(m.text));
+			block.assertable(runner, "matchHref", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.string(freeText));
 			break;
 		default:
 			throw new HaventConsideredThisException("cannot handle match " + m);

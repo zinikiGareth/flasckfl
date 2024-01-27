@@ -64,8 +64,8 @@ public class GrammarTree implements GrammarStep {
 			return false;
 		if (item.lineNo < relativeTo.lineNo)
 			throw new CantHappenException("cannot come before the relative line");
-		if (item.indent.tabs <= relativeTo.indent.tabs)
-			throw new CantHappenException("cannot be indented less or same as relative line");
+		if (item.indent.tabs < relativeTo.indent.tabs)
+			throw new CantHappenException("cannot be indented less than relative line");
 		return true;
 	}
 

@@ -32,7 +32,7 @@ public class TDAMethodParser {
 		this.locTracker = locTracker;
 	}
 	
-	public TDAParsing parseMethod(FunctionNameProvider methodNamer, Tokenizable toks) {
+	public TDAParsing parseMethod(KeywordToken kw, FunctionNameProvider methodNamer, Tokenizable toks) {
 		ErrorMark mark = errors.mark();
 		ValidIdentifierToken var = VarNameToken.from(errors, toks);
 		if (var == null) {
@@ -58,7 +58,10 @@ public class TDAMethodParser {
 			endOf = args.get(args.size()-1).location();
 		}
 		locTracker.updateLoc(var.location);
-		errors.logReduction("method-intro", var.location, endOf);
+		if (kw != null)
+			errors.logReduction("method-intro", kw.location, endOf);
+		else
+			errors.logReduction("method-intro", var.location, endOf);
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null, holder);
 		builder.addMethod(meth);
 		FunctionScopeNamer nestedNamer = new InnerPackageNamer(fnName);
@@ -75,7 +78,7 @@ public class TDAMethodParser {
 						KeywordToken kw = KeywordToken.from(errors, toks);
 						if (kw == null || !"method".equals(kw.text))
 							return null;
-						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder, locTracker).parseMethod(namer, toks);
+						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder, locTracker).parseMethod(kw, namer, toks);
 					}
 					
 					@Override

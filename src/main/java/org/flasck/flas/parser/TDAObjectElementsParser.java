@@ -86,6 +86,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			ObjectContract oc = new ObjectContract(var.location, ctr, cv);
 			builder.requireContract(oc);
 			topLevel.newObjectContract(errors, oc);
+			errors.logReduction("object-requires", kw.location, var.location);
 			return new NoNestingParser(errors);
 		}
 		case "template": {
@@ -119,11 +120,12 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				builder.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);
 			};
-			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this).parseMethod(kw, namer, toks);
 		}
 		case "ctor": {
 			ValidIdentifierToken var = VarNameToken.from(errors, toks);
 			FunctionName fnName = namer.ctor(var.location, var.text);
+			InputPosition lastLoc = fnName.location;
 			List<Pattern> args = new ArrayList<>();
 			TDAPatternParser pp = new TDAPatternParser(errors, new SimpleVarNamer(fnName), p -> {
 				args.add(p);
@@ -142,12 +144,14 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			};
 			for (Pattern p : args) {
 				p.isDefinedBy(ctor);
+				lastLoc = p.location();
 			}
 			builder.addConstructor(ctor);
 			if (currParser != null) {
 				currParser.scopeComplete(location);
 				currParser = null;
 			}
+			errors.logReduction("object-ctor-decl", kw.location, lastLoc);
 			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
 			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this), this);
 		}
@@ -185,7 +189,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 					topLevel.newObjectMethod(errors, method);
 				}
 			};
-			return new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this).parseMethod(methodNamer, toks);
+			return new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this).parseMethod(kw, methodNamer, toks);
 		}
 		default: {
 			return null;

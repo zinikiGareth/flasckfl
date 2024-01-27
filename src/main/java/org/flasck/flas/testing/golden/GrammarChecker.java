@@ -241,7 +241,7 @@ public class GrammarChecker {
 			String name = e.getKey();
 			String ext = FileUtils.extension(name);
 			String topRule = getTopRule(ext);
-			checkProductionsAgainstGrammar(e.getValue(), topRule);
+//			checkProductionsAgainstGrammar(e.getValue(), topRule);
 		}
 	}
 

@@ -224,7 +224,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 			MethodConsumer smConsumer = om -> {
 				consumer.newStandaloneMethod(errors, new StandaloneMethod(om));
 			};
-			return new TDAMethodParser(errors, namer, smConsumer, consumer, null, this).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, namer, smConsumer, consumer, null, this).parseMethod(kw, namer, toks);
 		}
 		default:
 			return null;

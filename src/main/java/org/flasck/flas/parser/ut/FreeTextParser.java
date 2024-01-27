@@ -20,13 +20,13 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class FreeTextParser implements TDAParsing {
 	private final KeywordToken kw;
 	private final ErrorReporter errors;
-	private final LocatableConsumer<String> handler;
+	private final LocatableConsumer<FreeTextToken> handler;
 	private final FreeTextParser parent;
-	private final List<String> buffers;
+	private final List<FreeTextToken> buffers;
 	private InputPosition firstLoc;
 	private InputPosition lastLoc;
 	
-	public FreeTextParser(KeywordToken kw, ErrorReporter errors, LocatableConsumer<String> freeTextHandler) {
+	public FreeTextParser(KeywordToken kw, ErrorReporter errors, LocatableConsumer<FreeTextToken> freeTextHandler) {
 		this.kw = kw;
 		this.errors = errors;
 		this.handler = freeTextHandler;
@@ -50,8 +50,8 @@ public class FreeTextParser implements TDAParsing {
 			firstLoc = pos;
 		lastLoc = pos;
 		String tok = toks.remainder();
-		errors.logParsingToken(new FreeTextToken(pos, tok));
-		this.buffers.add(tok);
+		FreeTextToken ret = new FreeTextToken(pos, tok);
+		this.buffers.add(ret);
 		return new FreeTextParser(kw, this);
 	}
 
@@ -63,7 +63,7 @@ public class FreeTextParser implements TDAParsing {
 	@Override
 	public void scopeComplete(InputPosition location) {
 		if (this.handler != null)
-			this.handler.accept(lastLoc, String.join(" ", buffers));
+			this.handler.accept(lastLoc, FreeTextToken.merge(buffers));
 		else if (parent != null) {
 			parent.seenTextAt(lastLoc);
 		}

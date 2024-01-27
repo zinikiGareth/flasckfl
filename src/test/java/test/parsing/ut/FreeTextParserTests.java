@@ -9,6 +9,8 @@ import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.LocatableConsumer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.ut.FreeTextParser;
+import org.flasck.flas.testsupport.matchers.FreeTextTokenMatcher;
+import org.flasck.flas.tokenizers.FreeTextToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -22,7 +24,7 @@ public class FreeTextParserTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	@SuppressWarnings("unchecked")
-	private LocatableConsumer<String> handler = context.mock(LocatableConsumer.class);
+	private LocatableConsumer<FreeTextToken> handler = context.mock(LocatableConsumer.class);
 	private InputPosition pos = new InputPosition("fred", 1, 0, null, "hello");
 	private KeywordToken kw = new KeywordToken(pos, "match", 5);
 
@@ -36,7 +38,7 @@ public class FreeTextParserTests {
 	@Test
 	public void aSimpleOneLiner() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept(pos, "hello");
+			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello")));
 		}});
 		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
@@ -46,7 +48,7 @@ public class FreeTextParserTests {
 	@Test
 	public void twoLinesSameIndentation() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept(pos, "hello world");
+			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello world")));
 		}});
 		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
@@ -57,7 +59,7 @@ public class FreeTextParserTests {
 	@Test
 	public void twoLinesSecondIndented() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept(pos, "hello world");
+			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello world")));
 		}});
 		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		TDAParsing indented = p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
@@ -70,7 +72,7 @@ public class FreeTextParserTests {
 	@Test
 	public void threeLinesSecondThirdIndented() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept(pos, "hello there world");
+			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello there world")));
 		}});
 		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		TDAParsing indented = p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
@@ -84,7 +86,7 @@ public class FreeTextParserTests {
 	@Test
 	public void threeLinesSecondIndentedThirdNot() {
 		context.checking(new Expectations() {{
-			oneOf(handler).accept(pos, "hello there world");
+			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello there world")));
 		}});
 		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
 		TDAParsing indented = p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));

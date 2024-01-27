@@ -109,7 +109,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 					errors.logReduction("event-with-method-actions", kw.location, lastInner);
 				};
 			};
-			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this).parseMethod(kw, namer, toks);
 		}
 		default:
 			return null;

@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitTestStepConsumer;
+import org.flasck.flas.tokenizers.FreeTextToken;
 
 public class TestStepHolder implements UnitTestStepConsumer {
 	public final List<UnitTestStep> steps = new ArrayList<>();
@@ -76,7 +77,7 @@ public class TestStepHolder implements UnitTestStepConsumer {
 	}
 
 	@Override
-	public void match(UnresolvedVar card, MatchedItem what, TargetZone targetZone, boolean contains, boolean fails, String text) {
+	public void match(UnresolvedVar card, MatchedItem what, TargetZone targetZone, boolean contains, boolean fails, FreeTextToken text) {
 		this.steps.add(new UnitTestMatch(card, what, targetZone, contains, fails, text));
 	}
 

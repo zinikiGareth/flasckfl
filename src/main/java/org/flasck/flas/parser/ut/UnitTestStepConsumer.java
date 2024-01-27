@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.MatchedItem;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
+import org.flasck.flas.tokenizers.FreeTextToken;
 
 public interface UnitTestStepConsumer {
 	void assertion(Expr expr, Expr value);
@@ -24,7 +25,7 @@ public interface UnitTestStepConsumer {
 	void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation);
 	void expect(UnresolvedVar ctr, UnresolvedVar meth, Expr[] args, Expr handler);
 	void expectCancel(UnresolvedVar handlerName);
-	void match(UnresolvedVar card, MatchedItem what, TargetZone targetZone, boolean contains, boolean fails, String text);
+	void match(UnresolvedVar card, MatchedItem what, TargetZone targetZone, boolean contains, boolean fails, FreeTextToken text);
 	void newdiv(Integer cnt);
 	void other(UnitTestStep step);
 }

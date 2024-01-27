@@ -155,7 +155,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			MethodConsumer smConsumer = om -> { 
 				topLevel.newStandaloneMethod(errors, new StandaloneMethod(om));
 			};
-			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, holder, this).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, holder, this).parseMethod(kw, namer, toks);
 		}
 		default:
 			return strategy(kw, toks);
