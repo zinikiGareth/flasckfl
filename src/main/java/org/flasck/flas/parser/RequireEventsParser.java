@@ -36,7 +36,7 @@ public class RequireEventsParser implements TDAParsing, LocationTracker {
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
 			seenHandler = true;
-			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> tso.events.add(ev));
+			return TDAParseTemplateElements.parseEventHandling(tok, errors, source, toks, ev -> tso.events.add(ev));
 		} else {
 			errors.message(toks, "event handler expected");
 			return new IgnoreNestedParser(errors);

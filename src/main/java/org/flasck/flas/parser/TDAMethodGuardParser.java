@@ -81,7 +81,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			return new IgnoreNestedParser(errors);
 		}
 		firstGuard = false;
-		errors.logReduction("method-guard-with-cond", tok.location, seen.get(seen.size()-1).location());
+		errors.logReduction("method-guard-with-cond", tok.location, seen.get(seen.size()-1).guard.location());
 		if (locTracker != null)
 			locTracker.updateLoc(tok.location);
 		return new TDAMethodMessageParser(errors, seen.get(0), nestedParser, this);

@@ -90,7 +90,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return handleRender(toks);
 		}
 		case "event": {
-			return handleEvent(toks);
+			return handleEvent(kw, toks);
 		}
 		case "input": {
 			return handleInput(kw, toks);
@@ -293,7 +293,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 		return new NoNestingParser(errors);
 	}
 
-	protected TDAParsing handleEvent(Tokenizable toks) {
+	protected TDAParsing handleEvent(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "must specify a card to receive event");
@@ -323,6 +323,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return new IgnoreNestedParser(errors);
 		}
 		builder.event(new UnresolvedVar(tok.location, tok.text), targetZone, eventObj.get(0));
+		errors.logReduction("ut-step-event", kw.location, eventObj.get(0).location());
 		return new NoNestingParser(errors);
 	}
 
@@ -508,7 +509,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 	public TargetZone parseTargetZone(Tokenizable toks) {
 		ArrayList<Object> tz = new ArrayList<>();
 		int start = toks.at();
-		InputPosition first = null;
+		InputPosition first = null, last = null;
 		boolean lastWasNumber = false;
 		while (true) {
 			EventZoneToken tok = EventZoneToken.from(errors, toks);
@@ -542,6 +543,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			if (first == null) {
 				first = tok.location;
 			}
+			last = tok.location;
 				
 			if (!toks.hasMoreContent(errors))
 				break;
@@ -582,6 +584,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			toks.reset(start);
 			return new TargetZone(first, new ArrayList<>());
 		}
+		errors.logReduction("ut-target-event-zone", first, last);
 		return new TargetZone(first, tz);
 	}
 

@@ -85,7 +85,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 			if (slot == null) {
 				slot = var;
 			} else
-				slot = new MemberExpr(tok.location, slot, var);
+				slot = new MemberExpr(slot.location(), slot, var);
 			// read . or <-
 			tok = ExprToken.from(errors, toks);
 			if (tok == null) {

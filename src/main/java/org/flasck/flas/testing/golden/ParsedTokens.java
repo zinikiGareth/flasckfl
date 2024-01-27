@@ -188,6 +188,10 @@ public class ParsedTokens {
 		} else
 			throw new CantHappenException("what is this? " + s);
 	}
+
+	public void write(File file) {
+		// The idea here is that we could write the tokens once we have sorted them
+	}
 	
 	public Iterable<GrammarToken> tokens() {
 		return tokens;

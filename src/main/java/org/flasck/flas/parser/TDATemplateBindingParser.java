@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.Template;
@@ -15,30 +16,21 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
-	private final ErrorReporter errors;
+public class TDATemplateBindingParser extends BlockLocationTracker implements TDAParsing {
 	private final Template source;
 	private final TemplateNamer namer;
 	private final TemplateBindingConsumer consumer;
-	private final LocationTracker locTracker;
-	private Runnable onComplete;
-	private InputPosition lastInner;
 
 	public TDATemplateBindingParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingConsumer consumer, LocationTracker locTracker) {
-		this.errors = errors;
+		super(errors, locTracker);
 		this.source = source;
 		this.namer = namer;
 		this.consumer = consumer;
-		this.locTracker = locTracker;
-		this.lastInner = source.kwlocation();
+		updateLoc(source.kwlocation());
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (onComplete != null) {
-			onComplete.run();
-			onComplete = null;
-		} 
 		final TemplateNameToken tok = TemplateNameToken.from(errors, toks);
 		if (tok == null) {
 			ExprToken et = ExprToken.from(errors, toks);
@@ -49,14 +41,8 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 				return new IgnoreNestedParser(errors);
 			}
 		}
-		onComplete = () -> {
-			errors.logReduction("something-about-template-bindings-being-complete", tok.location(), lastInner);
-			if (locTracker != null)
-				locTracker.updateLoc(tok.location);
-		};
 		TemplateField field = new TemplateField(tok.location, tok.text);
 		InputPosition lastLoc = field.location();
-		lastInner = lastLoc;
 		TemplateBindingOption simple = null;
 		if (toks.hasMoreContent(errors)) {
 			ExprToken send = ExprToken.from(errors, toks);
@@ -97,21 +83,15 @@ public class TDATemplateBindingParser implements TDAParsing, LocationTracker {
 		errors.logReduction("template-binding-first-line", tok.location, lastLoc);
 		final TemplateBinding binding = new TemplateBinding(field, simple);
 		consumer.addBinding(binding);
+		TDAParsing ret;
 		if (simple != null)
-			return new TDATemplateOptionsParser(errors, source, namer, simple, field, this);
+			ret = new TDATemplateOptionsParser(errors, source, namer, simple, field, this);
 		else
-			return new TDATemplateOptionsParser(errors, source, namer, binding, field, this);
-	}
-
-	@Override
-	public void updateLoc(InputPosition location) {
-		this.lastInner = location;
+			ret = new TDATemplateOptionsParser(errors, source, namer, binding, field, this);
+		return new TDAParsingWithAction(ret, reduction(source.kwlocation(), "something-about-template-bindings-being-complete"));
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		if (onComplete != null) {
-			onComplete.run();
-		} 
 	}
 }

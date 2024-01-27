@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
@@ -25,7 +26,7 @@ import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
-public class TDACardElementsParser extends TDAAgentElementsParser implements LocationTracker {
+public class TDACardElementsParser extends TDAAgentElementsParser {
 	private static class TemplateBindingCaptureLoc implements TemplateBindingConsumer {
 		private final LocationTracker tracker;
 		private final Template template;
@@ -78,17 +79,18 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 					lastLoc = chain.location();
 			}
 			errors.logReduction("card-template-intro", kw.location, lastLoc);
-			lastInner = kw.location;
-			tracker.updateLoc(lastInner);
+			updateLoc(kw.location);
 			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.location, tn.text), pos, chain);
 			consumer.addTemplate(template);
 			topLevel.newTemplate(errors, template);
 			TemplateBindingConsumer c = new TemplateBindingCaptureLoc(this, template);
-			currentItem = () -> { errors.logReduction("card-template-complete", kw.location, lastInner);};
-			return new TDATemplateBindingParser(errors, template, namer, c, this);
+			return new TDAParsingWithAction(
+				new TDATemplateBindingParser(errors, template, namer, c, this),
+				reduction(kw.location, "card-template-complete")
+			);
 		}
 		case "event": {
-			tracker.updateLoc(kw.location);
+			updateLoc(kw.location);
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
 			MethodConsumer evConsumer = em -> {
 				if (em.args().size() != 1) {
@@ -105,11 +107,11 @@ public class TDACardElementsParser extends TDAAgentElementsParser implements Loc
 				consumer.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);
 				errors.logReduction("event-from-method", kw.location, ev.location());
-				currentItem = () -> { 
-					errors.logReduction("event-with-method-actions", kw.location, lastInner);
-				};
 			};
-			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this).parseMethod(kw, namer, toks);
+			return new TDAParsingWithAction(
+				new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this).parseMethod(kw, namer, toks),
+				reduction(kw.location, "event-with-method-actions")
+			);
 		}
 		default:
 			return null;

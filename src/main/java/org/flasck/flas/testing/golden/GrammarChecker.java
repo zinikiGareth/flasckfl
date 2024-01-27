@@ -61,6 +61,7 @@ public class GrammarChecker {
 		Map<String, GrammarTree> ret = new TreeMap<>(new MyPreferredTestSorting());
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
 			ParsedTokens toks = ParsedTokens.read(f);
+			toks.write(new File(f.getParentFile(), f.getName()+"-sorted"));
 			reconstructFile(toks, new File(reconstruct, f.getName()));
 			if (!expectErrors) {
 				String ext = FileUtils.extension(f.getName());

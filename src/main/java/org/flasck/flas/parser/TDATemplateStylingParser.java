@@ -32,7 +32,7 @@ public class TDATemplateStylingParser implements TDAParsing, LocationTracker {
 			return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> customizer.conditionalStylings.add(tso), this);
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
-			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> customizer.events.add(ev));
+			return TDAParseTemplateElements.parseEventHandling(tok, errors, source, toks, ev -> customizer.events.add(ev));
 		} else {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);

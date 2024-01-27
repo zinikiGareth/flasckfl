@@ -1,6 +1,7 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
@@ -20,36 +21,26 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider, LocationTracker {
-	protected final ErrorReporter errors;
+public class TDAAgentElementsParser extends BlockLocationTracker implements TDAParsing, FunctionNameProvider, HandlerNameProvider {
 	protected final InputPosition kwloc;
 	protected final TemplateNamer namer;
 	protected final AgentElementsConsumer consumer;
 	protected final TopLevelDefinitionConsumer topLevel;
 	protected final StateHolder holder;
 	private boolean seenState;
-	protected InputPosition lastInner;
 	private KeywordToken kw;
-	protected final LocationTracker tracker;
-	protected Runnable currentItem;
 
 	public TDAAgentElementsParser(ErrorReporter errors, InputPosition kwloc, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder, LocationTracker tracker) {
-		this.errors = errors;
+		super(errors, tracker);
 		this.kwloc = kwloc;
 		this.namer = namer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 		this.holder = holder;
-		this.tracker = tracker;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (currentItem != null) {
-			currentItem.run();
-			currentItem = null;
-		}
-		lastInner = null;
 		kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			return null;
@@ -63,12 +54,12 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final StateDefinition state = new StateDefinition(kw.location, toks.realinfo(), ((NamedType)consumer).name());
 			consumer.defineState(state);
 			seenState = true;
-			lastInner = kw.location;
-			currentItem = () -> { errors.logReduction("agent-state-block", kw.location, lastInner);};
-			if (tracker != null)
-				tracker.updateLoc(lastInner);
+			updateLoc(kw.location);
 			
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false, this);
+			return new TDAParsingWithAction(
+				new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false, this),
+				reduction(kw.location, "agent-state-block")
+			);
 		}
 		case "provides": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
@@ -80,15 +71,15 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser(errors);
 			}
+			updateLoc(tn.location);
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName csn = namer.csn(tn.location, "S");
 			final Provides contractService = new Provides(kw.location, tn.location, (NamedType)consumer, ctr, csn);
 			consumer.addProvidedService(contractService);
-			lastInner = kw.location;
-			currentItem = () -> { errors.logReduction("agent-provides-block", kw.location, lastInner);};
-			if (tracker != null)
-				tracker.updateLoc(lastInner);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel, holder, this);
+			return new TDAParsingWithAction(
+				new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel, holder, this),
+				reduction(kw.location, "agent-provides-block")
+			);
 		}
 		case "requires": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
@@ -97,7 +88,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				return new IgnoreNestedParser(errors);
 			}
 
-			lastInner = tn.location;
+			InputPosition lastLoc = tn.location;
 			InputPosition varloc = null;
 			String varname = null;
 			if (toks.hasMoreContent(errors)) {
@@ -107,8 +98,8 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 					return new IgnoreNestedParser(errors);
 				}
 				varloc = var.location;
+				lastLoc = varloc;
 				varname = var.text;
-				lastInner = varloc;
 			}
 			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
@@ -119,9 +110,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final RequiresContract rc = new RequiresContract(kw.location, tn.location, (NamedType)consumer, ctr, cin, varloc, varname);
 			consumer.addRequiredContract(rc);
 			topLevel.newRequiredContract(errors, rc);
-			errors.logReduction("agent-requires", kw.location, lastInner);
-			if (tracker != null)
-				tracker.updateLoc(kw.location);
+			errors.logReduction("agent-requires", kw.location, lastLoc);
 			return new NoNestingParser(errors);
 		}
 		case "implements": {
@@ -138,17 +127,13 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final CSName cin = namer.csn(tn.location, "C");
 			final ImplementsContract ci = new ImplementsContract(kw.location, tn.location, (NamedType)consumer, ctr, cin);
 			errors.logReduction("agent-implements-contract-decl", kw.location, tn.location);
-			lastInner = kw.location;
+			updateLoc(kw.location);
 			consumer.addContractImplementation(ci);
 			topLevel.newContractImpl(errors, ci);
-			ImplementationMethodConsumer imc = om -> { 
-				ci.addImplementationMethod(om);
-				lastInner = om.location();
-			};
-			currentItem = () -> { errors.logReduction("agent-implements-contract-block", kw.location, lastInner);};
-			if (tracker != null)
-				tracker.updateLoc(kw.location);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), imc, topLevel, ci, this);
+			return new TDAParsingWithAction(
+				new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel, ci, this),
+				reduction(kw.location, "agent-implements-contract-block")
+			);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
@@ -162,12 +147,6 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 		}
 	}
 
-	@Override
-	public void updateLoc(InputPosition location) {
-		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
-			lastInner = location;
-	}
-
 	// for children
 	protected TDAParsing strategy(KeywordToken kw, Tokenizable toks) {
 		return null;
@@ -175,8 +154,6 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		if (currentItem != null)
-			currentItem.run();
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.ParsingPhase;
@@ -16,23 +17,20 @@ import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAFunctionParser implements TDAParsing {
-	private final ErrorReporter errors;
+public class TDAFunctionParser extends BlockLocationTracker implements TDAParsing {
 	private final FunctionNameProvider functionNamer;
 	private final FunctionCaseNameProvider functionCaseNamer;
 	private final FunctionIntroConsumer consumer;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final StateHolder holder;
-	private final LocationTracker locTracker;
 
 	public TDAFunctionParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionCaseNameProvider functionCaseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
-		this.errors = errors;
+		super(errors, locTracker);
 		this.functionNamer = functionNamer;
 		this.functionCaseNamer = functionCaseNamer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 		this.holder = holder;
-		this.locTracker = locTracker;
 	}
 	
 	@Override
@@ -61,7 +59,12 @@ public class TDAFunctionParser implements TDAParsing {
 		consumer.functionIntro(intro);
 		if (!line.hasMoreContent(errors)) {
 			errors.logReduction("function-intro-no-expr", intro.location, line.realinfo());
-			return new TDAFunctionGuardedEquationParser(errors, intro, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder, null));
+			return new TDAParsingWithAction(
+				new TDAFunctionGuardedEquationParser(errors, intro, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder, this)),
+				() -> { 
+					consumer.done(); 
+					reduce(t.location, "function-intro-with-scope"); }
+			);
 		}
 		ExprToken tok = ExprToken.from(errors, line);
 		if (tok == null) {
@@ -77,7 +80,7 @@ public class TDAFunctionParser implements TDAParsing {
 		}
 		List<FunctionCaseDefn> fcds = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
-			errors.logReduction("function-case-defn", e, e);
+			errors.logReduction("function-value-expr", e, e);
 			final FunctionCaseDefn fcd = new FunctionCaseDefn(e.location(), intro, null, e);
 			fcds.add(fcd);
 			intro.functionCase(fcd);
@@ -86,11 +89,14 @@ public class TDAFunctionParser implements TDAParsing {
 		if (fcds.isEmpty())
 			return new IgnoreNestedParser(errors);
 
-		errors.logReduction("function-intro-with-expr", intro.location, line.realinfo());
-		if (locTracker != null)
-			locTracker.updateLoc(t.location);
-		FunctionAssembler assembler = new FunctionAssembler(errors, topLevel, holder, locTracker);
-		return ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder, assembler);
+		super.updateLoc(t.location);
+		FunctionAssembler assembler = new FunctionAssembler(errors, topLevel, holder, this);
+		return new TDAParsingWithAction(
+			ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder, this),
+			() -> { 
+				consumer.done(); 
+				reduce(t.location, "function-intro-with-scope"); }
+		);
 	}
 
 	@Override

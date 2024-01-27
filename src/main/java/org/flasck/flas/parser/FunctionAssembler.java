@@ -1,27 +1,23 @@
 package org.flasck.flas.parser;
 
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StateHolder;
 
-public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker {
-	private final ErrorReporter errors;
+public class FunctionAssembler extends BlockLocationTracker implements FunctionIntroConsumer {
 	private final FunctionScopeUnitConsumer consumer;
 	private final StateHolder holder;
 	private FunctionDefinition fn;
 	private FunctionIntro curr;
 	private boolean broken;
-	private InputPosition lastLoc = null;
-	private final LocationTracker tracker;
 
 	public FunctionAssembler(ErrorReporter errors, FunctionScopeUnitConsumer consumer, StateHolder holder, LocationTracker tracker) {
-		this.errors = errors;
+		super(errors, tracker);
 		this.consumer = consumer;
 		this.holder = holder;
-		this.tracker = tracker;
 	}
 
 	@Override
@@ -35,8 +31,9 @@ public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker
 	@Override
 	public void functionIntro(FunctionIntro next) {
 		FunctionName fname = (FunctionName) next.name().inContext;
+		
 		if (curr != null)
-			reduceIntro();
+			reduceCurr();
 		if (fn != null && !fname.equals(fn.name())) {
 			reduceFunction();
 		}
@@ -49,44 +46,51 @@ public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker
 		}
 		fn.intro(next);
 		curr = next;
-		lastLoc = next.location();
+	}
+
+	@Override
+	public void done() {
+		if (curr != null) {
+			reduceCurr();
+			curr = null;
+		}
 	}
 
 	@Override
 	public void moveOn() {
+		if (curr != null) {
+			reduceCurr();
+			curr = null;
+		}
+		
 		if (fn != null) {
-			reduceIntro();
 			reduceFunction();
 			fn = null;
 		}
 	}
-	
-	@Override
-	public void updateLoc(InputPosition location) {
-		if (location == null)
-			return;
-		if (fn != null) {
-			if (location.compareTo(lastLoc) > 0)
-				lastLoc = location;
-		} else if (tracker != null)
-			tracker.updateLoc(location);
-//		System.out.println("Assembling " + fn.name() + " " + location + " => " + lastLoc);
-	}
-	
-	private void reduceIntro() {
-		if (!curr.cases().isEmpty()) {
-			errors.logReduction("function-intro", curr, curr.cases().get(curr.cases().size()-1));
+		
+	private void reduceCurr() {
+		if (curr.cases().size() == 1) {
+			FunctionCaseDefn caseDefn = curr.cases().get(0);
+			// it's either the very simple one-line case
+			if (caseDefn.expr.location().lineNo == curr.location().lineNo) {
+				errors.logReduction("simple-function-case-definition", curr.location(), caseDefn.expr.location());
+			} else {
+				// or it's the degenerate case
+				errors.logReduction("degenerate-guarded-function-case-definition", curr.location(), caseDefn.expr.location());
+			}
+		} else {
+			FunctionCaseDefn lastCase = curr.cases().get(curr.cases().size()-1);
+
+			// it must have multiple guards, each of which should have been reduced
+			errors.logReduction("guarded-function-case-definition", curr.location(), lastCase.expr.location());
 		}
-		if (curr.location().compareTo(lastLoc) > 0)
-			lastLoc = curr.location();
 	}
 
 	private void reduceFunction() {
 		if (!broken && fn != null) {
 //			System.out.println("reducing " + fn.name() + " with " + lastLoc);
-			errors.logReduction("simple-function-case-definition", fn.location(), lastLoc);
-			if (tracker != null)
-				tracker.updateLoc(lastLoc);
+//			errors.logReduction("function-case-definition", fn.location(), lastLoc);
 			consumer.functionDefn(errors, fn);
 		}
 		fn = null;

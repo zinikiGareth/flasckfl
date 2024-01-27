@@ -1,9 +1,16 @@
 
+	f a = 22
+	
+	g Nil = 8
+	g (Cons[A] l) = 12
+	
+	degenerate z
+		| = z
+
 	guard x
 		| x == 2	= 14
 		|			= 21
 		
-
 	guard2 x
 		| x == 2	= 2*3
 		| x == 5	= 4+6

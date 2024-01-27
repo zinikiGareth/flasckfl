@@ -78,7 +78,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			return TDAParseTemplateElements.parseDefaultBindingOption(errors, tok.location, source, namer, toks, field, tbo -> binding.defaultBinding = tbo, endOfTemplate);
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
-			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> customizer.events.add(ev));
+			return TDAParseTemplateElements.parseEventHandling(tok, errors, source, toks, ev -> customizer.events.add(ev));
 		} else {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);

@@ -11,7 +11,6 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	private final ErrorReporter errors;
 	private final String lastThing;
 	private TDAParsing parser;
-	private InputPosition from;
 	private InputPosition lastPos;
 	private boolean reportedError;
 	private FunctionScopeNamer namer;
@@ -50,8 +49,8 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 		if (parser == null || ((parser instanceof TDAParsingWithAction && ((TDAParsingWithAction)parser).parser == null)))
 			createParser();
 		lastPos = toks.realinfo();
-		if (from == null)
-			from = lastPos;
+		if (locTracker != null)
+			locTracker.updateLoc(lastPos);
 		return parser.tryParsing(toks);
 	}
 
@@ -60,7 +59,5 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 		if (parser == null)
 			createParser();
 		parser.scopeComplete(location);
-		if (from != null)
-			errors.logReduction("inner-block", from, lastPos);
 	}
 }
