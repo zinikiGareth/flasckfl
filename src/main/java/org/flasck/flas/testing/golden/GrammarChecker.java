@@ -15,12 +15,9 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.grammar.Definition;
 import org.flasck.flas.grammar.Grammar;
 import org.flasck.flas.grammar.GrammarSupport;
-import org.flasck.flas.grammar.OrProduction;
 import org.flasck.flas.grammar.Production;
-import org.flasck.flas.grammar.RefDefinition;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
@@ -58,15 +55,17 @@ public class GrammarChecker {
 		this.grammar = GrammarSupport.loadGrammar();
 	}
 
-	public Map<String, GrammarOrchard> checkParseTokenLogic(boolean expectErrors) {
+	public Map<String, GrammarTree> checkParseTokenLogic(boolean expectErrors) {
 		if (parseTokens == null || reconstruct == null)
 			return null;
-		Map<String, GrammarOrchard> ret = new TreeMap<>(new MyPreferredTestSorting());
+		Map<String, GrammarTree> ret = new TreeMap<>(new MyPreferredTestSorting());
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
 			ParsedTokens toks = ParsedTokens.read(f);
 			reconstructFile(toks, new File(reconstruct, f.getName()));
-			if (!expectErrors)
-				ret.put(f.getName(), computeReductions(toks));
+			if (!expectErrors) {
+				String ext = FileUtils.extension(f.getName());
+				ret.put(f.getName(), computeReductions(getTopRule(ext), toks));
+			}
 		}
 		return ret;
 	}
@@ -111,7 +110,7 @@ public class GrammarChecker {
 	// (b) internally assert that every token was part of some reduction
 	// (c) internally assert that the final rules do not overlap
 	// (c) return an orchard of reductions & tokens with a TLF at the top of each tree and tokens at the leaves
-	private GrammarOrchard computeReductions(ParsedTokens toks) {
+	private GrammarTree computeReductions(String topRule, ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
 		for (ReductionRule rr : toks.reductions()) {
 //			System.out.println(rr);
@@ -174,7 +173,8 @@ public class GrammarChecker {
 		}
 
 		// TODO: return an orchard of reductions with a TLF at the top of each tree
-		GrammarOrchard ret = new GrammarOrchard();
+//		GrammarOrchard ret = new GrammarOrchard();
+		List<GrammarTree> ret = new ArrayList<>();
 		
 		// the reduction rules are in order, and the tokens too ...
 		List<GrammarStep> srstack = new ArrayList<>();
@@ -228,15 +228,16 @@ public class GrammarChecker {
 			rr = null;
 		}
 		
+		GrammarTree top = new GrammarTree(topRule, ret);
 		PrintWriter pw = new PrintWriter(System.out);
-		ret.dump(pw);
+		top.dump(pw, "", false);
 		pw.flush();
 		
-		return ret;
+		return top;
 	}
 
-	public void checkGrammar(Map<String, GrammarOrchard> fileOrchards) {
-		for (Entry<String, GrammarOrchard> e : fileOrchards.entrySet()) {
+	public void checkGrammar(Map<String, GrammarTree> fileOrchards) {
+		for (Entry<String, GrammarTree> e : fileOrchards.entrySet()) {
 			String name = e.getKey();
 			String ext = FileUtils.extension(name);
 			String topRule = getTopRule(ext);
@@ -259,11 +260,11 @@ public class GrammarChecker {
 		}
 	}
 
-	private void checkProductionsAgainstGrammar(Iterable<GrammarStep> trees, String currRule) {
+	private void checkProductionsAgainstGrammar(GrammarTree file, String currRule) {
 		Production grammarRule = grammar.findRule(currRule);
 		if (grammarRule == null)
 			throw new CantHappenException("there is no rule in the grammar for the production " + currRule);
-		Iterator<GrammarStep> it = trees.iterator();
+//		Iterator<GrammarStep> it = trees.iterator();
 		/*		String reducedTo = tree.reducedToRule();
 		if (reducedTo.equals(currRule)) {
 			recursivelyCompareItems(grammarRule.defn, tree);
@@ -276,7 +277,7 @@ public class GrammarChecker {
 */
 //		System.out.println(grammarRule);
 		DefinitionIterator defn = new DefinitionIterator(grammar, grammarRule);
-		recursivelyCompareItems(defn, trees.iterator());
+		recursivelyCompareItems(defn, Arrays.asList((GrammarStep)file).iterator());
 		// we would have to hope that the defn has come to an end
 		if (!defn.isAtEnd())
 			fail("defn was not at end");

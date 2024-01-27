@@ -134,8 +134,9 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return new IgnoreNestedParser(errors);
 		}
 		Consumer<Expr> exprConsumer = ex -> {
-			errors.logReduction("ut-assert", kw, ex);
 			builder.assertion(test.get(0), ex);
+			errors.logReduction("ut-assert-expected-value", ex, ex);
+			errors.logReduction("ut-assert", kw, ex);
 			if (locTracker != null)
 				locTracker.updateLoc(kw.location);
 		};

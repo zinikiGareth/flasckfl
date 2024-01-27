@@ -20,7 +20,7 @@ public class GrammarOrchard implements Iterable<GrammarStep> {
 
 	public void dump(PrintWriter pw) {
 		for (GrammarTree t : trees) {
-			t.dump(pw, "  ");
+			t.dump(pw, "  ", false);
 		}
 	}
 

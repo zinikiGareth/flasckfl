@@ -9,33 +9,64 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
+import org.zinutils.exceptions.CantHappenException;
 
 public class GrammarTree implements GrammarStep {
-	private ReductionRule reducedTo;
-	private List<GrammarStep> members = new ArrayList<>();
+	private final ReductionRule reducedTo;
+	private final List<GrammarStep> members = new ArrayList<>();
+	private final List<GrammarTree> indents;
 
 	public GrammarTree(ReductionRule rr) {
 		this.reducedTo = rr;
+		this.indents = new ArrayList<>();
 	}
 
-	public void dump(PrintWriter pw, String ind) {
+	public GrammarTree(String topRule, List<GrammarTree> ret) {
+		this.reducedTo = new ReductionRule(topRule);
+		this.indents = ret;
+	}
+
+	public void dump(PrintWriter pw, String ind, boolean isIndented) {
 		pw.print(ind);
+		if (isIndented)
+			pw.print(">> ");
 		pw.print(reducedTo.ruleName());
 		pw.println();
-		String nested = ind + "  ";
+		String nested = ind + "   ";
 		for (GrammarStep s : members) {
 			if (s instanceof GrammarTree) {
-				((GrammarTree)s).dump(pw, nested);
+				((GrammarTree)s).dump(pw, nested, false);
 			} else if (s instanceof GrammarToken) {
+				GrammarToken tok = (GrammarToken) s;
 				pw.print(nested);
-				pw.print(s);
+				pw.print(tok.type + ": _" + tok.text + "_");
 				pw.println();
 			}
+		}
+		for (GrammarTree t : indents) {
+			t.dump(pw, nested, true);
 		}
 	}
 
 	public void push(GrammarStep si) {
-		members.add(0, si);
+		System.out.println("pushing " + si);
+		System.out.println("pushing " + si.location() + " with " + location());
+		if (isIndented(si.location(), location())) {
+			if (!(si instanceof GrammarTree))
+				throw new CantHappenException("can't push " + si + " because it is directly indented not reduced");
+			indents.add(0, (GrammarTree) si);
+		} else
+			members.add(0, si);
+	}
+
+	private boolean isIndented(InputPosition item, InputPosition relativeTo) {
+		if (item.lineNo == relativeTo.lineNo)
+			return false;
+		if (item.lineNo < relativeTo.lineNo)
+			throw new CantHappenException("cannot come before the relative line");
+		if (item.indent.tabs <= relativeTo.indent.tabs)
+			throw new CantHappenException("cannot be indented less or same as relative line");
+		return true;
 	}
 
 	@Override

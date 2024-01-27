@@ -273,7 +273,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 //		}
 		GrammarChecker r = new GrammarChecker(parseTokens, reconstruct);
 		// TODO: allow it to merge in other grammars such as Ziniki
-		Map<String, GrammarOrchard> fileOrchards = r.checkParseTokenLogic(expectedErrors.isDirectory());
+		Map<String, GrammarTree> fileOrchards = r.checkParseTokenLogic(expectedErrors.isDirectory());
 		r.checkGrammar(fileOrchards);
 		AssertionError tmp = null;
 //		if (!expectedErrors.isDirectory()) {
