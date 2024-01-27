@@ -25,6 +25,9 @@ public class FreeTextToken implements LoggableToken {
 	}
 	
 	public static FreeTextToken merge(List<FreeTextToken> buffers) {
+		if (buffers.isEmpty())
+			return null;
+
 		FreeTextToken first = buffers.get(0);
 		StringBuilder sb = new StringBuilder();
 		for (FreeTextToken f : buffers) {

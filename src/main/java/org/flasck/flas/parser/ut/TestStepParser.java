@@ -497,9 +497,13 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 		errors.logReduction("unittest-match-command", kw.location, lastLoc);
 		// TODO: should we return an expression parser for scroll matching?
 		return new FreeTextParser(kw, errors, (lastPos, text) -> {
-			errors.logParsingToken(text);
-			errors.logReduction("unit-match-free-text", text.location(), lastPos);
-			errors.logReduction("unit-test-match-with-free-text", kw.location, text.location());
+			if (text != null) {
+				errors.logParsingToken(text);
+				errors.logReduction("unit-match-free-text", text.location(), lastPos);
+				errors.logReduction("unit-test-match-with-free-text", kw.location, text.location());
+			} else {
+				errors.logReduction("unit-test-match-blank", kw.location, kw.location);
+			}
 			if (lastPos.compareTo(lastInner) > 0)
 				lastInner = lastPos;
 			builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, fails, text);
