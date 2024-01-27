@@ -59,6 +59,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			}
 			StateDefinition state = new StateDefinition(kw.location, toks.realinfo(), ((NamedType)builder).name());
 			builder.defineState(state);
+			errors.logReduction("object-state-line", kw.location, kw.location);
 			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false, this);
 		}
 		case "requires": {

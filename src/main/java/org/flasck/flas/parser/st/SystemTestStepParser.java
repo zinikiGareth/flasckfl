@@ -45,20 +45,13 @@ public class SystemTestStepParser extends TestStepParser {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (onComplete != null) {
-			onComplete.run();
-			onComplete = null;
-		}
 		int mark = toks.at();
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		lastInner = kw.location;
-		onComplete = () -> {
-			locTracker.updateLoc(lastInner); 
-		};
+		updateLoc(kw.location);
 		switch (kw.text) {
 		case "assert": {
 			return handleAssert(kw, toks);
@@ -142,13 +135,11 @@ public class SystemTestStepParser extends TestStepParser {
 			AjaxCreate ac = new AjaxCreate(op.location, vn, baseUrl);
 			((SystemTestStage)builder).ajaxCreate(errors, ac);
 			errors.logReduction("ajax-create-rule", kw.location, baseUrl.location);
-			lastInner = kw.location;
+			updateLoc(kw.location);
 			return new TDAParsingWithAction(
 				new AjaxCreateActionsParser(errors, ac, this),
-				() -> {
-					errors.logReduction("ajax-create-block", kw.location, lastInner);
-					locTracker.updateLoc(kw.location);
-				});
+				reduction(kw.location, "ajax-create-block")
+			);
 		}
 		case "pump": {
 			ValidIdentifierToken tok = VarNameToken.from(errors, toks);
@@ -190,7 +181,7 @@ public class SystemTestStepParser extends TestStepParser {
 		((SystemTestStage)builder).mockApplication(errors, vn, ma);
 		
 		errors.logReduction("st-application", kw.location, tok.location);
-		locTracker.updateLoc(kw.location);
+		updateLoc(kw.location);
 
 		// TODO: theoretically, it should be possible to have a nested parser
 		// this would allow you to say "package <name>" rather than the default

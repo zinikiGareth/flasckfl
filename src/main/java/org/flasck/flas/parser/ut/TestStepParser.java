@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -15,6 +16,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.MatchedItem;
+import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
@@ -31,40 +33,27 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TestStepParser implements TDAParsing, LocationTracker {
-	protected final ErrorReporter errors;
+public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 	protected final UnitTestStepConsumer builder;
 	protected final UnitDataNamer namer;
 	private final UnitTestDefinitionConsumer topLevel;
-	protected final LocationTracker locTracker;
-	protected Runnable onComplete;
-	protected InputPosition lastInner;
 
 	public TestStepParser(ErrorReporter errors, UnitDataNamer namer, UnitTestStepConsumer builder, UnitTestDefinitionConsumer topLevel, LocationTracker locTracker) {
-		this.errors = errors;
+		super(errors, locTracker);
 		this.namer = namer;
 		this.builder = builder;
 		this.topLevel = topLevel;
-		this.locTracker = locTracker;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (onComplete != null) {
-			onComplete.run();
-			onComplete = null;
-		} 
 		int mark = toks.at();
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		if (locTracker != null)
-			onComplete = () -> { 
-				locTracker.updateLoc(lastInner); 
-			};
-		lastInner = kw.location;
+		updateLoc(kw.location);
 		switch (kw.text) {
 		case "assert": {
 			return handleAssert(kw, toks);
@@ -111,12 +100,6 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 		}
 		}
 	}
-	
-	@Override
-	public void updateLoc(InputPosition location) {
-		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
-			lastInner = location;
-	}
 
 	protected TDAParsing handleAssert(KeywordToken kw, Tokenizable toks) {
 		List<Expr> test = new ArrayList<>();
@@ -133,12 +116,12 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		errors.logReduction("ut-assert-expr", kw.location, test.get(0).location());
 		Consumer<Expr> exprConsumer = ex -> {
 			builder.assertion(test.get(0), ex);
+			updateLoc(ex.location());
 			errors.logReduction("ut-assert-expected-value", ex, ex);
-			errors.logReduction("ut-assert", kw, ex);
-			if (locTracker != null)
-				locTracker.updateLoc(kw.location);
+			reduce(kw.location, "ut-assert");
 		};
 		return new SingleExpressionParser(errors, "assert", exprConsumer, this);
 	}
@@ -151,19 +134,19 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return new IgnoreNestedParser(errors);
 		}
 		if (test.isEmpty()) {
-			errors.message(toks, "assert requires expression to evaluate");
+			errors.message(toks, "identical requires expression to evaluate");
 			return new IgnoreNestedParser(errors);
 		}
 		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		errors.logReduction("ut-identical-expr", kw.location, test.get(0).location());
 		Consumer<Expr> exprConsumer = ex -> {
 			builder.identical(test.get(0), ex);
+			updateLoc(ex.location());
 			errors.logReduction("ut-identical-expected-value", ex, ex);
-			errors.logReduction("ut-identical", kw, ex);
-			if (locTracker != null)
-				locTracker.updateLoc(kw.location);
+			reduce(kw.location, "ut-identical");
 		};
 		return new SingleExpressionParser(errors, "identical", exprConsumer, this);
 	}
@@ -233,6 +216,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			return new IgnoreNestedParser(errors);
 		}
 		errors.logReduction("test-send-to-contract", kw, eventObj.get(0));
+		tellParent(kw.location);
 		builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
 		return new NoNestingParser(errors);
 	}
@@ -245,12 +229,20 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 		}
 		builder.closeCard(new UnresolvedVar(tok.location, tok.text));
 		errors.logReduction("ut-close-card", kw.location, tok.location);
-		lastInner = kw.location;
+		updateLoc(kw.location);
 		return new NoNestingParser(errors);
 	}
 
 	protected TDAParsing handleDataDecl(KeywordToken kw, Tokenizable toks) {
-		return new TDAUnitTestDataParser(errors, false, kw, namer, dd -> { builder.data(errors, dd); topLevel.nestedData(dd); }, topLevel, this).tryParsing(toks);
+		Consumer<UnitDataDeclaration> consumer = dd -> {
+			builder.data(errors, dd);
+			topLevel.nestedData(dd);
+			updateLoc(dd.location());
+//			errors.logReduction("ut-input/ut-entry-value", text, text);
+			reduce(kw.location, "ut-input");
+
+		};
+		return new TDAUnitTestDataParser(errors, false, kw, namer, consumer, topLevel, this).tryParsing(toks);
 	}
 
 	protected TDAParsing handleNewdiv(KeywordToken kw, Tokenizable toks) {
@@ -348,7 +340,15 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, "input", text -> { builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text); }, this);
+		errors.logReduction("ut-input-line", kw.location, targetZone.location);
+		updateLoc(kw.location);
+		Consumer<Expr> exprConsumer = text -> {
+			builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text);
+			updateLoc(text.location());
+			errors.logReduction("ut-input-entry-value", text, text);
+			reduce(kw.location, "ut-input");
+		};
+		return new SingleExpressionParser(errors, "input", exprConsumer, this);
 	}
 
 	protected TDAParsing handleInvoke(KeywordToken kw, Tokenizable toks) {
@@ -511,8 +511,7 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			} else {
 				errors.logReduction("unit-test-match-blank", kw.location, kw.location);
 			}
-			if (lastPos.compareTo(lastInner) > 0)
-				lastInner = lastPos;
+			tellParent(kw.location);
 			builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, fails, text);
 		});
 	}
@@ -600,17 +599,6 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 	}
 
 	@Override
-	public void choseOther() {
-		if (onComplete != null) {
-			onComplete.run();
-			onComplete = null;
-		} 
-	}
-	
-	@Override
 	public void scopeComplete(InputPosition location) {
-		if (onComplete != null) {
-			onComplete.run();
-		} 
 	}
 }
