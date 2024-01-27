@@ -15,9 +15,12 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.grammar.Definition;
 import org.flasck.flas.grammar.Grammar;
 import org.flasck.flas.grammar.GrammarSupport;
+import org.flasck.flas.grammar.OrProduction;
 import org.flasck.flas.grammar.Production;
+import org.flasck.flas.grammar.RefDefinition;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
@@ -237,16 +240,14 @@ public class GrammarChecker {
 			String name = e.getKey();
 			String ext = FileUtils.extension(name);
 			String topRule = getTopRule(ext);
-			for (GrammarTree o : e.getValue()) {
-				checkProductionsAgainstGrammar(o, topRule);
-			}
+			checkProductionsAgainstGrammar(e.getValue(), topRule);
 		}
 	}
 
 	private String getTopRule(String ext) {
 		switch (ext) {
 		case ".fl":
-			return "top-level-unit";
+			return "source-file";
 		case ".fa":
 			return "assembly-unit";
 		case ".ut":
@@ -258,10 +259,40 @@ public class GrammarChecker {
 		}
 	}
 
-	private void checkProductionsAgainstGrammar(GrammarTree tree, String currRule) {
+	private void checkProductionsAgainstGrammar(Iterable<GrammarStep> trees, String currRule) {
 		Production grammarRule = grammar.findRule(currRule);
 		if (grammarRule == null)
 			throw new CantHappenException("there is no rule in the grammar for the production " + currRule);
+		Iterator<GrammarStep> it = trees.iterator();
+		/*		String reducedTo = tree.reducedToRule();
+		if (reducedTo.equals(currRule)) {
+			recursivelyCompareItems(grammarRule.defn, tree);
+		} else {
+			System.out.println("Looking for rule " + reducedTo + " inside " + currRule);
+			Production use = searchDownTo(grammarRule, reducedTo);
+			if (use == null)
+				fail("cannot find " + reducedTo + " inside the grammar rule for " + currRule);
+		}
+*/
+//		System.out.println(grammarRule);
+		DefinitionIterator defn = new DefinitionIterator(grammar, grammarRule);
+		recursivelyCompareItems(defn, trees.iterator());
+		// we would have to hope that the defn has come to an end
+		if (!defn.isAtEnd())
+			fail("defn was not at end");
 	}
 
+	private void recursivelyCompareItems(DefinitionIterator defn, Iterator<GrammarStep> trees) {
+//		System.out.println("Compare " + defn + " to " + trees);
+		while (trees.hasNext()) {
+			GrammarStep step = trees.next();
+			System.out.println("Comparing tree " + step + " with " + defn.current());
+			if (defn.canHandle(step)) {
+//				System.out.println("handled " + step);
+				if (step instanceof GrammarTree)
+					recursivelyCompareItems(defn, ((GrammarTree) step).members());
+			} else
+				fail("cannot handle " + step);
+		}
+	}
 }

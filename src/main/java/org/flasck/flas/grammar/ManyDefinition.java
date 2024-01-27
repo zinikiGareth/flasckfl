@@ -13,6 +13,10 @@ public class ManyDefinition extends Definition {
 		this.allowZero = allowZero;
 		this.shared = shared;
 	}
+	
+	public Definition repeats() {
+		return child;
+	}
 
 	public void showGrammarFor(PrintWriter str) {
 		child.showGrammarFor(str);

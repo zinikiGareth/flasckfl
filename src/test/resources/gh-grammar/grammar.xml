@@ -323,12 +323,12 @@
 	</section>
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
+      <reduces-as rule="fields-defn" />
       <token type='STRUCT'/>
       <token type='type-name' names='STRUCT\[${name}.*\]' scope='true'/>
       <many>
         <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
-      <reduces-as rule="fields-defn" />
       <indent>
         <ref production='struct-field-decl'/>
       </indent>
@@ -352,12 +352,12 @@
     <section title='Data Declarations'/>
 	<tested by='test.parsing.TDAStructFieldParsingTests' />
     <seq>
+      <reduces-as rule="struct-field-no-initialization" />  
       <ref production='type-reference'/>
       <token type='var-name' names='StructField\[${name}\]'/>
       <optional>
-      	<ref production='struct-initializer'/>
       	<reduces-as rule="struct-field-with-initialization" />
-      	<else-reduces-as rule="struct-field-no-initialization" />  
+      	<ref production='struct-initializer'/>
       </optional>
     </seq>
   </production>

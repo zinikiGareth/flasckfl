@@ -84,7 +84,7 @@ public class FunctionAssembler implements FunctionIntroConsumer, LocationTracker
 	private void reduceFunction() {
 		if (!broken && fn != null) {
 //			System.out.println("reducing " + fn.name() + " with " + lastLoc);
-			errors.logReduction("function-from-intros", fn.location(), lastLoc);
+			errors.logReduction("simple-function-case-definition", fn.location(), lastLoc);
 			if (tracker != null)
 				tracker.updateLoc(lastLoc);
 			consumer.functionDefn(errors, fn);

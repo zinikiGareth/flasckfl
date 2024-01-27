@@ -2,6 +2,7 @@ package org.flasck.flas.testing.golden;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -42,8 +43,16 @@ public class GrammarTree implements GrammarStep {
 		return reducedTo.location();
 	}
 	
+	public String reducedToRule() {
+		return reducedTo.ruleName();
+	}
+	
 	@Override
 	public String toString() {
 		return location() + ": " + reducedTo;
+	}
+
+	public Iterator<GrammarStep> members() {
+		return members.iterator();
 	}
 }

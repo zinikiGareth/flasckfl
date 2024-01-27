@@ -262,8 +262,8 @@ public class Grammar {
 			throw new NotImplementedException("Cannot find something useful to use in optional " + rule);
 		rule.attributesDone();
 		ElseClause elseClause = null;
-		if (!rule.elementChildren("else-reduces-as").isEmpty()) {
-			var era = rule.uniqueElement("else-reduces-as");
+		if (!rule.elementChildren("reduces-as").isEmpty()) {
+			var era = rule.uniqueElement("reduces-as");
 			var elseRuleName = era.required("rule");
 			era.attributesDone();
 			elseClause = new ElseClause(elseRuleName);
@@ -372,7 +372,7 @@ public class Grammar {
 
 	private Definition reducesAs(String ruleName, XMLElement rule) {
 		String reducesAs = rule.required("rule");
-		return new ReducesAs();
+		return new ReducesAs(reducesAs);
 	}
 
 	public Iterable<Section> sections() {

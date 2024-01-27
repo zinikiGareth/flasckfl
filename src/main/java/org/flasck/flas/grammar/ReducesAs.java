@@ -3,30 +3,32 @@ package org.flasck.flas.grammar;
 import java.io.PrintWriter;
 import java.util.Set;
 
+import org.zinutils.exceptions.NotImplementedException;
+
 public class ReducesAs extends Definition {
+	public final String ruleName;
+
+	public ReducesAs(String reducesAs) {
+		ruleName = reducesAs;
+	}
 
 	@Override
 	public void showGrammarFor(PrintWriter str) {
-		// TODO Auto-generated method stub
-
+		throw new NotImplementedException();
 	}
 
 	@Override
 	public void collectReferences(Set<String> ret) {
-		// TODO Auto-generated method stub
-
+		throw new NotImplementedException();
 	}
 
 	@Override
 	public void collectTokens(Set<String> ret) {
-		// TODO Auto-generated method stub
-
+		throw new NotImplementedException();
 	}
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		// TODO Auto-generated method stub
-
+		throw new NotImplementedException();
 	}
-
 }

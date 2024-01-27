@@ -90,7 +90,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 				CardDefinition card = new CardDefinition(kw.location, tn.location, qn);
 				hb = card;
 				state = card;
-				errors.logReduction("card-declaration", kw.location, tn.location);
+				errors.logReduction("card-declaration-intro", kw.location, tn.location);
 				consumer.newCard(errors, card);
 				sh = errors -> new TDACardElementsParser(errors, kw.location, new ObjectNestedNamer(qn), card, consumer, card, this);
 				break;
@@ -107,7 +107,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 			}
 			final StateHolder holder = state;
 			FunctionAssembler assembler = new FunctionAssembler(errors, consumer, holder, this);
-			onComplete = () -> { errors.logReduction("card-definition", kw.location, lastInner()); };
+			onComplete = () -> { errors.logReduction("card-declaration", kw.location, lastInner()); };
 			return new TDAMultiParser(errors, 
 				sh,
 				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer, holder, this),

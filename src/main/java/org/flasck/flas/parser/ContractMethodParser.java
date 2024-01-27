@@ -122,8 +122,8 @@ public class ContractMethodParser implements TDAParsing {
 	@Override
 	public void scopeComplete(InputPosition location) {
 		if (lastMeth != null)
-			errors.logReduction("contract-decl", kwloc, lastMeth);
+			errors.logReduction("contract-declaration", kwloc, lastMeth);
 		else
-			errors.logReduction("contract-decl", kwloc, kwloc);
+			errors.logReduction("contract-declaration", kwloc, kwloc);
 	}
 }

@@ -5,9 +5,11 @@ import java.util.Set;
 
 public class OptionalDefinition extends Definition {
 	private final Definition child;
+	public final ElseClause elseClause;
 
 	public OptionalDefinition(Definition child, ElseClause elseClause) {
 		this.child = child;
+		this.elseClause = elseClause;
 	}
 
 	@Override

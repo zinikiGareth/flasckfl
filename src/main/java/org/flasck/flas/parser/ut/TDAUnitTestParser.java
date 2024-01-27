@@ -56,7 +56,7 @@ public class TDAUnitTestParser implements TDAParsing, LocationTracker {
 				return new IgnoreNestedParser(errors);
 			}
 			errors.logReduction("ut-test-intro", tok, tdt);
-			onComplete = () -> { errors.logReduction("ut-test-with-steps", tok.location, lastInner); lastInner = null; };
+			onComplete = () -> { errors.logReduction("unit-test-declaration", tok.location, lastInner); lastInner = null; };
 			final UnitTestCase utc = new UnitTestCase(namer.unitTest(), desc);
 			builder.testCase(utc);
 			return new TestStepParser(errors, new TestStepNamer(utc.name), utc, builder, this);

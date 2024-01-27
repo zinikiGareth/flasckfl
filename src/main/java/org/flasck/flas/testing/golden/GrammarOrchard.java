@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class GrammarOrchard implements Iterable<GrammarTree> {
-	private List<GrammarTree> trees = new ArrayList<>();
+import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
+
+public class GrammarOrchard implements Iterable<GrammarStep> {
+	private final List<GrammarTree> trees = new ArrayList<>();
 
 	public void add(GrammarTree tree) {
 		trees.add(tree);
@@ -22,8 +24,9 @@ public class GrammarOrchard implements Iterable<GrammarTree> {
 		}
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public Iterator<GrammarTree> iterator() {
-		return trees.iterator();
+	public Iterator<GrammarStep> iterator() {
+		return (Iterator<GrammarStep>)(Iterator)trees.iterator();
 	}
 }

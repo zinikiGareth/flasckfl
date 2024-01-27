@@ -18,6 +18,14 @@ public class RefDefinition extends Definition {
 		this.to = to;
 	}
 
+	public boolean refersTo(String rule) {
+		return child.equals(rule);
+	}
+	
+	public Production production(Grammar grammar) {
+		return grammar.findRule(this.child);
+	}
+
 	@Override
 	public void showGrammarFor(PrintWriter str) {
 		str.append("<span class='production-reference'>&lt;" + StringEscapeUtils.escapeHtml4(child) + "&gt;</span>");
