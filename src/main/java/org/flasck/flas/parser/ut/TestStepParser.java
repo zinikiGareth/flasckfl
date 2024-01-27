@@ -158,7 +158,14 @@ public class TestStepParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		return new SingleExpressionParser(errors, "identical", ex -> { builder.identical(test.get(0), ex); }, this);
+		Consumer<Expr> exprConsumer = ex -> {
+			builder.identical(test.get(0), ex);
+			errors.logReduction("ut-identical-expected-value", ex, ex);
+			errors.logReduction("ut-identical", kw, ex);
+			if (locTracker != null)
+				locTracker.updateLoc(kw.location);
+		};
+		return new SingleExpressionParser(errors, "identical", exprConsumer, this);
 	}
 
 	protected TDAParsing handleShove(KeywordToken kw, Tokenizable toks) {
