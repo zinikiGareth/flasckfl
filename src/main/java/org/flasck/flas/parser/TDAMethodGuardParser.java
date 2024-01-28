@@ -3,14 +3,14 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.GuardedMessagesConsumer;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAParsing, LocationTracker {
+public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAParsing {
 	enum Mode { FIRST, WANTGUARDS, WANTMESSAGES };
 	private Mode mode = Mode.FIRST;
 	private final GuardedMessagesConsumer consumer;
@@ -42,13 +42,8 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 	}
 
 	private TDAParsing parseGuard(Tokenizable toks) {
-		if (onComplete != null) {
-			onComplete.run();
-			onComplete = null;
-		}
 		ExprToken tok = ExprToken.from(errors, toks);
-		lastInner = tok.location;
-		onComplete = () -> { errors.logReduction("method-guard-block", tok.location, lastInner); };
+		updateLoc(tok.location);
 		if (!("|".equals(tok.text))) {
 			errors.message(tok.location, "guard expected");
 			return new IgnoreNestedParser(errors);
@@ -65,10 +60,12 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			GuardedMessages dgm = new GuardedMessages(tok.location, null);
 			consumer.guard(dgm);
 			errors.logReduction("method-guard-default", tok.location, tok.location);
-			if (locTracker != null)
-				locTracker.updateLoc(tok.location);
+			tellParent(tok.location);
 			seenDefault = true;
-			return new TDAMethodMessageParser(errors, dgm, nestedParser, this);
+			return new TDAParsingWithAction(
+				new TDAMethodMessageParser(errors, dgm, nestedParser, this),
+				reduction(tok.location, "method-guard-block")
+			);
 		}
 		List<GuardedMessages> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
@@ -82,14 +79,10 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 		}
 		firstGuard = false;
 		errors.logReduction("method-guard-with-cond", tok.location, seen.get(seen.size()-1).guard.location());
-		if (locTracker != null)
-			locTracker.updateLoc(tok.location);
-		return new TDAMethodMessageParser(errors, seen.get(0), nestedParser, this);
-	}
-
-	@Override
-	public void updateLoc(InputPosition location) {
-		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
-			lastInner = location;
+		tellParent(tok.location);
+		return new TDAParsingWithAction(
+			new TDAMethodMessageParser(errors, seen.get(0), nestedParser, this),
+			reduction(tok.location, "method-guard-block")
+		);
 	}
 }

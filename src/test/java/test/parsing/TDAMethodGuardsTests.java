@@ -3,6 +3,7 @@ package test.parsing;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
@@ -67,7 +68,7 @@ public class TDAMethodGuardsTests {
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("| True"));
-		assertTrue(nested instanceof TDAMethodMessageParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMethodMessageParser.class));
 		parser.scopeComplete(pos);
 	}
 
@@ -78,7 +79,7 @@ public class TDAMethodGuardsTests {
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("| True"));
-		assertTrue(nested instanceof TDAMethodMessageParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMethodMessageParser.class));
 		context.assertIsSatisfied();
 		Tokenizable toks = TestSupport.tokline("<- data.fetchRoot");
 		context.checking(new Expectations() {{
@@ -116,7 +117,7 @@ public class TDAMethodGuardsTests {
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("| True"));
-		assertTrue(nested instanceof TDAMethodMessageParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMethodMessageParser.class));
 		context.assertIsSatisfied();
 		Tokenizable toks = TestSupport.tokline("|");
 		context.checking(new Expectations() {{
@@ -124,7 +125,7 @@ public class TDAMethodGuardsTests {
 			oneOf(builder).done();
 		}});
 		nested = parser.tryParsing(toks);
-		assertTrue(nested instanceof TDAMethodMessageParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMethodMessageParser.class));
 		parser.scopeComplete(pos);
 	}
 

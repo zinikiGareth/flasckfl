@@ -13,29 +13,21 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAMethodMessageParser implements TDAParsing {
-	protected final ErrorReporter errors;
+public class TDAMethodMessageParser extends BlockLocationTracker implements TDAParsing {
 	protected final MethodMessagesConsumer builder;
 	protected final LastOneOnlyNestedParser nestedParser;
-	protected final LocationTracker locTracker;
-	protected Runnable onComplete;
-	protected InputPosition lastInner;
 
 	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker locTracker) {
-		this.errors = errors;
+		super(errors, locTracker);
 		this.builder = builder;
 		this.nestedParser = nestedParser;
-		this.locTracker = locTracker;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (onComplete != null) {
-			onComplete.run();
-			onComplete = null;
-		}
 		nestedParser.anotherParent();
 		ExprToken tok = ExprToken.from(errors, toks);
+		updateLoc(tok.location);
 		if ("<-".equals(tok.text))
 			return handleSend(tok.location, toks);
 		else if (tok.type == ExprToken.IDENTIFIER)
@@ -73,8 +65,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 			}
 		}
 		errors.logReduction("method-message-send", arrowPos, toks.realinfo());
-		if (locTracker != null)
-			locTracker.updateLoc(arrowPos);
+		tellParent(arrowPos);
 		return nestedParser;
 	}
 
@@ -119,16 +110,12 @@ public class TDAMethodMessageParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		errors.logReduction("method-message-assign", slot, seen.get(seen.size()-1));
-		if (locTracker != null)
-			locTracker.updateLoc(slot.location());
+		tellParent(slot.location());
 		return nestedParser;
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		if (onComplete != null) {
-			onComplete.run();
-		}
 		builder.done();
 	}
 }
