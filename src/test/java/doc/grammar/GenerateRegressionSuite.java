@@ -32,11 +32,14 @@ public class GenerateRegressionSuite {
 
 	public static File generateInto(File top) throws Throwable {
 		File meta = new File(top, "META.json");
-		if (top.exists()) {
+		if (meta.exists()) {
 			URL gm = XML.class.getResource(grammar);
 			File gf = new File(gm.getFile());
-			if (gf.lastModified() < meta.lastModified())
+			if (gf.lastModified() < meta.lastModified()) {
+				System.out.println("not regenerating grammar.xml because it has not changed");
+				System.out.println("remove " + meta + " to force regeneration");
 				return meta;
+			}
 		}
 		
 		JSONObject jo = new JSONObject();

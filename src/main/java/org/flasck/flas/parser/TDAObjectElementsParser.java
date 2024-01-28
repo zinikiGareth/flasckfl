@@ -34,7 +34,6 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 	private final TemplateNamer namer;
 	private final ObjectElementsConsumer builder;
 	private final TopLevelDefinitionConsumer topLevel;
-	private TDAParsing currParser;
 
 	public TDAObjectElementsParser(ErrorReporter errors, TemplateNamer namer, ObjectElementsConsumer od, TopLevelDefinitionConsumer topLevel, LocationTracker locTracker) {
 		super(errors, locTracker);
@@ -161,10 +160,6 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				lastLoc = p.location();
 			}
 			builder.addConstructor(ctor);
-			if (currParser != null) {
-				currParser.scopeComplete(kw.location);
-				currParser = null;
-			}
 			errors.logReduction("object-ctor-decl", kw.location, lastLoc);
 			tellParent(kw.location);
 			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
@@ -186,14 +181,13 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			tellParent(kw.location);
 			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, consumer), (StateHolder)builder, this);
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, (StateHolder)builder, fa);
-			currParser = fcp;
 			TDAParsing ret = fcp.tryParsing(toks);
 			if (ret == null)
 				return null;
 			else {
 				return new TDAParsingWithAction(ret, () -> {
 					TDAParsingWithAction.invokeAction(ret);
-					currParser.scopeComplete(lastInner());
+					fa.moveOn();
 					reduce(kw.location, "object-acor");
 				});
 			}
@@ -219,7 +213,5 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		if (currParser != null)
-			currParser.scopeComplete(location);
 	}
 }

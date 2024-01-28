@@ -137,7 +137,7 @@ public class TDAObjectElementParsingTests {
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("acor myname = 42"));
 		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
-		nested.scopeComplete(pos);
+		TDAParsingWithAction.invokeAction(nested);
 		parser.scopeComplete(pos);
 	}
 
@@ -153,7 +153,7 @@ public class TDAObjectElementParsingTests {
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("acor myname x (Number y) = x + y"));
-		parser.scopeComplete(pos);
+		TDAParsingWithAction.invokeAction(nested);
 		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 	}
 

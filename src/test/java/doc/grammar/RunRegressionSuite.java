@@ -35,6 +35,13 @@ public class RunRegressionSuite {
 		Set<String> failed = new TreeSet<>();
 		CounterSet<String> success = new CounterSet<>();
 		CounterSet<String> failure = new CounterSet<>();
+		
+		String onlyRun = System.getProperty("doc.grammar.onlyrun");
+		if (onlyRun != null) {
+			dirs.clear();
+			dirs.add(new File("test.r" + onlyRun));
+		}
+		
 		for (File f : dirs) {
 			boolean result = runCase(f, jo.getJSONObject(f.getName()));
 			CounterSet<String> mycase;
