@@ -249,7 +249,9 @@ public class SentenceProducer {
 			final Lexer lexer = grammar.findToken(token);
 			String t;
 			String haveLast = dicts.get(indent).get("haveLast");
-			if (repeatLast && haveLast != null) {
+			String allowRepeat = dicts.get(indent).get("allow-repeat-last");
+			boolean mayRepeat = allowRepeat == null || allowRepeat.equals("true");
+			if (mayRepeat && repeatLast && haveLast != null) {
 				t = haveLast;
 			} else {
 				t = genToken(token, lexer.pattern, generator);
@@ -392,8 +394,10 @@ public class SentenceProducer {
 		@Override
 		public void pushCaseNumber() {
 			removeAbove(indent + nameNestOffset);
+			String allowRepeat = dicts.get(indent).get("allow-repeat-last");
+			boolean mayRepeat = allowRepeat == null || allowRepeat.equals("true");
 			String cn = getTopDictValue("caseNumber");
-			if (cn == null) {
+			if (!mayRepeat || cn == null) {
 				cn = "1";
 			} else {
 				cn = Integer.toString(Integer.parseInt(cn)+1);

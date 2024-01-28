@@ -1090,6 +1090,7 @@
     <tested by='test.parsing.TDAObjectElementParsingTests' />
     <seq>
       <token type='ACOR' />
+      <dict var='allow-repeat-last' val='false' /> 
       <ref production='function-case-definition'/>
     </seq>
   </production>
