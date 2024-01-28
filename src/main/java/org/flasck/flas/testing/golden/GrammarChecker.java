@@ -63,7 +63,9 @@ public class GrammarChecker {
 			reconstructFile(toks, new File(reconstruct, f.getName()));
 			if (!expectErrors) {
 				String ext = FileUtils.extension(f.getName());
-				ret.put(f.getName(), computeReductions(getTopRule(ext), toks));
+				GrammarTree reduced = computeReductions(getTopRule(ext), toks);
+				dumpTree(reduced);
+				ret.put(f.getName(), reduced);
 			}
 		}
 		return ret;
@@ -80,6 +82,14 @@ public class GrammarChecker {
 	// (c) internally assert that the final rules do not overlap
 	// (c) return an orchard of reductions & tokens with a TLF at the top of each tree and tokens at the leaves
 	private GrammarTree computeReductions(String topRule, ParsedTokens toks) {
+		Map<InputPosition, ReductionRule> mostReduced = calculateMostReduced(toks);
+		assertNoOverlappingRules(mostReduced);
+		assertTLFs(mostReduced);
+		assertAllTokensReduced(toks);
+		return reduceToSingleTree(topRule, toks, mostReduced);
+	}
+
+	private Map<InputPosition, ReductionRule> calculateMostReduced(ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
 		for (ReductionRule rr : toks.reductions()) {
 //			System.out.println(rr);
@@ -106,18 +116,19 @@ public class GrammarChecker {
 			}
 			mostReduced.put(rr.start(), rr);
 		}
-		
-		// Assert that they do not overlap
+		return mostReduced;
+	}
+
+	private void assertNoOverlappingRules(Map<InputPosition, ReductionRule> mostReduced) {
 		InputPosition lastEndedAt = null;
 		for (ReductionRule rr : mostReduced.values()) {
 			if (lastEndedAt != null && lastEndedAt.compareTo(rr.start()) >= 0)
 				fail("overlapping reductions: " + lastEndedAt + " X " + rr);
 			lastEndedAt = rr.last();
 		}
-		
-		// TODO: assert that all of these are TLFs
-//		System.out.println("most reduced = " + mostReduced.values());
-		
+	}
+
+	private void assertTLFs(Map<InputPosition, ReductionRule> mostReduced) {
 		for (ReductionRule rr : mostReduced.values()) {
 			if (rr.start().indent.tabs != 1 || rr.start().indent.spaces != 0) {
 				// This cannot be a TLF
@@ -125,7 +136,9 @@ public class GrammarChecker {
 			}
 			// TODO: check against the master list of TLF names
 		}
-		
+	}
+
+	private void assertAllTokensReduced(ParsedTokens toks) {
 		tokenLoop:
 		for (GrammarToken t : toks.tokens()) {
 			for (ReductionRule rr : toks.reductions()) {
@@ -140,9 +153,9 @@ public class GrammarChecker {
 			// TODO: this is an error
 			fail("token not reduced: " + t);
 		}
+	}
 
-		// TODO: return an orchard of reductions with a TLF at the top of each tree
-//		GrammarOrchard ret = new GrammarOrchard();
+	private GrammarTree reduceToSingleTree(String topRule, ParsedTokens toks, Map<InputPosition, ReductionRule> mostReduced) {
 		List<GrammarTree> ret = new ArrayList<>();
 		
 		// the reduction rules are in order, and the tokens too ...
@@ -156,12 +169,12 @@ public class GrammarChecker {
 		while (mr != null || mit.hasNext()) {
 			if (mr == null) {
 				mr = mit.next();
-				System.out.println("mr = " + mr);
+//				System.out.println("mr = " + mr);
 			}
 
 			if (rr == null && rules.hasNext()) {
 				rr = rules.next();
-				System.out.println("considering rule " + rr);
+//				System.out.println("considering rule " + rr);
 			}
 
 			// should we just shift a token
@@ -172,7 +185,7 @@ public class GrammarChecker {
 					nt = null;
 					continue;
 				}
-				System.out.println("have token " + nt);
+//				System.out.println("have token " + nt);
 	
 				if (rr.includes(nt.pos) || rr.location().compareTo(nt.pos) > 0) {
 					srstack.add(0, nt);
@@ -201,12 +214,13 @@ public class GrammarChecker {
 			rr = null;
 		}
 		
-		GrammarTree top = new GrammarTree(topRule, ret);
+		return new GrammarTree(topRule, ret);
+	}
+
+	public void dumpTree(GrammarTree top) {
 		PrintWriter pw = new PrintWriter(System.out);
 		top.dump(pw, "", false);
 		pw.flush();
-		
-		return top;
 	}
 
 	public void checkGrammar(Map<String, GrammarTree> fileOrchards) {
