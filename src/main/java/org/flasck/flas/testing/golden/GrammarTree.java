@@ -51,12 +51,19 @@ public class GrammarTree implements GrammarStep {
 	public void push(GrammarStep si) {
 		System.out.println("pushing " + si);
 		System.out.println("pushing " + si.location() + " with " + location());
-		if (isIndented(si.location(), location())) {
+		if (isIndented(si.location(), location()) && !ftt(si)) {
 			if (!(si instanceof GrammarTree))
 				throw new CantHappenException("can't push " + si + " because it is directly indented not reduced");
 			indents.add(0, (GrammarTree) si);
 		} else
 			members.add(0, si);
+	}
+
+	private boolean ftt(GrammarStep si) {
+		if (!(si instanceof GrammarToken))
+			return false;
+		GrammarToken t = (GrammarToken) si;
+		return t.type.equals("FreeText");
 	}
 
 	private boolean isIndented(InputPosition item, InputPosition relativeTo) {

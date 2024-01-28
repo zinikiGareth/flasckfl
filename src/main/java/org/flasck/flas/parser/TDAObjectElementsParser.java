@@ -45,11 +45,11 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		InputPosition location = toks.realinfo();
 		KeywordToken kw = KeywordToken.from(errors, toks);
 		if (kw == null) {
 			return null; // try something else - e.g. functions 
 		}
+		updateLoc(kw.location);
 		switch (kw.text) {
 		case "state": {
 			if (toks.hasMoreContent(errors)) {
@@ -59,6 +59,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			StateDefinition state = new StateDefinition(kw.location, toks.realinfo(), ((NamedType)builder).name());
 			builder.defineState(state);
 			errors.logReduction("object-state-line", kw.location, kw.location);
+			tellParent(kw.location);
 			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false, this);
 		}
 		case "requires": {
@@ -87,10 +88,12 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			builder.requireContract(oc);
 			topLevel.newObjectContract(errors, oc);
 			errors.logReduction("object-requires", kw.location, var.location);
+			tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(errors, toks);
+			InputPosition lastPos = tn.location;
 			ErrorMark em = errors.mark();
 			int pos = builder.templatePosn();
 			NestingChain chain = null;
@@ -98,10 +101,17 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				chain = TDACardElementsParser.parseChain(errors, namer, toks);
 			if (em.hasMoreNow())
 				return new IgnoreNestedParser(errors);
+			if (chain != null)
+				lastPos = chain.location();
 			final Template template = new Template(kw.location, tn.location, namer.template(tn.location, tn.text), pos, chain);
 			builder.addTemplate(template);
 			topLevel.newTemplate(errors, template);
-			return new TDATemplateBindingParser(errors, template, namer, template, this);
+			errors.logReduction("template-introduction", kw.location, lastPos);
+			tellParent(kw.location);
+			return new TDAParsingWithAction(
+				new TDATemplateBindingParser(errors, template, namer, template, this),
+				reduction(kw.location, "object-template")
+			);
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, builder.name(), text);
@@ -120,6 +130,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				builder.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);
 			};
+			tellParent(kw.location);
 			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this).parseMethod(kw, namer, toks);
 		}
 		case "ctor": {
@@ -148,25 +159,25 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			}
 			builder.addConstructor(ctor);
 			if (currParser != null) {
-				currParser.scopeComplete(location);
+				currParser.scopeComplete(kw.location);
 				currParser = null;
 			}
 			errors.logReduction("object-ctor-decl", kw.location, lastLoc);
+			tellParent(kw.location);
 			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
 			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this), this);
 		}
 		case "acor": {
-//			if (currParser != null)
-//				currParser.scopeComplete(location);
 			FunctionDefnConsumer consumer = (errors, f) -> {
 				ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f);
 				f.isObjAccessor(true);
 				builder.addAccessor(oa);
 				topLevel.newObjectAccessor(errors, oa);
+				errors.logReduction("object-acor", kw.location, f.location());
 			};
 			
 			toks.skipWS(errors);
-			updateLoc(toks.realinfo());
+			tellParent(kw.location);
 			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, consumer), (StateHolder)builder, this);
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, (StateHolder)builder, fa);
 			currParser = fcp;
@@ -187,6 +198,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				topLevel.newObjectMethod(errors, method);
 				reduce(kw.location, "object-method-line");
 			};
+			tellParent(kw.location);
 			return new TDAParsingWithAction(
 				new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this).parseMethod(kw, methodNamer, toks),
 				reduction(kw.location, "object-method")

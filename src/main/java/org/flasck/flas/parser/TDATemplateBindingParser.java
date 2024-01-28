@@ -88,7 +88,7 @@ public class TDATemplateBindingParser extends BlockLocationTracker implements TD
 			ret = new TDATemplateOptionsParser(errors, source, namer, simple, field, this);
 		else
 			ret = new TDATemplateOptionsParser(errors, source, namer, binding, field, this);
-		return new TDAParsingWithAction(ret, reduction(source.kwlocation(), "something-about-template-bindings-being-complete"));
+		return new TDAParsingWithAction(ret, reduction(tok.location(), "something-about-template-bindings-being-complete"));
 	}
 
 	@Override

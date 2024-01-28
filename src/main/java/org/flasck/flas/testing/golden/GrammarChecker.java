@@ -72,38 +72,8 @@ public class GrammarChecker {
 	}
 
 	private void reconstructFile(ParsedTokens toks, File output) {
-		try (PrintWriter pw = new PrintWriter(output)) {
-			int lineNo = 1;
-			boolean indented = false;
-			int offset = 0;
-			for (GrammarToken t : toks.tokens()) {
-//				System.out.println(t);
-				while (t.lineNo() > lineNo) {
-					pw.println();
-					lineNo++;
-					indented = false;
-					offset = 0;
-				}
-				if (!indented) {
-					for (int i=0;i<t.tabs();i++) {
-						pw.print("\t");
-					}
-					for (int i=0;i<t.spaces();i++) {
-						pw.print(" ");
-					}
-					indented = true;
-				}
-				while (offset < t.offset()) {
-					pw.print(" ");
-					offset++;
-				}
-				pw.print(t.text);
-				offset += t.text.length();
-			}
-			pw.println();
-		} catch (FileNotFoundException e) {
-			throw WrappedException.wrap(e);
-		}
+		FileReconstructor r = new FileReconstructor(toks, output);
+		r.reconstruct();
 	}
 	
 	// TODO: this should:

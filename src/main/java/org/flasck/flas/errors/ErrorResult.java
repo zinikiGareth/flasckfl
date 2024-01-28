@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.grammar.tracking.LoggableToken;
+import org.flasck.flas.tokenizers.FreeTextToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.collections.CollectionUtils;
@@ -138,8 +139,15 @@ public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<
 	@Override
 	public <T extends LoggableToken> T logParsingToken(T token) {
 		if (tokenStream != null) {
-			logLocation(token.location());
-			tokenStream.println("token " + token.type() + " " + token.text());
+			if (token instanceof FreeTextToken) {
+				for (FreeTextToken t : ((FreeTextToken)token).original) {
+					logLocation(t.location());
+					tokenStream.println("token " + t.type() + " " + t.text());
+				}
+			} else {
+				logLocation(token.location());
+				tokenStream.println("token " + token.type() + " " + token.text());
+			}
 		}
 		return token;
 	}
