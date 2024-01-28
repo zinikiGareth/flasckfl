@@ -3,6 +3,7 @@ package test.parsing;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
@@ -52,7 +53,7 @@ public class TDAImplementationMethodsParsingTests {
 			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectMethod.class)));
 		}});
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("foo"));
-		assertTrue(nested instanceof TDAMethodMessageParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMethodMessageParser.class));
 	}
 
 	@Test
@@ -65,7 +66,7 @@ public class TDAImplementationMethodsParsingTests {
 			oneOf(topLevel).argument(with(errors), (VarPattern) with(VarPatternMatcher.var("bar.x")));
 		}});
 		TDAParsing nested = parser.tryParsing(line);
-		assertTrue(nested instanceof TDAMethodMessageParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMethodMessageParser.class));
 		nested.scopeComplete(line.realinfo());
 		parser.scopeComplete(line.realinfo());
 	}
@@ -81,7 +82,7 @@ public class TDAImplementationMethodsParsingTests {
 			oneOf(topLevel).argument(with(errors), (VarPattern) with(VarPatternMatcher.var("bar.h")));
 		}});
 		TDAParsing nested = parser.tryParsing(line);
-		assertTrue(nested instanceof TDAMethodMessageParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMethodMessageParser.class));
 		nested.scopeComplete(line.realinfo());
 		parser.scopeComplete(line.realinfo());
 	}

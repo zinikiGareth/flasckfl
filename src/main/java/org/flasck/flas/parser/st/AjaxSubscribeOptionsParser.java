@@ -33,9 +33,8 @@ public class AjaxSubscribeOptionsParser extends BlockLocationTracker implements 
 				return new IgnoreNestedParser(errors);
 			}
 			return new TDAParsingWithAction(
-					new AjaxSubscribeResponsesParser(errors, sub, this),
-//					() -> { errors.logReduction("ajax-responses-block", kw.location, lastInner); }
-					reduction(kw.location, "ajax-responses-block")//; }
+				new AjaxSubscribeResponsesParser(errors, sub, this),
+				reduction(kw.location, "ajax-responses-block")
 			);
 		}
 		case "html": {
@@ -43,7 +42,11 @@ public class AjaxSubscribeOptionsParser extends BlockLocationTracker implements 
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
 			}
-			return new AjaxSubscribeHtmlResponsesParser(errors, sub);
+			return new TDAParsingWithAction(
+				new AjaxSubscribeHtmlResponsesParser(errors, sub, this),
+				reduction(kw.location, "ajax-html-block")
+			);
+					
 		}
 		default: {
 			errors.message(kw.location, "unrecognized ajax action " + kw.text);

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
@@ -51,7 +52,7 @@ public class TDAContractIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract Data"));
-		assertTrue(nested instanceof ContractMethodParser);
+		assertTrue(TDAParsingWithAction.is(nested, ContractMethodParser.class));
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(ContractType.CONTRACT, cd.type);
 	}
@@ -64,7 +65,7 @@ public class TDAContractIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract service Data"));
-		assertTrue(nested instanceof ContractMethodParser);
+		assertTrue(TDAParsingWithAction.is(nested, ContractMethodParser.class));
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(ContractType.SERVICE, cd.type);
 	}
@@ -77,7 +78,7 @@ public class TDAContractIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract handler Data"));
-		assertTrue(nested instanceof ContractMethodParser);
+		assertTrue(TDAParsingWithAction.is(nested, ContractMethodParser.class));
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(ContractType.HANDLER, cd.type);
 	}

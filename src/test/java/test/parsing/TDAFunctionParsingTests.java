@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -74,7 +75,7 @@ public class TDAFunctionParsingTests {
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNotNull(nested);
-		assertTrue(nested instanceof TDAFunctionGuardedEquationParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAFunctionGuardedEquationParser.class));
 	}
 
 	@Test
@@ -138,7 +139,7 @@ public class TDAFunctionParsingTests {
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line("f = 3"));
 		assertNotNull(nested);
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 	}
 
 	@Test
@@ -154,7 +155,7 @@ public class TDAFunctionParsingTests {
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line("f x = 3"));
 		assertNotNull(nested);
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 	}
 
 	@Test
@@ -170,7 +171,7 @@ public class TDAFunctionParsingTests {
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line("f (Number n) = n"));
 		assertNotNull(nested);
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 	}
 
 	public static Tokenizable line(String string) {

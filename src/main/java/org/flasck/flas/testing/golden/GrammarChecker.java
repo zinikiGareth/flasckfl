@@ -3,7 +3,6 @@ package org.flasck.flas.testing.golden;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +21,6 @@ import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
 
 public class GrammarChecker {

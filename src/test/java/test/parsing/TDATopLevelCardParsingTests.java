@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -71,7 +72,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void theIntroParserCanHandleCard() {
 		assertNotNull(cardParser);
-		assertTrue(cardParser instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(cardParser, TDAMultiParser.class));
 	}
 
 	@Test
@@ -99,7 +100,7 @@ public class TDATopLevelCardParsingTests {
 		}});
 		TDAParsing nested = cardParser.tryParsing(TestSupport.tokline("template my-template-name"));
 		assertEquals(1, card.templates.size());
-		assertTrue(nested instanceof TDATemplateBindingParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDATemplateBindingParser.class));
 	}
 
 	@Test

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
@@ -50,7 +51,7 @@ public class TDAAgentIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("agent JamesBond"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 	}
 
 	@Test
@@ -61,7 +62,7 @@ public class TDAAgentIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("agent JamesBond"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 		nested.tryParsing(TestSupport.tokline("f = 42"));
 		nested.scopeComplete(null);
 	}
@@ -119,6 +120,6 @@ public class TDAAgentIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("agent InPackage"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 	}
 }

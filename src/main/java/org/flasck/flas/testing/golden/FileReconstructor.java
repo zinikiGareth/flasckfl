@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
-import org.flasck.flas.tokenizers.FreeTextToken;
 import org.zinutils.exceptions.WrappedException;
 
 public class FileReconstructor {

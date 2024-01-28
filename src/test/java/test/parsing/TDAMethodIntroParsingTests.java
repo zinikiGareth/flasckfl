@@ -3,6 +3,7 @@ package test.parsing;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -50,7 +51,7 @@ public class TDAMethodIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("method foo"));
-		assertTrue(nested instanceof TDAMethodMessageParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMethodMessageParser.class));
 	}
 
 	@Test
@@ -65,7 +66,7 @@ public class TDAMethodIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("method foo x"));
-		assertTrue(nested instanceof TDAMethodMessageParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMethodMessageParser.class));
 	}
 
 	// TODO: error cases

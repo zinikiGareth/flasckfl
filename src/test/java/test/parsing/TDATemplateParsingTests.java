@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -66,7 +67,7 @@ public class TDATemplateParsingTests {
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area")));
 		}});
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
-		assertTrue(nested instanceof TDATemplateOptionsParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDATemplateOptionsParser.class));
 		parser.scopeComplete(pos);
 	}
 
@@ -76,7 +77,7 @@ public class TDATemplateParsingTests {
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member")));
 		}});
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area <- member"));
-		assertTrue(nested instanceof TDATemplateOptionsParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDATemplateOptionsParser.class));
 	}
 
 	@Test
@@ -87,7 +88,7 @@ public class TDATemplateParsingTests {
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo(ot)));
 		}});
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area <- member => object-template"));
-		assertTrue(nested instanceof TDATemplateOptionsParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDATemplateOptionsParser.class));
 	}
 
 	@Test

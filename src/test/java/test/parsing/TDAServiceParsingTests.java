@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -61,7 +62,7 @@ public class TDAServiceParsingTests {
 	@Test
 	public void theIntroParserCanHandleService() {
 		assertNotNull(serviceParser);
-		assertTrue(serviceParser instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(serviceParser, TDAMultiParser.class));
 	}
 
 	@Test

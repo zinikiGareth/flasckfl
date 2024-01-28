@@ -33,6 +33,8 @@ public class TargetZoneParsingTests {
 	public void setup() {
 		context.checking(new Expectations() {{
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 	}
 

@@ -95,7 +95,7 @@ public class SystemTestStepParser extends TestStepParser {
 			return handleRoute(kw, toks);
 		}
 		case "login": {
-			return handleLogin(toks);
+			return handleLogin(kw, toks);
 		}
 		default: {
 			toks.reset(mark);
@@ -151,6 +151,7 @@ public class SystemTestStepParser extends TestStepParser {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
 			}
+			errors.logReduction("ajax-pump-command", kw.location, tok.location);
 			VarName vn = namer.nameVar(tok.location, tok.text);
 			AjaxPump pump = new AjaxPump(op.location, vn);
 			((SystemTestStage)builder).ajaxPump(errors, pump);
@@ -181,7 +182,7 @@ public class SystemTestStepParser extends TestStepParser {
 		((SystemTestStage)builder).mockApplication(errors, vn, ma);
 		
 		errors.logReduction("st-application", kw.location, tok.location);
-		updateLoc(kw.location);
+		tellParent(kw.location);
 
 		// TODO: theoretically, it should be possible to have a nested parser
 		// this would allow you to say "package <name>" rather than the default
@@ -245,10 +246,11 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		
 		errors.logReduction("st-route", kw.location, last);
+		tellParent(kw.location);
 		return new NoNestingParser(errors);
 	}
 
-	private TDAParsing handleLogin(Tokenizable toks) {
+	private TDAParsing handleLogin(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "no application name provided");
@@ -271,6 +273,8 @@ public class SystemTestStepParser extends TestStepParser {
 		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "junk at end of line");
 		}
+		
+		errors.logReduction("st-login", kw.location, user.location());
 		return new NoNestingParser(errors);
 	}
 }

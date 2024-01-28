@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
@@ -50,7 +51,7 @@ public class TDAObjectIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("object Store"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 	}
 
 	@Test
@@ -61,7 +62,7 @@ public class TDAObjectIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("object Store"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 		nested.tryParsing(TestSupport.tokline("ctor obligatory"));
 		nested.tryParsing(TestSupport.tokline("f = 42"));
 		nested.scopeComplete(new InputPosition("fred", 3, 0, new Indent(0, 0), null));
@@ -109,7 +110,7 @@ public class TDAObjectIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("object Store A"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 	}
 
 	@Test
@@ -141,6 +142,6 @@ public class TDAObjectIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("object InPackage"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 	}
 }

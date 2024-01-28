@@ -34,7 +34,7 @@ public class FreeTextToken implements LoggableToken {
 		FreeTextToken first = buffers.get(0);
 		StringBuilder sb = new StringBuilder();
 		for (FreeTextToken f : buffers) {
-			if (!sb.isEmpty())
+			if (sb.length() > 0)
 				sb.append(" ");
 			sb.append(f.text());
 		}

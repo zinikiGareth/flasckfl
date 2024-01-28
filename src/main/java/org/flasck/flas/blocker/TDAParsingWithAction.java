@@ -17,6 +17,15 @@ public class TDAParsingWithAction implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		return parser.tryParsing(toks);
 	}
+
+	public static boolean is(TDAParsing parser, Class<? extends TDAParsing> cls) {
+		if (cls.isInstance(parser))
+			return true;
+		else if (parser instanceof TDAParsingWithAction)
+			return is(((TDAParsingWithAction)parser).parser, cls);
+		else
+			return false;
+	}
 	
 	public static void invokeAction(TDAParsing parser) {
 		if (parser instanceof TDAParsingWithAction)

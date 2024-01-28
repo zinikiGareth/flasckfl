@@ -1,14 +1,15 @@
 package test.parsing.ut;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
@@ -67,7 +68,7 @@ public class UnitTestTopLevelParsingTests {
 		}});
 		TDAUnitTestParser utp = new TDAUnitTestParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(line("test we can write anything here"));
-		assertTrue(nested instanceof TestStepParser);
+		assertTrue(TDAParsingWithAction.is(nested, TestStepParser.class));
 	}
 
 	@Test

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -48,8 +49,6 @@ public class UnitTestStepParsingTests {
 	private UnitTestStepConsumer builder = context.mock(UnitTestStepConsumer.class);
 	private final PackageName pkg = new PackageName("test.pkg._ut_file");
 	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
-	private String mainRule = "ut-test-case-rule";
-	private InputPosition parentLocation = pos;
 
 	@Before
 	public void ignoreParserLogging() {
@@ -229,7 +228,7 @@ public class UnitTestStepParsingTests {
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth 22 (length 'hello')"));
-		assertTrue(nested instanceof TDAMultiParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
 	}
