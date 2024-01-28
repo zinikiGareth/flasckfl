@@ -131,7 +131,10 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				topLevel.newObjectMethod(errors, em);
 			};
 			tellParent(kw.location);
-			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this).parseMethod(kw, namer, toks);
+			return new TDAParsingWithAction(
+				new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this).parseMethod(kw, namer, toks),
+				reduction(kw.location, "object-event-handler")
+			);
 		}
 		case "ctor": {
 			ValidIdentifierToken var = VarNameToken.from(errors, toks);
@@ -165,7 +168,10 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			errors.logReduction("object-ctor-decl", kw.location, lastLoc);
 			tellParent(kw.location);
 			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
-			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this), this);
+			return new TDAParsingWithAction(
+				new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this), this),
+				reduction(kw.location, "object-ctor")
+			);
 		}
 		case "acor": {
 			FunctionDefnConsumer consumer = (errors, f) -> {
@@ -187,6 +193,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			else {
 				return new TDAParsingWithAction(ret, () -> {
 					currParser.scopeComplete(lastInner());
+					TDAParsingWithAction.invokeAction(ret);
 					reduce(kw.location, "object-acor");
 				});
 			}

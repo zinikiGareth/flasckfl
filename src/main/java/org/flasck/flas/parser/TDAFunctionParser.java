@@ -95,7 +95,8 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 			ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder, this),
 			() -> { 
 				consumer.done(); 
-				reduce(t.location, "function-intro-with-scope"); }
+				reduce(t.location, "function-intro-with-scope");
+			}
 		);
 	}
 

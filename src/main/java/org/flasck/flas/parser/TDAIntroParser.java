@@ -174,7 +174,13 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, od, this),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od, this)
 			);
-			return new TDAParsingWithAction(ret, reduction(kw.location, "object-defn-complete"));
+			return new TDAParsingWithAction(
+				ret, 
+				() -> {
+					od.complete(errors, lastInner());
+					reduce(kw.location, "object-defn-complete");
+				}
+			);
 		}
 		case "contract": {
 			KeywordToken sh = KeywordToken.from(errors, toks);

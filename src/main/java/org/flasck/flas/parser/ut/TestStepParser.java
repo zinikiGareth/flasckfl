@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -73,10 +72,11 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		case "data": {
 			return handleDataDecl(kw, toks);
 		}
-		case "newdiv":
+		case "newdiv": {
 			return handleNewdiv(kw, toks);
+		}
 		case "render": {
-			return handleRender(toks);
+			return handleRender(kw, toks);
 		}
 		case "event": {
 			return handleEvent(kw, toks);
@@ -275,7 +275,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		return new NoNestingParser(errors);
 	}
 
-	protected TDAParsing handleRender(Tokenizable toks) {
+	protected TDAParsing handleRender(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken tok = VarNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "must specify a card to be rendered");
@@ -289,6 +289,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		TemplateNameToken template = TemplateNameToken.from(errors, toks);
 		if (template == null)
 			return new IgnoreNestedParser(errors);
+		errors.logReduction("test-render", kw.location, template.location);
 		builder.render(new UnresolvedVar(tok.location, tok.text), new TemplateReference(template.location, namer.template(template.location, template.text)));
 		return new NoNestingParser(errors);
 	}

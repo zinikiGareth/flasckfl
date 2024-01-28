@@ -17,6 +17,11 @@ public class TDAParsingWithAction implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		return parser.tryParsing(toks);
 	}
+	
+	public static void invokeAction(TDAParsing parser) {
+		if (parser instanceof TDAParsingWithAction)
+			((TDAParsingWithAction)parser).afterParsing.run();
+	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
