@@ -80,10 +80,11 @@ public class FunctionAssembler extends BlockLocationTracker implements FunctionI
 				errors.logReduction("degenerate-guarded-function-case-definition", curr.location(), caseDefn.expr.location());
 			}
 		} else {
-			FunctionCaseDefn lastCase = curr.cases().get(curr.cases().size()-1);
-
 			// it must have multiple guards, each of which should have been reduced
-			errors.logReduction("guarded-function-case-definition", curr.location(), lastCase.expr.location());
+			if (!curr.cases().isEmpty()) {
+				FunctionCaseDefn lastCase = curr.cases().get(curr.cases().size()-1);
+				errors.logReduction("guarded-function-case-definition", curr.location(), lastCase.expr.location());
+			} // the alternative is that it has an error ...
 		}
 	}
 

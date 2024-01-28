@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -184,10 +185,14 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		}
 
 		errors.logReduction("test-step-shove", kw, slots.get(slots.size()-1));
-		return new SingleExpressionParser(errors, "shove", expr -> { 
-			errors.logReduction("ut-shove-expected-expr", expr.location(), expr.location());
+
+		Consumer<Expr> exprConsumer = expr -> {
 			builder.shove(slots, expr); 
-		}, this);
+			updateLoc(expr.location());
+			errors.logReduction("ut-shove-expected-expr", expr.location(), expr.location());
+			reduce(kw.location, "ut-shove");
+		};
+		return new SingleExpressionParser(errors, "shove", exprConsumer, this);
 	}
 
 	protected TDAParsing handleSendToContract(KeywordToken kw, Tokenizable toks) {
@@ -229,7 +234,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		}
 		builder.closeCard(new UnresolvedVar(tok.location, tok.text));
 		errors.logReduction("ut-close-card", kw.location, tok.location);
-		updateLoc(kw.location);
+		tellParent(kw.location);
 		return new NoNestingParser(errors);
 	}
 
@@ -383,7 +388,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok != null && tok.type == ExprToken.SYMBOL) {
 				if (tok.text.equals("<~"))
-					return handleExpectCancel(toks);
+					return handleExpectCancel(kw, toks);
 				errors.message(toks, "invalid expect operator " + tok.text);
 				return new IgnoreNestedParser(errors);
 			}
@@ -411,7 +416,9 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			if (op instanceof UnresolvedOperator && ((UnresolvedOperator)op).op.equals("->")) {
 				args.remove(args.size()-2);
 				handler = args.remove(args.size()-1);
-			}
+				lastLoc = handler.location();
+			} else
+				lastLoc = args.get(args.size()-1).location();
 		}
 		if (handler == null)
 			handler = new AnonymousVar(meth.location);
@@ -422,10 +429,13 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		errors.logReduction("test-step-expect", kw.location, lastLoc);
 		tellParent(kw.location);
 		builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
-		return new TDAMultiParser(errors);
+		return new TDAParsingWithAction(
+			new TDAMultiParser(errors),
+			reduction(kw.location, "ut-expect-with-scope")
+		);
 	}
 
-	private TDAParsing handleExpectCancel(Tokenizable toks) {
+	private TDAParsing handleExpectCancel(KeywordToken kw, Tokenizable toks) {
 		ValidIdentifierToken handler = VarNameToken.from(errors, toks);
 		if (handler == null) {
 			errors.message(toks, "handler name required");
@@ -435,6 +445,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		errors.logReduction("ut-expect-cancel", kw.location, handler.location);
 		builder.expectCancel(new UnresolvedVar(handler.location, handler.text));
 		return new NoNestingParser(errors);
 	}
