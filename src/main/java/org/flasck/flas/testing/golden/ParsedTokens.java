@@ -191,6 +191,9 @@ public class ParsedTokens {
 
 	public void write(File file) {
 		// The idea here is that we could write the tokens once we have sorted them
+		for (ReductionRule e : this.reductions) {
+			System.out.println("  " + e);
+		}
 	}
 	
 	public Iterable<GrammarToken> tokens() {

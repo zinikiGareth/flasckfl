@@ -35,7 +35,6 @@ import org.zinutils.exceptions.NotImplementedException;
 public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 	private final TopLevelDefinitionConsumer consumer;
 	private final TopLevelNamer namer;
-	private Runnable onComplete;
 
 	public TDAIntroParser(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer consumer) {
 		super(errors, null);
@@ -45,10 +44,6 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (onComplete != null) {
-			onComplete.run();
-			onComplete = null;
-		} 
 		if (!toks.hasMoreContent(errors))
 			return null;
 		KeywordToken kw = KeywordToken.from(errors, toks);
@@ -107,12 +102,14 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 			}
 			final StateHolder holder = state;
 			FunctionAssembler assembler = new FunctionAssembler(errors, consumer, holder, this);
-			onComplete = () -> { errors.logReduction("card-declaration", kw.location, lastInner()); };
-			return new TDAMultiParser(errors, 
-				sh,
-				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer, holder, this),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, holder, this),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, holder, this)
+			return new TDAParsingWithAction(
+				new TDAMultiParser(errors, 
+					sh,
+					errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer, holder, this),
+					errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, holder, this),
+					errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, holder, this)
+				),
+				reduction(kw.location, "card-declaration")
 			);
 		}
 		case "struct":
@@ -177,11 +174,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, od, this),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od, this)
 			);
-			ret.onComplete((errors,location) -> {
-				errors.logReduction("object-defn-complete", kw.location, location);
-				od.complete(errors, location);
-			});
-			return ret;
+			return new TDAParsingWithAction(ret, reduction(kw.location, "object-defn-complete"));
 		}
 		case "contract": {
 			KeywordToken sh = KeywordToken.from(errors, toks);
@@ -212,19 +205,22 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 			ContractDecl decl = new ContractDecl(kw.location, tn.location, ct, namer.solidName(tn.text));
 			errors.logReduction("contract-decl-type", kw.location, tn.location);
 			consumer.newContract(errors, decl);
-			return new ContractMethodParser(errors, kw.location, decl, consumer, decl.name());
+			return new TDAParsingWithAction(
+				new ContractMethodParser(errors, kw.location, decl, consumer, decl.name()),
+				reduction(kw.location, "contract-declaration")
+			);
 		}
 		case "handler": {
 			return new TDAHandlerParser(errors, null, namer, consumer, null, this).parseHandler(kw.location, false, toks);
 		}
 		case "method": {
-			onComplete = () -> {
-				errors.logReduction("standalone-method-definition", kw.location, lastInner());
-			};
 			MethodConsumer smConsumer = om -> {
 				consumer.newStandaloneMethod(errors, new StandaloneMethod(om));
 			};
-			return new TDAMethodParser(errors, namer, smConsumer, consumer, null, this).parseMethod(kw, namer, toks);
+			return new TDAParsingWithAction(
+				new TDAMethodParser(errors, namer, smConsumer, consumer, null, this).parseMethod(kw, namer, toks),
+				reduction(kw.location, "standalone-method-definition")
+			);
 		}
 		default:
 			return null;
@@ -261,18 +257,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 	}
 	
 	@Override
-	public void choseOther() {
-		if (onComplete != null) {
-			onComplete.run();
-			onComplete = null;
-		}
-	}
-
-	@Override
 	public void scopeComplete(InputPosition location) {
-		if (onComplete != null) {
-			onComplete.run();
-		}
 	}
 
 	public static TDAParserConstructor constructor(TopLevelNamer namer, TopLevelDefinitionConsumer consumer) {

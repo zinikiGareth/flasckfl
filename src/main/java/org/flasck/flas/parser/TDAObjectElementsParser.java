@@ -15,7 +15,6 @@ import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
@@ -183,14 +182,15 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 		}
 		case "method": {
 			FunctionNameProvider methodNamer = (loc, text) -> namer.method(loc, text);
-			MethodConsumer dispenser = new MethodConsumer() {
-				@Override
-				public void addMethod(ObjectMethod method) {
-					builder.addMethod(method);
-					topLevel.newObjectMethod(errors, method);
-				}
+			MethodConsumer dispenser = method -> {
+				builder.addMethod(method);
+				topLevel.newObjectMethod(errors, method);
+				reduce(kw.location, "object-method-line");
 			};
-			return new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this).parseMethod(kw, methodNamer, toks);
+			return new TDAParsingWithAction(
+				new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this).parseMethod(kw, methodNamer, toks),
+				reduction(kw.location, "object-method")
+			);
 		}
 		default: {
 			return null;

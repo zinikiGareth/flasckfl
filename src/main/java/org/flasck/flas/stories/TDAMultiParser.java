@@ -2,7 +2,6 @@ package org.flasck.flas.stories;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorMark;
@@ -15,7 +14,6 @@ public class TDAMultiParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final List<TDAParsing> parsers = new ArrayList<>();
 	private TDAParsing chosen;
-	private List<BiConsumer<ErrorReporter, InputPosition>> onCompleteHandlers = new ArrayList<>();
 
 	@SafeVarargs
 	public TDAMultiParser(ErrorReporter errors, TDAParserConstructor... klz) {
@@ -62,18 +60,9 @@ public class TDAMultiParser implements TDAParsing {
 		return false;
 	}
 
-	public void onComplete(BiConsumer<ErrorReporter, InputPosition> handler) {
-		onCompleteHandlers.add(handler);
-	}
-
 	@Override
 	public void scopeComplete(InputPosition location) {
 		if (chosen != null)
 			chosen.scopeComplete(location);
-		for (BiConsumer<ErrorReporter, InputPosition> h : onCompleteHandlers)
-			h.accept(errors, location);
-//		if (endRuleName != null) {
-//			errors.logReduction(endRuleName, parentStart, location);
-//		}
 	}
 }

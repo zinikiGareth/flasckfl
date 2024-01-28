@@ -230,6 +230,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 			return null;
 		}
 		Expr ctor = terms.get(from+1);
+		errors.logReduction("type-expr", t0, ctor);
 		return new TypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ctor);
 	}
 	
@@ -241,7 +242,9 @@ public class TDAExprReducer implements ExprTermConsumer {
 			return null;
 		}
 		Expr ctor = terms.get(from+1);
-		return new CheckTypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ctor, terms.get(from+2));
+		Expr type = terms.get(from+2);
+		errors.logReduction("check-type-expr", t0, type);
+		return new CheckTypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ctor, type);
 	}
 	
 	private List<Expr> args(int from, int to) {

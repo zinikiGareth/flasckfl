@@ -271,6 +271,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.logReduction("test-newdiv-cnt", kw.location, cntLoc);
 		else
 			errors.logReduction("test-newdiv", kw.location, kw.location);
+		tellParent(kw.location);
 		return new NoNestingParser(errors);
 	}
 
@@ -368,6 +369,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		errors.logReduction("test-step-invoke", kw.location, lastLoc);
+		tellParent(kw.location);
 		builder.invokeObjectMethod(eventObj.get(0));
 		return new NoNestingParser(errors);
 	}
@@ -417,6 +419,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		errors.logReduction("test-step-expect", kw.location, lastLoc);
+		tellParent(kw.location);
 		builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
 		return new TDAMultiParser(errors);
 	}

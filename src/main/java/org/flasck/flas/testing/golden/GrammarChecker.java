@@ -186,11 +186,15 @@ public class GrammarChecker {
 		ReductionRule mr = null;
 		GrammarToken nt = null;
 		while (mr != null || mit.hasNext()) {
-			if (mr == null)
+			if (mr == null) {
 				mr = mit.next();
+				System.out.println("mr = " + mr);
+			}
 
-			if (rr == null && rules.hasNext())
+			if (rr == null && rules.hasNext()) {
 				rr = rules.next();
+				System.out.println("considering rule " + rr);
+			}
 
 			// should we just shift a token
 			if (nt != null || tokens.hasNext()) {
@@ -200,7 +204,7 @@ public class GrammarChecker {
 					nt = null;
 					continue;
 				}
-//				System.out.println(nt);
+				System.out.println("have token " + nt);
 	
 				if (rr.includes(nt.pos) || rr.location().compareTo(nt.pos) > 0) {
 					srstack.add(0, nt);
