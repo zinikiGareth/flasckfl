@@ -192,8 +192,8 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				return null;
 			else {
 				return new TDAParsingWithAction(ret, () -> {
-					currParser.scopeComplete(lastInner());
 					TDAParsingWithAction.invokeAction(ret);
+					currParser.scopeComplete(lastInner());
 					reduce(kw.location, "object-acor");
 				});
 			}

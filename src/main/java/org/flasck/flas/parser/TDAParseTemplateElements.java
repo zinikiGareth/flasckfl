@@ -192,6 +192,7 @@ public class TDAParseTemplateElements {
 							errors.message(crb.location, "expected )");
 							return null;
 						}
+						errors.logReduction("orb-closed-top", et.location, crb.location);
 						addTo.add(ret.get(0));
 						continue;
 					}
