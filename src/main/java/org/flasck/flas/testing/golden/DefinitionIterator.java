@@ -36,13 +36,17 @@ public class DefinitionIterator {
 	private final Grammar grammar;
 	private final List<TaggedDefinition> stack = new ArrayList<>();
 
-	public DefinitionIterator(Grammar grammar, Production grammarRule) {
+	public DefinitionIterator(Grammar grammar, String ruleName, Definition grammarRule) {
 		this.grammar = grammar;
-		push(grammarRule);
+		push(ruleName, grammarRule);
 	}
 
 	private void push(Production grammarRule) {
 		stack.add(0, new TaggedDefinition(grammarRule));
+	}
+
+	private void push(String ruleName, Definition grammarRule) {
+		stack.add(0, new TaggedDefinition(ruleName, grammarRule));
 	}
 
 	public boolean isAtEnd() {

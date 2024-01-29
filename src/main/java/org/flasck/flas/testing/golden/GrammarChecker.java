@@ -14,16 +14,23 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.grammar.Definition;
 import org.flasck.flas.grammar.Grammar;
 import org.flasck.flas.grammar.GrammarSupport;
+import org.flasck.flas.grammar.OrProduction;
 import org.flasck.flas.grammar.Production;
+import org.flasck.flas.grammar.RefDefinition;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.utils.FileUtils;
 
 public class GrammarChecker {
+	public static final Logger logger = LoggerFactory.getLogger("GrammarChecker");
+	
 	public class MyPreferredTestSorting implements Comparator<String> {
 		String[] exts = { ".fl", ".fa", ".ut", ".st" };
 		@Override
@@ -228,7 +235,8 @@ public class GrammarChecker {
 			String name = e.getKey();
 			String ext = FileUtils.extension(name);
 			String topRule = getTopRule(ext);
-//			checkProductionsAgainstGrammar(e.getValue(), topRule);
+			logger.info("checking file " + name + " against " + topRule);
+			checkProductionsAgainstGrammar(e.getValue(), topRule);
 		}
 	}
 
@@ -248,10 +256,22 @@ public class GrammarChecker {
 	}
 
 	private void checkProductionsAgainstGrammar(GrammarTree file, String currRule) {
-		Production grammarRule = grammar.findRule(currRule);
+		Production grammarRule = grammar.findRule("file");
 		if (grammarRule == null)
-			throw new CantHappenException("there is no rule in the grammar for the production " + currRule);
-//		Iterator<GrammarStep> it = trees.iterator();
+			throw new CantHappenException("there is no rule in the grammar for the file production");
+		if (!(grammarRule instanceof OrProduction))
+			throw new CantHappenException("file rule is not an OrProduction");
+		OrProduction options = (OrProduction) grammarRule;
+		List<Definition> choices = options.allOptions();
+		RefDefinition defn = null;
+		for (Definition d : choices) {
+			if (d instanceof RefDefinition && ((RefDefinition)d).refersTo(currRule))
+				defn = (RefDefinition) d;
+		}
+		if (defn == null)
+			throw new CantHappenException("couldn't find a case in file rule for " + currRule);
+		
+		//		Iterator<GrammarStep> it = trees.iterator();
 		/*		String reducedTo = tree.reducedToRule();
 		if (reducedTo.equals(currRule)) {
 			recursivelyCompareItems(grammarRule.defn, tree);
@@ -263,10 +283,11 @@ public class GrammarChecker {
 		}
 */
 //		System.out.println(grammarRule);
-		DefinitionIterator defn = new DefinitionIterator(grammar, grammarRule);
-		recursivelyCompareItems(defn, Arrays.asList((GrammarStep)file).iterator());
+		DefinitionIterator defnItr = new DefinitionIterator(grammar, currRule, defn);
+		logger.info("have defn " + defnItr.current());
+		recursivelyCompareItems(defnItr, Arrays.asList((GrammarStep)file).iterator());
 		// we would have to hope that the defn has come to an end
-		if (!defn.isAtEnd())
+		if (!defnItr.isAtEnd())
 			fail("defn was not at end");
 	}
 
@@ -274,7 +295,7 @@ public class GrammarChecker {
 //		System.out.println("Compare " + defn + " to " + trees);
 		while (trees.hasNext()) {
 			GrammarStep step = trees.next();
-			System.out.println("Comparing tree " + step + " with " + defn.current());
+			logger.info("Comparing tree " + step + " with " + defn.current());
 			if (defn.canHandle(step)) {
 //				System.out.println("handled " + step);
 				if (step instanceof GrammarTree)
