@@ -91,8 +91,16 @@ public class GrammarTree implements GrammarStep {
 	public String toString() {
 		return location() + ": " + reducedTo;
 	}
+	
+	public boolean hasMembers() {
+		return !members.isEmpty();
+	}
 
 	public Iterator<GrammarStep> members() {
 		return members.iterator();
+	}
+
+	public Iterator<GrammarTree> indents() {
+		return indents.iterator();
 	}
 }

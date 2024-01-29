@@ -83,7 +83,7 @@ public class TypeNameToken implements LoggableToken {
 
 	@Override
 	public String type() {
-		return "TypeName";
+		return "type-name";
 	}
 
 	@Override

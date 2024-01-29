@@ -1,10 +1,13 @@
 package org.flasck.flas.testing.golden;
 
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.grammar.Definition;
 import org.flasck.flas.grammar.Grammar;
+import org.flasck.flas.grammar.IndentDefinition;
 import org.flasck.flas.grammar.Lexer;
 import org.flasck.flas.grammar.ManyDefinition;
 import org.flasck.flas.grammar.OptionalDefinition;
@@ -160,6 +163,34 @@ public class DefinitionIterator {
 			return td.tag + ":" + td.offset;
 		} else
 			return td.tag;
+	}
+
+	public boolean requiresNoTokens() {
+		TaggedDefinition td = stack.get(0);
+		if (td.defn instanceof ManyDefinition) {
+			ManyDefinition md = (ManyDefinition) td.defn;
+			if (md.repeats() instanceof RefDefinition)
+				return true;
+		}
+		return false;
+	}
+	
+	public void moveToEndOfRule() {
+		TaggedDefinition td = stack.get(0);
+		System.out.println("end of rule " + td);
+		if (td.defn instanceof SequenceDefinition) {
+			SequenceDefinition sd = (SequenceDefinition) td.defn;
+			while (++td.offset < sd.length()) {
+				Definition curr = sd.nth(td.offset);
+				if (curr instanceof IndentDefinition)
+					return;
+				// Many should be fine too ...
+				fail("what is " + curr.getClass());
+			}
+			// we have reached the end of the rule
+			
+		} else
+			throw new NotImplementedException("td.defn is a " + td.defn.getClass());
 	}
 	
 	@Override

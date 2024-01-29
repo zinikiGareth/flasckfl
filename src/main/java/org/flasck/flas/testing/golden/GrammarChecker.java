@@ -1,5 +1,6 @@
 package org.flasck.flas.testing.golden;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -271,37 +272,47 @@ public class GrammarChecker {
 		if (defn == null)
 			throw new CantHappenException("couldn't find a case in file rule for " + currRule);
 		
-		//		Iterator<GrammarStep> it = trees.iterator();
-		/*		String reducedTo = tree.reducedToRule();
-		if (reducedTo.equals(currRule)) {
-			recursivelyCompareItems(grammarRule.defn, tree);
-		} else {
-			System.out.println("Looking for rule " + reducedTo + " inside " + currRule);
-			Production use = searchDownTo(grammarRule, reducedTo);
-			if (use == null)
-				fail("cannot find " + reducedTo + " inside the grammar rule for " + currRule);
-		}
-*/
-//		System.out.println(grammarRule);
 		DefinitionIterator defnItr = new DefinitionIterator(grammar, currRule, defn);
 		logger.info("have defn " + defnItr.current());
-		recursivelyCompareItems(defnItr, Arrays.asList((GrammarStep)file).iterator());
+		recursivelyCompareItems(Arrays.asList((GrammarStep)file).iterator(), defnItr);
 		// we would have to hope that the defn has come to an end
 		if (!defnItr.isAtEnd())
 			fail("defn was not at end");
 	}
 
-	private void recursivelyCompareItems(DefinitionIterator defn, Iterator<GrammarStep> trees) {
+	private void recursivelyCompareItems(Iterator<GrammarStep> trees, DefinitionIterator defn) {
 //		System.out.println("Compare " + defn + " to " + trees);
 		while (trees.hasNext()) {
 			GrammarStep step = trees.next();
 			logger.info("Comparing tree " + step + " with " + defn.current());
-			if (defn.canHandle(step)) {
-//				System.out.println("handled " + step);
-				if (step instanceof GrammarTree)
-					recursivelyCompareItems(defn, ((GrammarTree) step).members());
-			} else
-				fail("cannot handle " + step);
+			tryStep(step, defn);
 		}
+		defn.moveToEndOfRule();
+	}
+
+	private void compareIndents(Iterator<GrammarTree> indents, DefinitionIterator defn) {
+		// I think we need to record where we are right now and keep getting back here with
+		// some operation I am thinking of as "flush"
+		// This is also what we need to do at the end
+		while (indents.hasNext()) {
+			GrammarTree t = indents.next();
+			tryStep(t, defn);
+		}
+	}
+	
+	private void tryStep(GrammarStep step, DefinitionIterator defn) {
+		logger.info("Trying step " + step + " with " + defn.current());
+		if (defn.canHandle(step)) {
+//				System.out.println("handled " + step);
+			if (step instanceof GrammarTree) {
+				GrammarTree t = (GrammarTree) step;
+				if (t.hasMembers())
+					recursivelyCompareItems(t.members(), defn);
+				else
+					assertTrue(defn.requiresNoTokens());
+				compareIndents(t.indents(), defn);
+			}
+		} else
+			fail("cannot handle " + step);
 	}
 }
