@@ -298,6 +298,7 @@ public class GrammarChecker {
 	// handle an entire file of definitions, matching either against a ManyDefinition of a scope
 	// or against a multi-step process (true of system tests, for example)
 	private void handleFileOfType(GrammarTree tree, GrammarNavigator gn) {
+		gn.stashHere();
 		if (gn.canHandle(tree)) {
 			if (gn.isMany()) {
 				assertTrue(!tree.hasMembers());
@@ -306,22 +307,19 @@ public class GrammarChecker {
 			} else
 				throw new NotImplementedException("can only handle Many definitions at the moment");
 		}
+		gn.unstash();
 	}
 	
 	// handle a scope where the "root" grammar definition is a many definition of
 	// a ref definition, which probably points to an OrDefinition of other cases
 	private void handleScopeWithScopeRule(Iterator<GrammarTree> trees, GrammarNavigator gn) {
-//		System.out.println("Compare " + defn + " to " + trees);
-		
-		// want to ask "defn" to store its state here so we can come back to this spot ...
-		
 		while (trees.hasNext()) {
+			gn.stashHere();
 			GrammarTree tree = trees.next();
 			logger.info("Comparing tree " + tree + " with " + gn.current());
 			matchCompoundRule(tree, gn);
+			gn.unstash();
 		}
-//		defn.moveToEndOfRule();
-		// want to ask "defn" to tidy up and wind back to the earlier saved position...
 	}
 
 	// By a "compound rule" what I mean is the common pattern in the parsed form,
@@ -370,9 +368,6 @@ public class GrammarChecker {
 	// two (or more) possibilities depending on whether it's just a nested scope or
 	// specific nested definitions (such as struct members or guarded equations)
 	private void matchIndents(Iterator<GrammarTree> indents, GrammarNavigator gn) {
-		// I think we need to record where we are right now and keep getting back here with
-		// some operation I am thinking of as "flush"
-		// This is also what we need to do at the end
 		handleScopeWithScopeRule(indents, gn);
 	}
 }

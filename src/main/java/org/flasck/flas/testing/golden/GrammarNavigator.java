@@ -20,7 +20,7 @@ import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class GrammarNavigator {
-	public class TaggedDefinition {
+	public static class TaggedDefinition {
 		private final String tag;
 		private final Definition defn;
 		private int offset;
@@ -39,8 +39,18 @@ public class GrammarNavigator {
 		}
 	}
 
+	public static class Stash {
+		private final int depth;
+
+		public Stash(int depth) {
+			this.depth = depth;
+		}
+
+	}
+
 	private final Grammar grammar;
 	private final List<TaggedDefinition> stack = new ArrayList<>();
+	private final List<Stash> stashes = new ArrayList<>();
 
 	public GrammarNavigator(Grammar grammar, String ruleName, Definition grammarRule) {
 		this.grammar = grammar;
@@ -52,15 +62,31 @@ public class GrammarNavigator {
 	}
 
 	public boolean isAtEnd() {
-		slideForward();
-		return stack.isEmpty();
+		// I'm not really even sure this is necessary as errors will have occurred
+		// trying to unstash ...
+		return stack.size() == 1;
 	}
 
-	// Just keep consuming things until there is nothing left
-	// But obviously you cannot skip over tokens or anything else irreducible
-	private void slideForward() {
-		if (!stack.isEmpty())
+	public void stashHere() {
+		System.out.println("stashHere");
+		stashes.add(0, new Stash(stack.size()));
+	}
+
+	public void unstash() {
+		System.out.println("unstash");
+		Stash curr = stashes.remove(0);
+		while (stack.size() > curr.depth) {
+			TaggedDefinition td = stack.get(0);
+			if (td.defn instanceof SequenceDefinition)
+				moveToEndOfRule();
+			else if (td.defn instanceof RefDefinition) {
+				// one and done
+			} else if (td.defn instanceof IndentDefinition) { // also ManyDefinition
+				// safe to assume we have completed these
+			} else
+				throw new NotImplementedException("what do we do with " + td.defn.getClass());
 			stack.remove(0);
+		}
 	}
 
 	public boolean canHandle(GrammarStep step) {
@@ -247,15 +273,18 @@ public class GrammarNavigator {
 	
 	public void moveToEndOfRule() {
 		TaggedDefinition td = stack.get(0);
-		System.out.println("end of rule " + td);
+		System.out.println("move to end of rule " + td);
 		if (td.defn instanceof SequenceDefinition) {
 			SequenceDefinition sd = (SequenceDefinition) td.defn;
-			while (++td.offset < sd.length()) {
+			while (td.offset < sd.length()) {
 				Definition curr = sd.nth(td.offset);
 				if (curr instanceof IndentDefinition)
 					return;
-				// Many should be fine too ...
-				fail("what is " + curr.getClass());
+				else if (curr instanceof ManyDefinition || curr instanceof OptionalDefinition) {
+					td.offset++;
+					continue;
+				} else
+					fail("what is " + curr.getClass() + "?");
 			}
 			// we have reached the end of the rule
 			

@@ -1,6 +1,5 @@
 package org.flasck.flas.tokenizers;
 
-import org.apache.commons.compress.archivers.dump.DumpArchiveEntry.TYPE;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
