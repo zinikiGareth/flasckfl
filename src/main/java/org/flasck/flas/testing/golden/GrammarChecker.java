@@ -350,7 +350,7 @@ public class GrammarChecker {
 				assertFalse(tree.hasIndents());
 			}
 		} else
-			fail("cannot handle " + tree);
+			fail("cannot handle " + tree + " with defn " + defn.current());
 	}
 
 	private void matchLine(Iterator<GrammarStep> members, DefinitionIterator defn) {

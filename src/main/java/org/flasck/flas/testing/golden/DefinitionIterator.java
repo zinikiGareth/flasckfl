@@ -23,16 +23,19 @@ public class DefinitionIterator {
 	public class TaggedDefinition {
 		private final String tag;
 		private final Definition defn;
-		private int offset = 0;
+		private int offset;
 
 		public TaggedDefinition(Production grammarRule) {
-			this.tag = grammarRule.name;
-			this.defn = grammarRule.defn;
+			this(grammarRule.name, grammarRule.defn);
 		}
 
 		public TaggedDefinition(String tag, Definition defn) {
 			this.tag = tag;
 			this.defn = defn;
+			if (defn instanceof SequenceDefinition)
+				offset = 0;
+			else
+				offset = -1;
 		}
 	}
 
@@ -42,10 +45,6 @@ public class DefinitionIterator {
 	public DefinitionIterator(Grammar grammar, String ruleName, Definition grammarRule) {
 		this.grammar = grammar;
 		push(ruleName, grammarRule);
-	}
-
-	private void push(Production grammarRule) {
-		stack.add(0, new TaggedDefinition(grammarRule));
 	}
 
 	private void push(String ruleName, Definition grammarRule) {
@@ -89,6 +88,15 @@ public class DefinitionIterator {
 				}
 			} else if (nd instanceof RefDefinition) {
 				return moveToTag(token.type);
+			} else if (nd instanceof OptionalDefinition) {
+				boolean matched = moveToTag(token.type);
+				if (matched) {
+					return true;
+				} else {
+					// The nature of option is that failure IS an option ... just move on and try again
+					advanceToNext(null);
+					return handlesToken(token);
+				}
 			} else {
 				System.out.println("did not handle defn type " + nd.getClass());
 			}
@@ -118,8 +126,10 @@ public class DefinitionIterator {
 		if (d instanceof TokenDefinition) {
 			// Q1a: Are we there yet? (Token version)
 			TokenDefinition tokd = (TokenDefinition) d;
-			advanceToNext(prods);
-			return tokd.isToken(rule);
+			boolean ret = tokd.isToken(rule);
+			if (ret)
+				advanceToNext(prods);
+			return ret;
 		}
 		if (d instanceof RefDefinition) {
 			// Q1b: Are we there yet? (Ref version)
@@ -182,12 +192,12 @@ public class DefinitionIterator {
 			top.offset++;
 			if (top.offset < ((SequenceDefinition)top.defn).length())
 				return;
-			System.out.println("need to handle end of SD case");
-		} else if (top.defn instanceof TokenDefinition) {
+			// if we reach the end of the SD, then we need to pop it and try the thing above
+			advanceToNext(pop(prods));
+		} else if (top.defn instanceof TokenDefinition || top.defn instanceof RefDefinition) {
 			// We have matched the definition and that's all there is to see here,
 			// so pop it off the stack and try the next level down
-			prods = pop(prods);
-			advanceToNext(prods);
+			advanceToNext(pop(prods));
 		} else {
 			System.out.println("need to handle advance for " + top.defn.getClass());
 		}
@@ -219,7 +229,8 @@ public class DefinitionIterator {
 			return "***END***";
 		TaggedDefinition td = stack.get(0);
 		if (td.defn instanceof SequenceDefinition) {
-			return td.tag + ":" + td.offset;
+			SequenceDefinition sd = (SequenceDefinition)td.defn;
+			return td.tag + ":" + td.offset + " " + (td.offset < sd.length() ? sd.nth(td.offset) : "OOB");
 		} else
 			return td.tag;
 	}
