@@ -334,8 +334,9 @@ public class GrammarChecker {
 				System.out.println("reduced as " + reducedAs.reducedToRule());
 				if (!gn.canHandle(reducedAs))
 					fail("cannot handle " + reducedAs + " in " + gn.current());
+				int depth = gn.depth();
 				matchLine(reducedAs.members(), gn);
-				gn.moveToEndOfRule();
+				gn.moveToEndOfLine(depth);
 				if (gn.hasIndents()) {
 					matchIndents(tree.indents(), gn);
 				} else {
@@ -343,8 +344,9 @@ public class GrammarChecker {
 				}
 			} else {
 				// case B: it's just a simple rule with no indents at all
+				int depth = gn.depth();
 				matchLine(tree.members(), gn);
-				gn.moveToEndOfRule();
+				gn.moveToEndOfLine(depth);
 				assertFalse(tree.hasIndents());
 			}
 		} else
@@ -357,6 +359,10 @@ public class GrammarChecker {
 			logger.info("matching line token " + s + " with " + gn.current());
 			if (gn.canHandle(s)) {
 				System.out.println("handled " + s);
+				if (s instanceof GrammarTree) {
+					GrammarTree gt = (GrammarTree) s;
+					matchLine(gt.members(), gn);
+				}
 				// need to handle nesting and things ...
 				// can we call matchLine recursively or do we need to have something inside this?
 			} else

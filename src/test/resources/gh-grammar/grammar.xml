@@ -740,13 +740,21 @@
       </description>
     </section>
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='50 20 5 10 5 5'/>
+    <producer shares='50 15 5 5 10 5 5'/>
     <or>
       <seq>
         <ref production='literal'/>
       </seq>
       <seq>
+		<reduces-as rule='function-call' />
         <token type='var-name'/>
+        <many>
+          <ref production='expression'/>
+        </many>
+      </seq>
+      <seq>
+		<reduces-as rule='struct-ctor' />
+        <token type='type-name'/>
         <many>
           <ref production='expression'/>
         </many>

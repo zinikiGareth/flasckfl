@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ParenTermConsumer.ParenCloseRewriter;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAExprReducer implements ExprTermConsumer {
@@ -164,7 +165,12 @@ public class TDAExprReducer implements ExprTermConsumer {
 		if (from+1 == to && !isConstructor(t0))
 			return t0;
 		else {
-			errors.logReduction("function-call", t0, terms.get(to-1));
+			if (t0 instanceof UnresolvedVar)
+				errors.logReduction("function-call", t0, terms.get(to-1));
+			else if (t0 instanceof TypeReference)
+				errors.logReduction("struct-ctor", t0, terms.get(to-1));
+			else
+				throw new CantHappenException("what is this constructor?" + t0.getClass());
 			return new ApplyExpr(t0.location().copySetEnd(terms.get(to-1).location().pastEnd()), t0, args(from+1, to).toArray());
 		}
 	}

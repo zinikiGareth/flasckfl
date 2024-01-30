@@ -31,7 +31,7 @@ public class GrammarNavigator {
 		private int offset;
 
 		public TaggedDefinition(Production grammarRule) {
-			this(grammarRule.name, grammarRule.defn);
+			this(grammarRule.name, maybeOr(grammarRule));
 		}
 
 		public TaggedDefinition(String tag, Definition defn) {
@@ -41,6 +41,14 @@ public class GrammarNavigator {
 				offset = 0;
 			else
 				offset = -1;
+		}
+
+		private static Definition maybeOr(Production prod) {
+			if (prod instanceof OrProduction) {
+				return new ChoiceDefinition((OrProduction)prod);
+			} else {
+				return prod.defn;
+			}
 		}
 	}
 
@@ -73,6 +81,10 @@ public class GrammarNavigator {
 		return stack.size() == 1;
 	}
 
+	public int depth() {
+		return stack.size();
+	}
+	
 	public void stashHere() {
 		System.out.println("stashHere");
 		stashes.add(0, new Stash(stack.size()));
@@ -84,11 +96,12 @@ public class GrammarNavigator {
 		while (stack.size() > curr.depth) {
 			TaggedDefinition td = stack.get(0);
 			if (td.defn instanceof SequenceDefinition)
-				moveToEndOfRule();
+				flushRule();
 			else if (td.defn instanceof RefDefinition ||
 					td.defn instanceof ChoiceDefinition) {
 				// one and done
-			} else if (td.defn instanceof IndentDefinition) { // also ManyDefinition
+			} else if (td.defn instanceof IndentDefinition ||
+					td.defn instanceof ManyDefinition) {
 				// safe to assume we have completed these
 			} else
 				throw new NotImplementedException("what do we do with " + td.defn.getClass());
@@ -201,13 +214,8 @@ public class GrammarNavigator {
 			}
 			
 			// Q2: are we nested deep within this production?
-			if (prod instanceof OrProduction) {
-				if (navigateNext(new TaggedDefinition("or", new ChoiceDefinition((OrProduction)prod)), rule, toktext, prods, triedRules))
-					return true;
-			} else {
-				if (navigateNext(new TaggedDefinition(prod), rule, toktext, prods, triedRules))
-					return true;
-			}
+			if (navigateNext(new TaggedDefinition(prod), rule, toktext, prods, triedRules))
+				return true;
 		}
 		
 		// Q3: if we are in a many definition, can the inner one handle it?
@@ -329,11 +337,20 @@ public class GrammarNavigator {
 		return false;
 	}
 	
-	public void moveToEndOfRule() {
+	public void moveToEndOfLine(int depth) {
+		while (stack.size() > depth) {
+			flushRule();
+			stack.remove(0);
+		}
+		flushRule();
+	}
+
+	public void flushRule() {
 		TaggedDefinition td = stack.get(0);
 		System.out.println("move to end of rule " + td);
 		if (td.defn instanceof SequenceDefinition) {
 			SequenceDefinition sd = (SequenceDefinition) td.defn;
+			td.offset++; // we have processed the current item now, hence flushing ...
 			while (td.offset < sd.length()) {
 				Definition curr = sd.nth(td.offset);
 				if (curr instanceof IndentDefinition)
@@ -349,6 +366,12 @@ public class GrammarNavigator {
 			return; // we are at the end of the rule
 		} else if (td.defn instanceof IndentDefinition) {
 			// if I understand this correctly, we are not really processing a "rule" at this point, but sure, we're done ...
+			return;
+		} else if (td.defn instanceof ManyDefinition) {
+			return;
+		} else if (td.defn instanceof ChoiceDefinition) {
+			return;
+		} else if (td.defn instanceof RefDefinition) {
 			return;
 		} else
 			throw new NotImplementedException("td.defn is a " + td.defn.getClass());
