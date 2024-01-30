@@ -21,6 +21,10 @@ public class RefDefinition extends Definition {
 	public boolean refersTo(String rule) {
 		return child.equals(rule);
 	}
+
+	public String ruleName() {
+		return child;
+	}
 	
 	public Production production(Grammar grammar) {
 		return grammar.findRule(this.child);

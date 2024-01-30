@@ -4,6 +4,8 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.grammar.ActionDefinition;
 import org.flasck.flas.grammar.Definition;
@@ -161,7 +163,8 @@ public class GrammarNavigator {
 
 	private boolean moveToTag(String rule, String toktext) {
 		List<TaggedDefinition> prods = new ArrayList<>();
-		boolean ret = navigateTo(stack.get(0), rule, toktext, prods);
+		Set<String> triedRules = new TreeSet<>();
+		boolean ret = navigateTo(stack.get(0), rule, toktext, prods, triedRules);
 		
 		for (int i=0;i<prods.size();i++) {
 			stack.add(0, prods.get(i));
@@ -169,7 +172,7 @@ public class GrammarNavigator {
 		return ret;
 	}
 
-	private boolean navigateTo(TaggedDefinition from, String rule, String toktext, List<TaggedDefinition> prods) {
+	private boolean navigateTo(TaggedDefinition from, String rule, String toktext, List<TaggedDefinition> prods, Set<String> triedRules) {
 		Definition d = from.defn;
 		
 		if (d instanceof TokenDefinition) {
@@ -184,6 +187,12 @@ public class GrammarNavigator {
 		if (d instanceof RefDefinition) {
 			// Q1b: Are we there yet? (Ref version)
 			RefDefinition rd = (RefDefinition)d;
+
+			// don't go into an infinite loop
+			if (triedRules.contains(rd.ruleName()))
+				return false;
+			triedRules.add(rd.ruleName());
+
 			Production prod = rd.production(grammar); 
 			if (prod.refersTo(rule)) {
 				// still need to push the nested defn
@@ -193,10 +202,10 @@ public class GrammarNavigator {
 			
 			// Q2: are we nested deep within this production?
 			if (prod instanceof OrProduction) {
-				if (navigateNext(new TaggedDefinition("or", new ChoiceDefinition((OrProduction)prod)), rule, toktext, prods))
+				if (navigateNext(new TaggedDefinition("or", new ChoiceDefinition((OrProduction)prod)), rule, toktext, prods, triedRules))
 					return true;
 			} else {
-				if (navigateNext(new TaggedDefinition(prod), rule, toktext, prods))
+				if (navigateNext(new TaggedDefinition(prod), rule, toktext, prods, triedRules))
 					return true;
 			}
 		}
@@ -204,7 +213,7 @@ public class GrammarNavigator {
 		// Q3: if we are in a many definition, can the inner one handle it?
 		if (d instanceof ManyDefinition) {
 			ManyDefinition m = (ManyDefinition) d;
-			if (navigateNext(new TaggedDefinition("many", m.repeats()), rule, toktext, prods))
+			if (navigateNext(new TaggedDefinition("many", m.repeats()), rule, toktext, prods, triedRules))
 				return true;
 		}
 		
@@ -212,7 +221,7 @@ public class GrammarNavigator {
 		// (But failure is an option)
 		if (d instanceof OptionalDefinition) {
 			OptionalDefinition od = (OptionalDefinition) d;
-			if (navigateNext(new TaggedDefinition("option", od.childRule()), rule, toktext, prods))
+			if (navigateNext(new TaggedDefinition("option", od.childRule()), rule, toktext, prods, triedRules))
 				return true;
 		}
 		
@@ -224,7 +233,7 @@ public class GrammarNavigator {
 			}
 			while (from.offset < sd.length()) {
 				Definition nth = sd.nth(from.offset);
-				if (navigateNext(new TaggedDefinition("seq_" + from.offset, nth), rule, toktext, prods))
+				if (navigateNext(new TaggedDefinition("seq_" + from.offset, nth), rule, toktext, prods, triedRules))
 					return true;
 				if (nth instanceof ManyDefinition || nth instanceof OptionalDefinition)
 					from.offset++;
@@ -237,7 +246,7 @@ public class GrammarNavigator {
 		if (d instanceof IndentDefinition) {
 			IndentDefinition id = (IndentDefinition) d;
 			Definition nested = id.indented();
-			if (navigateNext(new TaggedDefinition("indented", nested), rule, toktext, prods))
+			if (navigateNext(new TaggedDefinition("indented", nested), rule, toktext, prods, triedRules))
 				return true;
 		}
 		
@@ -245,7 +254,7 @@ public class GrammarNavigator {
 		if (d instanceof ChoiceDefinition) {
 			ChoiceDefinition cd = (ChoiceDefinition) d;
 			for (int n=0;n<cd.quant();n++) {
-				if (navigateNext(new TaggedDefinition("choice_" + n, cd.nth(n)), rule, toktext, prods))
+				if (navigateNext(new TaggedDefinition("choice_" + n, cd.nth(n)), rule, toktext, prods, triedRules))
 					return true;
 			}
 		}
@@ -291,9 +300,9 @@ public class GrammarNavigator {
 		}
 	}
 
-	private boolean navigateNext(TaggedDefinition td, String rule, String toktext, List<TaggedDefinition> prods) {
+	private boolean navigateNext(TaggedDefinition td, String rule, String toktext, List<TaggedDefinition> prods, Set<String> triedRules) {
 		prods.add(td);
-		if (navigateTo(td, rule, toktext, prods))
+		if (navigateTo(td, rule, toktext, prods, triedRules))
 			return true;
 		prods.remove(prods.size()-1);
 		return false;
