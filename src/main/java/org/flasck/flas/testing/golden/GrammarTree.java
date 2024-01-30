@@ -87,20 +87,36 @@ public class GrammarTree implements GrammarStep {
 		return reducedTo.ruleName();
 	}
 	
-	@Override
-	public String toString() {
-		return location() + ": " + reducedTo;
-	}
-	
 	public boolean hasMembers() {
 		return !members.isEmpty();
+	}
+
+	public boolean isSingleton() {
+		return members.size() == 1 && members.get(0) instanceof GrammarTree;
+	}
+
+	public GrammarTree singleton() {
+		if (members.size() != 1)
+			throw new CantHappenException("singleton should have one member");
+		if (!(members.get(0) instanceof GrammarTree))
+			throw new CantHappenException("singleton member should be a tree");
+		return (GrammarTree) members.get(0);
 	}
 
 	public Iterator<GrammarStep> members() {
 		return members.iterator();
 	}
+	
+	public boolean hasIndents() {
+		return !indents.isEmpty();
+	}
 
 	public Iterator<GrammarTree> indents() {
 		return indents.iterator();
+	}
+	
+	@Override
+	public String toString() {
+		return location() + ": " + reducedTo;
 	}
 }

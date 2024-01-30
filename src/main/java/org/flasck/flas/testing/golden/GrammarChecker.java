@@ -1,5 +1,6 @@
 package org.flasck.flas.testing.golden;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -27,6 +28,7 @@ import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.utils.FileUtils;
 
 public class GrammarChecker {
@@ -274,45 +276,103 @@ public class GrammarChecker {
 		
 		DefinitionIterator defnItr = new DefinitionIterator(grammar, currRule, defn);
 		logger.info("have defn " + defnItr.current());
-		recursivelyCompareItems(Arrays.asList((GrammarStep)file).iterator(), defnItr);
+		handleFileOfType(file, defnItr);
 		// we would have to hope that the defn has come to an end
 		if (!defnItr.isAtEnd())
 			fail("defn was not at end");
 	}
+	
+	/* This is all very complicated, but I think it all follows a pattern.
+	 * 
+	 * The parsed form is (I think) always of the form
+	 *   GrammarTree [GrammarTree [one-line-of-members] []] [GrammarTree indents]
+	 *   
+	 * Meanwhile, the grammar file has rules all over the place, but they are often of the form
+	 *   Rule ::= [list-of-tokens] [rule-that-is-often-an-or-of-indented rules]
+	 *   
+	 * And then it gets more complicated when these indented things aren't scopes.
+	 * But let's try and match the same thing.
+	 * 
+	 */
 
-	private void recursivelyCompareItems(Iterator<GrammarStep> trees, DefinitionIterator defn) {
-//		System.out.println("Compare " + defn + " to " + trees);
-		while (trees.hasNext()) {
-			GrammarStep step = trees.next();
-			logger.info("Comparing tree " + step + " with " + defn.current());
-			tryStep(step, defn);
-		}
-		defn.moveToEndOfRule();
-	}
-
-	private void compareIndents(Iterator<GrammarTree> indents, DefinitionIterator defn) {
-		// I think we need to record where we are right now and keep getting back here with
-		// some operation I am thinking of as "flush"
-		// This is also what we need to do at the end
-		while (indents.hasNext()) {
-			GrammarTree t = indents.next();
-			tryStep(t, defn);
+	// handle an entire file of definitions, matching either against a ManyDefinition of a scope
+	// or against a multi-step process (true of system tests, for example)
+	private void handleFileOfType(GrammarTree tree, DefinitionIterator defn) {
+		if (defn.canHandle(tree)) {
+			if (defn.isMany()) {
+				assertTrue(!tree.hasMembers());
+				System.out.println("can keep coming back to this well");
+				handleScopeWithScopeRule(tree.indents(), defn);
+			} else
+				throw new NotImplementedException("can only handle Many definitions at the moment");
 		}
 	}
 	
-	private void tryStep(GrammarStep step, DefinitionIterator defn) {
-		logger.info("Trying step " + step + " with " + defn.current());
-		if (defn.canHandle(step)) {
-//				System.out.println("handled " + step);
-			if (step instanceof GrammarTree) {
-				GrammarTree t = (GrammarTree) step;
-				if (t.hasMembers())
-					recursivelyCompareItems(t.members(), defn);
-				else
-					assertTrue(defn.requiresNoTokens());
-				compareIndents(t.indents(), defn);
+	// handle a scope where the "root" grammar definition is a many definition of
+	// a ref definition, which probably points to an OrDefinition of other cases
+	private void handleScopeWithScopeRule(Iterator<GrammarTree> trees, DefinitionIterator defn) {
+//		System.out.println("Compare " + defn + " to " + trees);
+		
+		// want to ask "defn" to store its state here so we can come back to this spot ...
+		
+		while (trees.hasNext()) {
+			GrammarTree tree = trees.next();
+			logger.info("Comparing tree " + tree + " with " + defn.current());
+			matchCompoundRule(tree, defn);
+		}
+//		defn.moveToEndOfRule();
+		// want to ask "defn" to tidy up and wind back to the earlier saved position...
+	}
+
+	// By a "compound rule" what I mean is the common pattern in the parsed form,
+	// where there is one entry in the member which is a tree which is the actual line
+	// and then there may be indents (but only if supported by the grammar)
+	private void matchCompoundRule(GrammarTree tree, DefinitionIterator defn) {
+		logger.info("Matching compound rule " + tree + " with " + defn.current());
+		if (defn.canHandle(tree)) {
+			// CASE A: it's a compound rule
+			if (tree.isSingleton()) {
+				GrammarTree reducedAs = tree.singleton();
+				System.out.println("reduced as " + reducedAs.reducedToRule());
+				if (!defn.canHandle(reducedAs))
+					fail("cannot handle " + reducedAs);
+				matchLine(reducedAs.members(), defn);
+				defn.moveToEndOfRule();
+				if (defn.hasIndents()) {
+					matchIndents(tree.indents(), defn);
+				} else {
+					assertFalse(tree.hasIndents());
+				}
+			} else {
+				// case B: it's just a simple rule with no indents at all
+				matchLine(tree.members(), defn);
+				defn.moveToEndOfRule();
+				assertFalse(tree.hasIndents());
 			}
 		} else
-			fail("cannot handle " + step);
+			fail("cannot handle " + tree);
+	}
+
+	private void matchLine(Iterator<GrammarStep> members, DefinitionIterator defn) {
+		while (members.hasNext()) {
+			GrammarStep s = members.next();
+			logger.info("matching line token " + s + " with " + defn.current());
+			if (defn.canHandle(s)) {
+				System.out.println("handled " + s);
+				// need to handle nesting and things ...
+				// can we call matchLine recursively or do we need to have something inside this?
+			} else
+				fail("cannot handle " + s + " with " + defn.current());
+		}
+	}
+
+	// I'm not sure if this is exactly the same as handleScope or if there are
+	// two (or more) possibilities depending on whether it's just a nested scope or
+	// specific nested definitions (such as struct members or guarded equations)
+	private void matchIndents(Iterator<GrammarTree> indents, DefinitionIterator defn) {
+		// I think we need to record where we are right now and keep getting back here with
+		// some operation I am thinking of as "flush"
+		// This is also what we need to do at the end
+		handleScopeWithScopeRule(indents, defn);
 	}
 }

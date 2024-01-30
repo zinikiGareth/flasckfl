@@ -13,6 +13,10 @@ public class IndentDefinition extends Definition {
 		this.exactlyOne = exactlyOne;
 		this.allowZero = allowZero;
 	}
+	
+	public Definition indented() {
+		return defn;
+	}
 
 	@Override
 	public void showGrammarFor(PrintWriter str) {

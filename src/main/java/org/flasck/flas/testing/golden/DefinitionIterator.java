@@ -73,6 +73,7 @@ public class DefinitionIterator {
 			throw new NotImplementedException(step.getClass().getName());
 	}
 
+	
 	private boolean handlesToken(GrammarToken token) {
 		TaggedDefinition td = stack.get(0);
 		if (td.defn instanceof SequenceDefinition) {
@@ -83,16 +84,25 @@ public class DefinitionIterator {
 				Lexer lexer = tokd.lexer(grammar);
 				String patt = lexer.pattern;
 				if (token.text.matches(patt)) {
-					td.offset++;
+					advanceToNext(null);
 					return true;
 				}
+			} else if (nd instanceof RefDefinition) {
+				return moveToTag(token.type);
+			} else {
+				System.out.println("did not handle defn type " + nd.getClass());
 			}
+		} else {
+			System.out.println("definition was not SD but " + td.defn.getClass());
 		}
 		return false;
 	}
 
 	private boolean handlesTree(GrammarTree tree) {
-		String rule = tree.reducedToRule();
+		return moveToTag(tree.reducedToRule());
+	}
+
+	private boolean moveToTag(String rule) {
 		List<TaggedDefinition> prods = new ArrayList<>();
 		boolean ret = navigateTo(stack.get(0), rule, prods);
 		
@@ -105,12 +115,18 @@ public class DefinitionIterator {
 	private boolean navigateTo(TaggedDefinition from, String rule, List<TaggedDefinition> prods) {
 		Definition d = from.defn;
 		
+		if (d instanceof TokenDefinition) {
+			// Q1a: Are we there yet? (Token version)
+			TokenDefinition tokd = (TokenDefinition) d;
+			advanceToNext(prods);
+			return tokd.isToken(rule);
+		}
 		if (d instanceof RefDefinition) {
-			// Q1: Are we there yet?
+			// Q1b: Are we there yet? (Ref version)
 			RefDefinition rd = (RefDefinition)d;
 			Production defn = rd.production(grammar); 
-			if (rd.refersTo(rule)) {
-				// still need to push it
+			if (defn.refersTo(rule)) {
+				// still need to push the nested defn
 				prods.add(new TaggedDefinition(defn));
 				return true;
 			}
@@ -135,7 +151,6 @@ public class DefinitionIterator {
 			}
 			while (from.offset < sd.length()) {
 				Definition nth = sd.nth(from.offset);
-				// TODO: navigateTo should handle IndentDefinition & then we'd be fine ...
 				if (navigateNext(new TaggedDefinition("" + from.offset, nth), rule, prods))
 					return true;
 				if (nth instanceof ManyDefinition || nth instanceof OptionalDefinition)
@@ -144,7 +159,51 @@ public class DefinitionIterator {
 					return false;
 			}
 		}
+		
+		// Q5: if it's an indent definition, then I think that includes a RefDefinition, so follow it down ...
+		if (d instanceof IndentDefinition) {
+			IndentDefinition id = (IndentDefinition) d;
+			Definition nested = id.indented();
+			if (navigateNext(new TaggedDefinition("indented", nested), rule, prods))
+				return true;
+		}
+		
 		return false;
+	}
+
+	private void advanceToNext(List<TaggedDefinition> prods) {
+		TaggedDefinition top;
+		if (prods == null) {
+			top = stack.get(0);
+		} else {
+			top = prods.get(prods.size()-1);
+		}
+		if (top.defn instanceof SequenceDefinition) {
+			top.offset++;
+			if (top.offset < ((SequenceDefinition)top.defn).length())
+				return;
+			System.out.println("need to handle end of SD case");
+		} else if (top.defn instanceof TokenDefinition) {
+			// We have matched the definition and that's all there is to see here,
+			// so pop it off the stack and try the next level down
+			prods = pop(prods);
+			advanceToNext(prods);
+		} else {
+			System.out.println("need to handle advance for " + top.defn.getClass());
+		}
+	}
+
+	private List<TaggedDefinition> pop(List<TaggedDefinition> prods) {
+		if (prods == null) {
+			stack.remove(0);
+			return null;
+		} else {
+			prods.remove(prods.size()-1);
+			if (prods.isEmpty())
+				return null;
+			else
+				return prods;
+		}
 	}
 
 	private boolean navigateNext(TaggedDefinition td, String rule, List<TaggedDefinition> prods) {
@@ -191,6 +250,21 @@ public class DefinitionIterator {
 			
 		} else
 			throw new NotImplementedException("td.defn is a " + td.defn.getClass());
+	}
+
+	public boolean hasIndents() {
+		TaggedDefinition td = stack.get(0);
+		if (td.defn instanceof SequenceDefinition) {
+			SequenceDefinition sd = (SequenceDefinition) td.defn;
+			Definition d = sd.nth(td.offset);
+			return d instanceof IndentDefinition;
+		}
+		return false;
+	}
+
+	public boolean isMany() {
+		TaggedDefinition td = stack.get(0);
+		return td.defn instanceof ManyDefinition;
 	}
 	
 	@Override

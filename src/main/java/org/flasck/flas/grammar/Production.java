@@ -15,6 +15,14 @@ public class Production {
 		this.defn = defn;
 	}
 
+	public boolean refersTo(String rule) {
+		if (name.equals(rule))
+			return true;
+		if (defn instanceof SequenceDefinition)
+			return ((SequenceDefinition)defn).canReduceAs(rule);
+		return false;
+	}
+
 	public String ruleName() {
 		return name;
 	}

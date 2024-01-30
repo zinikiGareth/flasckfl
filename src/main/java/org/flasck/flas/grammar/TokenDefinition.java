@@ -44,6 +44,10 @@ public class TokenDefinition extends Definition {
 		return g.findToken(token);
 	}
 	
+	public boolean isToken(String t) {
+		return t.equals(token);
+	}
+	
 	@Override
 	public void showGrammarFor(PrintWriter str) {
 		str.append("<span class='production-token'>" + StringEscapeUtils.escapeHtml4(token) + "</span>");
