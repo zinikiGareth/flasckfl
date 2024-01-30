@@ -479,6 +479,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionParsingTests' />
     <seq>
+	  <reduces-as rule="simple-function-case-definition-intro" />
       <cond var='haveLast' notset='true'>
         <dict-clear var='arg-length'/>
       </cond>

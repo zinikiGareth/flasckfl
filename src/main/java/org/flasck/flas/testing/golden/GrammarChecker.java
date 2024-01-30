@@ -333,7 +333,7 @@ public class GrammarChecker {
 				GrammarTree reducedAs = tree.singleton();
 				System.out.println("reduced as " + reducedAs.reducedToRule());
 				if (!gn.canHandle(reducedAs))
-					fail("cannot handle " + reducedAs);
+					fail("cannot handle " + reducedAs + " in " + gn.current());
 				matchLine(reducedAs.members(), gn);
 				gn.moveToEndOfRule();
 				if (gn.hasIndents()) {
@@ -360,7 +360,7 @@ public class GrammarChecker {
 				// need to handle nesting and things ...
 				// can we call matchLine recursively or do we need to have something inside this?
 			} else
-				fail("cannot handle " + s + " with " + gn.current());
+				fail("cannot match token in line " + s + " with " + gn.current());
 		}
 	}
 

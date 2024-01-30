@@ -3,7 +3,7 @@ package org.flasck.flas.grammar;
 import java.io.PrintWriter;
 import java.util.Set;
 
-public class NestedNameDefinition extends Definition {
+public class NestedNameDefinition extends Definition implements ActionDefinition {
 	private final int offset;
 
 	public NestedNameDefinition(int offset) {

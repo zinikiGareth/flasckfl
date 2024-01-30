@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.grammar.ActionDefinition;
 import org.flasck.flas.grammar.Definition;
 import org.flasck.flas.grammar.Grammar;
 import org.flasck.flas.grammar.IndentDefinition;
@@ -17,6 +18,8 @@ import org.flasck.flas.grammar.SequenceDefinition;
 import org.flasck.flas.grammar.TokenDefinition;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class GrammarNavigator {
@@ -48,6 +51,7 @@ public class GrammarNavigator {
 
 	}
 
+	public static final Logger logger = LoggerFactory.getLogger("GrammarChecker");
 	private final Grammar grammar;
 	private final List<TaggedDefinition> stack = new ArrayList<>();
 	private final List<Stash> stashes = new ArrayList<>();
@@ -101,34 +105,54 @@ public class GrammarNavigator {
 
 	
 	private boolean handlesToken(GrammarToken token) {
-		TaggedDefinition td = stack.get(0);
-		if (td.defn instanceof SequenceDefinition) {
-			SequenceDefinition sd = (SequenceDefinition) td.defn;
-			Definition nd = sd.nth(td.offset);
-			if (nd instanceof TokenDefinition) {
-				TokenDefinition tokd = (TokenDefinition)nd;
-				if (tokd.isToken(grammar, null, token.text)) {
+		while (true) {
+			TaggedDefinition td = stack.get(0);
+			logger.info("attempting to handle " + token + " with " + current());
+			if (td.defn instanceof SequenceDefinition) {
+				SequenceDefinition sd = (SequenceDefinition) td.defn;
+				Definition nd = sd.nth(td.offset);
+				if (nd instanceof ActionDefinition) {
 					advanceToNext(null);
-					return true;
+					continue;
 				}
-			} else if (nd instanceof RefDefinition) {
-				return moveToTag(token.type, token.text);
-			} else if (nd instanceof OptionalDefinition) {
-				boolean matched = moveToTag(token.type, token.text);
-				if (matched) {
-					return true;
+				if (nd instanceof TokenDefinition) {
+					TokenDefinition tokd = (TokenDefinition)nd;
+					if (tokd.isToken(grammar, null, token.text)) {
+						advanceToNext(null);
+						return true;
+					}
+				} else if (nd instanceof RefDefinition) {
+					return moveToTag(token.type, token.text);
+				} else if (nd instanceof OptionalDefinition) {
+					boolean matched = moveToTag(token.type, token.text);
+					if (matched) {
+						return true;
+					} else {
+						// The nature of option is that failure IS an option ... just move on and try again
+						advanceToNext(null);
+						return handlesToken(token);
+					}
+				} else if (nd instanceof ManyDefinition) {
+					boolean matched = moveToTag(token.type, token.text);
+					if (matched) {
+						return true;
+					} else {
+						// Failure is acceptable for a Many
+						// TODO: I think we need to consider the 1-or-more case and throw an error if only 0
+						advanceToNext(null);
+						return handlesToken(token);
+					}
 				} else {
-					// The nature of option is that failure IS an option ... just move on and try again
-					advanceToNext(null);
-					return handlesToken(token);
+					// TODO: need to handle "CondDefinition" which is just a meta token
+					// We should flag all of these with a marker interface MetaDefinition or something
+					// and just skip over them in the matchLine code
+					System.out.println("did not handle defn type " + nd.getClass());
 				}
 			} else {
-				System.out.println("did not handle defn type " + nd.getClass());
+				System.out.println("definition was not SD but " + td.defn.getClass());
 			}
-		} else {
-			System.out.println("definition was not SD but " + td.defn.getClass());
+			return false;
 		}
-		return false;
 	}
 
 	private boolean handlesTree(GrammarTree tree) {

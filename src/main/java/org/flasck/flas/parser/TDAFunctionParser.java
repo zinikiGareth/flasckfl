@@ -59,8 +59,9 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 		consumer.functionIntro(intro);
 		if (!line.hasMoreContent(errors)) {
 			errors.logReduction("function-intro-no-expr", intro.location, line.realinfo());
+			TDAFunctionGuardedEquationParser inner = new TDAFunctionGuardedEquationParser(errors, intro, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder, this));
 			return new TDAParsingWithAction(
-				new TDAFunctionGuardedEquationParser(errors, intro, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder, this)),
+				inner,
 				() -> { 
 					consumer.done(); 
 					reduce(t.location, "function-intro-with-scope"); }
@@ -95,7 +96,7 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 			ParsingPhase.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder, this),
 			() -> { 
 				consumer.done(); 
-				reduce(t.location, "function-intro-with-scope");
+				reduce(t.location, "simple-function-case-definition");
 			}
 		);
 	}

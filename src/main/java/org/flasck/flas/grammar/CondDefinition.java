@@ -3,7 +3,7 @@ package org.flasck.flas.grammar;
 import java.io.PrintWriter;
 import java.util.Set;
 
-public class CondDefinition extends Definition {
+public class CondDefinition extends Definition implements ActionDefinition {
 	private final String var;
 	private final String ne;
 	private final boolean notset;

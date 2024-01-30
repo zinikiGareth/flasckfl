@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.util.Set;
 
 
-public class CaseNumberingDefinition extends Definition {
+public class CaseNumberingDefinition extends Definition implements ActionDefinition {
 
 	@Override
 	public void showGrammarFor(PrintWriter str) {
