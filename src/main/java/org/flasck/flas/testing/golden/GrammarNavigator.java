@@ -8,9 +8,9 @@ import java.util.List;
 import org.flasck.flas.grammar.Definition;
 import org.flasck.flas.grammar.Grammar;
 import org.flasck.flas.grammar.IndentDefinition;
-import org.flasck.flas.grammar.Lexer;
 import org.flasck.flas.grammar.ManyDefinition;
 import org.flasck.flas.grammar.OptionalDefinition;
+import org.flasck.flas.grammar.OrProduction;
 import org.flasck.flas.grammar.Production;
 import org.flasck.flas.grammar.RefDefinition;
 import org.flasck.flas.grammar.SequenceDefinition;
@@ -79,7 +79,8 @@ public class GrammarNavigator {
 			TaggedDefinition td = stack.get(0);
 			if (td.defn instanceof SequenceDefinition)
 				moveToEndOfRule();
-			else if (td.defn instanceof RefDefinition) {
+			else if (td.defn instanceof RefDefinition ||
+					td.defn instanceof ChoiceDefinition) {
 				// one and done
 			} else if (td.defn instanceof IndentDefinition) { // also ManyDefinition
 				// safe to assume we have completed these
@@ -106,16 +107,14 @@ public class GrammarNavigator {
 			Definition nd = sd.nth(td.offset);
 			if (nd instanceof TokenDefinition) {
 				TokenDefinition tokd = (TokenDefinition)nd;
-				Lexer lexer = tokd.lexer(grammar);
-				String patt = lexer.pattern;
-				if (token.text.matches(patt)) {
+				if (tokd.isToken(grammar, null, token.text)) {
 					advanceToNext(null);
 					return true;
 				}
 			} else if (nd instanceof RefDefinition) {
-				return moveToTag(token.type);
+				return moveToTag(token.type, token.text);
 			} else if (nd instanceof OptionalDefinition) {
-				boolean matched = moveToTag(token.type);
+				boolean matched = moveToTag(token.type, token.text);
 				if (matched) {
 					return true;
 				} else {
@@ -133,12 +132,12 @@ public class GrammarNavigator {
 	}
 
 	private boolean handlesTree(GrammarTree tree) {
-		return moveToTag(tree.reducedToRule());
+		return moveToTag(tree.reducedToRule(), null);
 	}
 
-	private boolean moveToTag(String rule) {
+	private boolean moveToTag(String rule, String toktext) {
 		List<TaggedDefinition> prods = new ArrayList<>();
-		boolean ret = navigateTo(stack.get(0), rule, prods);
+		boolean ret = navigateTo(stack.get(0), rule, toktext, prods);
 		
 		for (int i=0;i<prods.size();i++) {
 			stack.add(0, prods.get(i));
@@ -146,40 +145,54 @@ public class GrammarNavigator {
 		return ret;
 	}
 
-	private boolean navigateTo(TaggedDefinition from, String rule, List<TaggedDefinition> prods) {
+	private boolean navigateTo(TaggedDefinition from, String rule, String toktext, List<TaggedDefinition> prods) {
 		Definition d = from.defn;
 		
 		if (d instanceof TokenDefinition) {
 			// Q1a: Are we there yet? (Token version)
 			TokenDefinition tokd = (TokenDefinition) d;
-			boolean ret = tokd.isToken(rule);
+			boolean ret = tokd.isToken(grammar, rule, toktext);
 			if (ret)
 				advanceToNext(prods);
 			return ret;
 		}
+
 		if (d instanceof RefDefinition) {
 			// Q1b: Are we there yet? (Ref version)
 			RefDefinition rd = (RefDefinition)d;
-			Production defn = rd.production(grammar); 
-			if (defn.refersTo(rule)) {
+			Production prod = rd.production(grammar); 
+			if (prod.refersTo(rule)) {
 				// still need to push the nested defn
-				prods.add(new TaggedDefinition(defn));
+				prods.add(new TaggedDefinition(prod));
 				return true;
 			}
 			
 			// Q2: are we nested deep within this production?
-			if (navigateNext(new TaggedDefinition(defn), rule, prods))
-				return true;
+			if (prod instanceof OrProduction) {
+				if (navigateNext(new TaggedDefinition("or", new ChoiceDefinition((OrProduction)prod)), rule, toktext, prods))
+					return true;
+			} else {
+				if (navigateNext(new TaggedDefinition(prod), rule, toktext, prods))
+					return true;
+			}
 		}
 		
 		// Q3: if we are in a many definition, can the inner one handle it?
 		if (d instanceof ManyDefinition) {
 			ManyDefinition m = (ManyDefinition) d;
-			if (navigateNext(new TaggedDefinition("many", m.repeats()), rule, prods))
+			if (navigateNext(new TaggedDefinition("many", m.repeats()), rule, toktext, prods))
 				return true;
 		}
 		
-		// Q4: if we are (somewhere) in a sequence, does the current token/rule match?
+		// Q4: if this is an optional definition, does the token appear at the front of the nested rule?
+		// (But failure is an option)
+		if (d instanceof OptionalDefinition) {
+			OptionalDefinition od = (OptionalDefinition) d;
+			if (navigateNext(new TaggedDefinition("option", od.childRule()), rule, toktext, prods))
+				return true;
+		}
+		
+		// Q5: if we are (somewhere) in a sequence, does the current token/rule match?
 		if (d instanceof SequenceDefinition) {
 			SequenceDefinition sd = (SequenceDefinition) d;
 			if (from.offset == 0 && sd.canReduceAs(rule)) {
@@ -187,7 +200,7 @@ public class GrammarNavigator {
 			}
 			while (from.offset < sd.length()) {
 				Definition nth = sd.nth(from.offset);
-				if (navigateNext(new TaggedDefinition("" + from.offset, nth), rule, prods))
+				if (navigateNext(new TaggedDefinition("seq_" + from.offset, nth), rule, toktext, prods))
 					return true;
 				if (nth instanceof ManyDefinition || nth instanceof OptionalDefinition)
 					from.offset++;
@@ -196,12 +209,21 @@ public class GrammarNavigator {
 			}
 		}
 		
-		// Q5: if it's an indent definition, then I think that includes a RefDefinition, so follow it down ...
+		// Q6: if it's an indent definition, then I think that includes a RefDefinition, so follow it down ...
 		if (d instanceof IndentDefinition) {
 			IndentDefinition id = (IndentDefinition) d;
 			Definition nested = id.indented();
-			if (navigateNext(new TaggedDefinition("indented", nested), rule, prods))
+			if (navigateNext(new TaggedDefinition("indented", nested), rule, toktext, prods))
 				return true;
+		}
+		
+		// Q7: if it's a choice definition, we need to try all the cases in turn
+		if (d instanceof ChoiceDefinition) {
+			ChoiceDefinition cd = (ChoiceDefinition) d;
+			for (int n=0;n<cd.quant();n++) {
+				if (navigateNext(new TaggedDefinition("choice_" + n, cd.nth(n)), rule, toktext, prods))
+					return true;
+			}
 		}
 		
 		return false;
@@ -220,7 +242,10 @@ public class GrammarNavigator {
 				return;
 			// if we reach the end of the SD, then we need to pop it and try the thing above
 			advanceToNext(pop(prods));
-		} else if (top.defn instanceof TokenDefinition || top.defn instanceof RefDefinition) {
+		} else if (top.defn instanceof TokenDefinition || 
+				top.defn instanceof RefDefinition ||
+				top.defn instanceof ChoiceDefinition ||
+				top.defn instanceof OptionalDefinition) {
 			// We have matched the definition and that's all there is to see here,
 			// so pop it off the stack and try the next level down
 			advanceToNext(pop(prods));
@@ -242,9 +267,9 @@ public class GrammarNavigator {
 		}
 	}
 
-	private boolean navigateNext(TaggedDefinition td, String rule, List<TaggedDefinition> prods) {
+	private boolean navigateNext(TaggedDefinition td, String rule, String toktext, List<TaggedDefinition> prods) {
 		prods.add(td);
-		if (navigateTo(td, rule, prods))
+		if (navigateTo(td, rule, toktext, prods))
 			return true;
 		prods.remove(prods.size()-1);
 		return false;
@@ -287,7 +312,11 @@ public class GrammarNavigator {
 					fail("what is " + curr.getClass() + "?");
 			}
 			// we have reached the end of the rule
-			
+		} else if (td.defn instanceof OptionalDefinition) {
+			return; // we are at the end of the rule
+		} else if (td.defn instanceof IndentDefinition) {
+			// if I understand this correctly, we are not really processing a "rule" at this point, but sure, we're done ...
+			return;
 		} else
 			throw new NotImplementedException("td.defn is a " + td.defn.getClass());
 	}

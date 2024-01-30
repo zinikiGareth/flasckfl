@@ -40,12 +40,14 @@ public class TokenDefinition extends Definition {
 		this.space = space;
 	}
 
-	public Lexer lexer(Grammar g) {
-		return g.findToken(token);
-	}
-	
-	public boolean isToken(String t) {
-		return t.equals(token);
+	public boolean isToken(Grammar grammar, String rule, String text) {
+		if (token.equals(rule))
+			return true;
+		if (text == null)
+			return false;
+		Lexer lexer = grammar.findToken(token);
+		String patt = lexer.pattern;
+		return text.matches(patt);
 	}
 	
 	@Override

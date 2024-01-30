@@ -41,8 +41,14 @@ public class ExprToken implements LoggableToken {
 	
 	@Override
 	public String type() {
-		// TODO: I think this probably wants to be a more descriptive thing, but let's see what happens when we get going
-		return "ExprToken_" + type;
+		switch (type) {
+		case 4:
+			return "symbol";
+		case 5:
+			return "STRING";
+		default:
+			return "ExprToken_" + type;
+		}
 	}
 
 	@Override

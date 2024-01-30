@@ -12,6 +12,10 @@ public class OptionalDefinition extends Definition {
 		this.elseClause = elseClause;
 	}
 
+	public Definition childRule() {
+		return child;
+	}
+	
 	@Override
 	public void showGrammarFor(PrintWriter str) {
 		child.showGrammarFor(str);
