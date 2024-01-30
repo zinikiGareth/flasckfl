@@ -274,11 +274,11 @@ public class GrammarChecker {
 		if (defn == null)
 			throw new CantHappenException("couldn't find a case in file rule for " + currRule);
 		
-		DefinitionIterator defnItr = new DefinitionIterator(grammar, currRule, defn);
-		logger.info("have defn " + defnItr.current());
-		handleFileOfType(file, defnItr);
+		GrammarNavigator gn = new GrammarNavigator(grammar, currRule, defn);
+		logger.info("have defn " + gn.current());
+		handleFileOfType(file, gn);
 		// we would have to hope that the defn has come to an end
-		if (!defnItr.isAtEnd())
+		if (!gn.isAtEnd())
 			fail("defn was not at end");
 	}
 	
@@ -297,12 +297,12 @@ public class GrammarChecker {
 
 	// handle an entire file of definitions, matching either against a ManyDefinition of a scope
 	// or against a multi-step process (true of system tests, for example)
-	private void handleFileOfType(GrammarTree tree, DefinitionIterator defn) {
-		if (defn.canHandle(tree)) {
-			if (defn.isMany()) {
+	private void handleFileOfType(GrammarTree tree, GrammarNavigator gn) {
+		if (gn.canHandle(tree)) {
+			if (gn.isMany()) {
 				assertTrue(!tree.hasMembers());
 				System.out.println("can keep coming back to this well");
-				handleScopeWithScopeRule(tree.indents(), defn);
+				handleScopeWithScopeRule(tree.indents(), gn);
 			} else
 				throw new NotImplementedException("can only handle Many definitions at the moment");
 		}
@@ -310,15 +310,15 @@ public class GrammarChecker {
 	
 	// handle a scope where the "root" grammar definition is a many definition of
 	// a ref definition, which probably points to an OrDefinition of other cases
-	private void handleScopeWithScopeRule(Iterator<GrammarTree> trees, DefinitionIterator defn) {
+	private void handleScopeWithScopeRule(Iterator<GrammarTree> trees, GrammarNavigator gn) {
 //		System.out.println("Compare " + defn + " to " + trees);
 		
 		// want to ask "defn" to store its state here so we can come back to this spot ...
 		
 		while (trees.hasNext()) {
 			GrammarTree tree = trees.next();
-			logger.info("Comparing tree " + tree + " with " + defn.current());
-			matchCompoundRule(tree, defn);
+			logger.info("Comparing tree " + tree + " with " + gn.current());
+			matchCompoundRule(tree, gn);
 		}
 //		defn.moveToEndOfRule();
 		// want to ask "defn" to tidy up and wind back to the earlier saved position...
@@ -327,52 +327,52 @@ public class GrammarChecker {
 	// By a "compound rule" what I mean is the common pattern in the parsed form,
 	// where there is one entry in the member which is a tree which is the actual line
 	// and then there may be indents (but only if supported by the grammar)
-	private void matchCompoundRule(GrammarTree tree, DefinitionIterator defn) {
-		logger.info("Matching compound rule " + tree + " with " + defn.current());
-		if (defn.canHandle(tree)) {
+	private void matchCompoundRule(GrammarTree tree, GrammarNavigator gn) {
+		logger.info("Matching compound rule " + tree + " with " + gn.current());
+		if (gn.canHandle(tree)) {
 			// CASE A: it's a compound rule
 			if (tree.isSingleton()) {
 				GrammarTree reducedAs = tree.singleton();
 				System.out.println("reduced as " + reducedAs.reducedToRule());
-				if (!defn.canHandle(reducedAs))
+				if (!gn.canHandle(reducedAs))
 					fail("cannot handle " + reducedAs);
-				matchLine(reducedAs.members(), defn);
-				defn.moveToEndOfRule();
-				if (defn.hasIndents()) {
-					matchIndents(tree.indents(), defn);
+				matchLine(reducedAs.members(), gn);
+				gn.moveToEndOfRule();
+				if (gn.hasIndents()) {
+					matchIndents(tree.indents(), gn);
 				} else {
 					assertFalse(tree.hasIndents());
 				}
 			} else {
 				// case B: it's just a simple rule with no indents at all
-				matchLine(tree.members(), defn);
-				defn.moveToEndOfRule();
+				matchLine(tree.members(), gn);
+				gn.moveToEndOfRule();
 				assertFalse(tree.hasIndents());
 			}
 		} else
-			fail("cannot handle " + tree + " with defn " + defn.current());
+			fail("cannot handle " + tree + " with defn " + gn.current());
 	}
 
-	private void matchLine(Iterator<GrammarStep> members, DefinitionIterator defn) {
+	private void matchLine(Iterator<GrammarStep> members, GrammarNavigator gn) {
 		while (members.hasNext()) {
 			GrammarStep s = members.next();
-			logger.info("matching line token " + s + " with " + defn.current());
-			if (defn.canHandle(s)) {
+			logger.info("matching line token " + s + " with " + gn.current());
+			if (gn.canHandle(s)) {
 				System.out.println("handled " + s);
 				// need to handle nesting and things ...
 				// can we call matchLine recursively or do we need to have something inside this?
 			} else
-				fail("cannot handle " + s + " with " + defn.current());
+				fail("cannot handle " + s + " with " + gn.current());
 		}
 	}
 
 	// I'm not sure if this is exactly the same as handleScope or if there are
 	// two (or more) possibilities depending on whether it's just a nested scope or
 	// specific nested definitions (such as struct members or guarded equations)
-	private void matchIndents(Iterator<GrammarTree> indents, DefinitionIterator defn) {
+	private void matchIndents(Iterator<GrammarTree> indents, GrammarNavigator gn) {
 		// I think we need to record where we are right now and keep getting back here with
 		// some operation I am thinking of as "flush"
 		// This is also what we need to do at the end
-		handleScopeWithScopeRule(indents, defn);
+		handleScopeWithScopeRule(indents, gn);
 	}
 }

@@ -19,7 +19,7 @@ import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class DefinitionIterator {
+public class GrammarNavigator {
 	public class TaggedDefinition {
 		private final String tag;
 		private final Definition defn;
@@ -42,7 +42,7 @@ public class DefinitionIterator {
 	private final Grammar grammar;
 	private final List<TaggedDefinition> stack = new ArrayList<>();
 
-	public DefinitionIterator(Grammar grammar, String ruleName, Definition grammarRule) {
+	public GrammarNavigator(Grammar grammar, String ruleName, Definition grammarRule) {
 		this.grammar = grammar;
 		push(ruleName, grammarRule);
 	}
