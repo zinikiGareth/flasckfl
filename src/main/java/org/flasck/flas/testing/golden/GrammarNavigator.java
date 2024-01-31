@@ -2,6 +2,7 @@ package org.flasck.flas.testing.golden;
 
 import static org.junit.Assert.fail;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,8 @@ import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class GrammarNavigator {
@@ -93,10 +96,11 @@ public class GrammarNavigator {
 	public void unstash() {
 		System.out.println("unstash");
 		Stash curr = stashes.remove(0);
+		boolean comingUp = false;
 		while (stack.size() > curr.depth) {
 			TaggedDefinition td = stack.get(0);
 			if (td.defn instanceof SequenceDefinition)
-				flushRule();
+				flushRule(comingUp);
 			else if (td.defn instanceof RefDefinition ||
 					td.defn instanceof ChoiceDefinition) {
 				// one and done
@@ -106,6 +110,7 @@ public class GrammarNavigator {
 			} else
 				throw new NotImplementedException("what do we do with " + td.defn.getClass());
 			stack.remove(0);
+			comingUp = true;
 		}
 	}
 
@@ -150,6 +155,7 @@ public class GrammarNavigator {
 				} else if (nd instanceof ManyDefinition) {
 					boolean matched = moveToTag(token.type, token.text);
 					if (matched) {
+						advanceToNext(null);
 						return true;
 					} else {
 						// Failure is acceptable for a Many
@@ -163,8 +169,22 @@ public class GrammarNavigator {
 					// and just skip over them in the matchLine code
 					System.out.println("did not handle defn type " + nd.getClass());
 				}
+			} else if (td.defn instanceof ManyDefinition) {
+				boolean matched = moveToTag(token.type, token.text);
+				if (matched)
+					return true;
+				else {
+					throw new HaventConsideredThisException("we are in a many that cannot handle the symbol.  We probably want to give up and move on");
+				}
+			} else if (td.defn instanceof ChoiceDefinition) {
+				boolean matched = moveToTag(token.type, token.text);
+				if (matched) {
+					advanceToNext(null);
+					return true;
+				}
+				System.out.println("Did not match any of the choices");
 			} else {
-				System.out.println("definition was not SD but " + td.defn.getClass());
+				System.out.println("handlesToken does not handle " + td.defn.getClass());
 			}
 			return false;
 		}
@@ -250,15 +270,26 @@ public class GrammarNavigator {
 			}
 		}
 		
-		// Q6: if it's an indent definition, then I think that includes a RefDefinition, so follow it down ...
 		if (d instanceof IndentDefinition) {
+			// Q6: an indent definition with an explicit reduction will match right here ...
 			IndentDefinition id = (IndentDefinition) d;
 			Definition nested = id.indented();
+
+			if (id.canReduceAs(rule)) {
+				// push the indent and the ref
+				prods.add(new TaggedDefinition("indented", nested));
+				RefDefinition rd = (RefDefinition)nested;
+				Production prod = rd.production(grammar); 
+				prods.add(new TaggedDefinition(prod));
+				return true;
+			}
+
+			// Q7: if it's an indent definition that includes a RefDefinition, follow it down ...
 			if (navigateNext(new TaggedDefinition("indented", nested), rule, toktext, prods, triedRules))
 				return true;
 		}
 		
-		// Q7: if it's a choice definition, we need to try all the cases in turn
+		// Q8: if it's a choice definition, we need to try all the cases in turn
 		if (d instanceof ChoiceDefinition) {
 			ChoiceDefinition cd = (ChoiceDefinition) d;
 			for (int n=0;n<cd.quant();n++) {
@@ -290,6 +321,8 @@ public class GrammarNavigator {
 			// We have matched the definition and that's all there is to see here,
 			// so pop it off the stack and try the next level down
 			advanceToNext(pop(prods));
+		} else if (top.defn instanceof ManyDefinition) {
+			// this is a reasonable place to find the next token, so wait here ...
 		} else {
 			System.out.println("need to handle advance for " + top.defn.getClass());
 		}
@@ -338,26 +371,54 @@ public class GrammarNavigator {
 	}
 	
 	public void moveToEndOfLine(int depth) {
+		boolean comingUp = false;
 		while (stack.size() > depth) {
-			flushRule();
+			flushRule(comingUp);
 			stack.remove(0);
+			comingUp = true;
 		}
-		flushRule();
+		flushRule(comingUp);
 	}
 
-	public void flushRule() {
+
+	public void skipActions() {
 		TaggedDefinition td = stack.get(0);
-		System.out.println("move to end of rule " + td);
+		System.out.println("skip actions in " + td);
 		if (td.defn instanceof SequenceDefinition) {
 			SequenceDefinition sd = (SequenceDefinition) td.defn;
-			td.offset++; // we have processed the current item now, hence flushing ...
+			while (sd.nth(td.offset) instanceof ActionDefinition)
+				td.offset++;
+		} else
+			throw new CantHappenException("must be a sequence definition");
+	}
+
+	// comingUp here says that we are coming up from a nested scope, so
+	// we will have processed the first token we see in a sequence
+	public void flushRule(boolean comingUp) {
+		TaggedDefinition td = stack.get(0);
+		System.out.println("move to end of rule " + td.tag);
+		if (td.defn instanceof SequenceDefinition) {
+			SequenceDefinition sd = (SequenceDefinition) td.defn;
+
+			if (comingUp)
+				td.offset++; // we have processed the current item now, hence flushing ...
+			
 			while (td.offset < sd.length()) {
 				Definition curr = sd.nth(td.offset);
+				if (curr instanceof ActionDefinition) {
+					td.offset++;
+					continue;
+				}
+					
 				if (curr instanceof IndentDefinition)
 					return;
 				else if (curr instanceof ManyDefinition || curr instanceof OptionalDefinition) {
 					td.offset++;
 					continue;
+				} else if (curr instanceof TokenDefinition) {
+					TokenDefinition tok = (TokenDefinition) curr;
+					System.out.println("missing token: " + tok);
+					fail("cannot move to end of line because we are expecting a token which is missing: " + tok);
 				} else
 					fail("what is " + curr.getClass() + "?");
 			}
@@ -381,15 +442,74 @@ public class GrammarNavigator {
 		TaggedDefinition td = stack.get(0);
 		if (td.defn instanceof SequenceDefinition) {
 			SequenceDefinition sd = (SequenceDefinition) td.defn;
+			if (td.offset >= sd.length())
+				return false;
 			Definition d = sd.nth(td.offset);
 			return d instanceof IndentDefinition;
 		}
 		return false;
 	}
 
+	public boolean isSeq() {
+		TaggedDefinition td = stack.get(0);
+		return td.defn instanceof SequenceDefinition;
+	}
+
 	public boolean isMany() {
 		TaggedDefinition td = stack.get(0);
-		return td.defn instanceof ManyDefinition;
+		if (td.defn instanceof ManyDefinition)
+			return true;
+		else if (td.defn instanceof SequenceDefinition) {
+			SequenceDefinition sd = (SequenceDefinition) td.defn;
+			if (sd.nth(td.offset) instanceof ManyDefinition)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public void showIndentedOptionsIfApplicable(PrintWriter pw) {
+		TaggedDefinition td = stack.get(0);
+		if (td.defn instanceof SequenceDefinition) {
+			SequenceDefinition sd = (SequenceDefinition) td.defn;
+			if (sd.nth(td.offset) instanceof IndentDefinition) {
+				IndentDefinition id = (IndentDefinition) sd.nth(td.offset);
+				Definition d = id.indented();
+				if (d instanceof RefDefinition) {
+					RefDefinition rd = (RefDefinition) d;
+					Production prod = rd.production(grammar);
+					if (prod instanceof OrProduction) {
+						OrProduction op = (OrProduction) prod;
+						for (Definition i : op.allOptions()) {
+							if (i instanceof RefDefinition) {
+								RefDefinition show = (RefDefinition) i;
+								pw.println(" | " + show.ruleName());
+							} else if (i instanceof SequenceDefinition) {
+								pw.print(" |");
+								SequenceDefinition show = (SequenceDefinition) i;
+								for (int q=0;q<show.length();q++) {
+									Definition showd = show.nth(q);
+									if (showd instanceof ActionDefinition)
+										continue;
+									pw.print(" ");
+									if (showd instanceof RefDefinition)
+										pw.print(((RefDefinition) showd).ruleName());
+									else if (showd instanceof TokenDefinition)
+										pw.print(((TokenDefinition) showd).token());
+									else
+										showd.showGrammarFor(pw);
+								}
+								pw.println();
+							} else {
+								pw.print(" ||| ");
+								i.showGrammarFor(pw);
+								pw.println();
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	@Override

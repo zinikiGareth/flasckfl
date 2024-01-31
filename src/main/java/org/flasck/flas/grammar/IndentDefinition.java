@@ -7,6 +7,7 @@ public class IndentDefinition extends Definition {
 	private final Definition defn;
 	private final boolean exactlyOne;
 	private final boolean allowZero;
+	private String reducesAs;
 
 	public IndentDefinition(Definition defn, boolean exactlyOne, boolean allowZero) {
 		this.defn = defn;
@@ -47,5 +48,18 @@ public class IndentDefinition extends Definition {
 		else
 			productionVisitor.oneOrMore(defn, true);
 		productionVisitor.exdent();
+	}
+	
+	public void reducesAs(String ruleName) {
+		this.reducesAs = ruleName;
+	}
+	
+	public boolean canReduceAs(String ruleName) {
+		return this.reducesAs != null && this.reducesAs.equals(ruleName);
+	}
+	
+	@Override
+	public String toString() {
+		return "Indent[" + defn + "]";
 	}
 }

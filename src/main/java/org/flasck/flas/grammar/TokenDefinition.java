@@ -50,6 +50,10 @@ public class TokenDefinition extends Definition {
 		return text.matches(patt);
 	}
 	
+	public String token() {
+		return token;
+	}
+	
 	@Override
 	public void showGrammarFor(PrintWriter str) {
 		str.append("<span class='production-token'>" + StringEscapeUtils.escapeHtml4(token) + "</span>");

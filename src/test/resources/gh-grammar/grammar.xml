@@ -59,9 +59,6 @@
   <lex token='DATA' pattern='data'>
   	<p>The <tt>data</tt> keyword introduces a data declaration in a unit test.</p>
   </lex>
-  <lex token='DOCWORD' pattern='[a-zA-Z_0-9]+'>
-    <p>Words that can appear in the documentation of a test case.</p>
-  </lex>
   <lex token='ENTITY' pattern='entity'>
   	<p>The <tt>entity</tt> keyword introduces an entity definition.</p>
   </lex>
@@ -176,6 +173,9 @@
   	<p>The <tt>template</tt> keyword introduces a template definition.</p>
   </lex>
   <lex token='TEST' pattern='test'>
+  	<p>The <tt>test</tt> keyword introduces a unit test case.</p>
+  </lex>
+  <lex token='TESTDESCRIPTION' pattern='.+'>
   	<p>The <tt>test</tt> keyword introduces a unit test case.</p>
   </lex>
   <lex token='TEXT' pattern='text'>
@@ -740,14 +740,14 @@
       </description>
     </section>
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='50 15 5 5 10 5 5'/>
+    <producer shares='50 15 5 5 10 5 5 5'/>
     <or>
       <seq>
         <ref production='literal'/>
       </seq>
       <seq>
 		<reduces-as rule='function-call' />
-        <token type='var-name'/>
+        <ref production='value-expression'/>
         <many>
           <ref production='expression'/>
         </many>
@@ -773,12 +773,31 @@
         <token type='COLON'/>
         <ref production='expression'/>
       </seq>
+      <ref production='paren-expression' />
       <seq>
-        <token type='ORB'/>
-        <ref production='expression'/>
-        <token type='CRB'/>
-      </seq>
+		  <reduces-as rule='member-expr' />
+		  <ref production='value-expression' />
+		  <token type='APPLY' />
+		  <token type='var-name' />
+	  </seq>
     </or>
+  </production>
+  <production name='value-expression'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprTokenizationTests' />
+    <or>
+      <token type='var-name'/>
+      <ref production='paren-expression'/>
+    </or>
+  </production>
+  <production name='paren-expression'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprTokenizationTests' />
+    <seq>
+      <token type='ORB'/>
+      <ref production='expression'/>
+      <token type='CRB'/>
+    </seq>
   </production>
   <production name='literal'>
     <section title='Expressions' />
@@ -1536,10 +1555,9 @@ match style ...
     </section>
     <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <seq>
+	  <reduces-as rule='ut-test-intro' />
       <token type='TEST' />
-      <one-or-more>
-      	<token type='DOCWORD' />
-      </one-or-more>
+      <token type='TESTDESCRIPTION' />
       <push-part prefix='ut' />
       <indent>
       	<ref production='unit-test-step'/>
@@ -1596,10 +1614,12 @@ match style ...
     <section title='Unit Tests' />
     <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
+	  <reduces-as rule='ut-assert-expr' />
       <token type='ASSERT' />
       <ref production='expression' />
       <indent-one>
-    	    <ref production='expression' />
+	    <reduces-as rule='ut-assert-expected-value' />
+        <ref production='expression' />
       </indent-one>
     </seq>
   </production>
@@ -1755,9 +1775,7 @@ match style ...
     <section title='System Tests'/>
     <seq>
       <token type='TEST' />
-      <one-or-more>
-      	<token type='DOCWORD' />
-      </one-or-more>
+      <token type='TESTDESCRIPTION' />
       <push-part prefix='ut' />
       <indent>
       	<ref production='system-test-step'/>

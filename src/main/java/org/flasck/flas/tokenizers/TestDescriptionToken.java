@@ -19,7 +19,7 @@ public class TestDescriptionToken implements LoggableToken {
 
 	@Override
 	public String type() {
-		return "TestDescription";
+		return "TESTDESCRIPTION";
 	}
 
 	@Override

@@ -541,7 +541,7 @@ public class SentenceProducer {
 				return randomChars(1, 1, '1', 9) + randomChars(0, 3, '0', 10);
 			case "STRING":
 				return "'" + randomChars(10, 20, '!', 90).replaceAll("'", "_") + "'";
-			case "DOCWORD":
+			case "TESTDESCRIPTION":
 				return randomChars(5, 10, 'a', 26);
 			case "UNOP":
 				return "-"; // are there more?  ~ maybe?  ! maybe?

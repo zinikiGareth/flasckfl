@@ -122,7 +122,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			builder.assertion(test.get(0), ex);
 			updateLoc(ex.location());
 			errors.logReduction("ut-assert-expected-value", ex, ex);
-			reduce(kw.location, "ut-assert");
+			reduce(kw.location, "unit-test-assert");
 		};
 		return new SingleExpressionParser(errors, "assert", exprConsumer, this);
 	}

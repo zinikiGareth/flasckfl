@@ -248,11 +248,11 @@ public class GrammarChecker {
 		case ".fl":
 			return "source-file";
 		case ".fa":
-			return "assembly-unit";
+			return "assembly-file";
 		case ".ut":
-			return "unit-test-unit";
+			return "unit-test-file";
 		case ".st":
-			return "system-test-unit";
+			return "system-test-file";
 		default:
 			throw new CantHappenException("there is no top rule for file type " + ext);
 		}
@@ -302,8 +302,13 @@ public class GrammarChecker {
 		if (gn.canHandle(tree)) {
 			if (gn.isMany()) {
 				assertTrue(!tree.hasMembers());
-				System.out.println("can keep coming back to this well");
 				handleScopeWithScopeRule(tree.indents(), gn);
+			} else if (gn.isSeq()) {
+				gn.skipActions();
+				if (gn.isMany()) {
+					assertTrue(!tree.hasMembers());
+					handleScopeWithScopeRule(tree.indents(), gn);
+				}
 			} else
 				throw new NotImplementedException("can only handle Many definitions at the moment");
 		}
@@ -333,7 +338,7 @@ public class GrammarChecker {
 				GrammarTree reducedAs = tree.singleton();
 				System.out.println("reduced as " + reducedAs.reducedToRule());
 				if (!gn.canHandle(reducedAs))
-					fail("cannot handle " + reducedAs + " in " + gn.current());
+					fail("cannot handle " + reducedAs.reducedToRule() + " in " + gn.current());
 				int depth = gn.depth();
 				matchLine(reducedAs.members(), gn);
 				gn.moveToEndOfLine(depth);
@@ -349,8 +354,20 @@ public class GrammarChecker {
 				gn.moveToEndOfLine(depth);
 				assertFalse(tree.hasIndents());
 			}
-		} else
+		} else {
+			System.out.println("At " + tree.location());
+			System.out.println("Grammar is at: " + gn.current());
+			PrintWriter pw = new PrintWriter(System.out);
+			gn.showIndentedOptionsIfApplicable(pw);
+			pw.flush();
+			System.out.println("Tree has rule: " + tree.reducedToRule());
+			if (tree.isSingleton()) {
+				System.out.println("   >> Singleton tree: " + tree.singleton().reducedToRule());
+			} else {
+				System.out.println("   >> Simple rule tree: " + tree.members());
+			}
 			fail("cannot handle " + tree + " with defn " + gn.current());
+		}
 	}
 
 	private void matchLine(Iterator<GrammarStep> members, GrammarNavigator gn) {
@@ -365,8 +382,17 @@ public class GrammarChecker {
 				}
 				// need to handle nesting and things ...
 				// can we call matchLine recursively or do we need to have something inside this?
-			} else
+			} else {
+				System.out.println("At " + s.location());
+				System.out.println("Grammar is at: " + gn.current());
+				if (s instanceof GrammarTree)
+					System.out.println("Tree has: " + ((GrammarTree) s).reducedToRule());
+				else if (s instanceof GrammarToken)
+					System.out.println("Token is: " + ((GrammarToken) s).type + " " + ((GrammarToken) s).text);
+				else
+					System.out.println("File is at " + s);
 				fail("cannot match token in line " + s + " with " + gn.current());
+			}
 		}
 	}
 

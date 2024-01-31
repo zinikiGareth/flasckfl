@@ -68,7 +68,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			}
 			final Expr ae = terms.get(0);
 			if (terms.size() == 1 && op.equals("()")) {
-				errors.logReduction("parenthesis-expr", from, endToken.location());
+				errors.logReduction("paren-expression", from, endToken.location());
 				builder.term(ae);
 			} else {
 				errors.logReduction("tuple-list-or-hash", from, endToken.location());

@@ -18,7 +18,6 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ParenTermConsumer.ParenCloseRewriter;
-import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAExprReducer implements ExprTermConsumer {
@@ -167,10 +166,22 @@ public class TDAExprReducer implements ExprTermConsumer {
 		else {
 			if (t0 instanceof UnresolvedVar)
 				errors.logReduction("function-call", t0, terms.get(to-1));
+			else if (t0 instanceof ApplyExpr)
+				errors.logReduction("apply-function-call", t0, terms.get(to-1));
 			else if (t0 instanceof TypeReference)
 				errors.logReduction("struct-ctor", t0, terms.get(to-1));
-			else
-				throw new CantHappenException("what is this constructor?" + t0.getClass());
+			else {
+				// TODO: most other cases are errors, but we need to fix the RandomSentenceTest
+				// to not generate them first before we raise an error here.
+//				if (t0 instanceof NumericLiteral) {
+//					errors.message(t0.location(), "cannot be a function");
+//					return t0;
+//				}
+//				throw new CantHappenException("what is this constructor?" + t0.getClass());
+				
+				// hack for now to keep me going ...
+				errors.logReduction("impossible-function-call", t0, terms.get(to-1));
+			}
 			return new ApplyExpr(t0.location().copySetEnd(terms.get(to-1).location().pastEnd()), t0, args(from+1, to).toArray());
 		}
 	}

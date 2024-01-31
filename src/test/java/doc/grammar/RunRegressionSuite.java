@@ -30,7 +30,8 @@ public class RunRegressionSuite {
 			return;
 		GenerateRegressionSuite.generateInto(root);
 		List<File> dirs = FileUtils.findDirectoriesUnder(root);
-		JSONObject jo = new JSONObject(FileUtils.readFile(new File(root, "META.json")));
+		File meta = new File(root, "META.json");
+		JSONObject jo = new JSONObject(FileUtils.readFile(meta));
 		Set<String> passed = new TreeSet<>();
 		Set<String> failed = new TreeSet<>();
 		CounterSet<String> success = new CounterSet<>();
@@ -74,6 +75,9 @@ public class RunRegressionSuite {
 				final int no = failure.getCount(s);
 				System.out.println(s + " " + yes + " " + no + " = " + (yes+no == 0?"--":((100*yes)/(yes+no))) + "%");
 			}
+			// remove the meta file so it will regenerate next time
+			// this addresses a small number of issues, but it's a pain to understand what's going on if you forget
+			meta.delete();
 		}
 		
 		assertEquals("Not all regression tests were run", dirs.size(), passed.size() + failed.size());

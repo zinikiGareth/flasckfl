@@ -233,9 +233,15 @@ public class Grammar {
 	}
 
 	private IndentDefinition handleIndent(String ruleName, XMLElement rule, boolean exactlyOne, boolean allowZero) {
-		Definition defn = parseDefn(ruleName, rule.uniqueElement("ref"));
 		rule.attributesDone();
-		return new IndentDefinition(defn, exactlyOne, allowZero);
+		Definition defn = parseDefn(ruleName, rule.uniqueElement("ref"));
+		IndentDefinition ret = new IndentDefinition(defn, exactlyOne, allowZero);
+		List<XMLElement> ras = rule.elementChildren("reduces-as");
+		if (!ras.isEmpty()) {
+			ReducesAs reducesAs = (ReducesAs) parseDefn(ruleName, ras.get(0));
+			ret.reducesAs(reducesAs.ruleName);
+		}
+		return ret;
 	}
 
 	private ManyDefinition handleMany(String ruleName, XMLElement rule, boolean allowZero) {
