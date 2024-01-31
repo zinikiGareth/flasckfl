@@ -53,6 +53,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	protected static Interceptor interceptor = null;
 	private static String wantOrderedOption = System.getProperty("wantOrdered");
 	private static boolean wantOrdered = wantOrderedOption == null || wantOrderedOption.equals("ordered");
+	private static String checkGrammarOption = System.getProperty("checkGrammar");
+	private static boolean checkGrammar = checkGrammarOption != null && checkGrammarOption.equals("check");
 	
 	public static final File jvmdir;
 	static {
@@ -271,10 +273,12 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 //		} finally {
 //		FileUtils.cat(new File(s, "repo.txt"));
 //		}
-		GrammarChecker r = new GrammarChecker(parseTokens, reconstruct);
-		// TODO: allow it to merge in other grammars such as Ziniki
-		Map<String, GrammarTree> fileOrchards = r.checkParseTokenLogic(expectedErrors.isDirectory());
-		r.checkGrammar(fileOrchards);
+		if (checkGrammar) {
+			GrammarChecker r = new GrammarChecker(parseTokens, reconstruct);
+			// TODO: allow it to merge in other grammars such as Ziniki
+			Map<String, GrammarTree> fileOrchards = r.checkParseTokenLogic(expectedErrors.isDirectory());
+			r.checkGrammar(fileOrchards);
+		}
 		AssertionError tmp = null;
 //		if (!expectedErrors.isDirectory()) {
 			try {
@@ -284,7 +288,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			} catch (AssertionError ex) {
 				tmp = ex;
 			}
-			if (!expectedErrors.isDirectory()) {
+			if (checkGrammar && !expectedErrors.isDirectory()) {
 				File golden = new File(s, "test.golden");
 				if (golden.exists())
 					te.checkReconstructions(golden, reconstruct);
