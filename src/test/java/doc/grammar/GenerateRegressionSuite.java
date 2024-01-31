@@ -1,5 +1,6 @@
 package doc.grammar;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -64,15 +65,20 @@ public class GenerateRegressionSuite {
 	}
 
 	private static void removeOnesWeKnowWeDontTestYet(Set<String> allProds) {
-		allProds.remove("1.1 file");
-		allProds.remove("1.2 file");
-		allProds.remove("1.3 file");
-		allProds.remove("1.4 file");
-		allProds.remove("1.5 file");
-		allProds.remove("3 assembly-file");
-		allProds.remove("5 protocol-test-file");
-		allProds.remove("96 assembly-unit");
-		allProds.remove("113 protocol-test-unit");
+		int removed = 0;
+		Iterator<String> it = allProds.iterator();
+		while (it.hasNext()) {
+			String prod = it.next();
+			if (prod.endsWith(" file") ||
+				prod.endsWith(" assembly-file") ||
+				prod.endsWith(" assembly-unit") ||
+				prod.endsWith(" protocol-test-file") ||
+				prod.endsWith(" protocol-test-unit")) {
+				it.remove();
+				removed++;
+			}
+		}
+		assertEquals(9, removed);
 	}
 
 	private static void store(Set<String> allUsed, JSONObject jo, String key, SentenceData used) {
