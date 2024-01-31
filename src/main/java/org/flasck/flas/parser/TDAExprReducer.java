@@ -161,27 +161,19 @@ public class TDAExprReducer implements ExprTermConsumer {
 			return resolveTypeExpr(t0, from, to);
 		if (isCheckTypeExpr(t0))
 			return resolveCheckTypeExpr(t0, from, to);
-		if (from+1 == to && !isConstructor(t0))
+		if (from+1 == to && !isConstructor(t0)) {
+			if (t0 instanceof UnresolvedVar) // it's trivially a function call for the grammar...
+				errors.logReduction("function-call", t0, t0);
 			return t0;
-		else {
-			if (t0 instanceof UnresolvedVar)
-				errors.logReduction("function-call", t0, terms.get(to-1));
-			else if (t0 instanceof ApplyExpr)
-				errors.logReduction("apply-function-call", t0, terms.get(to-1));
-			else if (t0 instanceof TypeReference)
-				errors.logReduction("struct-ctor", t0, terms.get(to-1));
-			else {
-				// TODO: most other cases are errors, but we need to fix the RandomSentenceTest
-				// to not generate them first before we raise an error here.
-//				if (t0 instanceof NumericLiteral) {
+		} else {
+			errors.logReduction("function-call", t0, terms.get(to-1));
+			// It is true that literals cannot be functions, but this is too hard
+			// (for me, right now) to include in the grammar, and this will be
+			// caught during typechecking
+//				if (t0 instanceof NumericLiteral || t0 instanceof StringLiteral) {
 //					errors.message(t0.location(), "cannot be a function");
 //					return t0;
 //				}
-//				throw new CantHappenException("what is this constructor?" + t0.getClass());
-				
-				// hack for now to keep me going ...
-				errors.logReduction("impossible-function-call", t0, terms.get(to-1));
-			}
 			return new ApplyExpr(t0.location().copySetEnd(terms.get(to-1).location().pastEnd()), t0, args(from+1, to).toArray());
 		}
 	}

@@ -740,30 +740,20 @@
       </description>
     </section>
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='50 15 5 5 10 5 5 5'/>
+    <producer shares='50 3 10 5 5 10 2'/>
     <or>
       <seq>
         <ref production='literal'/>
       </seq>
-      <seq>
-		<reduces-as rule='function-call' />
-        <ref production='value-expression'/>
-        <many>
-          <ref production='expression'/>
-        </many>
-      </seq>
-      <seq>
-		<reduces-as rule='struct-ctor' />
-        <token type='type-name'/>
-        <many>
-          <ref production='expression'/>
-        </many>
-      </seq>
+      <ref production='paren-expression' />
+      <ref production='function-call' />
+      <ref production='member-expr' />
       <seq>
         <token type='UNOP'/>
         <ref production='expression'/>
       </seq>
       <seq>
+		<reduces-as rule='expr_binop' />
         <ref production='expression'/>
         <token type='BINOP'/>
         <ref production='expression'/>
@@ -773,20 +763,33 @@
         <token type='COLON'/>
         <ref production='expression'/>
       </seq>
-      <ref production='paren-expression' />
-      <seq>
-		  <reduces-as rule='member-expr' />
-		  <ref production='value-expression' />
-		  <token type='APPLY' />
-		  <token type='var-name' />
-	  </seq>
     </or>
+  </production>
+  <production name='member-expr'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprTokenizationTests' />
+    <seq>
+	  <ref production='value-expression' />
+	  <token type='APPLY' />
+	  <token type='var-name' />
+    </seq>
+  </production>
+  <production name='function-call'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprTokenizationTests' />
+    <seq>
+      <ref production='value-expression'/>
+      <many>
+        <ref production='expression-term'/>
+      </many>
+    </seq>
   </production>
   <production name='value-expression'>
     <section title='Expressions' />
     <tested by='test.parsing.ExprTokenizationTests' />
     <or>
       <token type='var-name'/>
+      <token type='type-name'/>
       <ref production='paren-expression'/>
     </or>
   </production>
@@ -798,6 +801,20 @@
       <ref production='expression'/>
       <token type='CRB'/>
     </seq>
+  </production>
+  <production name='expression-term'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprReductionTests' />
+    <producer shares='30 10 40'/>
+    <or>
+      <seq>
+        <ref production='literal'/>
+      </seq>
+      <ref production='paren-expression' />
+      <seq>
+        <token type='var-name'/>
+      </seq>
+    </or>
   </production>
   <production name='literal'>
     <section title='Expressions' />
