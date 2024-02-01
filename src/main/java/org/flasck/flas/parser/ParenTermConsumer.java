@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 
@@ -50,6 +51,9 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			} else if (term instanceof TypeExpr) {
 				TypeExpr te = (TypeExpr) term;
 				term = new TypeExpr(from.copySetEnd(end), te.tyLoc, te.type);
+			} else if (term instanceof CastExpr) {
+				CastExpr ce = (CastExpr) term;
+				term = new CastExpr(from.copySetEnd(end), ce.tyLoc, ce.valLoc, ce.type, ce.val);
 			}
 			if (op.equals("{}")) {
 				if (currentVar == null)

@@ -74,16 +74,16 @@ public class FunctionAssembler extends BlockLocationTracker implements FunctionI
 			FunctionCaseDefn caseDefn = curr.cases().get(0);
 			// it's either the very simple one-line case
 			if (caseDefn.expr.location().lineNo == curr.location().lineNo) {
-				errors.logReduction("simple-function-case-definition-intro", curr.location(), caseDefn.expr.location());
+				errors.logReduction("simple-function-case-definition-intro", curr.location(), caseDefn.location());
 			} else {
 				// or it's the degenerate case
-				errors.logReduction("degenerate-guarded-function-case-definition-intro", curr.location(), caseDefn.expr.location());
+				errors.logReduction("degenerate-guarded-function-case-definition-intro", curr.location(), caseDefn.location());
 			}
 		} else {
 			// it must have multiple guards, each of which should have been reduced
 			if (!curr.cases().isEmpty()) {
 				FunctionCaseDefn lastCase = curr.cases().get(curr.cases().size()-1);
-				errors.logReduction("guarded-function-case-definition-intro", curr.location(), lastCase.expr.location());
+				errors.logReduction("guarded-function-case-definition-intro", curr.location(), lastCase.location());
 			} // the alternative is that it has an error ...
 		}
 	}

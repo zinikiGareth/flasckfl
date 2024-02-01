@@ -51,7 +51,7 @@ public class TDASystemTestParser extends BlockLocationTracker implements TDAPars
 			SystemTestName stn = namer.special("configure");
 			final SystemTestConfiguration stg = new SystemTestConfiguration(stn, topLevel);
 			builder.configure(stg);
-			errors.logReduction("system-test-stage-configure", tok.location, tok.location);
+			errors.logReduction("system-test-stage-configure", tok.location, tok.location.locAtEnd());
 			return new TDAParsingWithAction(
 				ParsingPhase.systemTestStep(errors, new TestStepNamer(stn.container()), stg, topLevel, modules, this),
 				reduction(tok.location, "system-test-stage-configure-with-steps")
@@ -83,7 +83,7 @@ public class TDASystemTestParser extends BlockLocationTracker implements TDAPars
 			SystemTestName stn = namer.special("finally");
 			final SystemTestCleanup stg = new SystemTestCleanup(stn, topLevel);
 			builder.cleanup(stg);
-			errors.logReduction("system-test-stage-finally", tok.location, tok.location);
+			errors.logReduction("system-test-stage-finally", tok.location, tok.location.locAtEnd());
 			return new TDAParsingWithAction(
 				ParsingPhase.systemTestStep(errors, new TestStepNamer(stn), stg, topLevel, modules, this),
 				reduction(tok.location, "system-test-stage-finally-with-steps")

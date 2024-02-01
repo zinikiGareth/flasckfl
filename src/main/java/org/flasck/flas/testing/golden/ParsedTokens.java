@@ -77,11 +77,26 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		private InputPosition first;
 		private InputPosition last;
 		private int lineNumber;
+		private boolean mostReduced;
 
 		public ReductionRule(String rule) {
 			this.rule = rule;
 		}
 
+		public void makeMostReduced() {
+			if (first.indent == null)
+				throw new CantHappenException("Can't make rule " + rule + " with null indent most reduced");
+			if (first.indent.tabs != 1 || first.indent.spaces != 0)
+				throw new CantHappenException("Can't make rule " + rule + " most reduced with indent " + first.indent + " at line " + first.lineNo);
+			if (first.off != 0)
+				throw new CantHappenException("Can't make rule " + rule + " most reduced with offset " + first.off + " at line " + first.lineNo);
+			this.mostReduced = true;
+		}
+		
+		public boolean isMostReduced() {
+			return this.mostReduced;
+		}
+		
 		public void range(InputPosition first, InputPosition last) {
 			this.first = first;
 			this.last = last;
@@ -295,9 +310,15 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		PrintWriter pw = new PrintWriter(file);
 		for (GrammarStep s : this) {
 			if (s instanceof GrammarToken)
-				pw.println("SHIFT  " + s);
-			else
-				pw.println("REDUCE " + s);
+				pw.println("   SHIFT  " + s);
+			else {
+				ReductionRule rr = (ReductionRule) s;
+				if (rr.isMostReduced())
+					pw.print("MR ");
+				else
+					pw.print("   ");
+				pw.println("REDUCE " + rr);
+			}
 		}
 		pw.close();
 	}

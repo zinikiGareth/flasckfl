@@ -71,6 +71,7 @@ public class GrammarChecker {
 		Map<String, GrammarTree> ret = new TreeMap<>(new MyPreferredTestSorting());
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
 			ParsedTokens toks = ParsedTokens.read(f);
+//			calculateMostReduced(toks);
 			try {
 				toks.write(new File(f.getParentFile(), f.getName()+"-sorted"));
 			} catch (FileNotFoundException ex) {
@@ -109,8 +110,8 @@ public class GrammarChecker {
 
 	private Map<InputPosition, ReductionRule> calculateMostReduced(ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
-		for (ReductionRule rr : toks.reductionsInLineOrder()) {
-//			System.out.println(rr);
+		for (ReductionRule rr : toks.reductionsInFileOrder()) {
+			System.out.println(rr);
 			ReductionRule mr = null;
 			for (GrammarToken t : toks.tokens()) {
 				if (rr.includes(t.pos)) {
@@ -119,10 +120,10 @@ public class GrammarChecker {
 					mr = null;
 					if (mostReduced.containsKey(t.pos)) {
 						mr = mostReduced.get(t.pos);
-//						System.out.println("  !! " + mr);
+						System.out.println("  !! " + mr);
 						continue;
 					}
-//					System.out.println("  " + t);
+					System.out.println("  " + t);
 				}
 			}
 			Iterator<Entry<InputPosition, ReductionRule>> it = mostReduced.entrySet().iterator();
@@ -134,6 +135,8 @@ public class GrammarChecker {
 			}
 			mostReduced.put(rr.start(), rr);
 		}
+		for (ReductionRule mr : mostReduced.values())
+			mr.makeMostReduced();
 		return mostReduced;
 	}
 
