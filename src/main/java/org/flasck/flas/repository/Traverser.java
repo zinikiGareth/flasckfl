@@ -1509,7 +1509,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitVarPattern(VarPattern p, boolean isNested) {
 		visitor.visitVarPattern(p, isNested);
-		visitPatternVar(p.varLoc, p.var);
+		visitPatternVar(p.location(), p.var);
 	}
 
 	@Override

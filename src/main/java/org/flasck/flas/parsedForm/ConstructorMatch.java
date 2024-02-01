@@ -35,7 +35,7 @@ public class ConstructorMatch implements Pattern {
 
 	public final String ctor;
 	public final List<Field> args = new ArrayList<Field>();
-	public final InputPosition location;
+	private InputPosition location;
 	private StructDefn defn;
 	private LogicHolder definedBy;
 
@@ -71,6 +71,12 @@ public class ConstructorMatch implements Pattern {
 	@Override
 	public InputPosition location() {
 		return location;
+	}
+
+	@Override
+	public Pattern locatedAt(InputPosition location) {
+		this.location = location;
+		return this;
 	}
 
 	@Override

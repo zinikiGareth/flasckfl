@@ -10,7 +10,7 @@ public class ConstPattern implements Pattern {
 
 	public final int type;
 	public final String value;
-	public final InputPosition location;
+	private InputPosition location;
 	private LogicHolder definedBy;
 
 	public ConstPattern(InputPosition loc, int type, String value) {
@@ -32,6 +32,12 @@ public class ConstPattern implements Pattern {
 		return location;
 	}
 	
+	@Override
+	public Pattern locatedAt(InputPosition location) {
+		this.location = location;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return value;

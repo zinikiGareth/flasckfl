@@ -178,10 +178,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
 		RepositoryEntry defn = find(p.location(), scope, p.ctor);
 		if (defn == null) {
-			errors.message(p.location, "cannot find type '" + p.ctor + "'");
+			errors.message(p.location(), "cannot find type '" + p.ctor + "'");
 			return;
 		} else if (!(defn instanceof StructDefn)) {
-			errors.message(p.location, p.ctor + " is not a struct defn");
+			errors.message(p.location(), p.ctor + " is not a struct defn");
 			return;
 		} else
 			p.bind((StructDefn) defn);
@@ -743,16 +743,16 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		boolean dobind = true;
 		for (TypedPattern tp : cmd.args) {
 			if (tp.type.namedDefn() instanceof ContractDecl) {
-				errors.message(tp.typeLocation, "method arguments may not be contracts");
+				errors.message(tp.location(), "method arguments may not be contracts");
 				dobind = false;
 			}
 		}
 		if (cmd.handler != null) {
 			if (!(cmd.handler.type.namedDefn() instanceof ContractDecl)) {
-				errors.message(cmd.handler.typeLocation, "method handler must be a handler contract");
+				errors.message(cmd.handler.location(), "method handler must be a handler contract");
 				dobind = false;
 			} else if (((ContractDecl)cmd.handler.type.namedDefn()).type != ContractType.HANDLER) {
-				errors.message(cmd.handler.typeLocation, "method handler must be a handler contract");
+				errors.message(cmd.handler.location(), "method handler must be a handler contract");
 				dobind = false;
 			}
 		}

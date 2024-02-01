@@ -21,7 +21,7 @@ public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
 			return o1.name().compareTo(o2.name());
 		}
 	};
-	public final InputPosition varLoc;
+	private InputPosition varLoc;
 	public final String var;
 	private final VarName myName;
 	private Type type;
@@ -42,6 +42,12 @@ public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
 	@Override
 	public InputPosition location() {
 		return varLoc;
+	}
+
+	@Override
+	public Pattern locatedAt(InputPosition location) {
+		this.varLoc = location;
+		return this;
 	}
 
 	public LogicHolder definedBy() {

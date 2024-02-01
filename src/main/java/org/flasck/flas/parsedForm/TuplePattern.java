@@ -8,7 +8,7 @@ import org.flasck.flas.commonBase.Pattern;
 
 public class TuplePattern implements Pattern {
 	public final List<Pattern> args = new ArrayList<Pattern>();
-	private final InputPosition loc;
+	private InputPosition loc;
 	private LogicHolder definedBy;
 
 	public TuplePattern(InputPosition loc, @SuppressWarnings("rawtypes") List arr) {
@@ -20,6 +20,12 @@ public class TuplePattern implements Pattern {
 	@Override
 	public InputPosition location() {
 		return loc;
+	}
+
+	@Override
+	public Pattern locatedAt(InputPosition location) {
+		this.loc = location;
+		return this;
 	}
 
 	public LogicHolder definedBy() {

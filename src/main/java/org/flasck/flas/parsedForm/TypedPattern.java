@@ -11,7 +11,7 @@ import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.Type;
 
 public class TypedPattern implements Pattern, AsString, RepositoryEntry {
-	public final transient InputPosition typeLocation;
+	private transient InputPosition typeLocation;
 	public final TypeReference type;
 	public final VarName var;
 	private LogicHolder definedBy;
@@ -27,6 +27,12 @@ public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 		return typeLocation;
 	}
 	
+	@Override
+	public Pattern locatedAt(InputPosition location) {
+		this.typeLocation = location;
+		return this;
+	}
+
 	public VarName name() {
 		return var;
 	}
