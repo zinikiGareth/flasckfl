@@ -1,21 +1,25 @@
 package org.flasck.flas.testing.golden;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ParsedTokens {
+public class ParsedTokens implements Iterable<GrammarStep> {
 
 	public interface GrammarStep {
 		InputPosition location();
@@ -223,9 +227,36 @@ public class ParsedTokens {
 			ReductionRule moveDown = reductionsInFileOrder.get(i);
 			for (int j=i+1;j<reductionsInFileOrder.size();j++) {
 				ReductionRule after = reductionsInFileOrder.get(j);
+				
+				// if they're equal, go round again
+				if (moveDown.first.compareTo(after.first) == 0 && moveDown.last.compareTo(after.last) == 0) {
+					System.out.println("Not moving " + i + ": " + moveDown + " -- " + j + ": " + after + " because they are the same");
+					continue;
+				}
+
+				// if after is around moveDown, it's not moving
+				if (moveDown.first.compareTo(after.first) > 0 && moveDown.last.compareTo(after.last) < 0) {
+					System.out.println("Not moving " + i + ": " + moveDown + " -- " + j + ": " + after + " because it is inside it");
+					continue;
+				}
+
+				boolean move = false;
+				// if moveDown is around after, it needs to moveDown
+				if (moveDown.first.compareTo(after.first) < 0 && moveDown.last.compareTo(after.last) > 0)
+					move = true;
+				
+				// if they moveDown ends beyond where after starts, and either
+				//   * it starts before it OR
+				//   * it ends before it
+				// it needs to move down
 				if (moveDown.last.equals(after.first) && 
-						(moveDown.first.compareTo(after.first) < 0 ||
+						(moveDown.first.compareTo(after.first) <= 0 ||
 						 moveDown.last.compareTo(after.last) < 0)) {
+					move = true;
+				}
+				
+				if (move) {
+					System.out.println("Moving " + i + ": " + moveDown + " after " + j + ": " + after);
 					for (int k=i+1;k<=j;k++) {
 						reductionsInFileOrder.set(k-1, reductionsInFileOrder.get(k));
 					}
@@ -235,7 +266,6 @@ public class ParsedTokens {
 			}
 			i++;
 		}
-		System.out.println(reductionsInLineOrder.size() + " == " + reductionsInFileOrder.size());
 	}
 
 	private static InputPosition readPos(String file, String s) {
@@ -261,11 +291,47 @@ public class ParsedTokens {
 			throw new CantHappenException("what is this? " + s);
 	}
 
-	public void write(File file) {
-		// The idea here is that we could write the tokens back out once we have sorted them
-		for (ReductionRule e : this.reductionsInFileOrder) {
-			System.out.println("  " + e);
+	public void write(File file) throws FileNotFoundException {
+		PrintWriter pw = new PrintWriter(file);
+		for (GrammarStep s : this) {
+			if (s instanceof GrammarToken)
+				pw.println("SHIFT  " + s);
+			else
+				pw.println("REDUCE " + s);
 		}
+		pw.close();
+	}
+
+	public Iterator<GrammarStep> iterator() {
+		return new Iterator<ParsedTokens.GrammarStep>() {
+			Iterator<ReductionRule> rit = reductionsInFileOrder().iterator();
+			Iterator<GrammarToken> tit = tokens().iterator();
+			ReductionRule r = null;
+			GrammarToken t = null;
+			
+			@Override
+			public boolean hasNext() {
+				// TODO Auto-generated method stub
+				return rit.hasNext() || tit.hasNext() || r != null || t != null;
+			}
+			
+			@Override
+			public GrammarStep next() {
+				GrammarStep ret = null;
+				if (r == null && rit.hasNext())
+					r= rit.next();
+				if (t == null && tit.hasNext())
+					t = tit.next();
+				if (r == null || (t != null && t.pos.compareTo(r.last) <= 0)) {
+					ret = t;
+					t = null;
+				} else {
+					ret = r;
+					r = null;
+				}
+				return ret;
+			}
+		};
 	}
 	
 	public Iterable<GrammarToken> tokens() {

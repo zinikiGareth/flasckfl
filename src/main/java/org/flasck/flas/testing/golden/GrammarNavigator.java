@@ -24,7 +24,6 @@ import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class GrammarNavigator {

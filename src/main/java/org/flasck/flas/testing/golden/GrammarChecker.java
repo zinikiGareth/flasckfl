@@ -1,10 +1,12 @@
 package org.flasck.flas.testing.golden;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,13 +65,17 @@ public class GrammarChecker {
 		this.grammar = GrammarSupport.loadGrammar();
 	}
 
-	public Map<String, GrammarTree> checkParseTokenLogic(boolean expectErrors) {
+	public Map<String, GrammarTree> checkParseTokenLogic(boolean expectErrors){
 		if (parseTokens == null || reconstruct == null)
 			return null;
 		Map<String, GrammarTree> ret = new TreeMap<>(new MyPreferredTestSorting());
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
 			ParsedTokens toks = ParsedTokens.read(f);
-			toks.write(new File(f.getParentFile(), f.getName()+"-sorted"));
+			try {
+				toks.write(new File(f.getParentFile(), f.getName()+"-sorted"));
+			} catch (FileNotFoundException ex) {
+				fail("could not write sorted tokens to " + ex.getMessage());
+			}
 			reconstructFile(toks, new File(reconstruct, f.getName()));
 			if (!expectErrors) {
 				String ext = FileUtils.extension(f.getName());
@@ -93,6 +99,8 @@ public class GrammarChecker {
 	// (c) return an orchard of reductions & tokens with a TLF at the top of each tree and tokens at the leaves
 	private GrammarTree computeReductions(String topRule, ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = calculateMostReduced(toks);
+		for (Entry<InputPosition, ReductionRule> e : mostReduced.entrySet())
+			System.out.println(e.getKey() + " => " + e.getValue());
 		assertNoOverlappingRules(mostReduced);
 		assertTLFs(mostReduced);
 		assertAllTokensReduced(toks);
@@ -170,59 +178,52 @@ public class GrammarChecker {
 		
 		// the reduction rules are in order, and the tokens too ...
 		List<GrammarStep> srstack = new ArrayList<>();
-		Iterator<GrammarToken> tokens = toks.tokens().iterator();
-		Iterator<ReductionRule> rules = toks.reductionsInFileOrder().iterator();
 		Iterator<ReductionRule> mit = mostReduced.values().iterator();
-		ReductionRule rr = null;
+		Iterator<GrammarStep> sit = toks.iterator();
 		ReductionRule mr = null;
-		GrammarToken nt = null;
-		while (mr != null || mit.hasNext()) {
-			if (mr == null) {
-				mr = mit.next();
-//				System.out.println("mr = " + mr);
-			}
+		while (sit.hasNext()) {
+			GrammarStep s = sit.next();
+			System.out.println("have " + s);
 
-			if (rr == null && rules.hasNext()) {
-				rr = rules.next();
-//				System.out.println("considering rule " + rr);
-			}
-
-			// should we just shift a token
-			if (nt != null || tokens.hasNext()) {
-				if (nt == null)
-					nt = tokens.next();
-				if (nt.isComment()) {
-					nt = null;
-					continue;
-				}
-//				System.out.println("have token " + nt);
-	
-				if (rr.includes(nt.pos) || rr.location().compareTo(nt.pos) > 0) {
+			if (s instanceof GrammarToken) {
+				GrammarToken nt = (GrammarToken) s;
+				if (!nt.isComment()) {
 					srstack.add(0, nt);
-					nt = null;
-					continue;
+				}
+			} else {
+				// It's a reduction
+//				System.out.println("considering rule " + rr + " with " + srstack);
+				ReductionRule rr = (ReductionRule) s;
+				GrammarTree tree = new GrammarTree(rr);
+				while (!srstack.isEmpty()) {
+					GrammarStep si = srstack.get(0);
+//				System.out.println("trying to reduce " + si + " with " + rr);
+					if (rr.includes(si.location())) {
+						tree.push(si);
+						srstack.remove(0);
+					} else
+						break;
+				}
+				srstack.add(0, tree);
+
+				if (mr == null) {
+					if (mit.hasNext()) {
+						mr = mit.next();
+						System.out.println("mr = " + mr);
+					} else {
+						fail("no most reduced rule found for " + rr);
+					}
+				}
+				
+//				System.out.println("comparing " + rr + " and " + mr);
+				if (rr == mr) {
+					ret.add(tree);
+//					System.out.println("setting mr == null");
+					mr = null;
 				}
 			}
-			
-			// Now we need to do the reductions, if any
-//			System.out.println("considering rule " + rr + " with " + srstack);
-			GrammarTree tree = new GrammarTree(rr);
-			while (!srstack.isEmpty()) {
-				GrammarStep si = srstack.get(0);
-//				System.out.println("trying to reduce " + si + " with " + rr);
-				if (rr.includes(si.location())) {
-					tree.push(si);
-					srstack.remove(0);
-				} else
-					break;
-			}
-			srstack.add(0, tree);
-			if (rr == mr) {
-				ret.add(tree);
-				mr = null;
-			}
-			rr = null;
 		}
+		assertNull(mr);
 		
 		return new GrammarTree(topRule, ret);
 	}
