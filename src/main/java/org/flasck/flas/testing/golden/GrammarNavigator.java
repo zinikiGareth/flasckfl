@@ -171,10 +171,14 @@ public class GrammarNavigator {
 				}
 			} else if (td.defn instanceof ManyDefinition) {
 				boolean matched = moveToTag(token.type, token.text);
-				if (matched)
+				if (matched) {
+					advanceToNext(null);
 					return true;
-				else {
-					throw new HaventConsideredThisException("we are in a many that cannot handle the symbol.  We probably want to give up and move on");
+				} else {
+					// Failure is acceptable for a Many
+					// TODO: I think we need to consider the 1-or-more case and throw an error if only 0
+					pop(null);
+					return handlesToken(token);
 				}
 			} else if (td.defn instanceof ChoiceDefinition) {
 				boolean matched = moveToTag(token.type, token.text);

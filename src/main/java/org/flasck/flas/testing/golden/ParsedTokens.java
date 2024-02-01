@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -65,7 +68,7 @@ public class ParsedTokens {
 		}
 	}
 
-	public static class ReductionRule implements GrammarStep, Comparable<ReductionRule> {
+	public static class ReductionRule implements GrammarStep {
 		private final String rule;
 		private InputPosition first;
 		private InputPosition last;
@@ -87,18 +90,6 @@ public class ParsedTokens {
 		@Override
 		public InputPosition location() {
 			return first;
-		}
-
-		@Override
-		public int compareTo(ReductionRule o) {
-//			int cmp;
-//			cmp = this.last.compareTo(o.last);
-//			if (cmp != 0)
-//				return cmp;
-//			cmp = this.first.compareTo(o.first);
-//			if (cmp != 0)
-//				return cmp;
-			return Integer.compare(this.lineNumber, o.lineNumber);
 		}
 		
 		public InputPosition start() {
@@ -123,8 +114,56 @@ public class ParsedTokens {
 		}
 	}
 
+	Comparator<ReductionRule> lineOrder = new Comparator<>() {
+		@Override
+		public int compare(ReductionRule o1, ReductionRule o2) {
+//			int cmp;
+//			cmp = this.last.compareTo(o.last);
+//			if (cmp != 0)
+//				return cmp;
+//			cmp = this.first.compareTo(o.first);
+//			if (cmp != 0)
+//				return cmp;
+			return Integer.compare(o1.lineNumber, o2.lineNumber);
+		}
+	};
+	/*
+	Comparator<ReductionRule> startOrder = new Comparator<>() {
+		@Override
+		public int compare(ReductionRule o1, ReductionRule o2) {
+			if (o1 == o2)
+				return 0;
+			
+//			int cmp;
+			
+			// If one ends where the other starts, it owns it and must come after it
+			if (o1.last.compareTo(o2.first) == 0)
+				return 1;
+			else if (o2.last.compareTo(o1.first) == 0)
+				return -1;
+			
+			// the one that ends first comes first
+			if (o1.last.compareTo(o2.last) < 0)
+				return -1;
+			else if (o2.last.compareTo(o1.last) < 0)
+				return 1;
+
+			//			cmp = 
+//			if (cmp != 0)
+//				return cmp;
+//			cmp = o1.first.compareTo(o2.first);
+//			if (cmp != 0)
+//				return cmp;
+//			return Integer.compare(o1.lineNumber, o2.lineNumber);
+			throw new NotImplementedException();
+		}
+	};
+	*/
+
+	
 	private Set<GrammarToken> tokens = new TreeSet<>();
-	private Set<ReductionRule> reductions = new TreeSet<>();
+	private Set<ReductionRule> reductionsInLineOrder = new TreeSet<>(lineOrder);
+	private List<ReductionRule> reductionsInFileOrder = new ArrayList<>();
 
 	private ParsedTokens() {
 	}
@@ -139,7 +178,7 @@ public class ParsedTokens {
 			while ((s = lnr.readLine()) != null) {
 				if (pendingRule != null) {
 					pendingRule.range(pos, readPos(inFile, s));
-					ret.reductions.add(pendingRule);
+					ret.reductionsInLineOrder.add(pendingRule);
 					pendingRule = null;
 					pos = null;
 				} else if (pos == null)
@@ -163,7 +202,40 @@ public class ParsedTokens {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		ret.sortReductionsIntoFileContainingOrder();
 		return ret;
+	}
+
+	private void sortReductionsIntoFileContainingOrder() {
+		Set<ReductionRule> starting = new TreeSet<ReductionRule>(new Comparator<ReductionRule>() {
+			public int compare(ReductionRule o1, ReductionRule o2) {
+				int cmp = o1.start().compareTo(o2.start());
+				if (cmp != 0) return cmp;
+//				cmp = o1.last.compareTo(o2.last);
+//				if (cmp != 0) return cmp;
+				return Integer.compare(o1.lineNumber, o2.lineNumber);
+			}
+		});
+		starting.addAll(reductionsInLineOrder);
+		reductionsInFileOrder.addAll(starting);
+		outer:
+		for (int i=0;i<reductionsInFileOrder.size();) {
+			ReductionRule moveDown = reductionsInFileOrder.get(i);
+			for (int j=i+1;j<reductionsInFileOrder.size();j++) {
+				ReductionRule after = reductionsInFileOrder.get(j);
+				if (moveDown.last.equals(after.first) && 
+						(moveDown.first.compareTo(after.first) < 0 ||
+						 moveDown.last.compareTo(after.last) < 0)) {
+					for (int k=i+1;k<=j;k++) {
+						reductionsInFileOrder.set(k-1, reductionsInFileOrder.get(k));
+					}
+					reductionsInFileOrder.set(j, moveDown);
+					continue outer;
+				}
+			}
+			i++;
+		}
+		System.out.println(reductionsInLineOrder.size() + " == " + reductionsInFileOrder.size());
 	}
 
 	private static InputPosition readPos(String file, String s) {
@@ -191,8 +263,8 @@ public class ParsedTokens {
 
 	public void write(File file) {
 		// The idea here is that we could write the tokens back out once we have sorted them
-		for (ReductionRule e : this.reductions) {
-//			System.out.println("  " + e);
+		for (ReductionRule e : this.reductionsInFileOrder) {
+			System.out.println("  " + e);
 		}
 	}
 	
@@ -200,7 +272,11 @@ public class ParsedTokens {
 		return tokens;
 	}
 	
-	public Iterable<ReductionRule> reductions() {
-		return reductions;
+	public Iterable<ReductionRule> reductionsInLineOrder() {
+		return reductionsInLineOrder;
+	}
+	
+	public Iterable<ReductionRule> reductionsInFileOrder() {
+		return reductionsInFileOrder;
 	}
 }

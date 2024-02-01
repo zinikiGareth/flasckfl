@@ -72,7 +72,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 				builder.term(ae);
 			} else {
 				errors.logReduction("tuple-list-or-hash", from, endToken.location());
-				builder.term(new ApplyExpr(ae.location().copySetEnd(end), new UnresolvedOperator(ae.location(), op), terms.toArray()));
+				builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(ae.location(), op), terms.toArray()));
 			}
 		}
 

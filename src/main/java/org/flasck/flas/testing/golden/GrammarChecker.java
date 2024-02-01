@@ -101,7 +101,7 @@ public class GrammarChecker {
 
 	private Map<InputPosition, ReductionRule> calculateMostReduced(ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
-		for (ReductionRule rr : toks.reductions()) {
+		for (ReductionRule rr : toks.reductionsInLineOrder()) {
 //			System.out.println(rr);
 			ReductionRule mr = null;
 			for (GrammarToken t : toks.tokens()) {
@@ -151,7 +151,7 @@ public class GrammarChecker {
 	private void assertAllTokensReduced(ParsedTokens toks) {
 		tokenLoop:
 		for (GrammarToken t : toks.tokens()) {
-			for (ReductionRule rr : toks.reductions()) {
+			for (ReductionRule rr : toks.reductionsInLineOrder()) {
 				if (rr.includes(t.pos))
 					continue tokenLoop;
 			}
@@ -171,7 +171,7 @@ public class GrammarChecker {
 		// the reduction rules are in order, and the tokens too ...
 		List<GrammarStep> srstack = new ArrayList<>();
 		Iterator<GrammarToken> tokens = toks.tokens().iterator();
-		Iterator<ReductionRule> rules = toks.reductions().iterator();
+		Iterator<ReductionRule> rules = toks.reductionsInFileOrder().iterator();
 		Iterator<ReductionRule> mit = mostReduced.values().iterator();
 		ReductionRule rr = null;
 		ReductionRule mr = null;
