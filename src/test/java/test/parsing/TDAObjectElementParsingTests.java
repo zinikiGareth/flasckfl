@@ -76,7 +76,7 @@ public class TDAObjectElementParsingTests {
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel, locTracker);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("state"));
-		assertTrue(nested instanceof TDAStructFieldParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAStructFieldParser.class));
 	}
 	
 	@Test

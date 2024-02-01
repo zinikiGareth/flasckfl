@@ -754,7 +754,7 @@
       <seq>
 		<reduces-as rule='type-expr' />
 		<token type='TYPE' />
-        <ref production='expression'/>
+        <ref production='expression-term'/>
 	  </seq>
       <seq>
         <token type='UNOP'/>
@@ -813,15 +813,10 @@
   <production name='expression-term'>
     <section title='Expressions' />
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='30 10 40'/>
+    <producer shares='30 10'/>
     <or>
-      <seq>
-        <ref production='literal'/>
-      </seq>
-      <ref production='paren-expression' />
-      <seq>
-        <token type='var-name'/>
-      </seq>
+      <ref production='literal'/>
+      <ref production='value-expression' />
     </or>
   </production>
   <production name='literal'>

@@ -525,6 +525,7 @@ public class SentenceProducer {
 			case "TEMPLATE":
 			case "TEST":
 			case "TEXT":
+			case "TYPE":
 			case "UNION":
 			case "WRAPS":
 				return token.toLowerCase();
