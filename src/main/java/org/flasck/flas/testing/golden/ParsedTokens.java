@@ -133,61 +133,20 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		}
 	}
 
-	Comparator<ReductionRule> lineOrder = new Comparator<>() {
-		@Override
-		public int compare(ReductionRule o1, ReductionRule o2) {
-//			int cmp;
-//			cmp = this.last.compareTo(o.last);
-//			if (cmp != 0)
-//				return cmp;
-//			cmp = this.first.compareTo(o.first);
-//			if (cmp != 0)
-//				return cmp;
-			return Integer.compare(o1.lineNumber, o2.lineNumber);
-		}
-	};
-	/*
-	Comparator<ReductionRule> startOrder = new Comparator<>() {
-		@Override
-		public int compare(ReductionRule o1, ReductionRule o2) {
-			if (o1 == o2)
-				return 0;
-			
-//			int cmp;
-			
-			// If one ends where the other starts, it owns it and must come after it
-			if (o1.last.compareTo(o2.first) == 0)
-				return 1;
-			else if (o2.last.compareTo(o1.first) == 0)
-				return -1;
-			
-			// the one that ends first comes first
-			if (o1.last.compareTo(o2.last) < 0)
-				return -1;
-			else if (o2.last.compareTo(o1.last) < 0)
-				return 1;
-
-			//			cmp = 
-//			if (cmp != 0)
-//				return cmp;
-//			cmp = o1.first.compareTo(o2.first);
-//			if (cmp != 0)
-//				return cmp;
-//			return Integer.compare(o1.lineNumber, o2.lineNumber);
-			throw new NotImplementedException();
-		}
-	};
-	*/
-
-	
 	private Set<GrammarToken> tokens = new TreeSet<>();
-	private Set<ReductionRule> reductionsInLineOrder = new TreeSet<>(lineOrder);
 	private List<ReductionRule> reductionsInFileOrder = new ArrayList<>();
 
 	private ParsedTokens() {
 	}
 
 	public static ParsedTokens read(File tokens) {
+		Set<ReductionRule> starting = new TreeSet<ReductionRule>(new Comparator<ReductionRule>() {
+			public int compare(ReductionRule o1, ReductionRule o2) {
+				int cmp = o1.start().compareTo(o2.start());
+				if (cmp != 0) return cmp;
+				return Integer.compare(o1.lineNumber, o2.lineNumber);
+			}
+		});
 		String inFile = tokens.getName();
 		ParsedTokens ret = new ParsedTokens();
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(tokens))) {
@@ -197,7 +156,7 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 			while ((s = lnr.readLine()) != null) {
 				if (pendingRule != null) {
 					pendingRule.range(pos, readPos(inFile, s));
-					ret.reductionsInLineOrder.add(pendingRule);
+					starting.add(pendingRule);
 					pendingRule = null;
 					pos = null;
 				} else if (pos == null)
@@ -221,21 +180,11 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ret.sortReductionsIntoFileContainingOrder();
+		ret.sortReductionsIntoFileContainingOrder(starting);
 		return ret;
 	}
 
-	private void sortReductionsIntoFileContainingOrder() {
-		Set<ReductionRule> starting = new TreeSet<ReductionRule>(new Comparator<ReductionRule>() {
-			public int compare(ReductionRule o1, ReductionRule o2) {
-				int cmp = o1.start().compareTo(o2.start());
-				if (cmp != 0) return cmp;
-//				cmp = o1.last.compareTo(o2.last);
-//				if (cmp != 0) return cmp;
-				return Integer.compare(o1.lineNumber, o2.lineNumber);
-			}
-		});
-		starting.addAll(reductionsInLineOrder);
+	private void sortReductionsIntoFileContainingOrder(Set<ReductionRule> starting) {
 		reductionsInFileOrder.addAll(starting);
 		outer:
 		for (int i=0;i<reductionsInFileOrder.size();) {
@@ -359,11 +308,40 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		return tokens;
 	}
 	
-	public Iterable<ReductionRule> reductionsInLineOrder() {
-		return reductionsInLineOrder;
-	}
-	
 	public Iterable<ReductionRule> reductionsInFileOrder() {
 		return reductionsInFileOrder;
+	}
+
+	public Iterable<ReductionRule> mostReduced() {
+		return new Iterable<>() {
+			@Override
+			public Iterator<ReductionRule> iterator() {
+				return new Iterator<ReductionRule>() {
+					Iterator<ReductionRule> it = reductionsInFileOrder.iterator();
+					ReductionRule next = findNext();
+					
+					private ReductionRule findNext() {
+						while (it.hasNext()) {
+							ReductionRule ret = it.next();
+							if (ret.isMostReduced())
+								return ret;
+						}
+						return null;
+					}
+
+					@Override
+					public boolean hasNext() {
+						return next != null;
+					}
+
+					@Override
+					public ReductionRule next() {
+						ReductionRule ret = next;
+						next = findNext();
+						return ret;
+					}
+				};
+			}
+		};
 	}
 }

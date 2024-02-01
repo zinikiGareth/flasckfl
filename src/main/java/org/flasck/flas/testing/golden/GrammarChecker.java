@@ -1,7 +1,6 @@
 package org.flasck.flas.testing.golden;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -71,7 +70,8 @@ public class GrammarChecker {
 		Map<String, GrammarTree> ret = new TreeMap<>(new MyPreferredTestSorting());
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
 			ParsedTokens toks = ParsedTokens.read(f);
-//			calculateMostReduced(toks);
+			if (!expectErrors)
+				calculateMostReduced(toks);
 			try {
 				toks.write(new File(f.getParentFile(), f.getName()+"-sorted"));
 			} catch (FileNotFoundException ex) {
@@ -99,16 +99,13 @@ public class GrammarChecker {
 	// (c) internally assert that the final rules do not overlap
 	// (c) return an orchard of reductions & tokens with a TLF at the top of each tree and tokens at the leaves
 	private GrammarTree computeReductions(String topRule, ParsedTokens toks) {
-		Map<InputPosition, ReductionRule> mostReduced = calculateMostReduced(toks);
-		for (Entry<InputPosition, ReductionRule> e : mostReduced.entrySet())
-			System.out.println(e.getKey() + " => " + e.getValue());
-		assertNoOverlappingRules(mostReduced);
-		assertTLFs(mostReduced);
+		assertNoOverlappingRules(toks);
+		assertTLFs(toks);
 		assertAllTokensReduced(toks);
-		return reduceToSingleTree(topRule, toks, mostReduced);
+		return reduceToSingleTree(topRule, toks);
 	}
 
-	private Map<InputPosition, ReductionRule> calculateMostReduced(ParsedTokens toks) {
+	private void calculateMostReduced(ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
 		for (ReductionRule rr : toks.reductionsInFileOrder()) {
 			System.out.println(rr);
@@ -137,20 +134,19 @@ public class GrammarChecker {
 		}
 		for (ReductionRule mr : mostReduced.values())
 			mr.makeMostReduced();
-		return mostReduced;
 	}
 
-	private void assertNoOverlappingRules(Map<InputPosition, ReductionRule> mostReduced) {
+	private void assertNoOverlappingRules(ParsedTokens toks) {
 		InputPosition lastEndedAt = null;
-		for (ReductionRule rr : mostReduced.values()) {
+		for (ReductionRule rr : toks.mostReduced()) {
 			if (lastEndedAt != null && lastEndedAt.compareTo(rr.start()) >= 0)
 				fail("overlapping reductions: " + lastEndedAt + " X " + rr);
 			lastEndedAt = rr.last();
 		}
 	}
 
-	private void assertTLFs(Map<InputPosition, ReductionRule> mostReduced) {
-		for (ReductionRule rr : mostReduced.values()) {
+	private void assertTLFs(ParsedTokens toks) {
+		for (ReductionRule rr : toks.mostReduced()) {
 			if (rr.start().indent.tabs != 1 || rr.start().indent.spaces != 0) {
 				// This cannot be a TLF
 				fail("TLFs must have an indent of (1,0): " + rr);
@@ -162,7 +158,7 @@ public class GrammarChecker {
 	private void assertAllTokensReduced(ParsedTokens toks) {
 		tokenLoop:
 		for (GrammarToken t : toks.tokens()) {
-			for (ReductionRule rr : toks.reductionsInLineOrder()) {
+			for (ReductionRule rr : toks.reductionsInFileOrder()) {
 				if (rr.includes(t.pos))
 					continue tokenLoop;
 			}
@@ -176,14 +172,12 @@ public class GrammarChecker {
 		}
 	}
 
-	private GrammarTree reduceToSingleTree(String topRule, ParsedTokens toks, Map<InputPosition, ReductionRule> mostReduced) {
+	private GrammarTree reduceToSingleTree(String topRule, ParsedTokens toks) {
 		List<GrammarTree> ret = new ArrayList<>();
 		
 		// the reduction rules are in order, and the tokens too ...
 		List<GrammarStep> srstack = new ArrayList<>();
-		Iterator<ReductionRule> mit = mostReduced.values().iterator();
 		Iterator<GrammarStep> sit = toks.iterator();
-		ReductionRule mr = null;
 		while (sit.hasNext()) {
 			GrammarStep s = sit.next();
 			System.out.println("have " + s);
@@ -209,25 +203,11 @@ public class GrammarChecker {
 				}
 				srstack.add(0, tree);
 
-				if (mr == null) {
-					if (mit.hasNext()) {
-						mr = mit.next();
-						System.out.println("mr = " + mr);
-					} else {
-						fail("no most reduced rule found for " + rr);
-					}
-				}
-				
-//				System.out.println("comparing " + rr + " and " + mr);
-				if (rr == mr) {
+				if (rr.isMostReduced()) {
 					ret.add(tree);
-//					System.out.println("setting mr == null");
-					mr = null;
 				}
 			}
 		}
-		assertNull(mr);
-		
 		return new GrammarTree(topRule, ret);
 	}
 
