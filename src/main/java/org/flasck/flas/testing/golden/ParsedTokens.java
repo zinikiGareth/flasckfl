@@ -246,13 +246,13 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 				
 				// if they're equal, go round again
 				if (moveDown.first.compareTo(after.first) == 0 && moveDown.last.compareTo(after.last) == 0) {
-					System.out.println("Not moving " + i + ": " + moveDown + " -- " + j + ": " + after + " because they are the same");
+//					System.out.println("Not moving " + i + ": " + moveDown + " -- " + j + ": " + after + " because they are the same");
 					continue;
 				}
 
 				// if after is around moveDown, it's not moving
 				if (moveDown.first.compareTo(after.first) > 0 && moveDown.last.compareTo(after.last) < 0) {
-					System.out.println("Not moving " + i + ": " + moveDown + " -- " + j + ": " + after + " because it is inside it");
+//					System.out.println("Not moving " + i + ": " + moveDown + " -- " + j + ": " + after + " because it is inside it");
 					continue;
 				}
 
@@ -272,7 +272,7 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 				}
 				
 				if (move) {
-					System.out.println("Moving " + i + ": " + moveDown + " after " + j + ": " + after);
+//					System.out.println("Moving " + i + ": " + moveDown + " after " + j + ": " + after);
 					for (int k=i+1;k<=j;k++) {
 						reductionsInFileOrder.set(k-1, reductionsInFileOrder.get(k));
 					}

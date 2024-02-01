@@ -184,6 +184,9 @@
   <lex token='TRUE' pattern='True'>
   	<p>The boolean literal <tt>True</tt>.</p>
   </lex>
+  <lex token='TYPE' pattern='type'>
+  	<p>The <tt>type</tt> keyword is used to turn a type name literal into a type object.</p>
+  </lex>
   <lex token='UNION' pattern='union'>
   	<p>The <tt>union</tt> keyword introduces a union declaration.</p>
   </lex>
@@ -740,7 +743,7 @@
       </description>
     </section>
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='50 3 10 5 5 10 2'/>
+    <producer shares='50 3 10 5 1 5 10 2'/>
     <or>
       <seq>
         <ref production='literal'/>
@@ -748,6 +751,11 @@
       <ref production='paren-expression' />
       <ref production='function-call' />
       <ref production='member-expr' />
+      <seq>
+		<reduces-as rule='type-expr' />
+		<token type='TYPE' />
+        <ref production='expression'/>
+	  </seq>
       <seq>
         <token type='UNOP'/>
         <ref production='expression'/>
@@ -1088,6 +1096,7 @@
     </section>
     <tested by='test.parsing.TDAObjectIntroParsingTests' />
     <seq>
+	  <reduces-as rule='object-defn-decl' />
       <token type='OBJECT' />
       <token type='type-name' names='ObjectDefinition\[${name}\]' />
       <dict var='template-posn' val='2' /> 
@@ -1115,10 +1124,11 @@
     <section title='Object'/>
     <tested by='test.parsing.TDAObjectElementParsingTests' />
     <seq>
-    	  <token type='STATE'/>
-    	  <indent>
-    	    <ref production='struct-field-decl'/>
-    	  </indent>
+	  <reduces-as rule="object-state-line" />
+      <token type='STATE'/>
+   	  <indent>
+   	    <ref production='struct-field-decl'/>
+   	  </indent>
     </seq>
   </production>
   <production name='object-ctor-definition'>

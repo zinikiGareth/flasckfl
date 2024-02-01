@@ -178,7 +178,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 				ret, 
 				() -> {
 					od.complete(errors, lastInner());
-					reduce(kw.location, "object-defn-complete");
+					reduce(kw.location, "object-declaration");
 				}
 			);
 		}

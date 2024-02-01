@@ -413,9 +413,10 @@ public class GrammarNavigator {
 					continue;
 				}
 					
-				if (curr instanceof IndentDefinition)
+				if (curr instanceof IndentDefinition) {
+					System.out.println("Found indent definition at " + td.offset + " ... returning");
 					return;
-				else if (curr instanceof ManyDefinition || curr instanceof OptionalDefinition) {
+				} else if (curr instanceof ManyDefinition || curr instanceof OptionalDefinition) {
 					td.offset++;
 					continue;
 				} else if (curr instanceof TokenDefinition) {
