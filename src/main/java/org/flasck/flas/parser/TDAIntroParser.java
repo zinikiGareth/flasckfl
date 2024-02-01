@@ -212,7 +212,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 			errors.logReduction("contract-decl-type", kw.location, tn.location);
 			consumer.newContract(errors, decl);
 			return new TDAParsingWithAction(
-				new ContractMethodParser(errors, kw.location, decl, consumer, decl.name()),
+				new ContractMethodParser(errors, kw.location, decl, consumer, decl.name(), this),
 				reduction(kw.location, "contract-declaration")
 			);
 		}

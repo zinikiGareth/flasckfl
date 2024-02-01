@@ -21,15 +21,14 @@ public class ContractMethodParser implements TDAParsing {
 	private final ContractMethodConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final SolidName cname;
-	private final InputPosition kwloc;
-	private InputPosition lastMeth;
+	private final LocationTracker locTracker;
 
-	public ContractMethodParser(ErrorReporter errors, InputPosition kwloc, ContractMethodConsumer builder, FunctionScopeUnitConsumer topLevel, SolidName cname) {
+	public ContractMethodParser(ErrorReporter errors, InputPosition kwloc, ContractMethodConsumer builder, FunctionScopeUnitConsumer topLevel, SolidName cname, LocationTracker locTracker) {
 		this.errors = errors;
-		this.kwloc = kwloc;
 		this.builder = builder;
 		this.topLevel = topLevel;
 		this.cname = cname;
+		this.locTracker = locTracker;
 	}
 
 	@Override
@@ -111,19 +110,16 @@ public class ContractMethodParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 
+		if (locTracker != null)
+			locTracker.updateLoc(firstLoc);
 		ContractMethodDecl ret = new ContractMethodDecl(optLoc, name.location, name.location, required, fnName, targs, handler);
 		builder.addMethod(ret);
 		errors.logReduction("contract-method-decl", firstLoc, lastLoc);
-		lastMeth = lastLoc;
 		((ContractConsumer)topLevel).newContractMethod(errors, ret);
 		return new NoNestingParser(errors);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		if (lastMeth != null)
-			errors.logReduction("contract-declaration", kwloc, lastMeth);
-		else
-			errors.logReduction("contract-declaration", kwloc, kwloc);
 	}
 }

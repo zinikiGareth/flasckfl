@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 
 public class ParenTermConsumer implements ExprTermConsumer {
@@ -46,6 +47,9 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			if (term instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) term;
 				term = new ApplyExpr(from.copySetEnd(end), ae.fn, ae.args);
+			} else if (term instanceof TypeExpr) {
+				TypeExpr te = (TypeExpr) term;
+				term = new TypeExpr(from.copySetEnd(end), te.tyLoc, te.type);
 			}
 			if (op.equals("{}")) {
 				if (currentVar == null)
@@ -98,11 +102,11 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		this.builder = builder;
 		this.open = open;
 		if (open.is("("))
-			closer = new ParenCloseRewriter(from, "()");
+			closer = new ParenCloseRewriter(open.location, "()");
 		else if (open.is("["))
-			closer = new ParenCloseRewriter(from, "[]");
+			closer = new ParenCloseRewriter(open.location, "[]");
 		else if (open.is("{")) {
-			closer = new ParenCloseRewriter(from, "{}");
+			closer = new ParenCloseRewriter(open.location, "{}");
 			expectingColon = true;
 		} else
 			throw new RuntimeException("invalid open paren");
