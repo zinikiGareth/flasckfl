@@ -73,6 +73,8 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
+import io.webfolder.ui4j.api.dom.Input;
+
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	private static final Logger logger = LoggerFactory.getLogger("Repository");
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
@@ -317,6 +319,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			String cname = vn.container().uniqueName() + ".";
 			boolean conflicts = false;
 			for (Entry<String, RepositoryEntry> e : dict.entrySet()) {
+				RepositoryEntry val = e.getValue();
 				if (e.getKey().startsWith(cname)) {
 					NameOfThing rn = e.getValue().name();
 					String base;
@@ -329,8 +332,13 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 					if (base.equals(vn.var)) {
 						if (errors == null)
 							throw new NotImplementedException("we should be passed errors in this case - figure it out");
-						else
-							errors.message(e.getValue().location(), "cannot use " + base + " here as it conflicts with state member at " + vn.loc);
+						else {
+							InputPosition loc = val.location();
+							if (val instanceof TypedPattern) {
+								loc = ((TypedPattern) val).var.loc;
+							}
+							errors.message(loc, "cannot use " + base + " here as it conflicts with state member at " + vn.loc);
+						}
 						conflicts = true;
 					}
 				}
