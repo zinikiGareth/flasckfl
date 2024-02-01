@@ -140,13 +140,16 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 	}
 
 	public static ParsedTokens read(File tokens) {
-		Set<ReductionRule> starting = new TreeSet<ReductionRule>(new Comparator<ReductionRule>() {
+		Set<ReductionRule> starting = new TreeSet<ReductionRule>(
+//				fileOrder
+			new Comparator<ReductionRule>() {
 			public int compare(ReductionRule o1, ReductionRule o2) {
 				int cmp = o1.start().compareTo(o2.start());
 				if (cmp != 0) return cmp;
 				return Integer.compare(o1.lineNumber, o2.lineNumber);
 			}
-		});
+		}
+			);
 		String inFile = tokens.getName();
 		ParsedTokens ret = new ParsedTokens();
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(tokens))) {
@@ -183,7 +186,56 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		ret.sortReductionsIntoFileContainingOrder(starting);
 		return ret;
 	}
+	
+	/* This doesn't work because it requires us to sort EVERY reduction in the file.
+	 * And we only know about some of them in relation to some others.
+	private static Comparator<ReductionRule> fileOrder = new Comparator<>() {
 
+		// -1 implies o1 should come first
+		// +1 implies o2 should come first
+		@Override
+		public int compare(ReductionRule o1, ReductionRule o2) {
+			// if they're equal, go round again
+			if (o1.first.compareTo(o2.first) == 0 && o1.last.compareTo(o2.last) == 0) {
+				int cmp = o1.start().compareTo(o2.start());
+				if (cmp == 0)
+					cmp = Integer.compare(o1.lineNumber, o2.lineNumber);
+				System.out.println("Comparing starts of " + o1 + " -- " + o2 + " because they are the same: " + o1.lineNumber + " // " + o2.lineNumber + ": " + cmp);
+				return cmp;
+			}
+
+			// if after is around moveDown, it's not moving
+			if (o1.first.compareTo(o2.first) > 0 && o1.last.compareTo(o2.last) < 0) {
+				System.out.println("Not moving " + o1 + " -- " + o2 + " because it is inside it, returning -1");
+				return -1;
+			}
+
+			// if they moveDown ends beyond where after starts, and either
+			//   * it starts before it OR
+			//   * it ends before it
+			// it needs to move down
+			if (o1.last.equals(o2.first) && 
+					(o1.first.compareTo(o2.first) <= 0 ||
+					 o1.last.compareTo(o2.last) < 0)) {
+				System.out.println("Moving " + o1 + " after " + o2 + " because parent rule, returning -1");
+				return 1;
+			}
+			if (o2.last.equals(o1.first) && 
+					(o2.first.compareTo(o1.first) <= 0 ||
+					 o2.last.compareTo(o1.last) < 0)) {
+				System.out.println("Not moving " + o1 + " after " + o2 + " because !parent rule, returning 1");
+				return -1;
+			}
+
+			int cmp = o1.start().compareTo(o2.start());
+			if (cmp == 0)
+				cmp = Integer.compare(o1.lineNumber, o2.lineNumber);
+			System.out.println("Comparing starts of " + o1 + " -- " + o2 + ": " + o1.lineNumber + " // " + o2.lineNumber + ": " + cmp + " because that's all I've got: " + cmp);
+			return cmp;
+		}
+	};
+	 */
+	
 	private void sortReductionsIntoFileContainingOrder(Set<ReductionRule> starting) {
 		reductionsInFileOrder.addAll(starting);
 		outer:
