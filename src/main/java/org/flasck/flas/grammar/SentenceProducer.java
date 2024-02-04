@@ -162,12 +162,12 @@ public class SentenceProducer {
 				} else
 					visit(child);
 				if (withEOL)
-					token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>(), false, false, null, true);
+					generateEOL();
 			}
 			if (op != null) {
 				while (!op.wrapUp(cxt, this)) {
 					if (withEOL)
-						token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>(), false, false, null, true);
+						generateEOL();
 				}
 			}
 		}
@@ -264,17 +264,13 @@ public class SentenceProducer {
 				Pattern p = Pattern.compile(lexer.pattern);
 				assertTrue("generated token for " + token + "(" + t + ") did not match pattern definition (" + lexer.pattern + ")", p.matcher(t).matches());
 			}
-			if (token.equals("EOL"))
-				haveSomething = false;
-			else {
-				if (!haveSomething) { // beginning of line
-					for (int i=0;i<indent;i++) {
-						sentence.append("\t");
-					}
-				} else if (space)
-					sentence.append(" ");
-				haveSomething = true;
-			}
+			if (!haveSomething) { // beginning of line
+				for (int i=0;i<indent;i++) {
+					sentence.append("\t");
+				}
+			} else if (space)
+				sentence.append(" ");
+			haveSomething = true;
 			sentence.append(t);
 			if (patternMatcher != null) {
 				replace(t, scoping);
@@ -297,7 +293,12 @@ public class SentenceProducer {
 				this.matchers.put(assembleName(doAmend, scoping), patt);
 			}
 		}
-		
+
+		public void generateEOL() {
+			haveSomething = false;
+			sentence.append("\n");
+		}
+
 		@Override
 		public void setDictEntry(String var, String val) {
 			dicts.get(indent).put(var, val);
@@ -547,7 +548,7 @@ public class SentenceProducer {
 			case "UNOP":
 				return "-"; // are there more?  ~ maybe?  ! maybe?
 			case "poly-var":
-				return unique(() -> randomChars(1, 1, 'A', 26));
+				return unique(() -> randomChars(1, 2, 'A', 26));
 			case "type-name":
 				return unique(() -> randomChars(1, 1, 'A', 26) + randomChars(2, 8, 'a', 26));
 			case "event-name":

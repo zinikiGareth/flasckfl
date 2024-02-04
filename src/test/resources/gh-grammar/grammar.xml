@@ -62,9 +62,6 @@
   <lex token='ENTITY' pattern='entity'>
   	<p>The <tt>entity</tt> keyword introduces an entity definition.</p>
   </lex>
-  <lex token='EOL' pattern='\n'>
-  	<p>Specifies the end of a line.</p>
-  </lex>
   <lex token='EQ' pattern='='>
   	<p>Defines the variable/function definition operator.</p>
   </lex>
@@ -555,7 +552,7 @@
 	    <ref production='expression'/>
 	    <token type='EQ'/>
 	    <ref production='expression'/>
-	    <token type='EOL'/>
+	    <eol />
     </seq>
   </production>
   <production name='guarded-default-expression'>
@@ -564,7 +561,7 @@
     <seq>
 	    <token type='EQ'/>
 	    <ref production='expression'/>
-	    <token type='EOL'/>
+	    <eol />
     </seq>
   </production>
   <production name='tuple-definition'>
@@ -940,6 +937,7 @@
     <section title='Method' />
 	<tested by='test.parsing.TDAObjectElementParsingTests' />
 	<seq>
+	  <reduces-as rule='method-intro' />
       <token type='METHOD'/>
       <will-name pattern='ObjectMethod\[${name}\(.*\)\]' />
       <ref production='method-definition'/>
@@ -949,6 +947,7 @@
     <tested by='test.parsing.TDAMethodNestedParsingTests' />
     <section title='Method'/>
     <seq>
+	  <reduces-as rule='method-intro'/>
       <token type='var-name'>
       	<use-name/> <!--  this picks up the value from the 'enclosing' will-name -->
       </token>
@@ -1024,18 +1023,18 @@
       <seq>
       	<token type='SEND' />
       	<ref production='service-method' />
-    	    <many>
-    	      <ref production='expression' />
-    	    </many>
-    	    <optional>
-    	      <ref production='maybe-handled' />
-    	    </optional>
-    	    <token type='EOL' />
+	    <many>
+	      <ref production='expression' />
+	    </many>
+	    <optional>
+	      <ref production='maybe-handled' />
+	    </optional>
+	    <eol />
       </seq>
       <seq>
       	<token type='SEND' />
         <ref production='expression' />
-    	    <token type='EOL' />
+	    <eol />
       </seq>
     </or>
   </production>
@@ -1063,7 +1062,7 @@
    	  <ref production='member-path' />
    	  <token type='SEND' />
       <ref production='expression' />
-      <token type='EOL' />
+      <eol />
     </seq>
   </production>
   <production name='member-path'>
@@ -1130,6 +1129,7 @@
     <section title='Object'/>
     <tested by='test.parsing.TDAObjectElementParsingTests' />
     <seq>
+	  <reduces-as rule='object-ctor-decl' />
       <token type='CTOR' />
       <will-name amended='_ctor_${final}' pattern='ObjectCtor\[ctor ${name}\]' /> <!-- this will bind to the use-name in the method-definition -->
       <ref production='method-definition'/>
@@ -1441,7 +1441,7 @@
 	  <optional>
 	  	  <ref production='pass-to-template' />
 	  </optional>
-	  <token type='EOL' />
+      <eol />
 	</seq>
   </production>
   <production name='default-option-template-bind'>
@@ -1453,7 +1453,7 @@
 	  <optional>
 	    <ref production='pass-to-template' />
 	  </optional>
-	  <token type='EOL' />
+	  <eol />
 	</seq>
   </production>
   <production name='pass-to-template'>
@@ -1722,7 +1722,7 @@ match style ...
       <token type='var-name' names='UnitData\[${name}.*\]' />
       <token type='SEND' />
       <ref production='expression' />
-      <token type='EOL' />
+	  <eol />
     </seq>
   </production>
   <production name='unit-fields-data-declaration'>

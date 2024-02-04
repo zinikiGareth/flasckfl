@@ -376,7 +376,8 @@ public class GrammarNavigator {
 	public void moveToEndOfLine(int depth) {
 		boolean comingUp = false;
 		while (stack.size() > depth) {
-			flushRule(comingUp);
+			if (flushRule(comingUp))
+				break;
 			stack.remove(0);
 			comingUp = true;
 		}
@@ -397,7 +398,7 @@ public class GrammarNavigator {
 
 	// comingUp here says that we are coming up from a nested scope, so
 	// we will have processed the first token we see in a sequence
-	public void flushRule(boolean comingUp) {
+	public boolean flushRule(boolean comingUp) {
 		TaggedDefinition td = stack.get(0);
 		System.out.println("move to end of rule " + td.tag);
 		if (td.defn instanceof SequenceDefinition) {
@@ -415,7 +416,7 @@ public class GrammarNavigator {
 					
 				if (curr instanceof IndentDefinition) {
 					System.out.println("Found indent definition at " + td.offset + " ... returning");
-					return;
+					return true;
 				} else if (curr instanceof ManyDefinition || curr instanceof OptionalDefinition) {
 					td.offset++;
 					continue;
@@ -427,17 +428,18 @@ public class GrammarNavigator {
 					fail("what is " + curr.getClass() + "?");
 			}
 			// we have reached the end of the rule
+			return false;
 		} else if (td.defn instanceof OptionalDefinition) {
-			return; // we are at the end of the rule
+			return false; // we are at the end of the rule
 		} else if (td.defn instanceof IndentDefinition) {
 			// if I understand this correctly, we are not really processing a "rule" at this point, but sure, we're done ...
-			return;
+			return false;
 		} else if (td.defn instanceof ManyDefinition) {
-			return;
+			return false;
 		} else if (td.defn instanceof ChoiceDefinition) {
-			return;
+			return false;
 		} else if (td.defn instanceof RefDefinition) {
-			return;
+			return false;
 		} else
 			throw new NotImplementedException("td.defn is a " + td.defn.getClass());
 	}

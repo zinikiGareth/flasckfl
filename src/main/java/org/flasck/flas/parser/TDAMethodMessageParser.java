@@ -109,7 +109,7 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("method-message-assign", slot, seen.get(seen.size()-1));
+		errors.logReduction("assign-method-action", slot, seen.get(seen.size()-1));
 		tellParent(slot.location());
 		return nestedParser;
 	}

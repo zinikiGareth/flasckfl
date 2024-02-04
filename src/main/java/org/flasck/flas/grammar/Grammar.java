@@ -211,6 +211,8 @@ public class Grammar {
 			return handleSeq(ruleName, rule);
 		case "token":
 			return handleToken(ruleName, rule);
+		case "eol":
+			return generateEOL(ruleName, rule);
 		case "will-name":
 			return handleWillName(ruleName, rule);
 		case "nested-name":
@@ -323,6 +325,12 @@ public class Grammar {
 			xe.attributesDone();
 			ret.addMatcher(null, null, UseNameForScoping.UNSCOPED);
 		}
+		return ret;
+	}
+
+	private GenerateEOL generateEOL(String ruleName, XMLElement rule) {
+		rule.attributesDone();
+		final GenerateEOL ret = new GenerateEOL();
 		return ret;
 	}
 

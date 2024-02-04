@@ -168,7 +168,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
 			return new TDAParsingWithAction(
 				new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this), this),
-				reduction(kw.location, "object-ctor")
+				reduction(kw.location, "object-ctor-definition")
 			);
 		}
 		case "acor": {
@@ -200,12 +200,12 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			MethodConsumer dispenser = method -> {
 				builder.addMethod(method);
 				topLevel.newObjectMethod(errors, method);
-				reduce(kw.location, "object-method-line");
+//				reduce(kw.location, "object-method-line");
 			};
 			tellParent(kw.location);
 			return new TDAParsingWithAction(
 				new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this).parseMethod(kw, methodNamer, toks),
-				reduction(kw.location, "object-method")
+				reduction(kw.location, "object-method-definition")
 			);
 		}
 		default: {
