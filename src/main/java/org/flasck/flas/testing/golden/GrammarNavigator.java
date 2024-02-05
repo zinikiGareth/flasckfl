@@ -67,6 +67,7 @@ public class GrammarNavigator {
 	private final Grammar grammar;
 	private final List<TaggedDefinition> stack = new ArrayList<>();
 	private final List<Stash> stashes = new ArrayList<>();
+	private boolean haveAdvanced;
 
 	public GrammarNavigator(Grammar grammar, String ruleName, Definition grammarRule) {
 		this.grammar = grammar;
@@ -124,15 +125,16 @@ public class GrammarNavigator {
 
 	
 	private boolean handlesToken(GrammarToken token) {
+		this.haveAdvanced = false;
 		while (true) {
 			TaggedDefinition td = stack.get(0);
 			logger.info("attempting to handle " + token + " with " + current());
 			if (td.defn instanceof SequenceDefinition) {
 				SequenceDefinition sd = (SequenceDefinition) td.defn;
-				int offset = td.offset;
 				Definition nd = sd.nth(td.offset);
 				if (nd instanceof ActionDefinition) {
 					advanceToNext(null);
+					this.haveAdvanced = false;
 					continue;
 				}
 				if (nd instanceof TokenDefinition) {
@@ -154,8 +156,6 @@ public class GrammarNavigator {
 					}
 				} else if (nd instanceof ManyDefinition) {
 					boolean matched = moveToTag(token.type, token.text);
-					if (td.offset > offset)
-						return matched;
 					if (matched) {
 						advanceToNext(null);
 						return true;
@@ -197,6 +197,7 @@ public class GrammarNavigator {
 	}
 
 	private boolean handlesTree(GrammarTree tree) {
+		this.haveAdvanced = false;
 		return moveToTag(tree.reducedToRule(), null);
 	}
 
@@ -317,6 +318,8 @@ public class GrammarNavigator {
 	}
 
 	private void advanceToNext(List<TaggedDefinition> prods) {
+		if (haveAdvanced)
+			return;
 		TaggedDefinition top;
 		if (prods == null) {
 			top = stack.get(0);
@@ -325,9 +328,16 @@ public class GrammarNavigator {
 		}
 		if (top.defn instanceof SequenceDefinition) {
 			top.offset++;
+			try {
+				throw new Exception("advanced to next " + top.offset);
+			} catch (Exception ex) {
+				ex.printStackTrace(System.out);
+			}
 			System.out.println("advanced to next " + top.offset);
-			if (top.offset < ((SequenceDefinition)top.defn).length())
+			if (top.offset < ((SequenceDefinition)top.defn).length()) {
+				this.haveAdvanced = true;
 				return;
+			}
 			// if we reach the end of the SD, then we need to pop it and try the thing above
 			advanceToNext(pop(prods));
 		} else if (top.defn instanceof TokenDefinition || 

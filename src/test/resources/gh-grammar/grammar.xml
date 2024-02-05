@@ -517,6 +517,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
+	  <reduces-as rule='guarded-function-case-definition-intro' />
       <token type='var-name' names='${name}\(\+?[0-9]+\)' maybe-repeat-last='true' save-last='true'/>
       <can-repeat-with-case-number />
       <nested-name offset='1'/>
@@ -742,9 +743,7 @@
     <tested by='test.parsing.ExprReductionTests' />
     <producer shares='50 3 10 5 1 5 10 2'/>
     <or>
-      <seq>
-        <ref production='literal'/>
-      </seq>
+      <ref production='literal'/>
       <ref production='paren-expression' />
       <ref production='function-call' />
       <ref production='member-expr' />

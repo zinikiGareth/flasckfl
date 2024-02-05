@@ -68,10 +68,12 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			if (terms.size() == 0) {
 				if (op.equals("()"))
 					errors.message(from, "empty tuples are not permitted");
-				else {
-					errors.logReduction("empty-list-or-hash", from, endToken.location());
-					builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(from, op)));
+				else if (op.equals("[]")) {
+					errors.logReduction("empty-list-literal", from, endToken.location());
+				} else {
+					errors.logReduction("empty-hash", from, endToken.location());
 				}
+				builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(from, op)));
 				return;
 			}
 			final Expr ae = terms.get(0);
@@ -80,10 +82,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 				builder.term(ae);
 			} else {
 				if (op.equals("[]")) {
-					if (terms.size() == 0)
-						errors.logReduction("empty-list-literal", from, endToken.location());
-					else
-						errors.logReduction("non-empty-list-literal", from, endToken.location());
+					errors.logReduction("non-empty-list-literal", from, endToken.location());
 				} else
 					errors.logReduction("tuple-or-hash", from, endToken.location());
 				builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(ae.location(), op), terms.toArray()));
