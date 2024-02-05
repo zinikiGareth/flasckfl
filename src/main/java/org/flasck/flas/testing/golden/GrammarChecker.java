@@ -81,7 +81,11 @@ public class GrammarChecker {
 			if (!expectErrors) {
 				String ext = FileUtils.extension(f.getName());
 				GrammarTree reduced = computeReductions(getTopRule(ext), toks);
-				dumpTree(reduced);
+				try {
+				dumpTree(new File(f.getParentFile(), f.getName()+"-tree"), reduced);
+				} catch (FileNotFoundException ex) {
+					fail("could not write parse tree to " + ex.getMessage());
+				}
 				ret.put(f.getName(), reduced);
 			}
 		}
@@ -211,10 +215,10 @@ public class GrammarChecker {
 		return new GrammarTree(topRule, ret);
 	}
 
-	public void dumpTree(GrammarTree top) {
-		PrintWriter pw = new PrintWriter(System.out);
+	public void dumpTree(File file, GrammarTree top) throws FileNotFoundException {
+		PrintWriter pw = new PrintWriter(file);
 		top.dump(pw, "", false);
-		pw.flush();
+		pw.close();
 	}
 
 	public void checkGrammar(Map<String, GrammarTree> fileOrchards) {

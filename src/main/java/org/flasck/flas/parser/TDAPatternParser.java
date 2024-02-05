@@ -97,7 +97,11 @@ public class TDAPatternParser implements TDAParsing {
 		if (tuples.isEmpty())
 			return invalidPattern(toks);
 		if (tuples.size() == 1) {
-			errors.logReduction("pattern-other-orb-case", orb.location, crb.location);
+			Pattern arg = tuples.get(0);
+			if (arg instanceof TypedPattern)
+				errors.logReduction("argument-pattern-typed", orb.location, crb.location);
+			else
+				errors.logReduction("pattern-other-orb-case", orb.location, crb.location);
 			consumer.accept(tuples.get(0).locatedAt(orb.location.copySetEnd(crb.location.off)));
 		} else {
 			errors.logReduction("pattern-tuples-case", orb.location, crb.location);

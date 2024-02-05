@@ -42,6 +42,8 @@ public class ExprToken implements LoggableToken {
 	@Override
 	public String type() {
 		switch (type) {
+		case 1:
+			return "var-name";
 		case 4:
 			return "symbol";
 		case 5:
