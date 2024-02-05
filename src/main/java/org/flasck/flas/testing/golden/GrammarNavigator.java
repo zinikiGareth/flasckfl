@@ -129,6 +129,7 @@ public class GrammarNavigator {
 			logger.info("attempting to handle " + token + " with " + current());
 			if (td.defn instanceof SequenceDefinition) {
 				SequenceDefinition sd = (SequenceDefinition) td.defn;
+				int offset = td.offset;
 				Definition nd = sd.nth(td.offset);
 				if (nd instanceof ActionDefinition) {
 					advanceToNext(null);
@@ -153,6 +154,8 @@ public class GrammarNavigator {
 					}
 				} else if (nd instanceof ManyDefinition) {
 					boolean matched = moveToTag(token.type, token.text);
+					if (td.offset > offset)
+						return matched;
 					if (matched) {
 						advanceToNext(null);
 						return true;
@@ -210,6 +213,7 @@ public class GrammarNavigator {
 
 	private boolean navigateTo(TaggedDefinition from, String rule, String toktext, List<TaggedDefinition> prods, Set<String> triedRules) {
 		Definition d = from.defn;
+		System.out.println("navigate to " + d + " - " + from.offset);
 		
 		if (d instanceof TokenDefinition) {
 			// Q1a: Are we there yet? (Token version)
@@ -264,11 +268,19 @@ public class GrammarNavigator {
 			}
 			while (from.offset < sd.length()) {
 				Definition nth = sd.nth(from.offset);
+				System.out.println("Looking at " + from.offset + ": " + nth);
+				if (nth instanceof ActionDefinition) {
+					System.out.println("skipping action " + from.offset + ": " + nth.getClass());
+					from.offset++;
+					continue;
+				}
 				if (navigateNext(new TaggedDefinition("seq_" + from.offset, nth), rule, toktext, prods, triedRules))
 					return true;
-				if (nth instanceof ManyDefinition || nth instanceof OptionalDefinition)
+				if (nth instanceof ManyDefinition || nth instanceof OptionalDefinition) {
+					System.out.println("navigateTo fine with " + from.offset);
 					from.offset++;
-				else
+					System.out.println("incremented from.offset to " + from.offset);
+				} else
 					return false;
 			}
 		}
@@ -313,6 +325,7 @@ public class GrammarNavigator {
 		}
 		if (top.defn instanceof SequenceDefinition) {
 			top.offset++;
+			System.out.println("advanced to next " + top.offset);
 			if (top.offset < ((SequenceDefinition)top.defn).length())
 				return;
 			// if we reach the end of the SD, then we need to pop it and try the thing above
@@ -390,8 +403,10 @@ public class GrammarNavigator {
 		System.out.println("skip actions in " + td);
 		if (td.defn instanceof SequenceDefinition) {
 			SequenceDefinition sd = (SequenceDefinition) td.defn;
-			while (sd.nth(td.offset) instanceof ActionDefinition)
+			while (sd.nth(td.offset) instanceof ActionDefinition) {
+				System.out.println("SkipActions skipping " + td.offset);
 				td.offset++;
+			}
 		} else
 			throw new CantHappenException("must be a sequence definition");
 	}
@@ -404,12 +419,15 @@ public class GrammarNavigator {
 		if (td.defn instanceof SequenceDefinition) {
 			SequenceDefinition sd = (SequenceDefinition) td.defn;
 
-			if (comingUp)
+			if (comingUp) {
 				td.offset++; // we have processed the current item now, hence flushing ...
+				System.out.println("coming up increments td.offset to " + td.offset);
+			}
 			
 			while (td.offset < sd.length()) {
 				Definition curr = sd.nth(td.offset);
 				if (curr instanceof ActionDefinition) {
+					System.out.println("flush rule skipping " + td.offset);
 					td.offset++;
 					continue;
 				}
@@ -418,6 +436,7 @@ public class GrammarNavigator {
 					System.out.println("Found indent definition at " + td.offset + " ... returning");
 					return true;
 				} else if (curr instanceof ManyDefinition || curr instanceof OptionalDefinition) {
+					System.out.println("flush rule fine with " + td.offset);
 					td.offset++;
 					continue;
 				} else if (curr instanceof TokenDefinition) {

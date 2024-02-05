@@ -243,9 +243,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			builder.data(errors, dd);
 			topLevel.nestedData(dd);
 			updateLoc(dd.location());
-//			errors.logReduction("ut-input/ut-entry-value", text, text);
-			reduce(kw.location, "ut-input");
-
+//			reduce(kw.location, "ut-input");
 		};
 		return new TDAUnitTestDataParser(errors, false, kw, namer, consumer, topLevel, this).tryParsing(toks);
 	}
@@ -374,7 +372,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("test-step-invoke", kw.location, lastLoc);
+		errors.logReduction("unit-invoke-action", kw.location, lastLoc);
 		tellParent(kw.location);
 		builder.invokeObjectMethod(eventObj.get(0));
 		return new NoNestingParser(errors);

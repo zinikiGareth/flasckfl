@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LocationTracker;
@@ -22,23 +24,20 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAUnitTestDataParser implements TDAParsing {
-	private final ErrorReporter errors;
+public class TDAUnitTestDataParser extends BlockLocationTracker implements TDAParsing {
 	private final boolean atTopLevel;
 	private final KeywordToken kw;
 	private final UnitDataNamer namer;
 	private final Consumer<UnitDataDeclaration> builder;
 	private final FunctionScopeUnitConsumer topLevel;
-	private final LocationTracker locTracker;
 
 	public TDAUnitTestDataParser(ErrorReporter errors, boolean atTopLevel, KeywordToken kw, UnitDataNamer namer, Consumer<UnitDataDeclaration> builder, FunctionScopeUnitConsumer topLevel, LocationTracker locTracker) {
-		this.errors = errors;
+		super(errors, locTracker);
 		this.atTopLevel = atTopLevel;
 		this.kw = kw;
 		this.namer = namer;
 		this.builder = builder;
 		this.topLevel = topLevel;
-		this.locTracker = locTracker;
 	}
 
 	@Override
@@ -57,13 +56,16 @@ public class TDAUnitTestDataParser implements TDAParsing {
 		}
 		FunctionName fnName = namer.dataName(var.location, var.text);
 		if (!toks.hasMoreContent(errors)) {
-			errors.logReduction("test-data-declaration", kw, var);
-			if (locTracker != null)
-				locTracker.updateLoc(kw.location);
+			errors.logReduction("test-data-declaration-no-init", kw, var);
+			super.tellParent(kw.location);
 			UnitDataDeclaration data = new UnitDataDeclaration(pos, atTopLevel, tr.get(0), fnName, null);
 			builder.accept(data);
-			return new TDAUTDataProcessFieldsParser(errors, data);
+			return new TDAParsingWithAction(
+				new TDAUTDataProcessFieldsParser(errors, data),
+				reduction(kw.location, "unit-fields-data-declaration")
+			);
 		}
+		
 		ExprToken send = ExprToken.from(errors, toks);
 		if (send == null || !send.text.equals("<-")) {
 			errors.message(toks, "expected <-");
@@ -79,9 +81,8 @@ public class TDAUnitTestDataParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("test-data-declaration-with-init", kw, exprs.get(0));
-		if (locTracker != null)
-			locTracker.updateLoc(kw.location);
+		super.updateLoc(exprs.get(0).location());
+		reduce(kw.location, "unit-expr-data-declaration");
 		UnitDataDeclaration data = new UnitDataDeclaration(pos, atTopLevel, tr.get(0), fnName, exprs.get(0));
 		builder.accept(data);
 		return new NoNestingParser(errors);
@@ -90,5 +91,4 @@ public class TDAUnitTestDataParser implements TDAParsing {
 	@Override
 	public void scopeComplete(InputPosition location) {
 	}
-
 }

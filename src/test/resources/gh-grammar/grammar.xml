@@ -833,10 +833,12 @@
     <tested by='test.parsing.ExprReductionTests' />
     <or>
       <seq>
+		<reduces-as rule='empty-list-literal' />
         <token type='OSB' />
         <token type='CSB' />
       </seq>
       <seq>
+		<reduces-as rule='non-empty-list-literal' />
         <token type='OSB' />
         <ref production='expression' />
         <many>

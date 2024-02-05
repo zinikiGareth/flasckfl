@@ -79,7 +79,13 @@ public class ParenTermConsumer implements ExprTermConsumer {
 				errors.logReduction("paren-expression", from, endToken.location());
 				builder.term(ae);
 			} else {
-				errors.logReduction("tuple-list-or-hash", from, endToken.location());
+				if (op.equals("[]")) {
+					if (terms.size() == 0)
+						errors.logReduction("empty-list-literal", from, endToken.location());
+					else
+						errors.logReduction("non-empty-list-literal", from, endToken.location());
+				} else
+					errors.logReduction("tuple-or-hash", from, endToken.location());
 				builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(ae.location(), op), terms.toArray()));
 			}
 		}
