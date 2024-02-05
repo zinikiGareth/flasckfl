@@ -209,7 +209,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 			ContractDecl decl = new ContractDecl(kw.location, tn.location, ct, namer.solidName(tn.text));
-			errors.logReduction("contract-decl-type", kw.location, tn.location);
+			errors.logReduction("contract-intro", kw.location, tn.location);
 			consumer.newContract(errors, decl);
 			return new TDAParsingWithAction(
 				new ContractMethodParser(errors, kw.location, decl, consumer, decl.name(), this),
@@ -259,7 +259,10 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 		final StructDefn sd = new StructDefn(kw.location, tn.location, ty, sn, true, polys);
 		consumer.newStruct(errors, sd);
 		errors.logReduction("fields-defn", kw.location, tn.location);
-		return new TDAParsingWithAction(new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true, locTracker), locTracker.reduction(kw.location, "struct-declaration"));
+		return new TDAParsingWithAction(
+			new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true, locTracker),
+			locTracker.reduction(kw.location, ty == FieldsType.STRUCT ? "struct-declaration" : "entity-declaration")
+		);
 	}
 	
 	@Override

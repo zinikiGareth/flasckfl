@@ -338,6 +338,7 @@
     <section title='Data Declarations' />
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
+      <reduces-as rule="fields-defn" />
       <token type='ENTITY'/>
       <token type='type-name' names='ENTITY\[${name}.*\]' scope='true'/>
       <many>
@@ -1119,7 +1120,7 @@
     <section title='Object'/>
     <tested by='test.parsing.TDAObjectElementParsingTests' />
     <seq>
-	  <reduces-as rule="object-state-line" />
+	  <reduces-as rule="state-line" />
       <token type='STATE'/>
    	  <indent>
    	    <ref production='struct-field-decl'/>
@@ -1222,6 +1223,7 @@
     </section>
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
+	  <reduces-as rule='card-declaration-intro' />
       <token type='CARD' />
       <token type='type-name' names='Card\[${name}\]'/>
       <dict var='template-posn' val='1' /> 
@@ -1260,7 +1262,7 @@
   </production>
   <production name='implements-contract'>
     <section title='Implements Contract'>
-      <description>
+      <description>/
       </description>
     </section>
     <tested by='test.parsing.TDATopLevelCardParsingTests' />

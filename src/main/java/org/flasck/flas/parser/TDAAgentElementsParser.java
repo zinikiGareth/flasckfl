@@ -54,12 +54,12 @@ public class TDAAgentElementsParser extends BlockLocationTracker implements TDAP
 			final StateDefinition state = new StateDefinition(kw.location, toks.realinfo(), ((NamedType)consumer).name());
 			consumer.defineState(state);
 			seenState = true;
-			errors.logReduction("agent-state-line", kw.location, kw.location);
+			errors.logReduction("state-line", kw.location, kw.location.locAtEnd());
 			updateLoc(kw.location);
 			
 			return new TDAParsingWithAction(
 				new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false, this),
-				reduction(kw.location, "agent-state-block")
+				reduction(kw.location, "state-declaration")
 			);
 		}
 		case "provides": {
