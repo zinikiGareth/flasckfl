@@ -44,8 +44,10 @@ public class TDATemplateBindingParser extends BlockLocationTracker implements TD
 		TemplateField field = new TemplateField(tok.location, tok.text);
 		InputPosition lastLoc = field.location();
 		TemplateBindingOption simple = null;
+		ExprToken send = null;
+		TemplateReference sendsTo = null;
 		if (toks.hasMoreContent(errors)) {
-			ExprToken send = ExprToken.from(errors, toks);
+			send = ExprToken.from(errors, toks);
 			if (send == null || !"<-".equals(send.text)) {
 				if ("=>".equals(send.text))
 					errors.message(toks, "missing expression");
@@ -63,7 +65,6 @@ public class TDATemplateBindingParser extends BlockLocationTracker implements TD
 			}
 			Expr expr = seen.get(0);
 			lastLoc = expr.location();
-			TemplateReference sendsTo = null;
 			if (toks.hasMoreContent(errors)) {
 				ExprToken format = ExprToken.from(errors, toks);
 				if (format == null || !"=>".equals(format.text)) {
@@ -80,7 +81,13 @@ public class TDATemplateBindingParser extends BlockLocationTracker implements TD
 			}
 			simple = new TemplateBindingOption(tok.location, field, null, expr, sendsTo);
 		}
-		errors.logReduction("template-binding-first-line", tok.location, lastLoc);
+		if (send == null) {
+			errors.logReduction("template-binding-no-send", tok.location, lastLoc);
+		} else if (sendsTo == null) {
+			errors.logReduction("template-binding-with-send", tok.location, lastLoc);			
+		} else {
+			errors.logReduction("template-binding-sends-to", tok.location, lastLoc);			
+		}
 		final TemplateBinding binding = new TemplateBinding(field, simple);
 		consumer.addBinding(binding);
 		TDAParsing ret;
@@ -88,7 +95,7 @@ public class TDATemplateBindingParser extends BlockLocationTracker implements TD
 			ret = new TDATemplateOptionsParser(errors, source, namer, simple, field, this);
 		else
 			ret = new TDATemplateOptionsParser(errors, source, namer, binding, field, this);
-		return new TDAParsingWithAction(ret, reduction(tok.location(), "something-about-template-bindings-being-complete"));
+		return new TDAParsingWithAction(ret, reduction(tok.location(), "template-bind"));
 	}
 
 	@Override

@@ -59,12 +59,14 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 					errors.message(toks, "syntax error");
 					return new IgnoreNestedParser(errors);
 				}
+				errors.logReduction("method-message-send-handled", arrowPos, toks.realinfo());
 			} else {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
 			}
+		} else {
+			errors.logReduction("method-message-send", arrowPos, toks.realinfo());
 		}
-		errors.logReduction("method-message-send", arrowPos, toks.realinfo());
 		tellParent(arrowPos);
 		return nestedParser;
 	}

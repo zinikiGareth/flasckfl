@@ -6,10 +6,14 @@ import java.util.Set;
 public class OptionalDefinition extends Definition {
 	private final Definition child;
 	public final ElseClause elseClause;
+	private final String var;
+	private final String ne;
 
-	public OptionalDefinition(Definition child, ElseClause elseClause) {
+	public OptionalDefinition(Definition child, ElseClause elseClause, String var, String ne) {
 		this.child = child;
 		this.elseClause = elseClause;
+		this.var = var;
+		this.ne = ne;
 	}
 
 	public Definition childRule() {
@@ -34,7 +38,10 @@ public class OptionalDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
+		if (var != null) {
+			if (productionVisitor.getDictValue(var).equals(ne))
+				return;
+		}
 		productionVisitor.zeroOrOne(child);
 	}
-
 }

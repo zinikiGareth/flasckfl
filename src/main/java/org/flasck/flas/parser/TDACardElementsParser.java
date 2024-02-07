@@ -78,7 +78,10 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				if (chain.location() != null)
 					lastLoc = chain.location();
 			}
-			errors.logReduction("card-template-intro", kw.location, lastLoc);
+			if (chain != null)
+				errors.logReduction("card-template-intro-with-chain", kw.location, lastLoc);
+			else
+				errors.logReduction("card-template-intro", kw.location, lastLoc);
 			updateLoc(kw.location);
 			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.location, tn.text), pos, chain);
 			consumer.addTemplate(template);
@@ -86,7 +89,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 			TemplateBindingConsumer c = new TemplateBindingCaptureLoc(this, template);
 			return new TDAParsingWithAction(
 				new TDATemplateBindingParser(errors, template, namer, c, this),
-				reduction(kw.location, "card-template-complete")
+				reduction(kw.location, "named-template-definition")
 			);
 		}
 		case "event": {
@@ -126,49 +129,44 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				errors.message(send.location, "expected <-");
 				return null;
 			}
+			InputPosition chainN = null;
 			while (toks.hasMoreContent(errors)) {
-				if (!readChainElement(errors, namer, toks, chain))
+				chainN = readChainElement(errors, namer, toks, chain);
+				if (chainN == null)
 					return null;
 			}
-			InputPosition chain0 = null;
-			InputPosition chainN = null;
-			for (Link l : chain) {
-				if (chain0 == null)
-					chain0 = l.location();
-				chainN = l.location();
-			}
-			errors.logReduction("chain-element-list", chain0, chainN);
+			errors.logReduction("define-template-chain", send.location, chainN);
 		}
 		return chain;
 	}
 
-	private static boolean readChainElement(ErrorReporter errors, TemplateNamer namer, Tokenizable toks, NestingChain chain) {
+	private static InputPosition readChainElement(ErrorReporter errors, TemplateNamer namer, Tokenizable toks, NestingChain chain) {
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null || !"(".equals(tok.text)) {
 			errors.message(toks, "( expected");
-			return false;
+			return null;
 		}
 		InputPosition orb = tok.location;
 		List<TypeReference> ref = new ArrayList<>();
 		if (new TDATypeReferenceParser(errors, namer, x->ref.add(x), null).tryParsing(toks) == null) {
 			// it didn't parse, so give up hope
-			return false;
+			return null;
 		}
 		TypeReference tr = ref.get(0);
 
 		ValidIdentifierToken var = ValidIdentifierToken.from(errors, toks);
 		if (var == null) {
 			errors.message(toks, "var name expected");
-			return false;
+			return null;
 		}
 		tok = ExprToken.from(errors, toks);
 		if (!")".equals(tok.text)) {
 			errors.message(toks, ") expected");
-			return false;
+			return null;
 		}
-		errors.logReduction("chain-element-link", orb, tok.location);
+		errors.logReduction("template-chain-var", orb, tok.location);
 		chain.declare(tr, namer.nameVar(var.location, var.text));
-		return true;
+		return orb;
 	}
 
 	@Override

@@ -267,6 +267,8 @@ public class Grammar {
 			defn = parseDefn(ruleName, rule.uniqueElement("or"));
 		else
 			throw new NotImplementedException("Cannot find something useful to use in optional " + rule);
+		String var = rule.optional("var");
+		String ne = rule.optional("ne");
 		rule.attributesDone();
 		ElseClause elseClause = null;
 		if (!rule.elementChildren("reduces-as").isEmpty()) {
@@ -275,7 +277,7 @@ public class Grammar {
 			era.attributesDone();
 			elseClause = new ElseClause(elseRuleName);
 		}
-		return new OptionalDefinition(defn, elseClause);
+		return new OptionalDefinition(defn, elseClause, var, ne);
 	}
 
 	private Definition handleRef(String ruleName, XMLElement rule) {

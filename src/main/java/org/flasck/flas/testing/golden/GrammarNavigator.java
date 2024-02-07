@@ -328,11 +328,11 @@ public class GrammarNavigator {
 		}
 		if (top.defn instanceof SequenceDefinition) {
 			top.offset++;
-			try {
-				throw new Exception("advanced to next " + top.offset);
-			} catch (Exception ex) {
-				ex.printStackTrace(System.out);
-			}
+//			try {
+//				throw new Exception("advanced to next " + top.offset);
+//			} catch (Exception ex) {
+//				ex.printStackTrace(System.out);
+//			}
 			System.out.println("advanced to next " + top.offset);
 			if (top.offset < ((SequenceDefinition)top.defn).length()) {
 				this.haveAdvanced = true;

@@ -46,7 +46,7 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 		List<Pattern> args = new ArrayList<>();
 		final FunctionName methName = namer.functionName(name.location, name.text);
 		VarPattern handler = null;
-		InputPosition lastLoc = methName.location;
+		InputPosition lastLoc = methName.location.locAtEnd();
 		while (toks.hasMoreContent(errors)) {
 			ValidIdentifierToken arg = VarNameToken.from(errors, toks);
 			if (arg == null) {
@@ -75,7 +75,7 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 			return new IgnoreNestedParser(errors);
 		}
 		final ObjectMethod meth = new ObjectMethod(name.location, methName, args, handler, holder);
-		errors.logReduction("contract-method-implementation-declaration", methName.location, lastLoc);
+		errors.logReduction("implementation-method-first-line", methName.location, lastLoc);
 		super.updateLoc(name.location);
 		consumer.addImplementationMethod(meth);
 		topLevel.newObjectMethod(errors, meth);
@@ -83,7 +83,7 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, topLevel, "action", holder, this);
 		return new TDAParsingWithAction(
 			new TDAMethodGuardParser(errors, meth, nestedParser, this),
-			reduction(name.location, "implementation-method-with-inner-scope")
+			reduction(name.location, "implementation-method")
 		);
 	}
 

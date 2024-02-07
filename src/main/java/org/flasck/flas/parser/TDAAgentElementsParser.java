@@ -133,7 +133,7 @@ public class TDAAgentElementsParser extends BlockLocationTracker implements TDAP
 			topLevel.newContractImpl(errors, ci);
 			return new TDAParsingWithAction(
 				new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel, ci, this),
-				reduction(kw.location, "agent-implements-contract-block")
+				reduction(kw.location, "implements-contract")
 			);
 		}
 		case "method": {

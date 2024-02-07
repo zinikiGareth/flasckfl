@@ -795,6 +795,7 @@
     <or>
       <token type='var-name'/>
       <token type='type-name'/>
+      <ref production='member-expr' />
       <ref production='paren-expression'/>
     </or>
   </production>
@@ -1021,32 +1022,15 @@
   <production name='message-method-action'>
     <section title='Method'/>
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
-    <or>
-      <seq>
-      	<token type='SEND' />
-      	<ref production='service-method' />
-	    <many>
-	      <ref production='expression' />
-	    </many>
-	    <optional>
-	      <ref production='maybe-handled' />
-	    </optional>
-	    <eol />
-      </seq>
-      <seq>
-      	<token type='SEND' />
-        <ref production='expression' />
-	    <eol />
-      </seq>
-    </or>
-  </production>
-  <production name='service-method'>
-    <section title='Method'/>
-    <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <seq>
-    	  <token type='var-name'/>
-    	  <token type='APPLY' />
-    	  <token type='var-name'/>
+      <reduces-as rule='method-message-send' />
+      <token type='SEND' />
+      <ref production='expression' />
+	  <optional>
+		<reduces-as rule='method-message-send-handled' />
+	    <ref production='maybe-handled' />
+	  </optional>
+	  <eol />
     </seq>
   </production>
   <production name='maybe-handled'>
@@ -1267,6 +1251,7 @@
     </section>
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
+	  <reduces-as rule='agent-implements-contract-decl' />
       <token type='IMPLEMENTS' />
       <token type='type-name'/>
       <push-part prefix='C' names='.*_C[0-9]*'/>
@@ -1279,6 +1264,7 @@
     <section title='Implements Contract'/>
     <tested by='test.parsing.TDAImplementationMethodsParsingTests' />
     <seq>
+	  <reduces-as rule='implementation-method-first-line' />
       <token type='var-name' names='ObjectMethod\[${name}\([0-9]+\)\]'/>
       <nested-name offset='1'/>
       <many>
@@ -1339,13 +1325,13 @@
     </section>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
+	  <reduces-as rule='card-template-intro' />
       <token type='TEMPLATE'/>
       <token type='template-name' names='Template\[${name}\]'/>
-      <cond var='template-posn' ne='1'>
-        <optional>
-      	  <ref production='define-template-chain'/>
-        </optional>
-      </cond>
+      <optional var='template-posn' ne='1'>
+        <reduces-as rule='card-template-intro-with-chain' />
+  	    <ref production='define-template-chain'/>
+      </optional>
       <dict var='template-posn' val='2'/>
       <indent>
         <ref production='template-bind'/>
@@ -1386,23 +1372,27 @@
     <tested by='test.parsing.TDATemplateParsingTests' />
     <or>
       <seq>
+		<reduces-as rule="template-binding-with-send" />
 	    <token type='template-name'/>
 	    <token type='SEND'/>
 	    <ref production='expression'/>
 	    <optional>
-	    	  <ref production='pass-to-template' />
+		<reduces-as rule="template-binding-sends-to" />
+	      <ref production='pass-to-template' />
 	    </optional>
         <indent>
           <ref production='template-customization'/>
         </indent>
 	  </seq>
       <seq>
+		<reduces-as rule="template-binding-no-send" />
 	    <token type='template-name'/>
         <indent-one>
           <ref production='option-template-binds'/>
         </indent-one>
 	  </seq>
       <seq>
+		<reduces-as rule="template-binding-no-send" />
 	    <token type='template-name'/>
         <indent-non-zero>
           <ref production='template-customization'/>
