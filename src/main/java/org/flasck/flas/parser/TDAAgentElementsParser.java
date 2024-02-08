@@ -111,7 +111,7 @@ public class TDAAgentElementsParser extends BlockLocationTracker implements TDAP
 			final RequiresContract rc = new RequiresContract(kw.location, tn.location, (NamedType)consumer, ctr, cin, varloc, varname);
 			consumer.addRequiredContract(rc);
 			topLevel.newRequiredContract(errors, rc);
-			errors.logReduction("agent-requires", kw.location, lastLoc);
+			errors.logReduction("requires-contract", kw.location, lastLoc);
 			return new NoNestingParser(errors);
 		}
 		case "implements": {

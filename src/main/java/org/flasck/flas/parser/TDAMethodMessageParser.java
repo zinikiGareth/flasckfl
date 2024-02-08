@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -59,13 +61,20 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 					errors.message(toks, "syntax error");
 					return new IgnoreNestedParser(errors);
 				}
-				errors.logReduction("method-message-send-handled", arrowPos, toks.realinfo());
 			} else {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
 			}
 		} else {
-			errors.logReduction("method-message-send", arrowPos, toks.realinfo());
+			String handled = "";
+			SendMessage send = seen.get(0);
+			if (send.expr instanceof ApplyExpr) {
+				ApplyExpr ae = (ApplyExpr) send.expr;
+				if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals("->")) {
+					handled = "-handled";
+				}
+			}
+			errors.logReduction("method-message-send" + handled, arrowPos, toks.realinfo());
 		}
 		tellParent(arrowPos);
 		return nestedParser;

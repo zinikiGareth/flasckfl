@@ -431,7 +431,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
 		return new TDAParsingWithAction(
 			new TDAMultiParser(errors),
-			reduction(kw.location, "ut-expect-with-scope")
+			reduction(kw.location, "unit-test-expect")
 		);
 	}
 

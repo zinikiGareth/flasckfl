@@ -103,7 +103,7 @@ public class TDAHandlerParser implements TDAParsing, LocationTracker {
 		return new TDAParsingWithAction(
 			new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hn, text), hi, topLevel, hi, this),
 			() -> {
-				errors.logReduction("handler-with-inner-block", kw, lastInner);
+				errors.logReduction("handler-definition", kw, lastInner);
 				if (locTracker != null) {
 					locTracker.updateLoc(kw);
 				}

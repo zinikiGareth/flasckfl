@@ -77,6 +77,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 				AgentDefinition agent = new AgentDefinition(kw.location, tn.location, qn);
 				hb = agent;
 				state = agent;
+				errors.logReduction("agent-declaration-intro", kw.location, tn.location);
 				consumer.newAgent(errors, agent);
 				sh = errors -> new TDAAgentElementsParser(errors, kw.location, new ObjectNestedNamer(qn), agent, consumer, agent, this);
 				break;
@@ -93,6 +94,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 			case "service": {
 				ServiceDefinition svc = new ServiceDefinition(kw.location, tn.location, qn);
 				hb = svc;
+				errors.logReduction("service-declaration-intro", kw.location, tn.location);
 				consumer.newService(errors, svc);
 				sh = errors -> new TDAServiceElementsParser(errors, new ObjectNestedNamer(qn), svc, consumer, this);
 				break;
@@ -109,7 +111,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 					errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, holder, this),
 					errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, holder, this)
 				),
-				reduction(kw.location, "card-declaration")
+				reduction(kw.location, kw.text + "-declaration")
 			);
 		}
 		case "struct":
@@ -183,22 +185,30 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 			);
 		}
 		case "contract": {
+			InputPosition locEnd = kw.location.locAtEnd();
 			KeywordToken sh = KeywordToken.from(errors, toks);
 			ContractType ct = ContractType.CONTRACT;
 			if (sh != null) {
 				switch (sh.text) {
 				case "service":
 					ct = ContractType.SERVICE;
+					locEnd = sh.location;
+					errors.logReduction("contract-service", kw.location, locEnd);
 					break;
 				case "handler":
 					ct = ContractType.HANDLER;
+					locEnd = sh.location;
+					errors.logReduction("contract-handler", kw.location, locEnd);
 					break;
 				default:
 					errors.message(sh.location, "invalid contract type");
 					return new IgnoreNestedParser(errors);
 				}
+			} else {
+				errors.logReduction("contract-card", kw.location, locEnd);
 			}
-			
+
+			errors.logReduction("contract-intro", kw.location, locEnd);
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
@@ -209,7 +219,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 			ContractDecl decl = new ContractDecl(kw.location, tn.location, ct, namer.solidName(tn.text));
-			errors.logReduction("contract-intro", kw.location, tn.location);
+			errors.logReduction("contract-decl-line", kw.location, tn.location);
 			consumer.newContract(errors, decl);
 			return new TDAParsingWithAction(
 				new ContractMethodParser(errors, kw.location, decl, consumer, decl.name(), this),

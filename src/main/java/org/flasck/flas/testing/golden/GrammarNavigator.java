@@ -277,7 +277,7 @@ public class GrammarNavigator {
 			}
 			while (from.offset < sd.length()) {
 				Definition nth = sd.nth(from.offset);
-				System.out.println("Looking at " + from.offset + ": " + nth);
+				logger.info("Looking at " + from.offset + ": " + nth);
 				if (nth instanceof ActionDefinition) {
 					logger.info("skipping action " + from.offset + ": " + nth.getClass());
 					from.offset++;
@@ -462,7 +462,7 @@ public class GrammarNavigator {
 //					System.out.println("missing token: " + tok);
 					fail("cannot move to end of line because we are expecting a token which is missing: " + tok);
 				} else
-					fail("what is " + curr.getClass() + "?");
+					fail("what is " + curr + " " + curr.getClass() + "?");
 			}
 			// we have reached the end of the rule
 			return false;

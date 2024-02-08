@@ -407,6 +407,7 @@
     </section>
     <tested by='test.parsing.TDAContractIntroParsingTests' />
     <seq>
+	  <reduces-as rule='contract-decl-line' />
       <ref production='contract-intro'/>
       <token type='type-name' names='Contract\[${name}\]'/>
       <indent>
@@ -419,13 +420,16 @@
     <tested by='test.parsing.TDAContractIntroParsingTests' />
     <or>
       <seq>
+		<reduces-as rule='contract-card' />
         <token type='CONTRACT'/>
       </seq>
       <seq>
+		<reduces-as rule='contract-service' />
         <token type='CONTRACT'/>
         <token type='SERVICE'/>
       </seq>
       <seq>
+		<reduces-as rule='contract-handler' />
         <token type='CONTRACT'/>
         <token type='HANDLER'/>
       </seq>
@@ -770,7 +774,7 @@
         <ref production='expression'/>
       </seq>
       <seq>
-		<reduces-as rule='expr_binop' />
+		<reduces-as rule='expr-binop' />
         <ref production='expression'/>
         <token type='BINOP'/>
         <ref production='expression'/>
@@ -926,6 +930,7 @@
     </section>
     <tested by='test.parsing.TDAHandlerIntroParsingTests' />
     <seq>
+	  <reduces-as rule='handler-intro' />
       <token type='HANDLER'/>
       <token type='type-name'/>
       <token type='type-name' names='HandlerImplements\[${name}\]'/>
@@ -1049,6 +1054,7 @@
 		<reduces-as rule='method-message-send-handled' />
 	    <ref production='maybe-handled' />
 	  </optional>
+	  <!-- TODO: there is a sends to which can name a subscription -->
 	  <eol />
     </seq>
   </production>
@@ -1057,7 +1063,7 @@
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <seq>
 	    <token type='HANDLE' />
-        <token type='var-name'/>
+        <ref production='expression'/>
     </seq>
   </production>
   <production name='assign-method-action'>
@@ -1181,7 +1187,7 @@
     <section title='Service'/>
     <tested by='test.parsing.TDAServiceParsingTests' />
     <or>
-    	  <ref production='provides-contract'/>
+      <ref production='provides-contract'/>
       <ref production='function-scope-unit'/>
     </or>
   </production>
@@ -1189,12 +1195,12 @@
     <section title='Service' />
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
-    	  <token type='PROVIDES' />
-    	  <token type='type-name'/>
-    	  <push-part prefix='S' />
-    	  <indent>
-    	    <ref production='implementation-method'/>
-    	  </indent>
+      <token type='PROVIDES' />
+      <token type='type-name'/>
+   	  <push-part prefix='S' />
+   	  <indent>
+   	    <ref production='implementation-method'/>
+   	  </indent>
     </seq>
   </production>
   <production name='agent-declaration'>
@@ -1204,20 +1210,23 @@
     </section>
     <tested by='test.parsing.TDAServiceParsingTests' />
     <seq>
-    	  <token type='AGENT' />
-    	  <token type='type-name' names='Agent\[${name}\]' />
-    	  <indent-one>
-    	    <ref production='agent-contents'/>
-    	  </indent-one>
+	  <reduces-as rule='agent-declaration-intro' />
+      <token type='AGENT' />
+      <token type='type-name' names='Agent\[${name}\]' />
+      <indent>
+        <ref production='agent-scope-unit'/>
+      </indent>
     </seq>
   </production>
-  <production name='agent-contents'>
+  <production name='agent-scope-unit'>
     <section title='Agent'/>
     <tested by='test.parsing.TDAAgentParsingTests' />
-    <seq>
-   	  <ref production='state-declaration'/>
-      <ref production='service-scope'/>
-    </seq>
+    <or>
+      <ref production='state-declaration' from='0' to='1'/>
+      <ref production='requires-contract'/>
+      <ref production='implements-contract'/>
+      <ref production='service-scope-unit'/>
+    </or>
   </production>
   <production name='card-declaration'>
     <section title='Card'>
@@ -1239,12 +1248,9 @@
     <section title='Card'/>
     <tested by='test.parsing.TDATopLevelCardParsingTests'/>
     <or>
-      <ref production='state-declaration' from='0' to='1'/>
       <ref production='named-template-definition'/>
       <ref production='event-handler'/>
-      <ref production='requires-contract'/>
-      <ref production='implements-contract'/>
-      <ref production='service-scope-unit'/>
+      <ref production='agent-scope-unit'/>
     </or>
   </production>
   <production name='requires-contract'>
@@ -1677,6 +1683,7 @@ match style ...
     <section title='Unit Tests' />
     <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
+	  <reduces-as rule='test-step-expect' />
       <token type='EXPECT' />
       <token type='var-name' />
       <token type='var-name' />
