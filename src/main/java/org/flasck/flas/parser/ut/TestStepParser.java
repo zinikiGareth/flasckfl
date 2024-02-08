@@ -20,6 +20,7 @@ import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.NoNestingParser;
+import org.flasck.flas.parser.ParenExprConsumer;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.stories.TDAMultiParser;
@@ -104,7 +105,8 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 
 	protected TDAParsing handleAssert(KeywordToken kw, Tokenizable toks) {
 		List<Expr> test = new ArrayList<>();
-		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> test.add(x));
+		ParenExprConsumer pec = new ParenExprConsumer(x -> test.add(x));
+		TDAExpressionParser expr = new TDAExpressionParser(errors, pec);
 		expr.tryParsing(toks);
 		if (errors.hasErrors()){
 			return new IgnoreNestedParser(errors);
@@ -117,7 +119,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("ut-assert-expr", kw.location, test.get(0).location());
+		errors.logReduction("ut-assert-expr", kw.location, pec.location());
 		Consumer<Expr> exprConsumer = ex -> {
 			builder.assertion(test.get(0), ex);
 			updateLoc(ex.location());
@@ -220,7 +222,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("test-send-to-contract", kw, eventObj.get(0));
+		errors.logReduction("unit-contract-action", kw, eventObj.get(0));
 		tellParent(kw.location);
 		builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
 		return new NoNestingParser(errors);
@@ -520,7 +522,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			if (text != null) {
 				errors.logParsingToken(text);
 				errors.logReduction("unit-match-free-text", text.location(), lastPos);
-				errors.logReduction("unit-test-match-with-free-text", kw.location, text.location());
+				errors.logReduction("unit-test-match", kw.location, text.location());
 			} else {
 				errors.logReduction("unit-test-match-blank", kw.location, kw.location);
 			}

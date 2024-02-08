@@ -100,7 +100,13 @@ public class TDAPatternParser implements TDAParsing {
 			Pattern arg = tuples.get(0);
 			if (arg instanceof TypedPattern)
 				errors.logReduction("argument-pattern-typed", orb.location, crb.location);
-			else
+			else if (arg instanceof ConstructorMatch) {
+				ConstructorMatch cm = (ConstructorMatch) arg;
+				if (cm.args.isEmpty())
+					errors.logReduction("argument-pattern-ctor-trivial", orb.location, crb.location);
+				else
+					errors.logReduction("argument-pattern-ctor-fields", orb.location, crb.location);
+			} else
 				errors.logReduction("pattern-other-orb-case", orb.location, crb.location);
 			consumer.accept(tuples.get(0).locatedAt(orb.location.copySetEnd(crb.location.off)));
 		} else {
@@ -175,6 +181,7 @@ public class TDAPatternParser implements TDAParsing {
 	}
 
 	public TDAParsing handleASimpleConstructor(TypeNameToken type) {
+		errors.logReduction("argument-pattern-type-name", type.location, type.location.locAtEnd());
 		consumer.accept(new ConstructorMatch(type.location, type.text));
 		return this;
 	}

@@ -80,6 +80,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			if (terms.size() == 1 && op.equals("()")) {
 				errors.logReduction("paren-expression", from, endToken.location());
 				builder.term(ae);
+				builder.parenAt(from);
 			} else {
 				if (op.equals("[]")) {
 					errors.logReduction("non-empty-list-literal", from, endToken.location());

@@ -39,6 +39,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private DotOperator haveDot;
 	private boolean haveErrors;
 	private boolean reduceToOne;
+	private InputPosition firstLoc;
 
 	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder, boolean reduceToOne) {
 		this.errors = errors;
@@ -94,6 +95,12 @@ public class TDAExprReducer implements ExprTermConsumer {
 		this.terms.add(term);
 	}
 
+	@Override
+	public void parenAt(InputPosition pos) {
+		if (terms.size() == 1)
+			firstLoc = pos;
+	}
+	
 	public void seenComma() {
 		builder.term(reduce(0, terms.size()));
 		terms.clear();
@@ -125,6 +132,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 					builder.term(t);
 			}
 		}
+		if (firstLoc != null)
+			builder.parenAt(firstLoc);
 		builder.done();
 	}
 	
@@ -163,7 +172,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 			return resolveCheckTypeExpr(t0, from, to);
 		if (from+1 == to && !isConstructor(t0)) {
 			if (t0 instanceof UnresolvedVar) // it's trivially a function call for the grammar...
-				errors.logReduction("function-call", t0, t0);
+				errors.logReduction("function-call", t0.location(), t0.location().locAtEnd());
 			return t0;
 		} else {
 			errors.logReduction("function-call", t0, terms.get(to-1));

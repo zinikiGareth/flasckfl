@@ -23,6 +23,11 @@ public class TDAStackReducer implements ExprTermConsumer {
 				throw new RuntimeException("Stack underflow - should be error");
 			stack.get(0).term(term);
 		}
+		
+		@Override
+		public void parenAt(InputPosition pos) {
+			stack.get(0).parenAt(pos);
+		}
 
 		@Override
 		public void done() {

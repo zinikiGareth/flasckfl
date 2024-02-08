@@ -112,7 +112,6 @@ public class GrammarChecker {
 	private void calculateMostReduced(ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
 		for (ReductionRule rr : toks.reductionsInFileOrder()) {
-			System.out.println(rr);
 			ReductionRule mr = null;
 			for (GrammarToken t : toks.tokens()) {
 				if (rr.includes(t.pos)) {
@@ -121,10 +120,8 @@ public class GrammarChecker {
 					mr = null;
 					if (mostReduced.containsKey(t.pos)) {
 						mr = mostReduced.get(t.pos);
-						System.out.println("  !! " + mr);
 						continue;
 					}
-					System.out.println("  " + t);
 				}
 			}
 			Iterator<Entry<InputPosition, ReductionRule>> it = mostReduced.entrySet().iterator();
@@ -184,7 +181,7 @@ public class GrammarChecker {
 		Iterator<GrammarStep> sit = toks.iterator();
 		while (sit.hasNext()) {
 			GrammarStep s = sit.next();
-			System.out.println("have " + s);
+//			System.out.println("have " + s);
 
 			if (s instanceof GrammarToken) {
 				GrammarToken nt = (GrammarToken) s;
@@ -324,7 +321,7 @@ public class GrammarChecker {
 			// CASE A: it's a compound rule
 			if (tree.isSingleton()) {
 				GrammarTree reducedAs = tree.singleton();
-				System.out.println("reduced as " + reducedAs.reducedToRule());
+//				System.out.println("reduced as " + reducedAs.reducedToRule());
 				if (!gn.canHandle(reducedAs))
 					fail("cannot handle " + reducedAs.reducedToRule() + " in " + gn.current());
 				int depth = gn.depth();
@@ -363,7 +360,7 @@ public class GrammarChecker {
 			GrammarStep s = members.next();
 			logger.info("matching line token " + s + " with " + gn.current());
 			if (gn.canHandle(s)) {
-				System.out.println("handled " + s);
+//				System.out.println("handled " + s);
 				if (s instanceof GrammarTree) {
 					GrammarTree gt = (GrammarTree) s;
 					matchLine(gt.members(), gn);

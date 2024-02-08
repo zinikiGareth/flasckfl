@@ -64,11 +64,10 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 				inner,
 				() -> { 
 					consumer.done();
-					System.out.println(intro);
 					if (intro.cases().size() > 1) 
 						reduce(t.location, "guarded-function-case-definition");
 					else
-						reduce(t.location, "function-intro-with-scope");
+						reduce(t.location, "degenerate-guarded-function-case-definition");
 				}
 			);
 		}

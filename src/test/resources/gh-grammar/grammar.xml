@@ -21,7 +21,7 @@
   <lex token='ASSERT' pattern='assert'>
   	<p>The <tt>assert</tt> keyword introduces an assert step in a unit test.</p>
   </lex>
-  <lex token='BINOP' pattern='[-+*/.]'>
+  <lex token='BINOP' pattern='[-+*/.]|=='>
   	<p>One of the standard binary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
   </lex>
@@ -76,6 +76,9 @@
   </lex>
   <lex token='FINALLY' pattern='finally'>
   	<p>The system test keyword <tt>finally</tt>.</p>
+  </lex>
+  <lex token='FREETEXT' pattern='.*'>
+  	<p>Free text spread across multiple lines which can be used to match HTML output from a template.</p>
   </lex>
   <lex token='GUARD' pattern='\|'>
   	<p>Defines the variable/function definition operator.</p>
@@ -502,6 +505,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
+	  <reduces-as rule='degenerate-guarded-function-case-definition-intro' />
       <token type='var-name' names='${name}\(\+?[0-9]+\)' maybe-repeat-last='true' save-last='true'/>
       <can-repeat-with-case-number />
       <nested-name offset='1'/>
@@ -600,11 +604,17 @@
     </section>
     <tested by='test.parsing.TDAPatternParsingTests' />
     <or>
+      <ref production='argument-pattern-type-name'/>
       <ref production='argument-pattern-variable'/>
       <ref production='argument-pattern-list'/>
       <ref production='argument-pattern-typed'/>
       <ref production='argument-pattern-ctor'/>
     </or>
+  </production>
+  <production name='argument-pattern-type-name'>
+    <section title='Patterns'/>
+    <tested by='test.parsing.TDAPatternParsingTests' />
+    <token type='type-name' />
   </production>
   <production name='argument-pattern-maybe-typed'>
     <section title='Patterns' />
@@ -660,6 +670,7 @@
     <tested by='test.parsing.TDAPatternParsingTests' />
     <or>
       <seq>
+		<reduces-as rule='argument-pattern-ctor-trivial' />
         <token type='ORB'/>
         <token type='type-name'/>
         <token type='OCB'/>
@@ -667,6 +678,7 @@
         <token type='CRB'/>
       </seq>
       <seq>
+  		<reduces-as rule='argument-pattern-ctor-fields' />
         <token type='ORB'/>
         <token type='type-name'/>
         <token type='OCB'/>
@@ -796,7 +808,11 @@
       <token type='var-name'/>
       <token type='type-name'/>
       <ref production='member-expr' />
-      <ref production='paren-expression'/>
+      <seq>
+        <token type='ORB'/>
+        <ref production='value-expression'/>
+        <token type='CRB'/>
+	  </seq>
     </or>
   </production>
   <production name='paren-expression'>
@@ -811,10 +827,13 @@
   <production name='expression-term'>
     <section title='Expressions' />
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='30 10'/>
+    <producer shares='30 10 10 5 5'/>
     <or>
       <ref production='literal'/>
-      <ref production='value-expression' />
+      <token type='var-name'/>
+      <token type='type-name'/>
+      <ref production='member-expr' />
+      <ref production='paren-expression' />
     </or>
   </production>
   <production name='literal'>
@@ -1619,10 +1638,13 @@ match style ...
       <token type='CONTRACT' />
       <token type='var-name' /> <!--  the card, object or service to receive the action -->
       <token type='type-name' /> <!-- the contract name -->
-      <token type='var-name' /> <!--  the contract method -->
-      <many>
-        <ref production='expression' /> <!-- the arguments -->
-      </many>
+      <seq>
+	    <reduces-as rule='function-call' />
+        <token type='var-name' /> <!--  the contract method -->
+        <many>
+          <ref production='expression' /> <!-- the arguments -->
+        </many>
+	  </seq>
     </seq>
   </production>
   <production name='unit-test-assert'>
@@ -1676,6 +1698,7 @@ match style ...
   <production name='unit-test-match'>
     <section title='Unit Tests' />
     <seq>
+	  <reduces-as rule='unittest-match-command' />
       <token type='MATCH' />
       <token type='var-name' /> <!-- the card -->
       <ref production='unit-test-match-category' />
@@ -1684,6 +1707,9 @@ match style ...
       <!--  as with the template definitions before, I'm not really sure what comes here ... -->
       <!--  I do know I want it to be as independent of HTML as possible, and thus close to the syntax used for specifying them -->
       <!--  but obviously I want something disconnected from the actual logic -->
+      <indent-one>
+	    <ref production='unit-match-free-text' />
+	  </indent-one>
     </seq>
   </production>
   <production name='unit-test-match-category'>
@@ -1692,6 +1718,10 @@ match style ...
       <token type='TEXT' />
       <token type='STYLE' /> <!-- the card -->
     </or>
+  </production>
+  <production name='unit-match-free-text'>
+    <section title='Unit Tests' />
+    <token type='FREETEXT' />
   </production>
   <production name='unit-data-declaration'>
     <section title='Unit Test Data'>
@@ -1722,6 +1752,7 @@ match style ...
     <section title='Unit Test Data' />
     <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <seq>
+	  <reduces-as rule='test-data-declaration-no-init' />
       <token type='DATA' />
       <ref production='type-reference' />
       <token type='var-name'  names='UnitData\[${name}.*\]' />

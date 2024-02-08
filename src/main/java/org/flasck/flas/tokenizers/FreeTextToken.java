@@ -24,7 +24,7 @@ public class FreeTextToken implements LoggableToken {
 
 	@Override
 	public String type() {
-		return "FreeText";
+		return "FREETEXT";
 	}
 	
 	public static FreeTextToken merge(List<FreeTextToken> buffers) {

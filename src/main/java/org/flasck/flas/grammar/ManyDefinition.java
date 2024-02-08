@@ -56,4 +56,9 @@ public class ManyDefinition extends Definition {
 			productionVisitor.setDictEntry(shared, Integer.toString(actual));
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return "Many[" + child + "]";
+	}
 }
