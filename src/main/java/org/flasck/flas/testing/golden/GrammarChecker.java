@@ -79,13 +79,6 @@ public class GrammarChecker {
 			} catch (FileNotFoundException ex) {
 				fail("could not write sorted tokens to " + ex.getMessage());
 			}
-//			if (!expectErrors)
-//				calculateMostReduced(toks);
-			try {
-				toks.write(new File(f.getParentFile(), f.getName()+"-sorted"));
-			} catch (FileNotFoundException ex) {
-				fail("could not write sorted tokens to " + ex.getMessage());
-			}
 			reconstructFile(toks, new File(reconstruct, f.getName()));
 			if (!expectErrors) {
 				String ext = FileUtils.extension(f.getName());
@@ -114,39 +107,9 @@ public class GrammarChecker {
 	private GrammarTree computeReductions(String topRule, ParsedTokens toks) {
 		assertNoOverlappingRules(toks);
 		assertTLFs(toks);
-//		assertAllTokensReduced(toks);
+		assertAllTokensReduced(toks);
 		return reduceToSingleTree(topRule, toks);
 	}
-
-	/*
-	private void calculateMostReduced(ParsedTokens toks) {
-		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
-		for (ReductionRule rr : toks.reductionsInFileOrder()) {
-			ReductionRule mr = null;
-			for (GrammarToken t : toks.tokens()) {
-				if (rr.includes(t.pos)) {
-					if (mr != null && mr.includes(t.pos))
-						continue;
-					mr = null;
-					if (mostReduced.containsKey(t.pos)) {
-						mr = mostReduced.get(t.pos);
-						continue;
-					}
-				}
-			}
-			Iterator<Entry<InputPosition, ReductionRule>> it = mostReduced.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<InputPosition, ReductionRule> e = it.next();
-				if (rr.includes(e.getKey())) {
-					it.remove();
-				}
-			}
-			mostReduced.put(rr.start(), rr);
-		}
-		for (ReductionRule mr : mostReduced.values())
-			mr.makeMostReduced();
-	}
-	*/
 
 	private void assertNoOverlappingRules(ParsedTokens toks) {
 		InputPosition lastEndedAt = null;
@@ -167,22 +130,22 @@ public class GrammarChecker {
 		}
 	}
 
-//	private void assertAllTokensReduced(ParsedTokens toks) {
-//		tokenLoop:
-//		for (GrammarToken t : toks.tokens()) {
-//			for (ReductionRule rr : toks.reductionsInFileOrder()) {
-//				if (rr.includes(t.pos))
-//					continue tokenLoop;
-//			}
-//			
-//			// comments are, for want of a better word, TLFs.
-//			if (t.type.equals("comment"))
-//				continue;
-//			
-//			// TODO: this is an error
-//			fail("token not reduced: " + t);
-//		}
-//	}
+	private void assertAllTokensReduced(ParsedTokens toks) {
+		tokenLoop:
+		for (GrammarToken t : toks.tokens()) {
+			for (ReductionRule rr : toks.reductions()) {
+				if (rr.includes(t.pos))
+					continue tokenLoop;
+			}
+			
+			// comments are, for want of a better word, TLFs.
+			if (t.type.equals("comment"))
+				continue;
+			
+			// TODO: this is an error
+			fail("token not reduced: " + t);
+		}
+	}
 
 	private GrammarTree reduceToSingleTree(String topRule, ParsedTokens toks) {
 		List<GrammarTree> ret = new ArrayList<>();
@@ -197,41 +160,38 @@ public class GrammarChecker {
 			if (s instanceof GrammarToken) {
 				GrammarToken nt = (GrammarToken) s;
 				if (!nt.isComment()) {
-					System.out.println("pushing " + nt);
+//					System.out.println("pushing " + nt);
 					srstack.add(0, nt);
 				}
 			} else {
 				// It's a reduction
 				ReductionRule rr = (ReductionRule) s;
-				System.out.println("considering rule " + rr + " with " + srstack);
+//				System.out.println("considering rule " + rr + " with " + srstack);
 				GrammarTree tree = new GrammarTree(rr);
 				List<GrammarStep> shifted = new ArrayList<>();
 				while (!srstack.isEmpty()) {
 					GrammarStep si = srstack.get(0);
 					if (rr.includes(si.location())) {
-						System.out.println("reducing " + si + " with " + rr);
+//						System.out.println("reducing " + si + " with " + rr);
 						tree.push(si);
 						srstack.remove(0);
 					} else if (si.location().compareTo(rr.location()) > 0) {
-						System.out.println("this case");
+//						System.out.println("this case");
 						shifted.add(si);
 						srstack.remove(0);
-						break;
 					} else {
-						System.out.println("not reducing " + si + " with " + rr);
+//						System.out.println("not reducing " + si + " with " + rr);
 						break;
 					}
 				}
 				srstack.add(0, tree);
-				if (!shifted.isEmpty())
-					System.out.println("shifted = " + shifted);
+//				if (!shifted.isEmpty())
+//					System.out.println("shifted = " + shifted);
 				srstack.addAll(0, shifted);
-
-				if (rr.isMostReduced()) {
-					ret.add(tree);
-				}
 			}
 		}
+		while (!srstack.isEmpty())
+			ret.add(0, (GrammarTree) srstack.remove(0));
 		return new GrammarTree(topRule, ret);
 	}
 

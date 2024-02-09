@@ -31,7 +31,6 @@ public class FileReconstructor {
 	}
 
 	private void showToken(PrintWriter pw, GrammarToken t) {
-//				System.out.println(t);
 		while (t.lineNo() > lineNo) {
 			pw.println();
 			lineNo++;

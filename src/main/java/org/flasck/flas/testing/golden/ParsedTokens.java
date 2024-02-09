@@ -136,7 +136,6 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 	}
 
 	private Set<GrammarToken> tokens = new TreeSet<>();
-	private List<ReductionRule> reductionsInFileOrder = new ArrayList<>();
 	private List<GrammarStep> readingOrder = new ArrayList<>();
 
 	private ParsedTokens() {
@@ -184,8 +183,11 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		// Thus figure out which lines have valid tokens on them
 		Set<Integer> onlyTokenLines = new TreeSet<>(tokenLines.values());
 		
+		// Now go through again and process all the tokens and reductions in order,
+		// ignoring any tokens which are not valid
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(tokens))) {
 			String s;
 			InputPosition pos = null;
@@ -204,7 +206,6 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 					GrammarStep step = readToken(pos, s);
 					if (step instanceof GrammarToken) {
 						if (!onlyTokenLines.contains(lnr.getLineNumber())) {
-							System.out.println("ignoring " + step);
 							pos = null;
 							continue;
 						}
@@ -228,120 +229,10 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 				pw.println(gs);
 			}
 			pw.close();
-			ret.reductionsInFileOrder.addAll(starting);
-			ret.write(new File(tokens.getParentFile(), tokens.getName() + "-presort"));
-			ret.reductionsInFileOrder.clear();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ret.sortReductionsIntoFileContainingOrder(starting);
 		return ret;
-	}
-	
-	/* This doesn't work because it requires us to sort EVERY reduction in the file.
-	 * And we only know about some of them in relation to some others.
-	private static Comparator<ReductionRule> fileOrder = new Comparator<>() {
-
-		// -1 implies o1 should come first
-		// +1 implies o2 should come first
-		@Override
-		public int compare(ReductionRule o1, ReductionRule o2) {
-			// if they're equal, go round again
-			if (o1.first.compareTo(o2.first) == 0 && o1.last.compareTo(o2.last) == 0) {
-				int cmp = o1.start().compareTo(o2.start());
-				if (cmp == 0)
-					cmp = Integer.compare(o1.lineNumber, o2.lineNumber);
-				System.out.println("Comparing starts of " + o1 + " -- " + o2 + " because they are the same: " + o1.lineNumber + " // " + o2.lineNumber + ": " + cmp);
-				return cmp;
-			}
-
-			// if after is around moveDown, it's not moving
-			if (o1.first.compareTo(o2.first) > 0 && o1.last.compareTo(o2.last) < 0) {
-				System.out.println("Not moving " + o1 + " -- " + o2 + " because it is inside it, returning -1");
-				return -1;
-			}
-
-			// if they moveDown ends beyond where after starts, and either
-			//   * it starts before it OR
-			//   * it ends before it
-			// it needs to move down
-			if (o1.last.equals(o2.first) && 
-					(o1.first.compareTo(o2.first) <= 0 ||
-					 o1.last.compareTo(o2.last) < 0)) {
-				System.out.println("Moving " + o1 + " after " + o2 + " because parent rule, returning -1");
-				return 1;
-			}
-			if (o2.last.equals(o1.first) && 
-					(o2.first.compareTo(o1.first) <= 0 ||
-					 o2.last.compareTo(o1.last) < 0)) {
-				System.out.println("Not moving " + o1 + " after " + o2 + " because !parent rule, returning 1");
-				return -1;
-			}
-
-			int cmp = o1.start().compareTo(o2.start());
-			if (cmp == 0)
-				cmp = Integer.compare(o1.lineNumber, o2.lineNumber);
-			System.out.println("Comparing starts of " + o1 + " -- " + o2 + ": " + o1.lineNumber + " // " + o2.lineNumber + ": " + cmp + " because that's all I've got: " + cmp);
-			return cmp;
-		}
-	};
-	 */
-	
-	private void sortReductionsIntoFileContainingOrder(Set<ReductionRule> starting) {
-		if (true)
-			return ;
-		
-		reductionsInFileOrder.addAll(starting);
-		outer:
-		for (int i=0;i<reductionsInFileOrder.size();) {
-			ReductionRule moveDown = reductionsInFileOrder.get(i);
-			// if it has zero span, don't move it
-//			if (moveDown.first.compareTo(moveDown.last) == 0) {
-//				i++;
-//				continue;
-//			}
-
-			for (int j=i+1;j<reductionsInFileOrder.size();j++) {
-				ReductionRule after = reductionsInFileOrder.get(j);
-				
-				// if they're equal, go round again
-				if (moveDown.first.compareTo(after.first) == 0 && moveDown.last.compareTo(after.last) == 0) {
-//					System.out.println("Not moving " + i + ": " + moveDown + " -- " + j + ": " + after + " because they are the same");
-					continue;
-				}
-
-				// if after is around moveDown, it's not moving
-				if (moveDown.first.compareTo(after.first) > 0 && moveDown.last.compareTo(after.last) < 0) {
-//					System.out.println("Not moving " + i + ": " + moveDown + " -- " + j + ": " + after + " because it is inside it");
-					continue;
-				}
-
-				boolean move = false;
-				// if moveDown is around after, it needs to moveDown
-				if (moveDown.first.compareTo(after.first) < 0 && moveDown.last.compareTo(after.last) > 0)
-					move = true;
-				
-				// if they moveDown ends beyond where after starts, and either
-				//   * it starts before it OR
-				//   * it ends before it
-				// it needs to move down
-				if (moveDown.last.equals(after.first) && 
-						(moveDown.first.compareTo(after.first) <= 0 ||
-						 moveDown.last.compareTo(after.last) < 0)) {
-					move = true;
-				}
-				
-				if (move) {
-//					System.out.println("Moving " + i + ": " + moveDown + " after " + j + ": " + after);
-					for (int k=i+1;k<=j;k++) {
-						reductionsInFileOrder.set(k-1, reductionsInFileOrder.get(k));
-					}
-					reductionsInFileOrder.set(j, moveDown);
-					continue outer;
-				}
-			}
-			i++;
-		}
 	}
 
 	private static InputPosition readPos(String file, String s) {
@@ -386,60 +277,58 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 
 	public Iterator<GrammarStep> iterator() {
 		return readingOrder.iterator();
-		/*
-		return new Iterator<ParsedTokens.GrammarStep>() {
-			Iterator<ReductionRule> rit = reductionsInFileOrder().iterator();
-			Iterator<GrammarToken> tit = tokens().iterator();
-			ReductionRule r = null;
-			GrammarToken t = null;
-			
-			@Override
-			public boolean hasNext() {
-				// TODO Auto-generated method stub
-				return rit.hasNext() || tit.hasNext() || r != null || t != null;
-			}
-			
-			@Override
-			public GrammarStep next() {
-				GrammarStep ret = null;
-				if (r == null && rit.hasNext())
-					r= rit.next();
-				if (t == null && tit.hasNext())
-					t = tit.next();
-				if (r == null || (t != null && t.pos.compareTo(r.last) <= 0)) {
-					ret = t;
-					t = null;
-				} else {
-					ret = r;
-					r = null;
-				}
-				return ret;
-			}
-		};
-		*/
 	}
 	
 	public Iterable<GrammarToken> tokens() {
 		return tokens;
 	}
 	
-//	public Iterable<ReductionRule> reductionsInFileOrder() {
-//		return reductionsInFileOrder;
-//	}
-
 	public Iterable<ReductionRule> mostReduced() {
 		return new Iterable<>() {
 			@Override
 			public Iterator<ReductionRule> iterator() {
 				return new Iterator<ReductionRule>() {
-					Iterator<ReductionRule> it = reductionsInFileOrder.iterator();
+					Iterator<GrammarStep> it = readingOrder.iterator();
 					ReductionRule next = findNext();
 					
 					private ReductionRule findNext() {
 						while (it.hasNext()) {
-							ReductionRule ret = it.next();
-							if (ret.isMostReduced())
-								return ret;
+							GrammarStep ret = it.next();
+							if (ret instanceof ReductionRule && ((ReductionRule)ret).isMostReduced())
+								return (ReductionRule) ret;
+						}
+						return null;
+					}
+
+					@Override
+					public boolean hasNext() {
+						return next != null;
+					}
+
+					@Override
+					public ReductionRule next() {
+						ReductionRule ret = next;
+						next = findNext();
+						return ret;
+					}
+				};
+			}
+		};
+	}
+
+	public Iterable<ReductionRule> reductions() {
+		return new Iterable<>() {
+			@Override
+			public Iterator<ReductionRule> iterator() {
+				return new Iterator<ReductionRule>() {
+					Iterator<GrammarStep> it = readingOrder.iterator();
+					ReductionRule next = findNext();
+					
+					private ReductionRule findNext() {
+						while (it.hasNext()) {
+							GrammarStep ret = it.next();
+							if (ret instanceof ReductionRule)
+								return (ReductionRule) ret;
 						}
 						return null;
 					}
