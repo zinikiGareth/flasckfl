@@ -72,7 +72,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 				} else if (op.equals("[]")) {
 					errors.logReduction("empty-list-literal", from, endToken.location());
 				} else {
-					errors.logReduction("empty-hash", from, endToken.location());
+					errors.logReduction("empty-object-literal", from, endToken.location());
 				}
 				builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(from, op)));
 				return;
@@ -85,8 +85,10 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			} else {
 				if (op.equals("[]")) {
 					errors.logReduction("non-empty-list-literal", from, endToken.location());
+				} else if (op.equals("{}")) {
+					errors.logReduction("non-empty-object-literal", from, endToken.location());
 				} else
-					errors.logReduction("tuple-or-hash", from, endToken.location());
+					errors.logReduction("tuple-expression", from, endToken.location());
 				builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(ae.location(), op), terms.toArray()));
 			}
 		}

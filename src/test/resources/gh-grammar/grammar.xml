@@ -589,6 +589,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDATupleDeclarationParsingTests' />
     <seq>
+	  <reduces-as rule="tuple-declaration" />
       <token type='ORB' />
       <token type='var-name' names='TupleMember\[${name}.*\]' scope='true'>
       	<named amended='_tuple_${final}' pattern='TupleAssignment\{${final}=&gt;\[.*\]=.*\}' scope='false' />
@@ -769,10 +770,11 @@
       </description>
     </section>
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='50 3 10 5 1 5 10 2'/>
+    <producer shares='50 3 5 10 5 1 5 10 2'/>
     <or>
       <ref production='literal'/>
       <ref production='paren-expression' />
+      <ref production='tuple-expression' />
       <ref production='function-call' />
       <ref production='member-expr' />
       <seq>
@@ -800,11 +802,19 @@
   <production name='member-expr'>
     <section title='Expressions' />
     <tested by='test.parsing.ExprTokenizationTests' />
-    <seq>
-	  <ref production='value-expression' />
-	  <token type='APPLY' />
-	  <token type='var-name' />
+    <or>
+      <seq>
+	    <ref production='value-expression' />
+	    <token type='APPLY' />
+	    <token type='var-name' />
+      </seq>
+      <seq>
+		<reduces-as rule="type-member" />
+	    <ref production='value-expression' />
+	    <token type='APPLY' />
+	    <token type='type-name' />
     </seq>
+	</or>
   </production>
   <production name='function-call'>
     <section title='Expressions' />
@@ -883,6 +893,18 @@
       </seq>
     </or>
   </production>
+  <production name='tuple-expression'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprReductionTests' />
+    <seq>
+      <token type='ORB' />
+      <ref production='expression' />
+      <one-or-more>
+        <ref production='comma-expression' />
+      </one-or-more>
+      <token type='CRB' />
+      </seq>
+  </production>
   <production name='comma-expression'>
     <section title='Expressions' />
     <tested by='test.parsing.ExprReductionTests' />
@@ -896,10 +918,12 @@
     <tested by='test.parsing.ExprReductionTests' />
     <or>
       <seq>
+		<reduces-as rule='empty-object-literal' />
         <token type='OCB' />
         <token type='CCB' />
       </seq>
       <seq>
+		<reduces-as rule='non-empty-object-literal' />
         <token type='OCB' />
         <ref production='object-member' />
         <many>

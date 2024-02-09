@@ -79,7 +79,7 @@ public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 			errors.message(line, "syntax error");
 			return null;
 		}
-		errors.logReduction("tuple-declaration-vars", orb.location, last);
+//		errors.logReduction("tuple-declaration-vars", orb.location, last);
 		ExprToken tok = ExprToken.from(errors, line);
 		if (!tok.text.equals("=")) {
 			errors.message(line, "syntax error");
@@ -101,7 +101,7 @@ public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 		return new TDAParsingWithAction(
 				ParsingPhase.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder, this),
 				() -> {
-					errors.logReduction("tuple-declaration-with-block", orb.location, lastInner);
+					errors.logReduction("tuple-definition", orb.location, lastInner);
 					locTracker.updateLoc(orb.location);
 				});
 	}
