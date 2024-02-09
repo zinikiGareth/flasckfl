@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorMark;
@@ -17,19 +18,18 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAMethodParser {
-	private final ErrorReporter errors;
+public class TDAMethodParser extends BlockLocationTracker {
 	private final MethodConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final StateHolder holder;
-	private final LocationTracker locTracker;
+	private boolean standalone;
 
-	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
-		this.errors = errors;
+	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker, boolean standalone) {
+		super(errors, locTracker);
 		this.builder = builder;
 		this.topLevel = topLevel;
 		this.holder = holder;
-		this.locTracker = locTracker;
+		this.standalone = standalone;
 	}
 	
 	public TDAParsing parseMethod(KeywordToken kw, FunctionNameProvider methodNamer, Tokenizable toks) {
@@ -57,7 +57,7 @@ public class TDAMethodParser {
 		if (!args.isEmpty()) {
 			endOf = args.get(args.size()-1).location();
 		}
-		locTracker.updateLoc(var.location);
+		tellParent(var.location);
 		if (kw != null)
 			errors.logReduction("method-intro", kw.location, endOf);
 		else
@@ -65,7 +65,14 @@ public class TDAMethodParser {
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null, holder);
 		builder.addMethod(meth);
 		FunctionScopeNamer nestedNamer = new InnerPackageNamer(fnName);
-		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder, locTracker), locTracker);
+		TDAMethodGuardParser normal = new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder, this), this);
+		if (standalone)
+			return new TDAParsingWithAction(
+				normal,
+				reduction(kw.location, "standalone-method-definition")
+			);
+		else
+			return normal;
 	}
 
 	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {
@@ -78,7 +85,7 @@ public class TDAMethodParser {
 						KeywordToken kw = KeywordToken.from(errors, toks);
 						if (kw == null || !"method".equals(kw.text))
 							return null;
-						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder, locTracker).parseMethod(kw, namer, toks);
+						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder, locTracker, true).parseMethod(kw, namer, toks);
 					}
 					
 					@Override

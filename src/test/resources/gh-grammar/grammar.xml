@@ -990,6 +990,7 @@
     </section>
     <tested by='test.parsing.TDAMethodNestedParsingTests' />
     <seq>
+	  <reduces-as rule='method-intro' />
       <token type='METHOD'/>
       <will-name pattern='StandaloneMethod\[${name}\([0-9]+\)\]' /> <!-- this will bind to the use-name in the method-definition -->
       <ref production='method-definition'/>
@@ -1050,6 +1051,7 @@
     <tested by='test.parsing.TDAMethodNestedParsingTests' />
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <seq>
+	  <reduces-as rule='method-guard-with-cond' />
       <token type='GUARD'></token>
       <ref production='expression'/>
       <indent>

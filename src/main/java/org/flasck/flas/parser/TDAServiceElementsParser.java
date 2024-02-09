@@ -55,7 +55,7 @@ public class TDAServiceElementsParser implements TDAParsing, LocationTracker {
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
 			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(errors, new StandaloneMethod(sm)); };
-			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, null, this).parseMethod(kw, namer, toks);
+			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, null, this, false).parseMethod(kw, namer, toks);
 		}
 		case "provides": {
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);

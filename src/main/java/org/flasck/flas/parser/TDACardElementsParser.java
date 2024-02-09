@@ -112,7 +112,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				errors.logReduction("event-from-method", kw.location, ev.location());
 			};
 			return new TDAParsingWithAction(
-				new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this).parseMethod(kw, namer, toks),
+				new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this, false).parseMethod(kw, namer, toks),
 				reduction(kw.location, "event-with-method-actions")
 			);
 		}

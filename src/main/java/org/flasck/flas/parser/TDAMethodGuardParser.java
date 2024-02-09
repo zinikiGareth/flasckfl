@@ -64,7 +64,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			seenDefault = true;
 			return new TDAParsingWithAction(
 				new TDAMethodMessageParser(errors, dgm, nestedParser, this),
-				reduction(tok.location, "method-guard-block")
+				reduction(tok.location, "method-guard")
 			);
 		}
 		List<GuardedMessages> seen = new ArrayList<>();
@@ -82,7 +82,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 		tellParent(tok.location);
 		return new TDAParsingWithAction(
 			new TDAMethodMessageParser(errors, seen.get(0), nestedParser, this),
-			reduction(tok.location, "method-guard-block")
+			reduction(tok.location, "method-guard")
 		);
 	}
 }

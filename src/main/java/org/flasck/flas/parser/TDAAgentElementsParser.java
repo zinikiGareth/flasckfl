@@ -141,7 +141,7 @@ public class TDAAgentElementsParser extends BlockLocationTracker implements TDAP
 			MethodConsumer smConsumer = om -> { 
 				topLevel.newStandaloneMethod(errors, new StandaloneMethod(om));
 			};
-			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, holder, this).parseMethod(kw, namer, toks);
+			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, holder, this, false).parseMethod(kw, namer, toks);
 		}
 		default:
 			return strategy(kw, toks);
