@@ -212,7 +212,7 @@ public class GrammarChecker {
 						System.out.println("reducing " + si + " with " + rr);
 						tree.push(si);
 						srstack.remove(0);
-					} else if (si instanceof GrammarToken && si.location().compareTo(rr.location()) > 0) {
+					} else if (si.location().compareTo(rr.location()) > 0) {
 						System.out.println("this case");
 						shifted.add(si);
 						srstack.remove(0);
@@ -225,7 +225,7 @@ public class GrammarChecker {
 				srstack.add(0, tree);
 				if (!shifted.isEmpty())
 					System.out.println("shifted = " + shifted);
-				srstack.addAll(shifted);
+				srstack.addAll(0, shifted);
 
 				if (rr.isMostReduced()) {
 					ret.add(tree);

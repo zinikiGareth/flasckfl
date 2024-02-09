@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Indent;
@@ -152,11 +154,42 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		);
 		String inFile = tokens.getName();
 		ParsedTokens ret = new ParsedTokens();
+		
+		// One of the problems is that tokens are logged multiple times.
+		// First, get the DEFINITIVE list of the tokens that apply by reading the file and using a set based on location
+		
+		Map<InputPosition, Integer> tokenLines = new TreeMap<>();
+		try (LineNumberReader lnr = new LineNumberReader(new FileReader(tokens))) {
+			String s;
+			InputPosition pos = null;
+			GrammarStep pendingRule = null;
+			while ((s = lnr.readLine()) != null) {
+				if (pos == null)
+					pos = readPos(inFile, s);
+				else if (pendingRule != null) {
+					// ignore this
+					readPos(inFile, s);
+					pos = null;
+					pendingRule = null;
+				} else {
+					GrammarStep step = readToken(pos, s);
+					if (step instanceof GrammarToken) {
+						tokenLines.put(pos, lnr.getLineNumber());
+						pos = null;
+					} else {
+						pendingRule = step;
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Set<Integer> onlyTokenLines = new TreeSet<>(tokenLines.values());
+		
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(tokens))) {
 			String s;
 			InputPosition pos = null;
 			ReductionRule pendingRule = null;
-			GrammarStep ptok = null;
 			while ((s = lnr.readLine()) != null) {
 				if (pos == null)
 					pos = readPos(inFile, s);
@@ -164,30 +197,23 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 					InputPosition endPos = readPos(inFile, s);
 					pendingRule.range(pos, endPos);
 					starting.add(pendingRule);
-					System.out.println(pendingRule);
-					System.out.println(ptok);
-					if (ptok != null && pendingRule.includes(ptok.location())) {
-						System.out.println("added");
-						ret.readingOrder.add(ptok);
-						ptok = null;
-					} else {
-						System.out.println("skipped");
-					}
 					ret.readingOrder.add(pendingRule);
 					pendingRule = null;
 					pos = null;
 				} else {
 					GrammarStep step = readToken(pos, s);
 					if (step instanceof GrammarToken) {
+						if (!onlyTokenLines.contains(lnr.getLineNumber())) {
+							System.out.println("ignoring " + step);
+							pos = null;
+							continue;
+						}
 						GrammarToken tok = (GrammarToken) step;
 						if (ret.tokens.contains(tok)) {
-							ret.tokens.remove(tok);
-							ptok = null;
+							throw new CantHappenException("should have skipped the other one");
 						}
 						ret.tokens.add(tok);
-						if (ptok != null)
-							ret.readingOrder.add(ptok);
-						ptok = tok;
+						ret.readingOrder.add(tok);
 						pos = null;
 					} else if (step instanceof ReductionRule) {
 						pendingRule = (ReductionRule)step;
