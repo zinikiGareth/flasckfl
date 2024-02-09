@@ -140,7 +140,7 @@ public class GrammarNavigator {
 				}
 				if (nd instanceof TokenDefinition) {
 					TokenDefinition tokd = (TokenDefinition)nd;
-					if (tokd.isToken(grammar, null, token.text)) {
+					if (tokd.isToken(grammar, token.type, token.text)) {
 						advanceToNext(null);
 						return true;
 					}
