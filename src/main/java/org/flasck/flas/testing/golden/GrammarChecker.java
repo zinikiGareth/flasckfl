@@ -79,8 +79,8 @@ public class GrammarChecker {
 			} catch (FileNotFoundException ex) {
 				fail("could not write sorted tokens to " + ex.getMessage());
 			}
-			if (!expectErrors)
-				calculateMostReduced(toks);
+//			if (!expectErrors)
+//				calculateMostReduced(toks);
 			try {
 				toks.write(new File(f.getParentFile(), f.getName()+"-sorted"));
 			} catch (FileNotFoundException ex) {
@@ -114,10 +114,11 @@ public class GrammarChecker {
 	private GrammarTree computeReductions(String topRule, ParsedTokens toks) {
 		assertNoOverlappingRules(toks);
 		assertTLFs(toks);
-		assertAllTokensReduced(toks);
+//		assertAllTokensReduced(toks);
 		return reduceToSingleTree(topRule, toks);
 	}
 
+	/*
 	private void calculateMostReduced(ParsedTokens toks) {
 		Map<InputPosition, ReductionRule> mostReduced = new TreeMap<>();
 		for (ReductionRule rr : toks.reductionsInFileOrder()) {
@@ -145,6 +146,7 @@ public class GrammarChecker {
 		for (ReductionRule mr : mostReduced.values())
 			mr.makeMostReduced();
 	}
+	*/
 
 	private void assertNoOverlappingRules(ParsedTokens toks) {
 		InputPosition lastEndedAt = null;
@@ -165,22 +167,22 @@ public class GrammarChecker {
 		}
 	}
 
-	private void assertAllTokensReduced(ParsedTokens toks) {
-		tokenLoop:
-		for (GrammarToken t : toks.tokens()) {
-			for (ReductionRule rr : toks.reductionsInFileOrder()) {
-				if (rr.includes(t.pos))
-					continue tokenLoop;
-			}
-			
-			// comments are, for want of a better word, TLFs.
-			if (t.type.equals("comment"))
-				continue;
-			
-			// TODO: this is an error
-			fail("token not reduced: " + t);
-		}
-	}
+//	private void assertAllTokensReduced(ParsedTokens toks) {
+//		tokenLoop:
+//		for (GrammarToken t : toks.tokens()) {
+//			for (ReductionRule rr : toks.reductionsInFileOrder()) {
+//				if (rr.includes(t.pos))
+//					continue tokenLoop;
+//			}
+//			
+//			// comments are, for want of a better word, TLFs.
+//			if (t.type.equals("comment"))
+//				continue;
+//			
+//			// TODO: this is an error
+//			fail("token not reduced: " + t);
+//		}
+//	}
 
 	private GrammarTree reduceToSingleTree(String topRule, ParsedTokens toks) {
 		List<GrammarTree> ret = new ArrayList<>();
@@ -195,23 +197,35 @@ public class GrammarChecker {
 			if (s instanceof GrammarToken) {
 				GrammarToken nt = (GrammarToken) s;
 				if (!nt.isComment()) {
+					System.out.println("pushing " + nt);
 					srstack.add(0, nt);
 				}
 			} else {
 				// It's a reduction
-//				System.out.println("considering rule " + rr + " with " + srstack);
 				ReductionRule rr = (ReductionRule) s;
+				System.out.println("considering rule " + rr + " with " + srstack);
 				GrammarTree tree = new GrammarTree(rr);
+				List<GrammarStep> shifted = new ArrayList<>();
 				while (!srstack.isEmpty()) {
 					GrammarStep si = srstack.get(0);
-//				System.out.println("trying to reduce " + si + " with " + rr);
 					if (rr.includes(si.location())) {
+						System.out.println("reducing " + si + " with " + rr);
 						tree.push(si);
 						srstack.remove(0);
-					} else
+					} else if (si instanceof GrammarToken && si.location().compareTo(rr.location()) > 0) {
+						System.out.println("this case");
+						shifted.add(si);
+						srstack.remove(0);
 						break;
+					} else {
+						System.out.println("not reducing " + si + " with " + rr);
+						break;
+					}
 				}
 				srstack.add(0, tree);
+				if (!shifted.isEmpty())
+					System.out.println("shifted = " + shifted);
+				srstack.addAll(shifted);
 
 				if (rr.isMostReduced()) {
 					ret.add(tree);

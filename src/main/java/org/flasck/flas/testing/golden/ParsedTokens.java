@@ -135,6 +135,7 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 
 	private Set<GrammarToken> tokens = new TreeSet<>();
 	private List<ReductionRule> reductionsInFileOrder = new ArrayList<>();
+	private List<GrammarStep> readingOrder = new ArrayList<>();
 
 	private ParsedTokens() {
 	}
@@ -155,22 +156,38 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 			String s;
 			InputPosition pos = null;
 			ReductionRule pendingRule = null;
+			GrammarStep ptok = null;
 			while ((s = lnr.readLine()) != null) {
-				if (pendingRule != null) {
-					pendingRule.range(pos, readPos(inFile, s));
+				if (pos == null)
+					pos = readPos(inFile, s);
+				else if (pendingRule != null) {
+					InputPosition endPos = readPos(inFile, s);
+					pendingRule.range(pos, endPos);
 					starting.add(pendingRule);
+					System.out.println(pendingRule);
+					System.out.println(ptok);
+					if (ptok != null && pendingRule.includes(ptok.location())) {
+						System.out.println("added");
+						ret.readingOrder.add(ptok);
+						ptok = null;
+					} else {
+						System.out.println("skipped");
+					}
+					ret.readingOrder.add(pendingRule);
 					pendingRule = null;
 					pos = null;
-				} else if (pos == null)
-					pos = readPos(inFile, s);
-				else {
+				} else {
 					GrammarStep step = readToken(pos, s);
 					if (step instanceof GrammarToken) {
 						GrammarToken tok = (GrammarToken) step;
 						if (ret.tokens.contains(tok)) {
 							ret.tokens.remove(tok);
+							ptok = null;
 						}
 						ret.tokens.add(tok);
+						if (ptok != null)
+							ret.readingOrder.add(ptok);
+						ptok = tok;
 						pos = null;
 					} else if (step instanceof ReductionRule) {
 						pendingRule = (ReductionRule)step;
@@ -179,6 +196,12 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 						throw new NotImplementedException();
 				}
 			}
+			File ff = new File(tokens.getParentFile(), tokens.getName() + "-reading");
+			PrintWriter pw = new PrintWriter(ff);
+			for (GrammarStep gs : ret.readingOrder) {
+				pw.println(gs);
+			}
+			pw.close();
 			ret.reductionsInFileOrder.addAll(starting);
 			ret.write(new File(tokens.getParentFile(), tokens.getName() + "-presort"));
 			ret.reductionsInFileOrder.clear();
@@ -239,6 +262,9 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 	 */
 	
 	private void sortReductionsIntoFileContainingOrder(Set<ReductionRule> starting) {
+		if (true)
+			return ;
+		
 		reductionsInFileOrder.addAll(starting);
 		outer:
 		for (int i=0;i<reductionsInFileOrder.size();) {
@@ -333,6 +359,8 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 	}
 
 	public Iterator<GrammarStep> iterator() {
+		return readingOrder.iterator();
+		/*
 		return new Iterator<ParsedTokens.GrammarStep>() {
 			Iterator<ReductionRule> rit = reductionsInFileOrder().iterator();
 			Iterator<GrammarToken> tit = tokens().iterator();
@@ -362,15 +390,16 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 				return ret;
 			}
 		};
+		*/
 	}
 	
 	public Iterable<GrammarToken> tokens() {
 		return tokens;
 	}
 	
-	public Iterable<ReductionRule> reductionsInFileOrder() {
-		return reductionsInFileOrder;
-	}
+//	public Iterable<ReductionRule> reductionsInFileOrder() {
+//		return reductionsInFileOrder;
+//	}
 
 	public Iterable<ReductionRule> mostReduced() {
 		return new Iterable<>() {
