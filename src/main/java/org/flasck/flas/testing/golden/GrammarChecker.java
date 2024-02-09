@@ -32,6 +32,8 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.utils.FileUtils;
 
+import doc.grammar.GenerateGrammarDoc;
+
 public class GrammarChecker {
 	public static final Logger logger = LoggerFactory.getLogger("GrammarChecker");
 	
@@ -62,6 +64,8 @@ public class GrammarChecker {
 		this.parseTokens = parseTokens;
 		this.reconstruct = reconstruct;
 		this.grammar = GrammarSupport.loadGrammar();
+		GenerateGrammarDoc.checkTokens(grammar);
+		GenerateGrammarDoc.checkProductions(grammar);
 	}
 
 	public Map<String, GrammarTree> checkParseTokenLogic(boolean expectErrors){
@@ -349,7 +353,18 @@ public class GrammarChecker {
 			if (tree.isSingleton()) {
 				System.out.println("   >> Singleton tree: " + tree.singleton().reducedToRule());
 			} else {
-				System.out.println("   >> Simple rule tree: " + tree.members());
+				System.out.print("   >> Simple rule tree:");
+				Iterator<GrammarStep> it = tree.members();
+				while (it.hasNext()) {
+					GrammarStep s = it.next();
+					if (s instanceof GrammarToken)
+						System.out.print(" " + ((GrammarToken) s).text);
+					else if (s instanceof GrammarTree)
+						System.out.print(" " + ((GrammarTree) s).reducedToRule());
+					else
+						System.out.print(" " + s);
+				}
+				System.out.println();
 			}
 			fail("cannot handle " + tree + " with defn " + gn.current());
 		}

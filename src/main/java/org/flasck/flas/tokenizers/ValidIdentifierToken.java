@@ -23,7 +23,7 @@ public class ValidIdentifierToken implements LoggableToken {
 		line.advance();
 		while (line.hasMore() && isIdentifierPart(line.nextChar()))
 			line.advance();
-		return errors.logParsingToken(new ValidIdentifierToken(pos, line.fromMark(mark), line.at()));
+		return errors.logParsingToken(new ValidIdentifierToken(pos, line.fromMark(mark), line.at()-1));
 	}
 	
 	private static boolean isIdentifierStart(char c) {

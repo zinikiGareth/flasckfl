@@ -106,6 +106,9 @@
   <lex token='METHOD' pattern='method'>
   	<p>The <tt>method</tt> keyword introduces a standalone method definition.</p>
   </lex>
+  <lex token='NEWDIV' pattern='newdiv'>
+  	<p>The <tt>newdiv</tt> keyword is used in internal testing.</p>
+  </lex>
   <lex token='NUMBER' pattern='[0-9.e+-]+'>
   	<p>A numeric literal.</p>
   </lex>
@@ -215,6 +218,10 @@
   	<p>Function and variable names are one or more characters, where
   	the first character must be a lower case alphabetic character.</p>
   </lex>
+  <lex token='zone-name' pattern='[a-z][A-Za-z0-9_-x]*'>
+  	<p>Function and variable names are one or more characters, where
+  	the first character must be a lower case alphabetic character.</p>
+  </lex>
 
   <production name='file'>
     <section title='Files'>
@@ -267,11 +274,15 @@
     <section title='Files' />
     <seq>
       <push-part filename='true'/>
-      <ref production='system-test-configure' />
+      <optional>
+        <ref production='system-test-configure' />
+	  </optional>
       <many>
 	    <ref production='system-test-unit' />
       </many>
-      <ref production='system-test-finally' />
+      <optional>
+        <ref production='system-test-finally' />
+	  </optional>
     </seq>
   </production>
   <production name='top-level-unit'>
@@ -1616,6 +1627,7 @@ match style ...
       <ref production='unit-test-shove' />
       <ref production='unit-test-expect' />
       <ref production='unit-test-match' />
+      <ref production='internal-test-newdiv' />
     </or>
   </production>
   <production name='unit-event-action'>
@@ -1670,12 +1682,14 @@ match style ...
     <section title='Unit Tests' />
     <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
+	  <reduces-as rule='test-step-shove' />
       <token type='SHOVE' />
       <token type='var-name' />
       <token type='APPLY' />
       <ref production='member-path' />
       <indent-one>
-    	    <ref production='expression' />
+	    <reduces-as rule='ut-shove-expected-expr' />
+    	<ref production='expression' />
       </indent-one>
     </seq>
   </production>
@@ -1709,6 +1723,9 @@ match style ...
       <token type='MATCH' />
       <token type='var-name' /> <!-- the card -->
       <ref production='unit-test-match-category' />
+      <optional>
+		<ref production='unit-test-target-zone' />
+	  </optional>
       <!-- optional "selector" (but not CSS?) -->
       <!-- optional "contains" -->
       <!--  as with the template definitions before, I'm not really sure what comes here ... -->
@@ -1726,9 +1743,30 @@ match style ...
       <token type='STYLE' /> <!-- the card -->
     </or>
   </production>
+  <production name='unit-test-target-zone'>
+    <section title='Unit Tests' />
+    <!-- TODO: there are more cases -->
+    <token type='zone-name' />
+  </production>
   <production name='unit-match-free-text'>
     <section title='Unit Tests' />
     <token type='FREETEXT' />
+  </production>
+  <production name='internal-test-newdiv'>
+	<section title='Internal Tests'>
+	  <description>
+		  <p>In addition to standard user tests, FLAS includes some test operations that are primarily aimed at FLAS developers.</p>
+		  <p>As a user, you are welcome to use these to validate your expectations, but you will not be able to use their results to adjust the behavior of your code.</p>
+	  </description>
+	</section>
+	<seq>
+	  <reduces-as rule='test-newdiv' />
+	  <token type='NEWDIV' />
+	  <optional>
+		<reduces-as rule='test-newdiv-cnt' />
+		<token type='NUMBER' />
+	  </optional>
+	</seq>
   </production>
   <production name='unit-data-declaration'>
     <section title='Unit Test Data'>

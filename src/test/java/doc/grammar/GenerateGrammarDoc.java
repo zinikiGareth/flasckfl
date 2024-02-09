@@ -35,7 +35,7 @@ public class GenerateGrammarDoc {
 		checkProductions(grammar);
 	}
 
-	public void checkTokens(Grammar grammar) {
+	public static void checkTokens(Grammar grammar) {
 		Set<String> prods = grammar.lexTokens();
 		Set<String> refs = grammar.tokenUsages();
 		Set<String> unused = new TreeSet<>(prods);
@@ -46,7 +46,7 @@ public class GenerateGrammarDoc {
 		assertEquals("undefined tokens", new TreeSet<>(), refs);
 	}
 
-	public void checkProductions(Grammar grammar) {
+	public static void checkProductions(Grammar grammar) {
 		Set<String> prods = grammar.allProductions();
 		Set<String> refs = grammar.allReferences();
 		Set<String> unused = new TreeSet<>(prods);

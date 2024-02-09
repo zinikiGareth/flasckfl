@@ -44,4 +44,9 @@ public class OptionalDefinition extends Definition {
 		}
 		productionVisitor.zeroOrOne(child);
 	}
+	
+	@Override
+	public String toString() {
+		return "Optional[" + child + "]";
+	}
 }

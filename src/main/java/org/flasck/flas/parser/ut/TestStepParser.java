@@ -192,7 +192,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			builder.shove(slots, expr); 
 			updateLoc(expr.location());
 			errors.logReduction("ut-shove-expected-expr", expr.location(), expr.location());
-			reduce(kw.location, "ut-shove");
+			reduce(kw.location, "unit-test-shove");
 		};
 		return new SingleExpressionParser(errors, "shove", exprConsumer, this);
 	}
@@ -609,7 +609,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			toks.reset(start);
 			return new TargetZone(first, new ArrayList<>());
 		}
-		errors.logReduction("ut-target-event-zone", first, last);
+		errors.logReduction("unit-test-target-zone", first, last);
 		return new TargetZone(first, tz);
 	}
 

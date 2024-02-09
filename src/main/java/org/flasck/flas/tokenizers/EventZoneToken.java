@@ -62,7 +62,12 @@ public class EventZoneToken implements LoggableToken {
 
 	@Override
 	public String type() {
-		return "EventZoneToken";
+		switch (type) {
+		case NAME:
+			return "zone-name";
+		default:
+			return "EventZoneToken";
+		}
 	}
 
 	@Override
