@@ -19,6 +19,10 @@ public class BlockLocationTracker implements LocationTracker {
 			lastInner = location;
 	}
 	
+	protected LocationTracker parentTracker() {
+		return parent;
+	}
+
 	protected InputPosition lastInner() {
 		return lastInner;
 	}

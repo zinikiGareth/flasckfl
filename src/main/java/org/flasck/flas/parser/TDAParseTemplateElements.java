@@ -72,7 +72,7 @@ public class TDAParseTemplateElements {
 			TemplateStylingOption tso = new TemplateStylingOption(barPos, expr, new ArrayList<>(), null);
 			consumer.accept(tso);
 			errors.logReduction("template-conditional-sryling", barPos, expr.location());
-			return new RequireEventsParser(errors, toks.realinfo(), source, namer, tso);
+			return new RequireEventsParser(errors, toks.realinfo(), source, namer, tso, locTracker);
 		}
 		if ("=>".equals(tok.text)) {
 			TemplateStylingOption tso = readTemplateStyles(barPos, errors, expr, toks, locTracker);
@@ -88,7 +88,7 @@ public class TDAParseTemplateElements {
 		}
 	}
 
-	public static TDAParsing parseEventHandling(ExprToken arrow, ErrorReporter errors, Template source, Tokenizable toks, Consumer<TemplateEvent> consumer) {
+	public static TDAParsing parseEventHandling(ExprToken arrow, ErrorReporter errors, Template source, Tokenizable toks, Consumer<TemplateEvent> consumer, LocationTracker locTracker) {
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "event handler name required");
@@ -104,7 +104,8 @@ public class TDAParseTemplateElements {
 		}
 		TemplateEvent ev = new TemplateEvent(tok.location, tok.text, source);
 		consumer.accept(ev);
-		errors.logReduction("template-event-handler", arrow.location, tok.location);
+		errors.logReduction("template-event", arrow.location, tok.location);
+		locTracker.updateLoc(arrow.location);
 		return new NoNestingParser(errors);
 	}
 

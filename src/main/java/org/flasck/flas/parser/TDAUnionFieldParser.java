@@ -41,7 +41,7 @@ public class TDAUnionFieldParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		errors.logReduction("union-with-members", kwloc, location);
+		errors.logReduction("union-declaration", kwloc, location);
 	}
 
 }

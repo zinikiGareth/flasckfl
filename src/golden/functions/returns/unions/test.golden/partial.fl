@@ -11,6 +11,6 @@ Providing, of course, only one such union exists
 		CaseA
 		CaseB
 		CaseC
-		
+
 	func [] = CaseC
 	func (Cons[A] l) = CaseB

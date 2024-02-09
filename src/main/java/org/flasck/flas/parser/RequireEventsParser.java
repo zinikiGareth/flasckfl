@@ -7,16 +7,15 @@ import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class RequireEventsParser implements TDAParsing, LocationTracker {
-	private final ErrorReporter errors;
+public class RequireEventsParser extends BlockLocationTracker implements TDAParsing {
 	private final InputPosition loc;
 	private final Template source;
 	private final TemplateNamer namer;
 	private final TemplateStylingOption tso;
 	private boolean seenHandler;
 
-	public RequireEventsParser(ErrorReporter errors, InputPosition location, Template source, TemplateNamer namer, TemplateStylingOption tso) {
-		this.errors = errors;
+	public RequireEventsParser(ErrorReporter errors, InputPosition location, Template source, TemplateNamer namer, TemplateStylingOption tso, LocationTracker locTracker) {
+		super(errors, locTracker);
 		this.loc = location;
 		this.source = source;
 		this.namer = namer;
@@ -36,7 +35,7 @@ public class RequireEventsParser implements TDAParsing, LocationTracker {
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
 			seenHandler = true;
-			return TDAParseTemplateElements.parseEventHandling(tok, errors, source, toks, ev -> tso.events.add(ev));
+			return TDAParseTemplateElements.parseEventHandling(tok, errors, source, toks, ev -> tso.events.add(ev), this);
 		} else {
 			errors.message(toks, "event handler expected");
 			return new IgnoreNestedParser(errors);

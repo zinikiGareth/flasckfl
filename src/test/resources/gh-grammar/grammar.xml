@@ -388,11 +388,19 @@
     <section title='Data Declarations'/>
 	<tested by='test.parsing.TDAUnionParsingTests' />
     <seq>
+	  <reduces-as rule='union-defn' />
       <token type='UNION'/>
       <token type='type-name' names='Union\[${name}\[.*\]\]'/>
       <indent-non-zero>
-        <ref production='type-reference'/>
+        <ref production='union-member'/>
       </indent-non-zero>
+    </seq>
+  </production>
+  <production name='union-member'>
+    <section title='Data Declarations'/>
+	<tested by='test.parsing.TDAUnionParsingTests' />
+    <seq>
+      <ref production='type-reference'/>
     </seq>
   </production>
   <production name='contract-declaration'>
@@ -1440,7 +1448,7 @@
 	    <token type='SEND'/>
 	    <ref production='expression'/>
 	    <optional>
-		<reduces-as rule="template-binding-sends-to" />
+		  <reduces-as rule="template-binding-sends-to" />
 	      <ref production='pass-to-template' />
 	    </optional>
         <indent>

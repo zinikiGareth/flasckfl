@@ -10,33 +10,29 @@ import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDATemplateOptionsParser implements TDAParsing {
-	private final ErrorReporter errors;
+public class TDATemplateOptionsParser extends BlockLocationTracker implements TDAParsing {
 	private final Template source;
 	private final TemplateNamer namer;
 	private final TemplateBinding binding;
 	private final TemplateCustomization customizer;
 	private final TemplateField field;
-	private final LocationTracker endOfTemplate;
 	private boolean seenContent;
 
 	public TDATemplateOptionsParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBinding binding, TemplateField field, LocationTracker endofTemplate) {
-		this.errors = errors;
+		super(errors, endofTemplate);
 		this.source = source;
 		this.namer = namer;
 		this.binding = binding;
 		this.customizer = binding;
 		this.field = field;
-		this.endOfTemplate = endofTemplate;
 	}
 
 	public TDATemplateOptionsParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingOption option, TemplateField field, LocationTracker endOfTemplate) {
-		this.errors = errors;
+		super(errors, endOfTemplate);
 		this.source = source;
 		this.namer = namer;
 		this.customizer = option;
 		this.field = field;
-		this.endOfTemplate = endOfTemplate;
 		this.binding = null;
 	}
 
@@ -61,9 +57,9 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(tok.location, "cannot mix bindings and customization");
 			}
 			if (toksHasSend(toks))
-				return TDAParseTemplateElements.parseConditionalBindingOption(errors, barPos, source, namer, toks, field, tbo -> binding.conditionalBindings.add(tbo), endOfTemplate);
+				return TDAParseTemplateElements.parseConditionalBindingOption(errors, barPos, source, namer, toks, field, tbo -> binding.conditionalBindings.add(tbo), parentTracker());
 			else
-				return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> customizer.conditionalStylings.add(tso), endOfTemplate);
+				return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> customizer.conditionalStylings.add(tso), parentTracker());
 			
 		} else if ("<-".equals(tok.text)) {
 			// It's a default send binding
@@ -75,10 +71,10 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(toks, "multiple default bindings are not permitted");
 				return new IgnoreNestedParser(errors);
 			}
-			return TDAParseTemplateElements.parseDefaultBindingOption(errors, tok.location, source, namer, toks, field, tbo -> binding.defaultBinding = tbo, endOfTemplate);
+			return TDAParseTemplateElements.parseDefaultBindingOption(errors, tok.location, source, namer, toks, field, tbo -> binding.defaultBinding = tbo, parentTracker());
 		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
-			return TDAParseTemplateElements.parseEventHandling(tok, errors, source, toks, ev -> customizer.events.add(ev));
+			return TDAParseTemplateElements.parseEventHandling(tok, errors, source, toks, ev -> customizer.events.add(ev), parentTracker());
 		} else {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
