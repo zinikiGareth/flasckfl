@@ -241,6 +241,12 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		outer:
 		for (int i=0;i<reductionsInFileOrder.size();) {
 			ReductionRule moveDown = reductionsInFileOrder.get(i);
+			// if it has zero span, don't move it
+			if (moveDown.first.compareTo(moveDown.last) == 0) {
+				i++;
+				continue;
+			}
+
 			for (int j=i+1;j<reductionsInFileOrder.size();j++) {
 				ReductionRule after = reductionsInFileOrder.get(j);
 				
