@@ -141,15 +141,14 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 
 	public static ParsedTokens read(File tokens) {
 		Set<ReductionRule> starting = new TreeSet<ReductionRule>(
-//				fileOrder
 			new Comparator<ReductionRule>() {
-			public int compare(ReductionRule o1, ReductionRule o2) {
-				int cmp = o1.start().compareTo(o2.start());
-				if (cmp != 0) return cmp;
-				return Integer.compare(o1.lineNumber, o2.lineNumber);
+				public int compare(ReductionRule o1, ReductionRule o2) {
+					int cmp = o1.start().compareTo(o2.start());
+					if (cmp != 0) return cmp;
+					return Integer.compare(o1.lineNumber, o2.lineNumber);
+				}
 			}
-		}
-			);
+		);
 		String inFile = tokens.getName();
 		ParsedTokens ret = new ParsedTokens();
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(tokens))) {
@@ -180,6 +179,9 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 						throw new NotImplementedException();
 				}
 			}
+			ret.reductionsInFileOrder.addAll(starting);
+			ret.write(new File(tokens.getParentFile(), tokens.getName() + "-presort"));
+			ret.reductionsInFileOrder.clear();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -242,10 +244,10 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		for (int i=0;i<reductionsInFileOrder.size();) {
 			ReductionRule moveDown = reductionsInFileOrder.get(i);
 			// if it has zero span, don't move it
-			if (moveDown.first.compareTo(moveDown.last) == 0) {
-				i++;
-				continue;
-			}
+//			if (moveDown.first.compareTo(moveDown.last) == 0) {
+//				i++;
+//				continue;
+//			}
 
 			for (int j=i+1;j<reductionsInFileOrder.size();j++) {
 				ReductionRule after = reductionsInFileOrder.get(j);

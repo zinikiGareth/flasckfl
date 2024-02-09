@@ -91,7 +91,7 @@ public class GrammarChecker {
 				String ext = FileUtils.extension(f.getName());
 				GrammarTree reduced = computeReductions(getTopRule(ext), toks);
 				try {
-				dumpTree(new File(f.getParentFile(), f.getName()+"-tree"), reduced);
+					dumpTree(new File(f.getParentFile(), f.getName()+"-tree"), reduced);
 				} catch (FileNotFoundException ex) {
 					fail("could not write parse tree to " + ex.getMessage());
 				}
