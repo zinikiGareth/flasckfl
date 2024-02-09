@@ -94,4 +94,8 @@ public class InputPosition implements Comparable<InputPosition> {
 	public InputPosition locAtEnd() {
 		return new InputPosition(file, lineNo, endPos, indent, text);
 	}
+
+	public InputPosition plus(int i) {
+		return new InputPosition(file, lineNo, off+i, indent, text);
+	}
 }

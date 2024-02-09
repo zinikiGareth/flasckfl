@@ -51,7 +51,15 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 		if (seen.isEmpty()) {
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser(errors);
-		} else if (toks.hasMoreContent(errors)) {
+		}
+		
+		String handled = "";
+		SendMessage send = seen.get(0);
+		if (ApplyExpr.isOp(send.expr, "->")) {
+			handled = "-handled";
+		}
+		
+		if (toks.hasMoreContent(errors)) {
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok.type == ExprToken.SYMBOL && tok.text.equals("=>")) {
 				new TDAExpressionParser(errors, t -> {
@@ -61,19 +69,12 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 					errors.message(toks, "syntax error");
 					return new IgnoreNestedParser(errors);
 				}
+				errors.logReduction("method-message-send" + handled +"-subscribed", arrowPos, toks.realinfo());
 			} else {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
 			}
 		} else {
-			String handled = "";
-			SendMessage send = seen.get(0);
-			if (send.expr instanceof ApplyExpr) {
-				ApplyExpr ae = (ApplyExpr) send.expr;
-				if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals("->")) {
-					handled = "-handled";
-				}
-			}
 			errors.logReduction("method-message-send" + handled, arrowPos, toks.realinfo());
 		}
 		tellParent(arrowPos);

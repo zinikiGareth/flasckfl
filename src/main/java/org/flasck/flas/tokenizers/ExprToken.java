@@ -73,7 +73,7 @@ public class ExprToken implements LoggableToken {
 			String tok = StringToken.from(errors, line);
 			if (tok == null)
 				return null;
-			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()), STRING, tok).original(line.fromMark(mark)));
+			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()-1), STRING, tok).original(line.fromMark(mark)));
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1)))
 			return errors.logParsingToken(new ExprToken(NUMBER, NumberToken.from(errors, line)));

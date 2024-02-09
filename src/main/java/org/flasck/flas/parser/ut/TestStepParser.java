@@ -252,8 +252,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		Consumer<UnitDataDeclaration> consumer = dd -> {
 			builder.data(errors, dd);
 			topLevel.nestedData(dd);
-			updateLoc(dd.location());
-//			reduce(kw.location, "ut-input");
+			tellParent(kw.location());
 		};
 		return new TDAUnitTestDataParser(errors, false, kw, namer, consumer, topLevel, this).tryParsing(toks);
 	}

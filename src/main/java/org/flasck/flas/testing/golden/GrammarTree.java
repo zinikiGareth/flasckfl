@@ -63,7 +63,7 @@ public class GrammarTree implements GrammarStep {
 		if (!(si instanceof GrammarToken))
 			return false;
 		GrammarToken t = (GrammarToken) si;
-		return t.type.equals("FreeText");
+		return t.type.equals("FREETEXT");
 	}
 
 	private boolean isIndented(InputPosition item, InputPosition relativeTo) {

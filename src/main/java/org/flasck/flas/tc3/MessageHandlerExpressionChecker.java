@@ -76,7 +76,7 @@ public class MessageHandlerExpressionChecker extends LeafAdapter implements Resu
 			return;
 		}
 		if (exp > 1) {
-			errors.message(pfn.location().locAtEnd(), "insufficient arguments");
+			errors.message(pfn.location().locAtEnd().plus(1), "insufficient arguments");
 			nv.result(new ErrorType());
 			return;
 		}

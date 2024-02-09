@@ -156,7 +156,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 					InputPosition loc = meth.location().locAtEnd();
 					if (!meth.args().isEmpty())
 						loc = meth.args().get(meth.args().size()-1).location().locAtEnd();
-					errors.message(loc, "insufficient arguments provided to contract method '" + meth.name().name + "'");
+					errors.message(loc.plus(1), "insufficient arguments provided to contract method '" + meth.name().name + "'");
 				} else if (meth.argCount() > cm.args.size()) {
 					InputPosition loc = meth.args().get(cm.args.size()).location();
 					errors.message(loc, "excess arguments provided to contract method '" + meth.name().name + "'");
