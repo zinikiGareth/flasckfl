@@ -89,7 +89,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			ObjectContract oc = new ObjectContract(var.location, ctr, cv);
 			builder.requireContract(oc);
 			topLevel.newObjectContract(errors, oc);
-			errors.logReduction("object-requires", kw.location, var.location);
+			errors.logReduction("requires-contract", kw.location, var.location);
 			tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}

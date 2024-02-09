@@ -13,6 +13,7 @@ public class FunctionAssembler extends BlockLocationTracker implements FunctionI
 	private FunctionDefinition fn;
 	private FunctionIntro curr;
 	private boolean broken;
+	private boolean hasGuards;
 
 	public FunctionAssembler(ErrorReporter errors, FunctionScopeUnitConsumer consumer, StateHolder holder, LocationTracker tracker) {
 		super(errors, tracker);
@@ -49,6 +50,11 @@ public class FunctionAssembler extends BlockLocationTracker implements FunctionI
 	}
 
 	@Override
+	public void hasGuards(boolean hasGuards) {
+		this.hasGuards = hasGuards;;
+	}
+
+	@Override
 	public void done() {
 		if (curr != null) {
 			reduceCurr();
@@ -73,7 +79,7 @@ public class FunctionAssembler extends BlockLocationTracker implements FunctionI
 		if (curr.cases().size() == 1) {
 			FunctionCaseDefn caseDefn = curr.cases().get(0);
 			// it's either the very simple one-line case
-			if (caseDefn.expr.location().lineNo == curr.location().lineNo) {
+			if (!hasGuards) {
 				errors.logReduction("simple-function-case-definition-intro", curr.location(), caseDefn.location());
 			} else {
 				// or it's the degenerate case

@@ -58,6 +58,7 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 		final FunctionIntro intro = new FunctionIntro(fcase, args);
 		consumer.functionIntro(intro);
 		if (!line.hasMoreContent(errors)) {
+			consumer.hasGuards(true);
 //			errors.logReduction("function-intro-no-expr", intro.location, line.realinfo());
 			TDAFunctionGuardedEquationParser inner = new TDAFunctionGuardedEquationParser(errors, intro, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder, this));
 			return new TDAParsingWithAction(
@@ -94,6 +95,7 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 		if (fcds.isEmpty())
 			return new IgnoreNestedParser(errors);
 
+		consumer.hasGuards(false);
 		super.updateLoc(t.location);
 		FunctionAssembler assembler = new FunctionAssembler(errors, topLevel, holder, this);
 		return new TDAParsingWithAction(

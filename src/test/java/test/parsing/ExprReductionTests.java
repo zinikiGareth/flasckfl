@@ -173,6 +173,7 @@ public class ExprReductionTests {
 	public void parensOverrideDotAssociativity() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.member(ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.unresolved("x")), ExprMatcher.unresolved("a")).location("-", 1, 0, 12)));
+			oneOf(builder).parenAt(pos);
 			oneOf(builder).done();
 		}});
 		reducer.term(new Punctuator(pos, "("));
@@ -379,6 +380,7 @@ public class ExprReductionTests {
 	public void parensCanOvercomeMultiply() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.unresolved("a"), ExprMatcher.number(2)), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(3), ExprMatcher.unresolved("b"))).location("-", 1, 0, 12)));
+			oneOf(builder).parenAt(pos);
 			oneOf(builder).done();
 		}});
 		reducer.term(new Punctuator(pos, "("));
@@ -492,6 +494,7 @@ public class ExprReductionTests {
 	public void anEmptyListMayBeWrappedInParens() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("[]")).location("-", 1, 0, 12)));
+			oneOf(builder).parenAt(pos);
 			oneOf(builder).done();
 		}});
 		reducer.term(new Punctuator(pos, "("));
@@ -505,6 +508,7 @@ public class ExprReductionTests {
 	public void aListCanBeAssembledWithTheColonOperator() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator(":"), ExprMatcher.unresolved("a"), ExprMatcher.unresolved("l")).location("-", 1, 0, 12)));
+			oneOf(builder).parenAt(pos);
 			oneOf(builder).done();
 		}});
 		reducer.term(new Punctuator(pos, "("));

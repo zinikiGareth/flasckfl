@@ -210,9 +210,9 @@
   <lex token='template-name' pattern='[a-z][a-z0-9-]*'>
   	<p>The name of a template or template item, which must match the name of a provided webzip element.</p>
   </lex>
-  <lex token='type-name' pattern='[A-Z][A-Za-z0-9_][A-Za-z0-9_]+'>
+  <lex token='type-name' pattern='[A-Z][a-z0-9_][A-Za-z0-9_]*'>
   	<p>Concrete type names must start with a capital letter and have at
-  	least three characters in the name.</p>
+  	least two characters in the name.</p>
   </lex>
   <lex token='var-name' pattern='[a-z][A-Za-z0-9_]*'>
   	<p>Function and variable names are one or more characters, where
@@ -1124,10 +1124,11 @@
   <production name='object-scope-unit'>
     <section title='Object'/>
     <tested by='test.parsing.TDAObjectElementParsingTests' />
-    <producer shares='20 20 10 25 25 10 10'/>
+    <producer shares='20 5 20 10 25 25 10 10'/>
     <or>
       <!--  these annotations should be notes on the grammar as well -->
       <ref production='state-declaration' from='0' to='1'/> <!--  tie this together with the producer shares -->
+      <ref production='requires-contract'/>
       <ref production='object-ctor-definition' from='1'/>
       <ref production='named-template-definition'/>
       <ref production='object-acor-definition'/>

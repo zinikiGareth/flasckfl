@@ -66,9 +66,10 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		@Override
 		public void done() {
 			if (terms.size() == 0) {
-				if (op.equals("()"))
+				if (op.equals("()")) {
 					errors.message(from, "empty tuples are not permitted");
-				else if (op.equals("[]")) {
+					return;
+				} else if (op.equals("[]")) {
 					errors.logReduction("empty-list-literal", from, endToken.location());
 				} else {
 					errors.logReduction("empty-hash", from, endToken.location());

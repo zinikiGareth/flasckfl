@@ -97,7 +97,7 @@ public class UnitTestTopLevelParsingTests {
 		}});
 		TDAUnitTestParser utp = new TDAUnitTestParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(line("data SomeCard card"));
-		assertTrue(nested instanceof TDAUTDataProcessFieldsParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDAUTDataProcessFieldsParser.class));
 		
 		UnitDataDeclaration data = (UnitDataDeclaration) captureIt.get(0);
 		assertEquals("test.pkg._ut_file.card", data.name.uniqueName());

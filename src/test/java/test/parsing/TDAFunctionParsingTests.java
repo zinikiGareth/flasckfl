@@ -71,6 +71,7 @@ public class TDAFunctionParsingTests {
 			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
 			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
+			oneOf(intro).hasGuards(true);
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line);
@@ -87,6 +88,7 @@ public class TDAFunctionParsingTests {
 			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
 			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
+			oneOf(intro).hasGuards(true);
 			oneOf(errors).message(with(any(InputPosition.class)), with("no function cases specified")	);
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
@@ -104,6 +106,7 @@ public class TDAFunctionParsingTests {
 			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(builder).argument(with(aNull(ErrorReporter.class)), (VarPattern) with(VarPatternMatcher.var("test.pkg.f._1.x")));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
+			oneOf(intro).hasGuards(true);
 			oneOf(errors).message(with(any(InputPosition.class)), with("no function cases specified")	);
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
@@ -135,6 +138,7 @@ public class TDAFunctionParsingTests {
 			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
 			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
+			oneOf(intro).hasGuards(false);
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line("f = 3"));
@@ -151,6 +155,7 @@ public class TDAFunctionParsingTests {
 			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(builder).argument(with(aNull(ErrorReporter.class)), (VarPattern) with(VarPatternMatcher.var("test.pkg.f._1.x")));
+			oneOf(intro).hasGuards(false);
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line("f x = 3"));
@@ -167,6 +172,7 @@ public class TDAFunctionParsingTests {
 			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(builder).argument(with(tracker), (TypedPattern) with(TypedPatternMatcher.typed("Number", "n")));
+			oneOf(intro).hasGuards(false);
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line("f (Number n) = n"));
