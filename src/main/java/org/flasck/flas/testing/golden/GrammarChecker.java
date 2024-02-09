@@ -74,6 +74,11 @@ public class GrammarChecker {
 		Map<String, GrammarTree> ret = new TreeMap<>(new MyPreferredTestSorting());
 		for (File f : FileUtils.findFilesMatching(parseTokens, "*")) {
 			ParsedTokens toks = ParsedTokens.read(f);
+			try {
+				toks.write(new File(f.getParentFile(), f.getName()+"-sorted"));
+			} catch (FileNotFoundException ex) {
+				fail("could not write sorted tokens to " + ex.getMessage());
+			}
 			if (!expectErrors)
 				calculateMostReduced(toks);
 			try {

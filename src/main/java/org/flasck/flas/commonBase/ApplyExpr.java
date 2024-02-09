@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.zinutils.exceptions.UtilException;
 
 public class ApplyExpr implements Expr {
@@ -61,5 +62,14 @@ public class ApplyExpr implements Expr {
 		}
 		ret.append(")");
 		return ret.toString();
+	}
+
+	public static boolean isOp(Expr fe, String match) {
+		if (!(fe instanceof ApplyExpr))
+			return false;
+		Object op = ((ApplyExpr)fe).fn;
+		if (!(op instanceof UnresolvedOperator))
+			return false;
+		return ((UnresolvedOperator)op).op.equals(match);
 	}
 }

@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -222,7 +223,14 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("unit-contract-action", kw, eventObj.get(0));
+		Expr fe = eventObj.get(0);
+		if (ApplyExpr.isOp(fe, "->")) {
+			ApplyExpr ae = (ApplyExpr) fe;
+			InputPosition oploc = ((UnresolvedOperator)ae.fn).location();
+			errors.logReduction("unit-contract-handle-expr", oploc, ((Expr) ae.args.get(1)).location());
+			errors.logReduction("unit-contract-action-with-handle", kw.location, oploc);
+		} else
+			errors.logReduction("unit-contract-action", kw, eventObj.get(0));
 		tellParent(kw.location);
 		builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
 		return new NoNestingParser(errors);
