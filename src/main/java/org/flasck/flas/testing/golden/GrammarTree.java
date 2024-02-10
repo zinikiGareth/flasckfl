@@ -39,7 +39,7 @@ public class GrammarTree implements GrammarStep {
 			} else if (s instanceof GrammarToken) {
 				GrammarToken tok = (GrammarToken) s;
 				pw.print(nested);
-				pw.print(tok.type + ": _" + tok.text + "_");
+				pw.print(tok.type + ": _" + tok.text + "_" + " [" + tok.location().lineNo + "." + tok.location().off + "]");
 				pw.println();
 			}
 		}

@@ -336,7 +336,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		builder.event(new UnresolvedVar(tok.location, tok.text), targetZone, eventObj.get(0));
-		errors.logReduction("ut-step-event", kw.location, eventObj.get(0).location());
+		errors.logReduction("unit-event-action", kw.location, eventObj.get(0).location());
 		return new NoNestingParser(errors);
 	}
 
@@ -541,7 +541,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 	public TargetZone parseTargetZone(Tokenizable toks) {
 		ArrayList<Object> tz = new ArrayList<>();
 		int start = toks.at();
-		InputPosition first = null, last = null;
+		InputPosition first = null, last = null, prevdot = null;
 		boolean lastWasNumber = false;
 		while (true) {
 			EventZoneToken tok = EventZoneToken.from(errors, toks);
@@ -556,6 +556,9 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 					return null;
 				}
 			} else if (tok.type == EventZoneToken.NAME) {
+				if (prevdot != null) {
+					errors.logReduction("uttz-field", prevdot, tok.location);
+				}
 				tz.add(tok.text);
 				lastWasNumber = false;
 			} else if (tok.type == EventZoneToken.NUMBER) {
@@ -565,6 +568,9 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 				} else if (lastWasNumber) {
 					errors.message(tok.location, "cannot have consecutive list indices");
 					return null;
+				}
+				if (prevdot != null) {
+					errors.logReduction("uttz-index", prevdot, tok.location);
 				}
 				tz.add(Integer.parseInt(tok.text));
 				lastWasNumber = true;
@@ -585,6 +591,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			if (dot == null) {
 				break;
 			} else if (dot.type == EventZoneToken.DOT) {
+				prevdot = dot.location;
 				continue; // look for next symbol
 			} else if (dot.type == EventZoneToken.COLON) {
 				EventZoneToken qualifyingTemplate = EventZoneToken.from(errors, toks);

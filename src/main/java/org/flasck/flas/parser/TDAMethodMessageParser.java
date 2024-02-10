@@ -10,7 +10,6 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.SendMessage;
-import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;

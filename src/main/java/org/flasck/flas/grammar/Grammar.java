@@ -251,8 +251,10 @@ public class Grammar {
 		String shared = rule.optional("shared");
 		if (!rule.elementChildren("ref").isEmpty())
 			defn = parseDefn(ruleName, rule.uniqueElement("ref"));
-		else
+		else if (!rule.elementChildren("token").isEmpty())
 			defn = parseDefn(ruleName, rule.uniqueElement("token"));
+		else
+			throw new CantHappenException("there is no 'ref' or 'token' element in Many");
 		rule.attributesDone();
 		return new ManyDefinition(defn, allowZero, shared);
 	}

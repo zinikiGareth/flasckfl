@@ -19,7 +19,6 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain;
-import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
@@ -94,6 +93,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 		}
 		case "event": {
 			updateLoc(kw.location);
+			tellParent(kw.location);
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
 			MethodConsumer evConsumer = em -> {
 				if (em.args().size() != 1) {
@@ -109,11 +109,11 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				em.eventFor((CardDefinition)consumer);
 				consumer.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);
-				errors.logReduction("event-from-method", kw.location, ev.location());
 			};
+			TDAMethodParser np = new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this, "event-from-method", false);
 			return new TDAParsingWithAction(
-				new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this, false).parseMethod(kw, namer, toks),
-				reduction(kw.location, "event-with-method-actions")
+				np.parseMethod(kw, namer, toks),
+				np.reduction(kw.location, "event-handler")
 			);
 		}
 		default:

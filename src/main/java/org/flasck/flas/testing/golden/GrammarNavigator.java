@@ -206,14 +206,27 @@ public class GrammarNavigator {
 
 	private boolean handlesTree(GrammarTree tree) {
 		this.haveAdvanced = false;
-		return moveToTag(tree.reducedToRule(), null);
+		List<TaggedDefinition> prods = new ArrayList<>();
+		boolean ret = moveToTag(tree.reducedToRule(), null);
+		while (!ret) {
+			prods.add(stack.remove(0));
+			if (stack.isEmpty())
+				break;
+			TaggedDefinition td = stack.get(0);
+			if (td.defn instanceof SequenceDefinition)
+				td.offset++;
+			ret = navigateTo(td, tree.reducedToRule(), null, prods, new TreeSet<>());
+			if (ret)
+				prods.clear();
+		}
+		stack.addAll(0, prods);
+		return ret;
 	}
 
 	private boolean moveToTag(String rule, String toktext) {
 		List<TaggedDefinition> prods = new ArrayList<>();
 		Set<String> triedRules = new TreeSet<>();
 		boolean ret = navigateTo(stack.get(0), rule, toktext, prods, triedRules);
-		
 		for (int i=0;i<prods.size();i++) {
 			stack.add(0, prods.get(i));
 		}

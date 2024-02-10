@@ -353,6 +353,10 @@ public class GrammarChecker {
 		while (members.hasNext()) {
 			GrammarStep s = members.next();
 			logger.info("matching line token " + s + " with " + gn.current());
+			if (s instanceof GrammarTree) {
+				GrammarTree gt = (GrammarTree) s;
+				System.out.println(gt);
+			}
 			if (gn.canHandle(s)) {
 //				System.out.println("handled " + s);
 				if (s instanceof GrammarTree) {

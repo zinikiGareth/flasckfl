@@ -197,9 +197,6 @@
   	<p>One of the standard unary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
   </lex>
-  <lex token='event-name' pattern='[a-z][a-z0-9-]*'>
-  	<p>The mnemonic name of an event, such as 'click' or 'scroll-down'.</p>
-  </lex>
   <lex token='introduce-var' pattern='_[a-z][A-Za-z0-9_]*'>
   	<p>Function and variable names are one or more characters, where
   	the first character must be a lower case alphabetic character.</p>
@@ -1369,6 +1366,7 @@
     </section>
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
+	  <reduces-as rule='event-from-method' />
       <token type='EVENT'/>
       <token type='var-name' names='ObjectMethod\[${name}\([0-9]+\)\]' />
       <nested-name offset='1'/>
@@ -1671,8 +1669,7 @@ match style ...
     <seq>
       <token type='EVENT' />
       <token type='var-name' /> <!--  the card to receive the event -->
-      <token type='template-name' /> <!-- the event target (an area in the card's template); actually, I think with lists and all this could need to be a compound name with dots and possibly arrays (or we could just do list.3.x -->
-      <token type='event-name' /> <!-- the event name -->
+      <ref production='unit-test-target-zone' />
       <ref production='expression' /> <!-- the event object -->
     </seq>
   </production>
@@ -1781,7 +1778,28 @@ match style ...
   <production name='unit-test-target-zone'>
     <section title='Unit Tests' />
     <!-- TODO: there are more cases -->
-    <token type='zone-name' />
+    <!-- TODO: also need disambiguation cases -->
+    <seq>
+      <token type='zone-name' />
+      <many>
+		<ref production='unit-test-target-zone-suffix' />
+      </many>
+	</seq>
+  </production>
+  <production name='unit-test-target-zone-suffix'>
+	  <section title='Unit Tests' />
+	  <or>
+		  <seq>
+			  <reduces-as rule='uttz-field' />
+			  <token type='APPLY' />
+			  <token type='zone-name' />
+		  </seq>
+		  <seq>
+			  <reduces-as rule='uttz-index' />
+			  <token type='APPLY' />
+			  <token type='NUMBER' />
+		  </seq>
+	  </or>
   </production>
   <production name='unit-match-free-text'>
     <section title='Unit Tests' />
