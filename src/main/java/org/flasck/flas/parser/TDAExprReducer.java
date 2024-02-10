@@ -178,8 +178,11 @@ public class TDAExprReducer implements ExprTermConsumer {
 		if (isCheckTypeExpr(t0))
 			return resolveCheckTypeExpr(t0, from, to);
 		if (from+1 == to && !isConstructor(t0)) {
-			if (t0 instanceof UnresolvedVar) // it's trivially a function call for the grammar...
-				errors.logReduction("function-call", t0.location(), t0.location().locAtEnd());
+			if (t0 instanceof UnresolvedVar) { // it's trivially a function call for the grammar...
+				UnresolvedVar uv = (UnresolvedVar) t0;
+				if (uv.notYetFC())
+					errors.logReduction("function-call", t0.location(), t0.location().locAtEnd());
+			}
 			return t0;
 		} else {
 			errors.logReduction("function-call", t0, terms.get(to-1));
