@@ -21,7 +21,7 @@
   <lex token='ASSERT' pattern='assert'>
   	<p>The <tt>assert</tt> keyword introduces an assert step in a unit test.</p>
   </lex>
-  <lex token='BINOP' pattern='[-+*/.]|=='>
+  <lex token='BINOP' pattern='[-+*/.]|==|\+\+'>
   	<p>One of the standard binary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
   </lex>
@@ -1238,6 +1238,7 @@
     <section title='Service' />
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
+	  <reduces-as rule='agent-provides-block' />
       <token type='PROVIDES' />
       <token type='type-name'/>
    	  <push-part prefix='S' />
@@ -1688,14 +1689,28 @@ match style ...
       <token type='CONTRACT' />
       <token type='var-name' /> <!--  the card, object or service to receive the action -->
       <token type='type-name' /> <!-- the contract name -->
+      <ref production='function-call' />
+<!-- we may not want to present it this way, I don't know ...
       <seq>
 	    <reduces-as rule='function-call' />
-        <token type='var-name' /> <!--  the contract method -->
+        <token type='var-name' /> <!- -  the contract method - ->
         <many>
-          <ref production='expression' /> <!-- the arguments -->
+          <ref production='expression' /> <!- - the arguments - ->
         </many>
-	  </seq>
+ -->
+        <optional>
+			<reduces-as rule='unit-contract-action-with-handle' />
+			<ref production='unit-contract-handle-expr' />
+		</optional>
     </seq>
+  </production>
+  <production name='unit-contract-handle-expr'>
+    <section title='Unit Tests'/>
+    <tested by='test.parsing.TDAImplementationMethodsParsingTests' />
+	<seq>
+	  <token type='HANDLE'/>
+	  <ref production='function-call' /> <!-- I think this should really just be a var name, but it gets reduced to function-call -->
+	</seq>    
   </production>
   <production name='unit-test-assert'>
     <section title='Unit Tests' />

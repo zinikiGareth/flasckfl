@@ -59,6 +59,7 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 					}
 					handler = new VarPattern(h.location, new VarName(h.location, methName, h.text));
 					topLevel.argument(errors, handler);
+					lastLoc = h.location;
 					break;
 				} else {
 					errors.message(tok.location, "invalid argument name");

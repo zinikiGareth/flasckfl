@@ -320,7 +320,7 @@ public class GrammarChecker {
 				int depth = gn.depth();
 				matchLine(tree.members(), gn);
 				gn.moveToEndOfLine(depth);
-				assertFalse(tree.hasIndents());
+				assertFalse("rule "+ gn.current() + " does not have indents, but tree does", tree.hasIndents());
 			}
 		} else {
 			System.out.println("At " + tree.location());
