@@ -44,10 +44,4 @@ public class UnresolvedVar implements Expr {
 	public RepositoryEntry defn() {
 		return definition;
 	}
-
-	public boolean notYetFC() {
-		boolean ret = !reducedToFC;
-		reducedToFC = true;
-		return ret;
-	}
 }
