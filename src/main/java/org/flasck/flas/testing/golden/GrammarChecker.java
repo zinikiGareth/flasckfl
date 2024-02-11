@@ -1,7 +1,5 @@
 package org.flasck.flas.testing.golden;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -29,7 +27,6 @@ import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.utils.FileUtils;
 
 import doc.grammar.GenerateGrammarDoc;
@@ -206,7 +203,6 @@ public class GrammarChecker {
 			String name = e.getKey();
 			String ext = FileUtils.extension(name);
 			String topRule = getTopRule(ext);
-			logger.info("checking file " + name + " against " + topRule);
 			checkProductionsAgainstGrammar(e.getValue(), topRule);
 		}
 	}
@@ -233,17 +229,9 @@ public class GrammarChecker {
 		if (!(grammarRule instanceof OrProduction))
 			throw new CantHappenException("file rule is not an OrProduction");
 		OrProduction options = (OrProduction) grammarRule;
-		List<Definition> choices = options.allOptions();
-		RefDefinition defn = null;
-		for (Definition d : choices) {
-			if (d instanceof RefDefinition && ((RefDefinition)d).refersTo(currRule))
-				defn = (RefDefinition) d;
-		}
-		if (defn == null)
-			throw new CantHappenException("couldn't find a case in file rule for " + currRule);
 		
-		GrammarNavigator gn = new GrammarNavigator(grammar, currRule, defn);
-		logger.info("have defn " + gn.current());
+		GrammarNavigator gn = new GrammarNavigator(grammar);
+		gn.push(options);
 		handleFileOfType(file, gn);
 		// we would have to hope that the defn has come to an end
 		if (!gn.isAtEnd())
@@ -266,6 +254,15 @@ public class GrammarChecker {
 	// handle an entire file of definitions, matching either against a ManyDefinition of a scope
 	// or against a multi-step process (true of system tests, for example)
 	private void handleFileOfType(GrammarTree tree, GrammarNavigator gn) {
+		String rule = tree.reducedToRule();
+		System.out.println("tree has rule " + rule);
+		System.out.println("navigator is at " + gn);
+		Production prod = gn.findChooseableRule(rule);
+		if (prod == null)
+			throw new CantHappenException("there is no chooseable rule to match " + rule);
+		gn.push(prod);
+		System.out.println(gn);
+		/*
 		gn.stashHere();
 		if (gn.canHandle(tree)) {
 			if (gn.isMany()) {
@@ -281,8 +278,10 @@ public class GrammarChecker {
 				throw new NotImplementedException("can only handle Many definitions at the moment");
 		}
 		gn.unstash();
+		*/
 	}
 	
+	/*
 	// handle a scope where the "root" grammar definition is a many definition of
 	// a ref definition, which probably points to an OrDefinition of other cases
 	private void handleScopeWithScopeRule(Iterator<GrammarTree> trees, GrammarNavigator gn) {
@@ -387,4 +386,5 @@ public class GrammarChecker {
 	private void matchIndents(Iterator<GrammarTree> indents, GrammarNavigator gn) {
 		handleScopeWithScopeRule(indents, gn);
 	}
+	*/
 }
