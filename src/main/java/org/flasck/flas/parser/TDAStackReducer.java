@@ -25,11 +25,6 @@ public class TDAStackReducer implements ExprTermConsumer {
 		}
 		
 		@Override
-		public void parenAt(InputPosition pos) {
-			stack.get(0).parenAt(pos);
-		}
-
-		@Override
 		public void done() {
 			throw new org.zinutils.exceptions.NotImplementedException();
 		}

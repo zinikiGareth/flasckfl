@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.ParenAt;
 import org.flasck.flas.parser.ut.IntroduceNamer;
 import org.flasck.flas.parser.ut.IntroductionConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -28,12 +27,6 @@ public class TDAExpressionParser implements TDAParsing {
 			handler.accept(term);
 		}
 
-		@Override
-		public void parenAt(InputPosition pos) {
-			if (handler instanceof ParenAt)
-				((ParenAt)handler).parenAt(pos);
-		}
-		
 		@Override
 		public void done() {
 			// handler.done()?
