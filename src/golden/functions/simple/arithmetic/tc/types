@@ -1,3 +1,4 @@
 test.golden.six :: Number
 test.golden.twelve :: Number
 test.golden.twentyfour :: Number
+test.golden.useOther :: Number
