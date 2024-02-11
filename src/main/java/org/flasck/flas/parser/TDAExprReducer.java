@@ -173,10 +173,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 			if (t0 instanceof UnresolvedVar) { // it's trivially a function call for the grammar...
 				errors.logReduction("function-call", t0.location(), t0.location().locAtEnd());
 			} else if (t0 instanceof NumericLiteral) {
-				NumericLiteral uv = (NumericLiteral) t0;
 				errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
 			} else if (t0 instanceof StringLiteral) {
-				StringLiteral uv = (StringLiteral) t0;
 				errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
 			}
 			errors.logReduction("expression", t0.location(), t0.location().locAtEnd());

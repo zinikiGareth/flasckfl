@@ -308,7 +308,7 @@ public class GrammarChecker {
 				if (!gn.canHandle(reducedAs))
 					fail("cannot handle " + reducedAs.reducedToRule() + " in " + gn.current());
 				int depth = gn.depth();
-				matchLine(reducedAs.members(), gn);
+				matchLine(reducedAs.reducedToRule(), reducedAs.members(), gn);
 				gn.moveToEndOfLine(depth);
 				if (gn.hasIndents()) {
 					matchIndents(tree.indents(), gn);
@@ -318,7 +318,7 @@ public class GrammarChecker {
 			} else {
 				// case B: it's just a simple rule with no indents at all
 				int depth = gn.depth();
-				matchLine(tree.members(), gn);
+				matchLine(null, tree.members(), gn);
 				gn.moveToEndOfLine(depth);
 				assertFalse("rule "+ gn.current() + " does not have indents, but tree does", tree.hasIndents());
 			}
@@ -349,7 +349,7 @@ public class GrammarChecker {
 		}
 	}
 
-	private void matchLine(Iterator<GrammarStep> members, GrammarNavigator gn) {
+	private void matchLine(String ruleName, Iterator<GrammarStep> members, GrammarNavigator gn) {
 		while (members.hasNext()) {
 			GrammarStep s = members.next();
 			logger.info("matching line token " + s + " with " + gn.current());
@@ -361,7 +361,7 @@ public class GrammarChecker {
 //				System.out.println("handled " + s);
 				if (s instanceof GrammarTree) {
 					GrammarTree gt = (GrammarTree) s;
-					matchLine(gt.members(), gn);
+					matchLine(gt.reducedToRule(), gt.members(), gn);
 				}
 				// need to handle nesting and things ...
 				// can we call matchLine recursively or do we need to have something inside this?
@@ -377,6 +377,8 @@ public class GrammarChecker {
 				fail("cannot match token in line " + s + " with " + gn.current());
 			}
 		}
+		System.out.println("have no more members");
+		gn.safePop(ruleName);
 	}
 
 	// I'm not sure if this is exactly the same as handleScope or if there are

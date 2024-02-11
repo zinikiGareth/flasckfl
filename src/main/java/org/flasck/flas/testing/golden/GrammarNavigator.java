@@ -68,6 +68,11 @@ public class GrammarNavigator {
 	private final List<TaggedDefinition> stack = new ArrayList<>();
 	private final List<Stash> stashes = new ArrayList<>();
 	private boolean haveAdvanced;
+	enum FlushEnd {
+		NOTHING,
+		TOKEN,
+		INDENT
+	}
 
 	public GrammarNavigator(Grammar grammar, String ruleName, Definition grammarRule) {
 		this.grammar = grammar;
@@ -360,14 +365,14 @@ public class GrammarNavigator {
 				return;
 			}
 			// if we reach the end of the SD, then we need to pop it and try the thing above
-			advanceToNext(pop(prods));
+//			advanceToNext(pop(prods));
 		} else if (top.defn instanceof TokenDefinition || 
 				top.defn instanceof RefDefinition ||
 				top.defn instanceof ChoiceDefinition ||
 				top.defn instanceof OptionalDefinition) {
 			// We have matched the definition and that's all there is to see here,
 			// so pop it off the stack and try the next level down
-			advanceToNext(pop(prods));
+//			advanceToNext(pop(prods));
 		} else if (top.defn instanceof ManyDefinition) {
 			// this is a reasonable place to find the next token, so wait here ...
 		} else {
@@ -420,8 +425,11 @@ public class GrammarNavigator {
 	public void moveToEndOfLine(int depth) {
 		boolean comingUp = false;
 		while (stack.size() > depth) {
-			if (flushRule(comingUp))
+			FlushEnd fr = flushRule(comingUp);
+			if (fr == FlushEnd.INDENT)
 				break;
+			else if (fr == FlushEnd.TOKEN)
+				fail("cannot move past a token");
 			stack.remove(0);
 			comingUp = true;
 		}
@@ -442,9 +450,38 @@ public class GrammarNavigator {
 			throw new CantHappenException("must be a sequence definition");
 	}
 
+
+	public void safePop(String ruleName) {
+		showStack();
+		boolean comingUp = false;
+		boolean readyToBreak = false;
+		while (!stack.isEmpty()) {
+			if (flushRule(comingUp) != FlushEnd.NOTHING)
+				break;
+			comingUp = true;
+			TaggedDefinition td = stack.remove(0);
+			System.out.println("safepop popped " + td.tag);
+			if (td.tag.equals(ruleName))
+				readyToBreak = true;
+			if (readyToBreak) {
+				td = stack.get(0);
+				if (!td.tag.startsWith("seq_") && !td.tag.startsWith("choice_"))
+					break;
+			}
+		}
+	}
+
+	private void showStack() {
+		System.out.print("Stack:");
+		for (TaggedDefinition td : stack) {
+			System.out.print(" " + td.tag);
+		}
+		System.out.println();
+	}
+
 	// comingUp here says that we are coming up from a nested scope, so
 	// we will have processed the first token we see in a sequence
-	public boolean flushRule(boolean comingUp) {
+	public FlushEnd flushRule(boolean comingUp) {
 		TaggedDefinition td = stack.get(0);
 //		System.out.println("move to end of rule " + td.tag);
 		if (td.defn instanceof SequenceDefinition) {
@@ -465,31 +502,34 @@ public class GrammarNavigator {
 					
 				if (curr instanceof IndentDefinition) {
 //					System.out.println("Found indent definition at " + td.offset + " ... returning");
-					return true;
+					return FlushEnd.INDENT;
 				} else if (curr instanceof ManyDefinition || curr instanceof OptionalDefinition) {
 					logger.info("skipping many or optional in flush rule fine with " + td.offset);
 					td.offset++;
 					continue;
 				} else if (curr instanceof TokenDefinition) {
-					TokenDefinition tok = (TokenDefinition) curr;
+//					TokenDefinition tok = (TokenDefinition) curr;
 //					System.out.println("missing token: " + tok);
-					fail("cannot move to end of line because we are expecting a token which is missing: " + tok);
+					return FlushEnd.TOKEN;
 				} else
 					fail("what is " + curr + " " + curr.getClass() + "?");
 			}
 			// we have reached the end of the rule
-			return false;
+			return FlushEnd.NOTHING;
 		} else if (td.defn instanceof OptionalDefinition) {
-			return false; // we are at the end of the rule
+			return FlushEnd.NOTHING;
 		} else if (td.defn instanceof IndentDefinition) {
 			// if I understand this correctly, we are not really processing a "rule" at this point, but sure, we're done ...
-			return false;
+			return FlushEnd.NOTHING;
 		} else if (td.defn instanceof ManyDefinition) {
-			return false;
+			return FlushEnd.NOTHING;
 		} else if (td.defn instanceof ChoiceDefinition) {
-			return false;
+			return FlushEnd.NOTHING;
 		} else if (td.defn instanceof RefDefinition) {
-			return false;
+			return FlushEnd.NOTHING;
+		} else if (td.defn instanceof TokenDefinition) {
+			// will have been handled
+			return FlushEnd.NOTHING;
 		} else
 			throw new NotImplementedException("td.defn is a " + td.defn.getClass());
 	}
