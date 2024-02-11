@@ -29,6 +29,7 @@ public class RequireEventsParser extends BlockLocationTracker implements TDAPars
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		tellParent(tok.location);
 		if ("|".equals(tok.text)) {
 			seenHandler = true;
 			return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, nested -> tso.conditionalStylings.add(nested), this);
@@ -40,12 +41,6 @@ public class RequireEventsParser extends BlockLocationTracker implements TDAPars
 			errors.message(toks, "event handler expected");
 			return new IgnoreNestedParser(errors);
 		}
-	}
-
-	@Override
-	public void updateLoc(InputPosition location) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

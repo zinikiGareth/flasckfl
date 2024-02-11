@@ -124,6 +124,9 @@
   <lex token='ORB' pattern='\('>
   	<p>An opening square bracket introduces a sub-element of an expression or pattern.</p>
   </lex>
+  <lex token='ORELSE' pattern='\|\|'>
+  	<p>The <tt>ORELSE</tt> token allows simple alternative styling patterns.</p>
+  </lex>
   <lex token='OSB' pattern='\['>
   	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
   </lex>
@@ -1538,25 +1541,57 @@
     </section>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <or>
-      <ref production="template-style"/>
+      <ref production="template-style-cond"/>
+      <ref production="template-style-format"/>
+      <ref production="template-style-format-or-else"/>
       <ref production="template-event"/>
     </or>
   </production>
-  <production name='template-style'>
+  <production name='template-style-cond'>
     <section title='Template Customization' />
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
+	  <reduces-as rule='template-conditional-styling-no-actions' />
+      <token type='GUARD'/>
+      <ref production='expression'/>
+      <indent>
+        <ref production='template-customization'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='template-style-format'>
+    <section title='Template Customization' />
+    <tested by='test.parsing.TDATemplateParsingTests' />
+    <seq>
+	  <reduces-as rule='template-conditional-styling' />
       <token type='GUARD'/>
       <optional>
 	    <ref production='expression'/>
 	  </optional>
       <token type='SENDTO' />
       <one-or-more>
-      	<token type='STRING'/>
+      	<ref production='expression' />
       </one-or-more>
       <indent>
         <ref production='template-customization'/>
       </indent>
+    </seq>
+  </production>
+  <production name='template-style-format-or-else'>
+    <section title='Template Customization' />
+    <tested by='test.parsing.TDATemplateParsingTests' />
+    <seq>
+	  <reduces-as rule='template-conditional-styling' />
+      <token type='GUARD'/>
+      <ref production='expression'/>
+      <token type='SENDTO' />
+      <one-or-more>
+        <ref production="expression"/>
+      </one-or-more>
+      <token type="ORELSE" />
+      <one-or-more>
+      	<ref production='expression' />
+      </one-or-more>
     </seq>
   </production>
   <production name='template-event'>

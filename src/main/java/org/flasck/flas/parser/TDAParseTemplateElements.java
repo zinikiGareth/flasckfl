@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
@@ -62,26 +63,36 @@ public class TDAParseTemplateElements {
 	}
 
 	public static TDAParsing parseStyling(ErrorReporter errors, InputPosition barPos, Template source, TemplateNamer namer, Tokenizable toks, Consumer<TemplateStylingOption> consumer, LocationTracker locTracker) {
+		locTracker.updateLoc(barPos);
 		List<Expr> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
 			seen.add(t);
 		}).tryParsing(toks);
 		Expr expr = seen.size() == 0 ? null : seen.get(0);
 		ExprToken tok = ExprToken.from(errors, toks);
+		BlockLocationTracker blt = new BlockLocationTracker(errors, locTracker);
 		if (tok == null) {
 			TemplateStylingOption tso = new TemplateStylingOption(barPos, expr, new ArrayList<>(), null);
 			consumer.accept(tso);
-			errors.logReduction("template-conditional-sryling", barPos, expr.location());
-			return new RequireEventsParser(errors, toks.realinfo(), source, namer, tso, locTracker);
+			errors.logReduction("template-conditional-styling-no-actions", barPos, expr.location());
+			return new TDAParsingWithAction(
+				new RequireEventsParser(errors, toks.realinfo(), source, namer, tso, blt),
+				blt.reduction(barPos, "template-style-cond")
+			);
 		}
 		if ("=>".equals(tok.text)) {
-			TemplateStylingOption tso = readTemplateStyles(barPos, errors, expr, toks, locTracker);
+			TemplateStylingOption tso = readTemplateStyles(barPos, errors, expr, toks, blt);
 			if (tso == null)
 				return new IgnoreNestedParser(errors);
 			consumer.accept(tso);
-			if (tso.orelse != null)
+			if (tso.orelse != null) {
+				errors.logReduction("template-style-format-or-else", barPos, tso.orelse.get(tso.orelse.size()-1).location());
 				return new NoNestingParser(errors, "cannot nest more options inside a cond-or-else style");
-			return new TDATemplateStylingParser(errors, source, namer, tso);
+			}
+			return new TDAParsingWithAction(
+				new TDATemplateStylingParser(errors, source, namer, tso, blt),
+				blt.reduction(barPos, "template-style-format")
+			);
 		} else {
 			errors.message(toks, "=> required for styling");
 			return new IgnoreNestedParser(errors);

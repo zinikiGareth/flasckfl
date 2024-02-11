@@ -8,14 +8,13 @@ import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDATemplateStylingParser implements TDAParsing, LocationTracker {
-	private final ErrorReporter errors;
+public class TDATemplateStylingParser extends BlockLocationTracker implements TDAParsing {
 	private final Template source;
 	private final TemplateNamer namer;
 	private final TemplateCustomization customizer;
 
-	public TDATemplateStylingParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateStylingOption tso) {
-		this.errors = errors;
+	public TDATemplateStylingParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateStylingOption tso, LocationTracker locTracker) {
+		super(errors, locTracker);
 		this.source = source;
 		this.namer = namer;
 		this.customizer = tso;
@@ -28,6 +27,7 @@ public class TDATemplateStylingParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
+		tellParent(tok.location);
 		if ("|".equals(tok.text)) {
 			return TDAParseTemplateElements.parseStyling(errors, tok.location, source, namer, toks, tso -> customizer.conditionalStylings.add(tso), this);
 		} else if ("=>".equals(tok.text)) {
@@ -37,12 +37,6 @@ public class TDATemplateStylingParser implements TDAParsing, LocationTracker {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-	}
-	
-	@Override
-	public void updateLoc(InputPosition location) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
