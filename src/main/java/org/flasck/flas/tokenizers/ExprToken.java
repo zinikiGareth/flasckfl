@@ -79,14 +79,14 @@ public class ExprToken implements LoggableToken {
 			return errors.logParsingToken(new ExprToken(NUMBER, NumberToken.from(errors, line)));
 		else if ("()[]{}.,:".indexOf(c) != -1) {
 			line.advance();
-			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()), PUNC, line.fromMark(mark)));
+			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()-1), PUNC, line.fromMark(mark)));
 		} else {
 			while (line.hasMore() && "~!$%^&|*/+-=:<>".indexOf(line.nextChar()) != -1) {
 				line.advance();
 			}
 			if (line.at() == mark)
 				return null;
-			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()), SYMBOL, line.fromMark(mark)));
+			return errors.logParsingToken(new ExprToken(loc.copySetEnd(line.at()-1), SYMBOL, line.fromMark(mark)));
 		}
 	}
 

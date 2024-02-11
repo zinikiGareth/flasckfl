@@ -40,7 +40,7 @@ public class NumberToken {
 			while (line.hasMore() && Character.isDigit(line.nextChar()))
 				line.advance();
 		}
-		return new NumberToken(pos, line.fromMark(mark), line.at());
+		return new NumberToken(pos, line.fromMark(mark), line.at()-1);
 	}
 
 }

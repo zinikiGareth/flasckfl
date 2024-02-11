@@ -1,6 +1,8 @@
 JVM PASS that addition works
 JVM PASS associativity
 JVM PASS parens override BIDMAS
+JVM PASS using another symbol
 JS PASS that addition works
 JS PASS associativity
 JS PASS parens override BIDMAS
+JS PASS using another symbol

@@ -9,3 +9,7 @@
 	test parens override BIDMAS
 		assert twentyfour
 			24
+
+	test using another symbol
+		assert (useOther)
+			7
