@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.ParenExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CastExpr;
@@ -80,7 +81,8 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			final Expr ae = terms.get(0);
 			if (terms.size() == 1 && op.equals("()")) {
 				errors.logReduction("paren-expression", from, endToken.location());
-				builder.term(ae);
+				builder.term(new ParenExpr(from, ae));
+//				builder.term(ae);
 				builder.parenAt(from);
 			} else {
 				if (op.equals("[]")) {

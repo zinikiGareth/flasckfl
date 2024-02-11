@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.ParenExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -66,8 +67,8 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
-import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
+import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
@@ -398,6 +399,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			return;
 		
 		Expr from = expr.from;
+		while (from instanceof ParenExpr)
+			from = (Expr) ((ParenExpr)from).expr;
 		String var;
 		if (expr.fld instanceof UnresolvedVar) {
 			UnresolvedVar fld = (UnresolvedVar) expr.fld;
@@ -409,21 +412,21 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			defn = expr.defn();
 			if (defn == null) // if we couldn't figure it out before ...
 				return;
-		} else if (expr.from instanceof UnresolvedVar) {
-			UnresolvedVar uv = (UnresolvedVar) expr.from;
+		} else if (from instanceof UnresolvedVar) {
+			UnresolvedVar uv = (UnresolvedVar) from;
 			defn = uv.defn();
 			if (defn == null) // some kind of error
 				return;
-		} else if (expr.from instanceof TypeReference) {
-			TypeReference uv = (TypeReference) expr.from;
+		} else if (from instanceof TypeReference) {
+			TypeReference uv = (TypeReference) from;
 			defn = (RepositoryEntry) uv.namedDefn();
 			if (defn == null) // some kind of error
 				return;
-		} else if (expr.from instanceof ApplyExpr) {
+		} else if (from instanceof ApplyExpr) {
 			// this is hard to say the least ...
 			return;
-		} else if (expr.from instanceof CastExpr) {
-			CastExpr ce = (CastExpr) expr.from;
+		} else if (from instanceof CastExpr) {
+			CastExpr ce = (CastExpr) from;
 			NamedType nt = ce.type.namedDefn();
 			if (nt == null) // some kind of error
 				return;

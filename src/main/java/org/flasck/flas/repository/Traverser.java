@@ -18,6 +18,7 @@ import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.ParenExpr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CSName;
@@ -1595,6 +1596,10 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitExpr(Expr expr, int nargs) {
+		if (expr instanceof ParenExpr) {
+			visitExpr((Expr) ((ParenExpr)expr).expr, nargs);
+			return;
+		}
 		if (!isNeedingEnhancement(expr, nargs) && !convertedMemberExpr(expr))
 			visitor.visitExpr(expr, nargs);
 		if (expr == null)

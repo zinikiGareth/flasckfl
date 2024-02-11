@@ -3,6 +3,7 @@ package org.flasck.flas.method;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
+import org.flasck.flas.commonBase.ParenExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -102,16 +103,18 @@ public class AccessorConvertor extends LeafAdapter {
 		if (done)
 			return;
 		Expr from = expr.from;
+		while (from instanceof ParenExpr)
+			from = (Expr) ((ParenExpr)from).expr;
 		RepositoryEntry defn;
 
 		if (from instanceof UnresolvedVar) {
-			UnresolvedVar uv = (UnresolvedVar) expr.from;
+			UnresolvedVar uv = (UnresolvedVar) from;
 			defn = uv.defn();
 		} else if (from instanceof TypeReference) {
-			TypeReference uv = (TypeReference) expr.from;
+			TypeReference uv = (TypeReference) from;
 			defn = (RepositoryEntry) uv.namedDefn();
 		} else if (from instanceof MemberExpr) {
-			MemberExpr me = (MemberExpr) expr.from;
+			MemberExpr me = (MemberExpr) from;
 			defn = me.defn();
 		} else if (from instanceof ApplyExpr) { // and possibly other cases ...
 			defn = (RepositoryEntry) expr.containerType(); // the TypeChecker figured out what the containing type is already
