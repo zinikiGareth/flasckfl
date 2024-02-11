@@ -172,10 +172,18 @@ public class TDAExprReducer implements ExprTermConsumer {
 		if (from+1 == to && !isConstructor(t0)) {
 			if (t0 instanceof UnresolvedVar) { // it's trivially a function call for the grammar...
 				errors.logReduction("function-call", t0.location(), t0.location().locAtEnd());
+			} else if (t0 instanceof NumericLiteral) {
+				NumericLiteral uv = (NumericLiteral) t0;
+				errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
+			} else if (t0 instanceof StringLiteral) {
+				StringLiteral uv = (StringLiteral) t0;
+				errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
 			}
+			errors.logReduction("expression", t0.location(), t0.location().locAtEnd());
 			return t0;
 		} else {
 			errors.logReduction("function-call", t0, terms.get(to-1));
+			errors.logReduction("expression", t0, terms.get(to-1));
 			// It is true that literals cannot be functions, but this is too hard
 			// (for me, right now) to include in the grammar, and this will be
 			// caught during typechecking
