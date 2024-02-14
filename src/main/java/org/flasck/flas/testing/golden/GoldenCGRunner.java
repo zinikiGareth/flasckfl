@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 import org.flasck.flas.Main;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.testing.golden.grammar.GrammarChecker;
+import org.flasck.flas.testing.golden.grammar.GrammarTree;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.MethodSorters;
 import org.junit.runners.model.InitializationError;

@@ -1,12 +1,8 @@
-package org.flasck.flas.testing.golden;
+package org.flasck.flas.grammar;
 
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Set;
-
-import org.flasck.flas.grammar.Definition;
-import org.flasck.flas.grammar.OrProduction;
-import org.flasck.flas.grammar.ProductionVisitor;
 
 /** In the grammar, choices are represented as productions a single definition and
  * then other cases (for some reason)

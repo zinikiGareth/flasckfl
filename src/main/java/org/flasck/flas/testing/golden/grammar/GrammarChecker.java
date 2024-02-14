@@ -1,4 +1,4 @@
-package org.flasck.flas.testing.golden;
+package org.flasck.flas.testing.golden.grammar;
 
 import static org.junit.Assert.fail;
 
@@ -15,21 +15,17 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.grammar.Definition;
-import org.flasck.flas.grammar.Grammar;
 import org.flasck.flas.grammar.GrammarSupport;
-import org.flasck.flas.grammar.OrProduction;
-import org.flasck.flas.grammar.Production;
-import org.flasck.flas.grammar.RefDefinition;
+import org.flasck.flas.testing.golden.FileReconstructor;
+import org.flasck.flas.testing.golden.ParsedTokens;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.utils.FileUtils;
-
-import doc.grammar.GenerateGrammarDoc;
 
 public class GrammarChecker {
 	public static final Logger logger = LoggerFactory.getLogger("GrammarChecker");
@@ -55,14 +51,12 @@ public class GrammarChecker {
 
 	private final File parseTokens;
 	private final File reconstruct;
-	private final Grammar grammar;
+	private final GrammarChooser grammar;
 
 	public GrammarChecker(File parseTokens, File reconstruct) {
 		this.parseTokens = parseTokens;
 		this.reconstruct = reconstruct;
-		this.grammar = GrammarSupport.loadGrammar();
-		GenerateGrammarDoc.checkTokens(grammar);
-		GenerateGrammarDoc.checkProductions(grammar);
+		this.grammar = new GrammarChooser(GrammarSupport.loadGrammar());
 	}
 
 	public Map<String, GrammarTree> checkParseTokenLogic(boolean expectErrors){
@@ -200,10 +194,10 @@ public class GrammarChecker {
 
 	public void checkGrammar(Map<String, GrammarTree> fileOrchards) {
 		for (Entry<String, GrammarTree> e : fileOrchards.entrySet()) {
-			String name = e.getKey();
-			String ext = FileUtils.extension(name);
-			String topRule = getTopRule(ext);
-			checkProductionsAgainstGrammar(e.getValue(), topRule);
+//			String name = e.getKey();
+//			String ext = FileUtils.extension(name);
+//			String topRule = getTopRule(ext);
+			checkProductionsAgainstGrammar(e.getValue());
 		}
 	}
 
@@ -222,16 +216,16 @@ public class GrammarChecker {
 		}
 	}
 
-	private void checkProductionsAgainstGrammar(GrammarTree file, String currRule) {
-		Production grammarRule = grammar.findRule("file");
-		if (grammarRule == null)
-			throw new CantHappenException("there is no rule in the grammar for the file production");
-		if (!(grammarRule instanceof OrProduction))
-			throw new CantHappenException("file rule is not an OrProduction");
-		OrProduction options = (OrProduction) grammarRule;
-		
-		GrammarNavigator gn = new GrammarNavigator(grammar);
-		gn.push(options);
+	private void checkProductionsAgainstGrammar(GrammarTree file) {
+//		Production grammarRule = grammar.findRule("file");
+//		if (grammarRule == null)
+//			throw new CantHappenException("there is no rule in the grammar for the file production");
+//		if (!(grammarRule instanceof OrProduction))
+//			throw new CantHappenException("file rule is not an OrProduction");
+//		OrProduction options = (OrProduction) grammarRule;
+//		
+		GrammarNavigator gn = grammar.newNavigator();
+//		gn.push(options);
 		handleFileOfType(file, gn);
 		// we would have to hope that the defn has come to an end
 		if (!gn.isAtEnd())
@@ -255,13 +249,25 @@ public class GrammarChecker {
 	// or against a multi-step process (true of system tests, for example)
 	private void handleFileOfType(GrammarTree tree, GrammarNavigator gn) {
 		String rule = tree.reducedToRule();
-		System.out.println("tree has rule " + rule);
-		System.out.println("navigator is at " + gn);
-		Production prod = gn.findChooseableRule(rule);
-		if (prod == null)
-			throw new CantHappenException("there is no chooseable rule to match " + rule);
-		gn.push(prod);
-		System.out.println(gn);
+		
+//		System.out.println("tree has rule " + rule);
+//		System.out.println("navigator is at " + gn);
+//		
+//		GrammarLevel prod = gn.findChooseableRule(rule);
+//		System.out.println(prod);
+//		if (prod == null)
+//			throw new CantHappenException("there is no chooseable rule to match " + rule);
+//		gn.push(prod);
+//		System.out.println(gn);
+		traverseTree(tree, gn);
+//		Iterator<GrammarTree> ms = tree.indents();
+//		while (ms.hasNext()) {
+//			GrammarTree s = ms.next();
+//			System.out.println("tree has " + s);
+//			Production prod2 = gn.findChooseableRule(s.reducedToRule());
+//			if (prod2 == null)
+//				throw new CantHappenException("there is no chooseable rule to match " + s.reducedToRule());
+//		}
 		/*
 		gn.stashHere();
 		if (gn.canHandle(tree)) {
@@ -279,6 +285,120 @@ public class GrammarChecker {
 		}
 		gn.unstash();
 		*/
+	}
+
+	// We are going to use "real" recursion to traverse the tree, and keep the GrammarNavigator in step by telling it when (and how) we are recursing
+	private void traverseTree(GrammarTree tree, GrammarNavigator gn) {
+		System.out.println("traverseTree: " + tree.reducedToRule() + " " + tree.hasMembers() + " " + tree.hasIndents() + " " + gn);
+		String rule = tree.reducedToRule();
+		TrackProduction prod = gn.findChooseableRule(rule);
+		if (prod == null)
+			throw new CantHappenException("there is no chooseable rule to match " + rule + " in " + gn);
+		gn.push(prod);
+
+		if (tree.isSingleton()) {
+			traverseTree((GrammarTree) tree.members().next(), gn);
+		} else if (tree.hasMembers()) {
+			matchLineSegment(rule, tree.members(), gn);
+		}
+		
+		if (tree.hasIndents()) {
+			Iterator<GrammarTree> it = tree.indents();
+			while (it.hasNext()) {
+				traverseTree(it.next(), gn);
+			}
+		}
+		gn.pop();
+	}
+
+	private void matchLineSegment(String rule, Iterator<GrammarStep> mit, GrammarNavigator gn) {
+		System.out.println("match line segment: " + gn);
+		SeqReduction sr = gn.sequence(rule);
+		Iterator<SeqElement> sit = sr.iterator();
+		GrammarStep mi = null;
+		SeqElement si = null;;
+		while (mit.hasNext() && sit.hasNext()) {
+			if (mi == null)
+				mi = mit.next();
+			if (si == null)
+				si = sit.next();
+			System.out.println(mi + " " + mi.getClass() + " :: " + si + " " + si.getClass());
+			MatchResult mr = si.matchAgainst(mi);
+			switch (mr) {
+			case SINGLE_MATCH_ADVANCE: {
+				// they matched and there was no repetition or anything; advance both
+				si = null;
+				mi = null;
+				break;
+			}
+			case MANY_NO_MATCH_TRY_NEXT: {
+				// the token did not match the rule, but that's OK. Try the next grammar step with the same token
+				si = null;
+				// mi remains unchanged
+				break;
+			}
+			case MATCH_NESTED: {
+				if (mi instanceof GrammarTree) {
+					// a grammar tree matched a REF element, but we need to (recursively) check all the elements of both
+					GrammarTree tree = (GrammarTree)mi;
+					String inRule = tree.reducedToRule();
+					if (tree.isSingleton()) {
+						TrackProduction prod = grammar.rule(inRule);
+						GrammarTree inner = (GrammarTree) tree.members().next();
+						String reducedAs = inner.reducedToRule();
+						System.out.println("XX: " + reducedAs);
+						TrackProduction tp = prod.choose(reducedAs);
+						if (tp == null)
+							throw new CantHappenException("there is no reduction for " + reducedAs + " in " + inRule);
+						if (tp instanceof SeqProduction) {
+							gn.push(tp);
+							matchLineSegment(reducedAs, inner.members(), gn);
+							gn.pop();
+						} else if (tp instanceof OrChoice) {
+							matchTerminal((OrChoice) tp, inner.terminal());
+						}
+					} else if (tree.isTerminal()) {
+						throw new NotImplementedException("handle terminal case");
+					} else if (si instanceof RefElement) {
+						// we should have a sequence in both the members and in the rule
+						RefElement re = (RefElement) si;
+						gn.push(grammar.rule(re.refersTo()));
+						matchLineSegment(inRule, tree.members(), gn);
+						gn.pop();
+					}
+				} else {
+					throw new CantHappenException("MATCH_NESTED is only for trees, I think");
+				}
+				// if things didn't match, we wouldn't have reached here
+				// so they matched exactly
+				mi = null;
+				si = null;
+				break;
+			}
+			case SINGLE_MATCH_FAILED: {
+				throw new CantHappenException("the grammar did not match at " + mi + " == " + si);
+			}
+			default:
+				throw new NotImplementedException("match result " + mr);
+			}
+		}
+		if (mit.hasNext())
+			throw new CantHappenException("there are remaining members");
+		while (sit.hasNext()) {
+			si = sit.next();
+			if (!si.canBeSkipped())
+				throw new CantHappenException("there are remaining unmatched elements");
+		}
+		System.out.println("matched line segment");
+	}
+
+	private void matchTerminal(OrChoice tp, GrammarToken tok) {
+		System.out.println(tok);
+		TokenProduction rule = (TokenProduction) tp.choose(tok.type);
+		if (rule == null)
+			throw new CantHappenException("the token did not match " + tok.type);
+		if (!rule.matches(tok.text))
+			throw new CantHappenException("the token did not match the pattern " + tok.text);
 	}
 	
 	/*

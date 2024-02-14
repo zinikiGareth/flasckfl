@@ -1,10 +1,11 @@
-package org.flasck.flas.testing.golden;
+package org.flasck.flas.testing.golden.grammar;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.flasck.flas.testing.golden.ParsedTokens;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 
 public class GrammarOrchard implements Iterable<GrammarStep> {

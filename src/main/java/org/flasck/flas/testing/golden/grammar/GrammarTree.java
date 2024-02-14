@@ -1,4 +1,4 @@
-package org.flasck.flas.testing.golden;
+package org.flasck.flas.testing.golden.grammar;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.testing.golden.ParsedTokens;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
@@ -94,6 +95,10 @@ public class GrammarTree implements GrammarStep {
 	public boolean isSingleton() {
 		return members.size() == 1 && members.get(0) instanceof GrammarTree;
 	}
+	
+	public boolean isTerminal() {
+		return members.size() == 1 && members.get(0) instanceof GrammarToken;
+	}
 
 	public GrammarTree singleton() {
 		if (members.size() != 1)
@@ -101,6 +106,14 @@ public class GrammarTree implements GrammarStep {
 		if (!(members.get(0) instanceof GrammarTree))
 			throw new CantHappenException("singleton member should be a tree");
 		return (GrammarTree) members.get(0);
+	}
+
+	public GrammarToken terminal() {
+		if (members.size() != 1)
+			throw new CantHappenException("terminal should have one member");
+		if (!(members.get(0) instanceof GrammarToken))
+			throw new CantHappenException("terminal member should be a token");
+		return (GrammarToken) members.get(0);
 	}
 
 	public Iterator<GrammarStep> members() {

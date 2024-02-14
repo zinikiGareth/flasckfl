@@ -12,6 +12,10 @@ public class SequenceDefinition extends Definition {
 	private String baseReducesAs;
 	private String optionReducesAs;
 	
+	public String reducesAs() {
+		return baseReducesAs;
+	}
+	
 	public void add(Definition defn) {
 		if (defn instanceof ReducesAs) {
 			if (baseReducesAs != null)
@@ -71,5 +75,13 @@ public class SequenceDefinition extends Definition {
 	public void visit(ProductionVisitor productionVisitor) {
 		for (Definition d : elts)
 			d.visit(productionVisitor);
+	}
+
+	public Definition cloneWith(List<Definition> elts) {
+		SequenceDefinition ret = new SequenceDefinition();
+		ret.elts.addAll(elts);
+		ret.baseReducesAs = this.baseReducesAs;
+		ret.optionReducesAs = this.optionReducesAs;
+		return ret;
 	}
 }

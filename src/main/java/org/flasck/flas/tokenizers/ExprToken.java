@@ -44,6 +44,8 @@ public class ExprToken implements LoggableToken {
 		switch (type) {
 		case 1:
 			return "var-name";
+		case 2:
+			return "NUMBER";
 		case 4:
 			return "symbol";
 		case 5:
