@@ -58,6 +58,10 @@ public class IndentDefinition extends Definition {
 		return this.reducesAs != null && this.reducesAs.equals(ruleName);
 	}
 	
+	public String reducesTo() {
+		return this.reducesAs;
+	}
+	
 	@Override
 	public String toString() {
 		return "Indent[" + defn + "]";

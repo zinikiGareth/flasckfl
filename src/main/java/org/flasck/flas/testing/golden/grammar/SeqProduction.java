@@ -69,14 +69,21 @@ public class SeqProduction implements TrackProduction {
 	}
 
 	private TrackProduction figureIndent() {
-		Definition id = d.nth(d.length()-1);
-		if (!(id instanceof IndentDefinition))
+		Definition last = d.nth(d.length()-1);
+		if (!(last instanceof IndentDefinition))
 			return null;
-		Definition rd = ((IndentDefinition)id).indented();
+		IndentDefinition id = (IndentDefinition)last;
+		String r = id.reducesTo();
+		Definition rd = id.indented();
+		TrackProduction rule = null;
 		if (rd instanceof RefDefinition)
-			return chooser.rule(((RefDefinition)rd).ruleName());
+			rule = chooser.rule(((RefDefinition)rd).ruleName());
 		else
 			throw new CantHappenException("rd is " + rd.getClass());
+		if (r == null)
+			return rule;
+		else
+			return new IndentAs(r, rule);
 	}
 	
 	public String name() {

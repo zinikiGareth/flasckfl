@@ -264,6 +264,8 @@ public class GrammarChecker {
 		boolean scopeOnly = false;
 		if (tree.isSingleton()) {
 			traverseTree((GrammarTree) tree.members().next(), gn);
+		} else if (tree.isTerminal()) {
+			matchTerminal((OrChoice) prod, tree.terminal());
 		} else if (tree.hasMembers()) {
 			matchLineSegment(rule, tree.members(), gn);
 		} else
@@ -293,7 +295,7 @@ public class GrammarChecker {
 	}
 
 	private void matchLineSegment(String rule, Iterator<GrammarStep> mit, GrammarNavigator gn) {
-		System.out.println("match line segment: " + gn);
+		System.out.println("match line segment: " + rule + " " + gn);
 		SeqReduction sr = gn.sequence(rule);
 		Iterator<SeqElement> sit = sr.iterator();
 		GrammarStep mi = null;

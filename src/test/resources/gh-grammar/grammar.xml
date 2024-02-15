@@ -820,6 +820,7 @@
     <tested by='test.parsing.ExprTokenizationTests' />
     <or>
       <seq>
+		<reduces-as rule="value-member" />
 	    <ref production='value-expression' />
 	    <token type='APPLY' />
 	    <token type='var-name' />

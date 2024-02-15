@@ -67,7 +67,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 				if (term instanceof TypeReference)
 					errors.logReduction("type-member", strobj.location(), term.location());
 				else
-					errors.logReduction("member-expr", strobj.location(), term.location());
+					errors.logReduction("value-member", strobj.location(), term.location());
 				terms.add(new MemberExpr(strobj.location().copySetEnd(term.location().pastEnd()), strobj, term));
 				haveDot = null;
 				return;
