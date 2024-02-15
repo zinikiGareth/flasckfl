@@ -85,7 +85,12 @@ public class PattToken implements LoggableToken {
 
 	@Override
 	public String type() {
-		return "Patt_" + type;
+		switch (type) {
+		case 1:
+			return "var-name";
+		default:
+			return "Patt_" + type;
+		}
 	}
 
 	@Override

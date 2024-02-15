@@ -47,7 +47,6 @@ public class GrammarNavigator {
 			return ((SeqProduction) top).get(rule);
 		else if (top instanceof OrChoice) {
 			OrChoice c = (OrChoice) top;
-			System.out.println("c = " + c);
 			return c.getSequence(rule);
 		} else
 			throw new CantHappenException("the top eleement was not a SeqReduction but " + top.getClass());

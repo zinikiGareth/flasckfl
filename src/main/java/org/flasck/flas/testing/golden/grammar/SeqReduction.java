@@ -45,7 +45,7 @@ public class SeqReduction implements Iterable<SeqElement> {
 			return new TokenElement(g, td);
 		} else if (x instanceof ManyDefinition) {
 			ManyDefinition md = (ManyDefinition) x;
-			return new ManyElement(g, md);
+			return new ManyElement(chooser, g, md);
 		} else if (x instanceof RefDefinition) {
 			RefDefinition rd = (RefDefinition) x;
 			return new RefElement(chooser, rd);

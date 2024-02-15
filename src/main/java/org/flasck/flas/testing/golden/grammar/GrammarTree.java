@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.testing.golden.ParsedTokens;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.flasck.flas.testing.golden.ParsedTokens.ReductionRule;
@@ -130,6 +129,6 @@ public class GrammarTree implements GrammarStep {
 	
 	@Override
 	public String toString() {
-		return location() + ": " + reducedTo;
+		return location() + ": " + reducedTo + members;
 	}
 }

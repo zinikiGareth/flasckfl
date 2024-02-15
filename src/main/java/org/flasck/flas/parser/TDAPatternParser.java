@@ -198,6 +198,7 @@ public class TDAPatternParser implements TDAParsing {
 		// Now, see what else we've got ...
 		PattToken tok = PattToken.from(errors, toks);
 		if (tok.type == PattToken.VAR) {
+			errors.logReduction("simple-type-name", type.location, type.location);
 			TypedPattern m = new TypedPattern(type.location, tr, namer.nameVar(tok.location, tok.text));
 			consumer.accept(m);
 			topLevel.argument(errors, m);

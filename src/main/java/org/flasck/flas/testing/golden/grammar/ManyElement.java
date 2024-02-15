@@ -11,15 +11,14 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ManyElement implements SeqElement {
-	private final Grammar g;
-	private final String matchRef;
+	private final TrackProduction matchRef;
 	private final TokenElement matchTok;
 
-	public ManyElement(Grammar g, ManyDefinition md) {
-		this.g = g;
+	public ManyElement(GrammarChooser chooser, Grammar g, ManyDefinition md) {
 		Definition child = md.repeats();
 		if (child instanceof RefDefinition) {
-			matchRef = ((RefDefinition)child).ruleName();
+			String rule = ((RefDefinition)child).ruleName();
+			matchRef = chooser.rule(rule);
 			matchTok = null;
 		} else if (child instanceof TokenDefinition) {
 			matchRef = null;
@@ -31,22 +30,39 @@ public class ManyElement implements SeqElement {
 	@Override
 	public MatchResult matchAgainst(GrammarStep mi) {
 		if (mi instanceof GrammarToken) {
-			if (matchTok == null) {
-				// we were expecting (zero-or-more) trees; if we see a token, the reality "must" be zero ...
-				return MatchResult.MANY_NO_MATCH_TRY_NEXT;
-			}
-			switch (matchTok.matchAgainst(mi)) {
-			case SINGLE_MATCH_ADVANCE:
-				return MatchResult.MANY_MATCH_MAYBE_MORE;
-			case SINGLE_MATCH_FAILED:
-				return MatchResult.MANY_NO_MATCH_TRY_NEXT;
-			default:
-				throw new CantHappenException("token matcher should not return that");
-			}
+			GrammarToken tok = (GrammarToken) mi;
+			if (matchTok != null) {
+				return encode(matchTok.matchAgainst(tok));
+			} else if (matchRef != null) {
+				if (matchRef.choose(tok.type) != null)
+					return MatchResult.MANY_MATCH_MAYBE_MORE;
+				else
+					return MatchResult.MANY_NO_MATCH_TRY_NEXT;
+			} else
+				throw new CantHappenException("what are we matching?");
 		} else if (mi instanceof GrammarTree) {
-			throw new NotImplementedException();
+			return MatchResult.MATCH_NESTED;
 		} else 
 			throw new CantHappenException("step is a " + mi.getClass());
+	}
+
+	private MatchResult encode(MatchResult matched) {
+		switch (matched) {
+		case SINGLE_MATCH_ADVANCE:
+			return MatchResult.MANY_MATCH_MAYBE_MORE;
+		case SINGLE_MATCH_FAILED:
+			return MatchResult.MANY_NO_MATCH_TRY_NEXT;
+		default:
+			throw new CantHappenException("token matcher should not return that");
+		}
+	}
+	
+	public boolean matchesRef() {
+		return matchRef != null;
+	}
+	
+	public TrackProduction matchRef() {
+		return matchRef;
 	}
 
 	@Override
@@ -54,4 +70,8 @@ public class ManyElement implements SeqElement {
 		return true; // but only if zero-or-more
 	}
 
+	@Override
+	public String toString() {
+		return "ManyElt[" + matchRef+":" + matchTok + "]";
+	}
 }

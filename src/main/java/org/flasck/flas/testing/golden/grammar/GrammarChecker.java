@@ -267,7 +267,7 @@ public class GrammarChecker {
 		} else if (tree.isTerminal()) {
 			matchTerminal((OrChoice) prod, tree.terminal());
 		} else if (tree.hasMembers()) {
-			matchLineSegment(rule, tree.members(), gn);
+			matchLineSegment(rule, tree, gn);
 		} else
 			scopeOnly = true;
 		
@@ -294,24 +294,32 @@ public class GrammarChecker {
 		gn.pop();
 	}
 
-	private void matchLineSegment(String rule, Iterator<GrammarStep> mit, GrammarNavigator gn) {
-		System.out.println("match line segment: " + rule + " " + gn);
+	private void matchLineSegment(String rule, GrammarTree tree, GrammarNavigator gn) {
+		System.out.println("match line segment: " + rule + " " + tree + " " + gn);
+		Iterator<GrammarStep> mit = tree.members();
 		SeqReduction sr = gn.sequence(rule);
 		Iterator<SeqElement> sit = sr.iterator();
 		GrammarStep mi = null;
 		SeqElement si = null;;
-		while (mit.hasNext() && sit.hasNext()) {
+		while ((mi != null || mit.hasNext()) && (si != null || sit.hasNext())) {
 			if (mi == null)
 				mi = mit.next();
 			if (si == null)
 				si = sit.next();
-			System.out.println(mi + " " + mi.getClass() + " :: " + si + " " + si.getClass());
+			System.out.println("Comparing " + mi + " " + mi.getClass() + " :: " + si + " " + si.getClass());
 			MatchResult mr = si.matchAgainst(mi);
+			System.out.println("mr = " + mr);
 			switch (mr) {
 			case SINGLE_MATCH_ADVANCE: {
 				// they matched and there was no repetition or anything; advance both
 				si = null;
 				mi = null;
+				break;
+			}
+			case MANY_MATCH_MAYBE_MORE: {
+				// the token matched the rule, so move on to the next.  Try the same grammar step again as it can handle many
+				mi = null;
+				// si remains in force
 				break;
 			}
 			case MANY_NO_MATCH_TRY_NEXT: {
@@ -346,8 +354,8 @@ public class GrammarChecker {
 	}
 
 	private void matchNested(GrammarNavigator gn, GrammarStep mi, SeqElement si) {
+		// a grammar tree matched a REF element, but we need to (recursively) check all the elements of both
 		if (mi instanceof GrammarTree) {
-			// a grammar tree matched a REF element, but we need to (recursively) check all the elements of both
 			GrammarTree tree = (GrammarTree)mi;
 			String inRule = tree.reducedToRule();
 			if (tree.isSingleton()) {
@@ -360,7 +368,7 @@ public class GrammarChecker {
 					throw new CantHappenException("there is no reduction for " + reducedAs + " in " + inRule);
 				if (tp instanceof SeqProduction) {
 					gn.push(tp);
-					matchLineSegment(reducedAs, inner.members(), gn);
+					matchLineSegment(reducedAs, inner, gn);
 					gn.pop();
 				} else if (tp instanceof OrChoice) {
 					if (inner.isTerminal())
@@ -369,11 +377,18 @@ public class GrammarChecker {
 						matchNested(gn, inner, si);
 					}
 				}
+			} else if (si instanceof ManyElement) {
+				ManyElement me = (ManyElement) si;
+				if (me.matchesRef()) {
+					gn.push(me.matchRef());
+					matchLineSegment(inRule, tree, gn);
+					gn.pop();
+				}
 			} else if (si instanceof RefElement) {
 				// we should have a sequence in both the members and in the rule
 				RefElement re = (RefElement) si;
 				gn.push(grammar.rule(re.refersTo()));
-				matchLineSegment(inRule, tree.members(), gn);
+				matchLineSegment(inRule, tree, gn);
 				gn.pop();
 			} else if (tree.isTerminal()) {
 				throw new NotImplementedException("handle terminal case");

@@ -180,6 +180,11 @@ public class TDAExprReducer implements ExprTermConsumer {
 			errors.logReduction("expression", t0.location(), t0.location().locAtEnd());
 			return t0;
 		} else {
+//			for (int i=from+1;i<to;i++) {
+//				Expr ti = terms.get(i);
+//				if (ti instanceof UnresolvedVar)
+//					errors.logReduction("function-call", ti.location(), ti.location().locAtEnd());
+//			}
 			errors.logReduction("function-call", t0, terms.get(to-1));
 			errors.logReduction("expression", t0, terms.get(to-1));
 			// It is true that literals cannot be functions, but this is too hard

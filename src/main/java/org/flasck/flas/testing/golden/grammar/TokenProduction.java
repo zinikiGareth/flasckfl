@@ -13,7 +13,6 @@ public class TokenProduction implements TrackProduction {
 		this.grammar = grammar;
 		this.name = d.token();
 		this.d = d;
-		// TODO there is definitely a case that we don't have this, but convert to a 1-element sequence instead.
 	}
 
 	@Override
