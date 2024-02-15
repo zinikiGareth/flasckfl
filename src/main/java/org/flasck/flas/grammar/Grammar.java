@@ -389,7 +389,9 @@ public class Grammar {
 
 	private Definition reducesAs(String ruleName, XMLElement rule) {
 		String reducesAs = rule.required("rule");
-		return new ReducesAs(reducesAs);
+		String base = rule.optional("base");
+		rule.attributesDone();
+		return new ReducesAs(reducesAs, base);
 	}
 
 	public Iterable<Section> sections() {

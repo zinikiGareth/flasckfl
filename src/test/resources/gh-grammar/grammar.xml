@@ -273,14 +273,17 @@
   <production name='system-test-file'>
     <section title='Files' />
     <seq>
+      <reduces-as rule="system-test" />
       <push-part filename='true'/>
       <optional>
+      	<reduces-as rule="-configure" />
         <ref production='system-test-configure' />
 	  </optional>
       <many>
 	    <ref production='system-test-unit' />
       </many>
       <optional>
+      	<reduces-as rule="-finally" />
         <ref production='system-test-finally' />
 	  </optional>
     </seq>
@@ -367,11 +370,11 @@
     <section title='Data Declarations'/>
 	<tested by='test.parsing.TDAStructFieldParsingTests' />
     <seq>
-      <reduces-as rule="struct-field-no-initialization" />  
+      <reduces-as rule="struct-field" base="-no-initialization" />  
       <ref production='type-reference'/>
       <token type='var-name' names='StructField\[${name}\]'/>
       <optional>
-      	<reduces-as rule="struct-field-with-initialization" />
+      	<reduces-as rule="-with-initialization" />
       	<ref production='struct-initializer'/>
       </optional>
     </seq>
@@ -458,7 +461,9 @@
     <section title='Contracts'/>
 	<tested by='test.parsing.TDAContractMethodParsingTests' />
     <seq>
+      <reduces-as rule="contract-method-decl" />
       <optional>
+      	<reduces-as rule="-with-optional" />
         <token type='OPTIONAL'/>
       </optional>
       <token type='var-name' names='${name}'/>
@@ -467,6 +472,7 @@
       	<ref production='argument-pattern-typed'/>
       </many>
       <optional>
+      	<reduces-as rule="-with-handler" />
         <ref production='handled-by' />
       </optional>
       <nested-name offset='0'/>
@@ -562,10 +568,12 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
+      <reduces-as rule="guarded-equations" />
       <one-or-more>
 	    <ref production='guarded-expression'/>
 	  </one-or-more>
 	  <optional>
+      	<reduces-as rule="-with-default" />
 	    <ref production='guarded-default-expression'/>
 	  </optional>
       <indent>
@@ -740,14 +748,14 @@
     <tested by='test.parsing.TDAPatternParsingTests' />
     <or>
       <seq>
+		<reduces-as rule='simple-type-name' />
         <token type='type-name'/>
         <optional>
+		  <reduces-as rule='-with-polys' />
           <ref production='poly-type-list'/>
         </optional>
       </seq>
-      <seq>
-        <token type='poly-var'/>
-      </seq>
+      <token type='poly-var'/>
     </or>
   </production>
   <production name='poly-type-list'>
@@ -1096,7 +1104,7 @@
       <token type='SEND' />
       <ref production='expression' />
 	  <optional>
-		<reduces-as rule='method-message-send-handled' />
+		<reduces-as rule='-handled' />
 	    <ref production='maybe-handled' />
 	  </optional>
 	  <!-- TODO: there is a sends to which can name a subscription -->
@@ -1343,6 +1351,7 @@
         <ref production='argument-pattern-variable'/>
       </many>
       <optional>
+      	<reduces-as rule="-with-result" />
         <ref production='implementation-result'/>
       </optional>
       <nested-name offset='0'/>
@@ -1402,7 +1411,7 @@
       <token type='TEMPLATE'/>
       <token type='template-name' names='Template\[${name}\]'/>
       <optional var='template-posn' ne='1'>
-        <reduces-as rule='card-template-intro-with-chain' />
+        <reduces-as rule='-with-chain' />
   	    <ref production='define-template-chain'/>
       </optional>
       <dict var='template-posn' val='2'/>
@@ -1450,7 +1459,7 @@
 	    <token type='SEND'/>
 	    <ref production='expression'/>
 	    <optional>
-		  <reduces-as rule="template-binding-sends-to" />
+		  <reduces-as rule="-sends-to" />
 	      <ref production='pass-to-template' />
 	    </optional>
         <indent>
@@ -1478,10 +1487,12 @@
     <tested by='test.parsing.TDATemplateParsingTests' />
     <or>
       <seq>
+        <reduces-as rule="template-binds" />
         <one-or-more>
           <ref production='option-template-bind'/>
         </one-or-more>
         <optional>
+      	  <reduces-as rule="-with-default" />
           <ref production='default-option-template-bind'/>
         </optional>
         <indent>
@@ -1500,12 +1511,14 @@
     <section title='Template Bindings'/>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
+      <reduces-as rule="option-template-bind" />
       <token type='GUARD'/>
 	  <ref production='expression'/>
 	  <token type='SEND'/>
 	  <ref production='expression'/>
 	  <optional>
-	  	  <ref production='pass-to-template' />
+      	<reduces-as rule="-with-template" />
+        <ref production='pass-to-template' />
 	  </optional>
       <eol />
 	</seq>
@@ -1514,9 +1527,11 @@
     <section title='Template Bindings'/>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
+      <reduces-as rule="default-option-template-bind" />
 	  <token type='SEND'/>
 	  <ref production='expression'/>
 	  <optional>
+      	<reduces-as rule="-with-template" />
 	    <ref production='pass-to-template' />
 	  </optional>
 	  <eol />
@@ -1566,6 +1581,7 @@
 	  <reduces-as rule='template-conditional-styling' />
       <token type='GUARD'/>
       <optional>
+      	<reduces-as rule="-with-guard" />
 	    <ref production='expression'/>
 	  </optional>
       <token type='SENDTO' />
@@ -1721,6 +1737,7 @@ match style ...
     <section title='Unit Tests' />
     <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
+      <reduces-as rule="unit-contract-action" />
       <token type='CONTRACT' />
       <token type='var-name' /> <!--  the card, object or service to receive the action -->
       <token type='type-name' /> <!-- the contract name -->
@@ -1733,10 +1750,10 @@ match style ...
           <ref production='expression' /> <!- - the arguments - ->
         </many>
  -->
-        <optional>
-			<reduces-as rule='unit-contract-action-with-handle' />
-			<ref production='unit-contract-handle-expr' />
-		</optional>
+      <optional>
+		<reduces-as rule='-with-handle' />
+		<ref production='unit-contract-handle-expr' />
+	  </optional>
     </seq>
   </production>
   <production name='unit-contract-handle-expr'>
@@ -1787,6 +1804,7 @@ match style ...
     	    <ref production='expression' />
       </many>
       <optional>
+      	<reduces-as rule="-introduce-handlerl" />
         <ref production='unit-expect-introduce-handler' />
       </optional>
     </seq>
@@ -1806,6 +1824,7 @@ match style ...
       <token type='var-name' /> <!-- the card -->
       <ref production='unit-test-match-category' />
       <optional>
+      	<reduces-as rule="-with-zone" />
 		<ref production='unit-test-target-zone' />
 	  </optional>
       <!-- optional "selector" (but not CSS?) -->
@@ -1866,7 +1885,7 @@ match style ...
 	  <reduces-as rule='test-newdiv' />
 	  <token type='NEWDIV' />
 	  <optional>
-		<reduces-as rule='test-newdiv-cnt' />
+		<reduces-as rule='-cnt' />
 		<token type='NUMBER' />
 	  </optional>
 	</seq>

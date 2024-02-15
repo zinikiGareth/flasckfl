@@ -82,7 +82,8 @@ public class TDAStructFieldParser implements TDAParsing {
 					ret.noNest(errors);
 					if (locTracker != null)
 						locTracker.updateLoc(startLine);
-					errors.logReduction("struct-field-with-initialization", startLine, toks.realinfo());
+					errors.logReduction("struct-initializer", arrow.location, toks.realinfo());
+					errors.logReduction("struct-field-with-initialization", startLine, arrow.location);
 					builder.addField(new StructField(field.location, arrow.location, builder.holder(), createAsAccessors, true, ft, field.text, expr));
 				}
 			}).tryParsing(toks);

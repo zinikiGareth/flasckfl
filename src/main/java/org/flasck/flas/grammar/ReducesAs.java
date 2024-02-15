@@ -7,9 +7,11 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class ReducesAs extends Definition {
 	public final String ruleName;
+	public final String base;
 
-	public ReducesAs(String reducesAs) {
+	public ReducesAs(String reducesAs, String base) {
 		ruleName = reducesAs;
+		this.base = base;
 	}
 
 	@Override

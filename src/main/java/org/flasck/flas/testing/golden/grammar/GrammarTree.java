@@ -112,7 +112,7 @@ public class GrammarTree implements GrammarStep {
 		if (members.size() != 1)
 			throw new CantHappenException("terminal should have one member");
 		if (!(members.get(0) instanceof GrammarToken))
-			throw new CantHappenException("terminal member should be a token");
+			throw new CantHappenException("terminal member should be a token, not " + members.get(0));
 		return (GrammarToken) members.get(0);
 	}
 

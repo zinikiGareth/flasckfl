@@ -1,10 +1,16 @@
 package org.flasck.flas.testing.golden.grammar;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.grammar.Definition;
 import org.flasck.flas.grammar.Grammar;
+import org.flasck.flas.grammar.IndentDefinition;
+import org.flasck.flas.grammar.OptionalDefinition;
 import org.flasck.flas.grammar.Production;
+import org.flasck.flas.grammar.RefDefinition;
 import org.flasck.flas.grammar.SequenceDefinition;
 import org.zinutils.exceptions.CantHappenException;
 
@@ -14,6 +20,7 @@ public class SeqProduction implements TrackProduction {
 	private final String name;
 	private final SequenceDefinition d;
 	private final Map<String, SeqReduction> reduceAs = new TreeMap<>();
+	private TrackProduction indent;
 
 	public SeqProduction(GrammarChooser chooser, Grammar g, String name, SequenceDefinition d) {
 		this.chooser = chooser;
@@ -32,13 +39,44 @@ public class SeqProduction implements TrackProduction {
 
 	@Override
 	public void initWhenReady(Production prod) {
-		if (d.reducesAs() != null) {
-			SeqReduction that = new SeqReduction(chooser, grammar, d, d.reducesAs()); 
-			reduceAs.put(d.reducesAs(), that);
-		} else {
-			SeqReduction that = new SeqReduction(chooser, grammar, d, name); 
-			reduceAs.put(name, that);
+		List<List<Boolean>> opts = figureOptions();
+		for (List<Boolean> os : opts) {
+			SeqReduction that = new SeqReduction(chooser, grammar, d, name, os); 
+			reduceAs.put(that.reducesAs, that);
 		}
+		indent = figureIndent();
+	}
+	
+	private List<List<Boolean>> figureOptions() {
+		List<List<Boolean>> ret = new ArrayList<>();
+		int cnt = 0;
+		for (int i=0;i<d.length();i++) {
+			if (d.nth(i) instanceof OptionalDefinition)
+				cnt++;
+		}
+
+		// [[False], [True]]
+		// [[False, False], [False,True], [True,False], [True, True]]
+		for (int j=0;j<(1<<cnt);j++) {
+			List<Boolean> it = new ArrayList<>();
+			ret.add(it);
+			for (int k=0;k<cnt;k++) {
+				it.add(0, (j & (1<<k)) != 0);
+			}
+		}
+		System.out.println(name + " " + d.reducesAs() + " " + ret);
+		return ret;
+	}
+
+	private TrackProduction figureIndent() {
+		Definition id = d.nth(d.length()-1);
+		if (!(id instanceof IndentDefinition))
+			return null;
+		Definition rd = ((IndentDefinition)id).indented();
+		if (rd instanceof RefDefinition)
+			return chooser.rule(((RefDefinition)rd).ruleName());
+		else
+			throw new CantHappenException("rd is " + rd.getClass());
 	}
 	
 	public String name() {
@@ -59,6 +97,10 @@ public class SeqProduction implements TrackProduction {
 		if (!reduceAs.containsKey(name))
 			throw new CantHappenException("there is no reduction for " + name);
 		return reduceAs.get(name);
+	}
+	
+	public TrackProduction indented() {
+		return indent;
 	}
 
 	@Override

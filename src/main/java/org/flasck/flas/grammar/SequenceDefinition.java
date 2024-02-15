@@ -9,33 +9,34 @@ import org.zinutils.exceptions.CantHappenException;
 
 public class SequenceDefinition extends Definition {
 	private List<Definition> elts = new ArrayList<>();
-	private String baseReducesAs;
-	private String optionReducesAs;
+	private ReducesAs baseReducesAs;
 	
 	public String reducesAs() {
-		return baseReducesAs;
+		if (baseReducesAs == null)
+			return null;
+		else if (baseReducesAs.base == null)
+			return baseReducesAs.ruleName;
+		else
+			return baseReducesAs.ruleName + baseReducesAs.base;
+	}
+	
+	public String reducesAs(List<String> options) {
+		if (options.isEmpty())
+			return reducesAs();
+		StringBuilder sb = new StringBuilder(baseReducesAs.ruleName);
+		for (String s : options)
+			sb.append(s);
+		return sb.toString();
 	}
 	
 	public void add(Definition defn) {
 		if (defn instanceof ReducesAs) {
 			if (baseReducesAs != null)
 				throw new CantHappenException("can't define base reduces-as multiple times");
-			baseReducesAs = ((ReducesAs)defn).ruleName;
+			baseReducesAs = (ReducesAs)defn;
 			return;
 		}
-		if (defn instanceof OptionalDefinition) {
-			OptionalDefinition od = (OptionalDefinition) defn;
-			if (od.elseClause != null) {
-				if (optionReducesAs != null)
-					throw new CantHappenException("can't define option reduces-as multiple times");
-				optionReducesAs = od.elseClause.ruleName;
-			}
-		}
 		elts.add(defn);
-	}
-
-	public boolean canReduceAs(String rule) {
-		return rule.equals(baseReducesAs) || rule.equals(optionReducesAs);
 	}
 
 	public int length() {
@@ -81,7 +82,6 @@ public class SequenceDefinition extends Definition {
 		SequenceDefinition ret = new SequenceDefinition();
 		ret.elts.addAll(elts);
 		ret.baseReducesAs = this.baseReducesAs;
-		ret.optionReducesAs = this.optionReducesAs;
 		return ret;
 	}
 }

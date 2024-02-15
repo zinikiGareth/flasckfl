@@ -16,22 +16,30 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class SeqReduction implements Iterable<SeqElement> {
 	private final GrammarChooser chooser;
-	private final String reducesAs;
+	public final String reducesAs;
 	private final List<SeqElement> matchers = new ArrayList<>();
 
-	public SeqReduction(GrammarChooser chooser, Grammar g, SequenceDefinition d, String reducesAs) {
+	public SeqReduction(GrammarChooser chooser, Grammar g, SequenceDefinition d, String name, List<Boolean> os) {
 		this.chooser = chooser;
-		this.reducesAs = reducesAs;
+		List<String> optionNames = new ArrayList<>();
+		os = new ArrayList<>(os);
 		for (int n=0;n<d.length();n++) {
 			Definition x = d.nth(n);
 			if (x instanceof IndentDefinition)
 				continue; // not our concern
-			matchers.add(convert(g, x));
+			SeqElement add = convert(g, x, os, optionNames);
+			if (add != null)
+				matchers.add(add);
 		}
-		chooser.addReduction(reducesAs, this);
+		String rn = d.reducesAs(optionNames);
+		if (rn == null)
+			this.reducesAs = name;
+		else
+			this.reducesAs = rn;
+		chooser.addReduction(this.reducesAs, this);
 	}
 
-	private SeqElement convert(Grammar g, Definition x) {
+	private SeqElement convert(Grammar g, Definition x, List<Boolean> os, List<String> optionNames) {
 		if (x instanceof TokenDefinition) {
 			TokenDefinition td = (TokenDefinition)x;
 			return new TokenElement(g, td);
@@ -43,7 +51,11 @@ public class SeqReduction implements Iterable<SeqElement> {
 			return new RefElement(chooser, rd);
 		} else if (x instanceof OptionalDefinition) {
 			OptionalDefinition od = (OptionalDefinition) x;
-			return new OptElement(g, od);
+			boolean include = os.remove(0);
+			if (!include)
+				return null;
+			optionNames.add(od.reducesAs());
+			return convert(g, od.childRule(), os, optionNames);
 		} else
 			throw new NotImplementedException("converting " + x + " of " + x.getClass());
 	}

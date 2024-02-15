@@ -1,5 +1,6 @@
 package org.flasck.flas.testing.golden.grammar;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -248,43 +249,7 @@ public class GrammarChecker {
 	// handle an entire file of definitions, matching either against a ManyDefinition of a scope
 	// or against a multi-step process (true of system tests, for example)
 	private void handleFileOfType(GrammarTree tree, GrammarNavigator gn) {
-		String rule = tree.reducedToRule();
-		
-//		System.out.println("tree has rule " + rule);
-//		System.out.println("navigator is at " + gn);
-//		
-//		GrammarLevel prod = gn.findChooseableRule(rule);
-//		System.out.println(prod);
-//		if (prod == null)
-//			throw new CantHappenException("there is no chooseable rule to match " + rule);
-//		gn.push(prod);
-//		System.out.println(gn);
 		traverseTree(tree, gn);
-//		Iterator<GrammarTree> ms = tree.indents();
-//		while (ms.hasNext()) {
-//			GrammarTree s = ms.next();
-//			System.out.println("tree has " + s);
-//			Production prod2 = gn.findChooseableRule(s.reducedToRule());
-//			if (prod2 == null)
-//				throw new CantHappenException("there is no chooseable rule to match " + s.reducedToRule());
-//		}
-		/*
-		gn.stashHere();
-		if (gn.canHandle(tree)) {
-			if (gn.isMany()) {
-				assertTrue(!tree.hasMembers());
-				handleScopeWithScopeRule(tree.indents(), gn);
-			} else if (gn.isSeq()) {
-				gn.skipActions();
-				if (gn.isMany()) {
-					assertTrue(!tree.hasMembers());
-					handleScopeWithScopeRule(tree.indents(), gn);
-				}
-			} else
-				throw new NotImplementedException("can only handle Many definitions at the moment");
-		}
-		gn.unstash();
-		*/
 	}
 
 	// We are going to use "real" recursion to traverse the tree, and keep the GrammarNavigator in step by telling it when (and how) we are recursing
@@ -296,16 +261,32 @@ public class GrammarChecker {
 			throw new CantHappenException("there is no chooseable rule to match " + rule + " in " + gn);
 		gn.push(prod);
 
+		boolean scopeOnly = false;
 		if (tree.isSingleton()) {
 			traverseTree((GrammarTree) tree.members().next(), gn);
 		} else if (tree.hasMembers()) {
 			matchLineSegment(rule, tree.members(), gn);
-		}
+		} else
+			scopeOnly = true;
 		
 		if (tree.hasIndents()) {
+			if (!scopeOnly) {
+				if (!(prod instanceof SeqProduction)) {
+					throw new CantHappenException("tree has indents but rule is not a SeqProduction: " + prod + " " + prod.getClass());
+				}
+				SeqProduction sp = (SeqProduction) prod;
+				TrackProduction indent = sp.indented();
+				assertNotNull("have a tree indent but not in rule", indent);
+				gn.push(indent);
+				System.out.println("matching indents " + indent);
+			}
 			Iterator<GrammarTree> it = tree.indents();
 			while (it.hasNext()) {
 				traverseTree(it.next(), gn);
+			}
+			if (!scopeOnly) {
+				System.out.println("done with indents");
+				gn.pop();
 			}
 		}
 		gn.pop();
@@ -338,37 +319,7 @@ public class GrammarChecker {
 				break;
 			}
 			case MATCH_NESTED: {
-				if (mi instanceof GrammarTree) {
-					// a grammar tree matched a REF element, but we need to (recursively) check all the elements of both
-					GrammarTree tree = (GrammarTree)mi;
-					String inRule = tree.reducedToRule();
-					if (tree.isSingleton()) {
-						TrackProduction prod = grammar.rule(inRule);
-						GrammarTree inner = (GrammarTree) tree.members().next();
-						String reducedAs = inner.reducedToRule();
-						System.out.println("XX: " + reducedAs);
-						TrackProduction tp = prod.choose(reducedAs);
-						if (tp == null)
-							throw new CantHappenException("there is no reduction for " + reducedAs + " in " + inRule);
-						if (tp instanceof SeqProduction) {
-							gn.push(tp);
-							matchLineSegment(reducedAs, inner.members(), gn);
-							gn.pop();
-						} else if (tp instanceof OrChoice) {
-							matchTerminal((OrChoice) tp, inner.terminal());
-						}
-					} else if (tree.isTerminal()) {
-						throw new NotImplementedException("handle terminal case");
-					} else if (si instanceof RefElement) {
-						// we should have a sequence in both the members and in the rule
-						RefElement re = (RefElement) si;
-						gn.push(grammar.rule(re.refersTo()));
-						matchLineSegment(inRule, tree.members(), gn);
-						gn.pop();
-					}
-				} else {
-					throw new CantHappenException("MATCH_NESTED is only for trees, I think");
-				}
+				matchNested(gn, mi, si);
 				// if things didn't match, we wouldn't have reached here
 				// so they matched exactly
 				mi = null;
@@ -390,6 +341,45 @@ public class GrammarChecker {
 				throw new CantHappenException("there are remaining unmatched elements");
 		}
 		System.out.println("matched line segment");
+	}
+
+	private void matchNested(GrammarNavigator gn, GrammarStep mi, SeqElement si) {
+		if (mi instanceof GrammarTree) {
+			// a grammar tree matched a REF element, but we need to (recursively) check all the elements of both
+			GrammarTree tree = (GrammarTree)mi;
+			String inRule = tree.reducedToRule();
+			if (tree.isSingleton()) {
+				TrackProduction prod = grammar.rule(inRule);
+				GrammarTree inner = (GrammarTree) tree.members().next();
+				String reducedAs = inner.reducedToRule();
+				System.out.println("XX: " + reducedAs);
+				TrackProduction tp = prod.choose(reducedAs);
+				if (tp == null)
+					throw new CantHappenException("there is no reduction for " + reducedAs + " in " + inRule);
+				if (tp instanceof SeqProduction) {
+					gn.push(tp);
+					matchLineSegment(reducedAs, inner.members(), gn);
+					gn.pop();
+				} else if (tp instanceof OrChoice) {
+					if (inner.isTerminal())
+						matchTerminal((OrChoice) tp, inner.terminal());
+					else {
+						matchNested(gn, inner, si);
+					}
+				}
+			} else if (si instanceof RefElement) {
+				// we should have a sequence in both the members and in the rule
+				RefElement re = (RefElement) si;
+				gn.push(grammar.rule(re.refersTo()));
+				matchLineSegment(inRule, tree.members(), gn);
+				gn.pop();
+			} else if (tree.isTerminal()) {
+				throw new NotImplementedException("handle terminal case");
+			} else
+				throw new CantHappenException("what is happening in this case?");
+		} else {
+			throw new CantHappenException("MATCH_NESTED is only for trees, I think");
+		}
 	}
 
 	private void matchTerminal(OrChoice tp, GrammarToken tok) {

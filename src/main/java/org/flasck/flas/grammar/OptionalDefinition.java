@@ -45,6 +45,10 @@ public class OptionalDefinition extends Definition {
 		productionVisitor.zeroOrOne(child);
 	}
 	
+	public String reducesAs() {
+		return elseClause.ruleName;
+	}
+	
 	@Override
 	public String toString() {
 		return "Optional[" + child + "]";

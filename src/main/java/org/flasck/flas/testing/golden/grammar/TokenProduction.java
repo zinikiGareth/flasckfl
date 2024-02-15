@@ -24,7 +24,6 @@ public class TokenProduction implements TrackProduction {
 
 	@Override
 	public TrackProduction choose(String rule) {
-		System.out.println("is it " + rule +"?");
 		if (name.equals(rule))
 			return this;
 		else
