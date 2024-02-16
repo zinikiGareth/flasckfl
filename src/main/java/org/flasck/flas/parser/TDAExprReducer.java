@@ -270,10 +270,12 @@ public class TDAExprReducer implements ExprTermConsumer {
 			errors.message(t0.location(), "istype must have exactly two arguments");
 			return null;
 		}
-		Expr ctor = terms.get(from+1);
-		Expr type = terms.get(from+2);
-		errors.logReduction("check-type-expr", t0, type);
-		return new CheckTypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ctor, type);
+		Expr type = terms.get(from+1);
+		// TODO: I think this should have already been done elsewhere, and the correct rule applied if it has polys
+		errors.logReduction("simple-type-name", type.location(), type.location());
+		Expr expr = terms.get(from+2);
+		errors.logReduction("check-type-expr", t0, expr);
+		return new CheckTypeExpr(t0.location().copySetEnd(type.location().pastEnd()), type.location(), type, expr);
 	}
 	
 	private List<Expr> args(int from, int to) {

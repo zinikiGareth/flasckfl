@@ -13,8 +13,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAFunctionGuardedEquationParser implements TDAParsing, LocationTracker {
-	private final ErrorReporter errors;
+public class TDAFunctionGuardedEquationParser extends BlockLocationTracker implements TDAParsing {
 	private final FunctionIntro intro;
 	private final InputPosition afterIntro;
 	private final FunctionGuardedEquationConsumer consumer;
@@ -24,8 +23,8 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing, LocationTra
 	private boolean reportedDefault;
 	private InputPosition lastInner;
 
-	public TDAFunctionGuardedEquationParser(ErrorReporter errors, FunctionIntro intro, InputPosition afterIntro, FunctionGuardedEquationConsumer consumer, LastOneOnlyNestedParser nestedParser) {
-		this.errors = errors;
+	public TDAFunctionGuardedEquationParser(ErrorReporter errors, FunctionIntro intro, InputPosition afterIntro, FunctionGuardedEquationConsumer consumer, LastOneOnlyNestedParser nestedParser, LocationTracker locTracker) {
+		super(errors, locTracker);
 		this.intro = intro;
 		this.afterIntro = afterIntro;
 		this.consumer = consumer;
@@ -92,6 +91,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing, LocationTra
 			} else {
 				errors.logReduction("function-case-default", tok.location, e.location());
 			}
+			tellParent(tok.location);
 			final FunctionCaseDefn fcd = new FunctionCaseDefn(tok.location, intro, guard, e);
 			fcds.add(fcd);
 			consumer.functionCase(fcd);
@@ -100,7 +100,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing, LocationTra
 		
 		lastInner = tok.location;
 		return new TDAParsingWithAction(nestedParser, () -> { 
-			errors.logReduction("function-guard-with-block", tok.location, lastInner);
+//			errors.logReduction("guarded-equations", tok.location, lastInner);
 		});
 	}
 	

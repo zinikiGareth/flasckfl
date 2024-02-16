@@ -5,7 +5,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 
 public class KeywordToken implements LoggableToken {
-
 	public final InputPosition location;
 	public final String text;
 

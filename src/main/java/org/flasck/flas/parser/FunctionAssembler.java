@@ -1,8 +1,8 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -77,19 +77,24 @@ public class FunctionAssembler extends BlockLocationTracker implements FunctionI
 		
 	private void reduceCurr() {
 		if (curr.cases().size() == 1) {
-			FunctionCaseDefn caseDefn = curr.cases().get(0);
 			// it's either the very simple one-line case
 			if (!hasGuards) {
-				errors.logReduction("simple-function-case-definition-intro", curr.location(), caseDefn.location());
+				errors.logReduction("simple-function-case-definition-intro", curr.location(), curr.cases().get(0).expr.location());
 			} else {
+				InputPosition to = curr.location;
+				if (!curr.args.isEmpty())
+					to = curr.args.get(curr.args.size()-1).location();
 				// or it's the degenerate case
-				errors.logReduction("degenerate-guarded-function-case-definition-intro", curr.location(), caseDefn.location());
+				errors.logReduction("degenerate-guarded-function-case-definition-intro", curr.location(), to);
 			}
 		} else {
+			InputPosition to = curr.location;
+			if (!curr.args.isEmpty())
+				to = curr.args.get(curr.args.size()-1).location();
 			// it must have multiple guards, each of which should have been reduced
 			if (!curr.cases().isEmpty()) {
-				FunctionCaseDefn lastCase = curr.cases().get(curr.cases().size()-1);
-				errors.logReduction("guarded-function-case-definition-intro", curr.location(), lastCase.location());
+//				FunctionCaseDefn lastCase = curr.cases().get(curr.cases().size()-1);
+				errors.logReduction("guarded-function-case-definition-intro", curr.location(), to);
 			} // the alternative is that it has an error ...
 		}
 	}

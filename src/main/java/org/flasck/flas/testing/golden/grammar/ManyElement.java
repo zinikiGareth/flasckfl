@@ -8,7 +8,6 @@ import org.flasck.flas.grammar.TokenDefinition;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class ManyElement implements SeqElement {
 	private final TrackProduction matchRef;
@@ -41,7 +40,13 @@ public class ManyElement implements SeqElement {
 			} else
 				throw new CantHappenException("what are we matching?");
 		} else if (mi instanceof GrammarTree) {
-			return MatchResult.MATCH_NESTED;
+			GrammarTree tree = (GrammarTree) mi;
+			if (matchRef == null)
+				throw new CantHappenException("matching a tree against a token does not work");
+			if (matchRef.choose(tree.reducedToRule()) != null)
+				return MatchResult.MATCH_NESTED_MAYBE_MORE;
+			else
+				return MatchResult.MANY_NO_MATCH_TRY_NEXT;
 		} else 
 			throw new CantHappenException("step is a " + mi.getClass());
 	}

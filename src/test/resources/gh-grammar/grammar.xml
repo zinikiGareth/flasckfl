@@ -100,6 +100,9 @@
   <lex token='INVOKE' pattern='invoke'>
   	<p>The <tt>invoke</tt> keyword is used in unit tests to invoke a method on an object.</p>
   </lex>
+  <lex token='ISTYPE' pattern='istype'>
+  	<p><tt>istype</tt> is a special function for testing the runtime type of an expression.</p>
+  </lex>
   <lex token='MATCH' pattern='match'>
   	<p>The <tt>match</tt> keyword introduces a template matching step in a unit test.</p>
   </lex>
@@ -585,6 +588,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
+		<reduces-as rule='function-case-with-guard' />
 	    <token type='GUARD'/>
 	    <ref production='expression'/>
 	    <token type='EQ'/>
@@ -596,6 +600,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
+		<reduces-as rule='function-case-default' />
 	    <token type='EQ'/>
 	    <ref production='expression'/>
 	    <eol />
@@ -786,12 +791,13 @@
       </description>
     </section>
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='50 3 5 10 5 1 5 10 2'/>
+    <producer shares='50 3 5 10 1 5 1 5 10 2'/>
     <or>
       <ref production='literal'/>
       <ref production='paren-expression' />
       <ref production='tuple-expression' />
       <ref production='function-call' />
+      <ref production='check-type-expr' />
       <ref production='member-expr' />
       <seq>
 		<reduces-as rule='type-expr' />
@@ -841,6 +847,15 @@
       <many>
         <ref production='expression-term'/>
       </many>
+    </seq>
+  </production>
+  <production name='check-type-expr'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprTokenizationTests' />
+    <seq>
+	  <token type='ISTYPE' />
+      <ref production='type-reference'/>
+      <ref production='expression-term'/>
     </seq>
   </production>
   <production name='value-expression'>
