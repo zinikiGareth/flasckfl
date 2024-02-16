@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
+import org.flasck.flas.parser.ExprReducerErrors;
 import org.flasck.flas.parser.ExprTermConsumer;
 import org.flasck.flas.parser.TDAExprParser;
 import org.flasck.flas.testsupport.matchers.ExprMatcher;
@@ -22,7 +23,7 @@ public class ExprTokenizationTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ExprTermConsumer builder = context.mock(ExprTermConsumer.class);
-	private final TDAExprParser parser = new TDAExprParser(errors, null, builder, null);
+	private final TDAExprParser parser = new TDAExprParser(errors, new ExprReducerErrors(errors), null, builder, null);
 	private final Sequence order = context.sequence("order");
 
 	@Before

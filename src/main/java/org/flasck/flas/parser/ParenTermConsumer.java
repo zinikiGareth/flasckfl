@@ -6,24 +6,23 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.ParenExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.CastExpr;
-import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 
 public class ParenTermConsumer implements ExprTermConsumer {
 	public class ParenCloseRewriter implements ExprTermConsumer {
-		private final InputPosition from;
+		private final Locatable from;
 		private final String op;
 		private Expr endToken;
 		private int end;
 		private final List<Expr> terms = new ArrayList<>();
 		private String currentVar;
-		private InputPosition comma;
+		private Punctuator comma;
 
-		public ParenCloseRewriter(InputPosition from, String op) {
+		public ParenCloseRewriter(Punctuator from, String op) {
 			this.from = from;
 			this.op = op;
 		}
@@ -47,14 +46,13 @@ public class ParenTermConsumer implements ExprTermConsumer {
 
 		@Override
 		public void term(Expr term) {
-			InputPosition loc = term.location();
 			if (op.equals("{}")) {
 				if (currentVar == null)
 					throw new RuntimeException("need field and colon"); // I don't think this can happen
-				term = new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(from, ":"), new StringLiteral(from, currentVar), term);
+				term = new ApplyExpr(from.location().copySetEnd(end), new UnresolvedOperator(from.location(), ":"), new StringLiteral(from.location(), currentVar), term);
 			}
 			if (comma != null) {
-				errors.logReduction("comma-expression", comma, loc);
+				errors.logReduction("comma-expression", comma, term);
 				comma = null;
 			}
 			terms.add(term);
@@ -64,28 +62,28 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		public void done() {
 			if (terms.size() == 0) {
 				if (op.equals("()")) {
-					errors.message(from, "empty tuples are not permitted");
+					errors.message(from.location(), "empty tuples are not permitted");
 					return;
 				} else if (op.equals("[]")) {
-					errors.logReduction("empty-list-literal", from, endToken.location());
+					errors.logReduction("empty-list-literal", from, endToken);
 				} else {
-					errors.logReduction("empty-object-literal", from, endToken.location());
+					errors.logReduction("empty-object-literal", from, endToken);
 				}
-				builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(from, op)));
+				builder.term(new ApplyExpr(from.location().copySetEnd(end), new UnresolvedOperator(from.location(), op)));
 				return;
 			}
 			final Expr ae = terms.get(0);
 			if (terms.size() == 1 && op.equals("()")) {
-				errors.logReduction("paren-expression", from, endToken.location());
-				builder.term(new ParenExpr(from, ae));
+				errors.logReduction("paren-expression", from, endToken);
+				builder.term(new ParenExpr(from.location(), ae));
 			} else {
 				if (op.equals("[]")) {
-					errors.logReduction("non-empty-list-literal", from, endToken.location());
+					errors.logReduction("non-empty-list-literal", from, endToken);
 				} else if (op.equals("{}")) {
-					errors.logReduction("non-empty-object-literal", from, endToken.location());
+					errors.logReduction("non-empty-object-literal", from, endToken);
 				} else
-					errors.logReduction("tuple-expression", from, endToken.location());
-				builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(ae.location(), op), terms.toArray()));
+					errors.logReduction("tuple-expression", from, endToken);
+				builder.term(new ApplyExpr(from.location().copySetEnd(end), new UnresolvedOperator(ae.location(), op), terms.toArray()));
 			}
 		}
 
@@ -98,8 +96,8 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			return op.equals("{}");
 		}
 
-		public void commaAt(InputPosition loc) {
-			this.comma = loc;
+		public void commaAt(Punctuator comma) {
+			this.comma = comma;
 		}
 	}
 
@@ -109,19 +107,18 @@ public class ParenTermConsumer implements ExprTermConsumer {
 	private final ParenCloseRewriter closer;
 	private final TDAExprReducer curr;
 	private boolean expectingColon;
-	private InputPosition comma;
-	private InputPosition lastLoc;
+	private Punctuator comma;
 
 	public ParenTermConsumer(InputPosition from, ErrorReporter errors, ExprTermConsumer builder, Punctuator open) {
 		this.errors = errors;
 		this.builder = builder;
 		this.open = open;
 		if (open.is("("))
-			closer = new ParenCloseRewriter(open.location, "()");
+			closer = new ParenCloseRewriter(open, "()");
 		else if (open.is("["))
-			closer = new ParenCloseRewriter(open.location, "[]");
+			closer = new ParenCloseRewriter(open, "[]");
 		else if (open.is("{")) {
-			closer = new ParenCloseRewriter(open.location, "{}");
+			closer = new ParenCloseRewriter(open, "{}");
 			expectingColon = true;
 		} else
 			throw new RuntimeException("invalid open paren");
@@ -148,7 +145,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 //				if (comma != null) { // we have a previous comma expression)
 //					errors.logReduction("comma-expression", comma, lastLoc);
 //				}
-				comma = punc.location;
+				comma = punc;
 				curr.seenComma(comma);
 				if (closer.isObjectLiteral())
 					expectingColon = true;
@@ -165,7 +162,6 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		} else {
 			curr.term(term);
 		}
-		lastLoc = term.location();
 	}
 
 	@Override

@@ -21,13 +21,15 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAExprParser implements TDAParsing {
+	private final ErrorReporter origErrors;
 	private final IntroduceNamer namer;
 	private final ExprTermConsumer builder;
 	private final ExprReducerErrors errors;
 	private final IntroductionConsumer consumer;
 
-	public TDAExprParser(ErrorReporter errors, IntroduceNamer namer, ExprTermConsumer builder, IntroductionConsumer consumer) {
-		this.errors = new ExprReducerErrors(errors);
+	public TDAExprParser(ErrorReporter origErrors, ExprReducerErrors errors, IntroduceNamer namer, ExprTermConsumer builder, IntroductionConsumer consumer) {
+		this.origErrors = origErrors;
+		this.errors = errors;
 		this.namer = namer;
 		this.builder = builder;
 		this.consumer = consumer;
@@ -40,7 +42,7 @@ public class TDAExprParser implements TDAParsing {
 			if (tok == null) {
 				builder.done();
 				errors.doneReducing();
-				return null;
+				return new IgnoreNestedParser(origErrors);
 			}
 			switch (tok.type) {
 			case ExprToken.NUMBER:
@@ -61,8 +63,10 @@ public class TDAExprParser implements TDAParsing {
 						new TDATypeReferenceParser(errors, (VarNamer)namer, false, captureTR, (FunctionScopeUnitConsumer)consumer).tryParsing(line);
 						if (!ltr.isEmpty())
 							term = ltr.get(0);
-						else
-							return new IgnoreNestedParser(errors);
+						else {
+							errors.cancelReduction();
+							return new IgnoreNestedParser(origErrors);
+						}
 					}
 				} else if (tok.text.equals("_"))
 					term = new AnonymousVar(tok.location);
@@ -72,7 +76,8 @@ public class TDAExprParser implements TDAParsing {
 					term = iv;
 				} else {
 					errors.message(tok.location, "syntax error");
-					return new IgnoreNestedParser(errors);
+					errors.cancelReduction();
+					return new IgnoreNestedParser(origErrors);
 				}
 				builder.term(term);
 				break;
@@ -82,7 +87,7 @@ public class TDAExprParser implements TDAParsing {
 				if ("=".equals(tok.text) || "=>".equals(tok.text) || "<-".equals(tok.text)) {
 					line.reset(mark);
 					builder.done();
-					errors.doneReducing();
+					errors.cancelReduction();
 					return null;
 				}
 				builder.term(new UnresolvedOperator(tok.location, tok.text));
@@ -94,7 +99,7 @@ public class TDAExprParser implements TDAParsing {
 					line.reset(mark);
 					builder.done();
 					errors.doneReducing();
-					return null;
+					return new IgnoreNestedParser(origErrors);
 				} else
 					builder.term(new Punctuator(tok.location, tok.text));
 				break;

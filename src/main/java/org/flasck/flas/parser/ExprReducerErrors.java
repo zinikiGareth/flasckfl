@@ -13,39 +13,44 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExprReducerErrors implements ErrorReporter {
 	private final ErrorReporter errors;
+
+	public ExprReducerErrors(ErrorReporter errors) {
+		this.errors = errors;
+	}
 
 	public void track(File f) {
 		errors.track(f);
 	}
 
 	public <T extends LoggableToken> T logParsingToken(T token) {
+		System.out.println("token " + token.location() + ": " + token);
 		return errors.logParsingToken(token);
 	}
 
 	public void logReduction(String ruleId, Locatable first, Locatable last) {
+		System.out.println("reduce " + ruleId + " " + first + " - " + last);
 		errors.logReduction(ruleId, first, last);
 	}
 
 	public void logReduction(String ruleId, InputPosition from, InputPosition to) {
-		System.out.println("rule " + ruleId);
 		try {
-			throw new NotImplementedException();
-		} catch (RuntimeException ex) {
+			throw new NotImplementedException("don't use this form in expression reduction");
+		} catch (NotImplementedException ex) {
 			ex.printStackTrace();
 			throw ex;
 		}
-//		seenReduction = ruleId;
-//		// I want this to be outlawed
-//		errors.logReduction(ruleId, from, to);
+	}
+
+	public void cancelReduction() {
+		System.out.println("cancelled");
 	}
 
 	public void doneReducing() {
-		
+		System.out.println("done reducing");
 	}
 
 	public ErrorReporter message(InputPosition pos, String msg) {
@@ -98,9 +103,5 @@ public class ExprReducerErrors implements ErrorReporter {
 
 	public void beginPhase2(URI uri) {
 		errors.beginPhase2(uri);
-	}
-
-	public ExprReducerErrors(ErrorReporter errors) {
-		this.errors = errors;
 	}
 }

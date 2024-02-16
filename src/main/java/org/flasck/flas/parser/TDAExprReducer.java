@@ -65,9 +65,9 @@ public class TDAExprReducer implements ExprTermConsumer {
 			} else {
 				Expr strobj = terms.remove(terms.size() - 1);
 				if (term instanceof TypeReference)
-					errors.logReduction("type-member", strobj.location(), term.location());
+					errors.logReduction("type-member", strobj, term);
 				else
-					errors.logReduction("value-member", strobj.location(), term.location());
+					errors.logReduction("value-member", strobj, term);
 				terms.add(new MemberExpr(strobj.location().copySetEnd(term.location().pastEnd()), strobj, term));
 				haveDot = null;
 				return;
@@ -98,10 +98,10 @@ public class TDAExprReducer implements ExprTermConsumer {
 		this.terms.add(term);
 	}
 
-	public void seenComma(InputPosition loc) {
+	public void seenComma(Punctuator comma) {
 		builder.term(reduce(0, terms.size()));
 		if (builder instanceof ParenCloseRewriter) {
-			((ParenCloseRewriter)builder).commaAt(loc);
+			((ParenCloseRewriter)builder).commaAt(comma);
 		}
 		terms.clear();
 		ops.clear();
@@ -195,13 +195,13 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	private Expr reduceSingletonToExpression(final Expr t0) {
 		if (t0 instanceof UnresolvedVar) { // it's trivially a function call for the grammar...
-			errors.logReduction("function-call", t0.location(), t0.location().locAtEnd());
+			errors.logReduction("function-call", t0, t0);
 		} else if (t0 instanceof NumericLiteral) {
-			errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
+			errors.logReduction("literal", t0, t0);
 		} else if (t0 instanceof StringLiteral) {
-			errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
+			errors.logReduction("literal", t0, t0);
 		}
-		errors.logReduction("expression", t0.location(), t0.location().locAtEnd());
+		errors.logReduction("expression", t0, t0);
 		return t0;
 	}
 
