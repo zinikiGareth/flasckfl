@@ -32,7 +32,7 @@ public class OrChoice implements TrackProduction {
 	public void initWhenReady(Production prod) {
 		int k = 0;
 		for (Definition d : ((OrProduction)prod).allOptions()) {
-			logger.info("converting " + d);
+//			logger.info("converting " + d);
 			if (d instanceof RefDefinition) {
 				choices.add(chooser.rule(((RefDefinition)d).ruleName()));
 			} else if (d instanceof TokenDefinition) {

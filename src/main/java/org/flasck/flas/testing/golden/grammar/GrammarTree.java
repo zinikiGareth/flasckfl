@@ -49,8 +49,8 @@ public class GrammarTree implements GrammarStep {
 	}
 
 	public void push(GrammarStep si) {
-		System.out.println("pushing " + si);
-		System.out.println("pushing " + si.location() + " with " + location());
+//		System.out.println("pushing " + si);
+//		System.out.println("pushing " + si.location() + " with " + location());
 		if (isIndented(si.location(), location()) && !ftt(si)) {
 			if (!(si instanceof GrammarTree))
 				throw new CantHappenException("can't push " + si + " because it is directly indented not reduced");

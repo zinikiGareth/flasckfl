@@ -64,7 +64,7 @@ public class SeqProduction implements TrackProduction {
 				it.add(0, (j & (1<<k)) != 0);
 			}
 		}
-		System.out.println(name + " " + d.reducesAs() + " " + ret);
+//		System.out.println(name + " " + d.reducesAs() + " " + ret);
 		return ret;
 	}
 
@@ -73,7 +73,6 @@ public class SeqProduction implements TrackProduction {
 		if (!(last instanceof IndentDefinition)) {
 			if (!d.borrowFinalIndent())
 				return null;
-			System.out.print("borrowing");
 			RefDefinition rd = (RefDefinition) last;
 			String refersTo = rd.ruleName();
 			Production other = grammar.findRule(refersTo);

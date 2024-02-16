@@ -98,8 +98,11 @@ public class TDAExprReducer implements ExprTermConsumer {
 		this.terms.add(term);
 	}
 
-	public void seenComma() {
+	public void seenComma(InputPosition loc) {
 		builder.term(reduce(0, terms.size()));
+		if (builder instanceof ParenCloseRewriter) {
+			((ParenCloseRewriter)builder).commaAt(loc);
+		}
 		terms.clear();
 		ops.clear();
 	}

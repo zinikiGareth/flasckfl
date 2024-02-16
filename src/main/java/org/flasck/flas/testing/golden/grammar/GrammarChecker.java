@@ -147,38 +147,38 @@ public class GrammarChecker {
 		Iterator<GrammarStep> sit = toks.iterator();
 		while (sit.hasNext()) {
 			GrammarStep s = sit.next();
-			System.out.println("have " + s);
+//			System.out.println("have " + s);
 
 			if (s instanceof GrammarToken) {
 				GrammarToken nt = (GrammarToken) s;
 				if (!nt.isComment()) {
-					System.out.println("pushing " + nt);
+//					System.out.println("pushing " + nt);
 					srstack.add(0, nt);
 				}
 			} else {
 				// It's a reduction
 				ReductionRule rr = (ReductionRule) s;
-				System.out.println("considering rule " + rr + " with " + srstack);
+//				System.out.println("considering rule " + rr + " with " + srstack);
 				GrammarTree tree = new GrammarTree(rr);
 				List<GrammarStep> shifted = new ArrayList<>();
 				while (!srstack.isEmpty()) {
 					GrammarStep si = srstack.get(0);
 					if (rr.includes(si.location())) {
-						System.out.println("reducing " + si + " with " + rr);
+//						System.out.println("reducing " + si + " with " + rr);
 						tree.push(si);
 						srstack.remove(0);
 					} else if (si.location().compareTo(rr.location()) > 0) {
-						System.out.println("shifting " + si + " to get to earlier tokens");
+//						System.out.println("shifting " + si + " to get to earlier tokens");
 						shifted.add(si);
 						srstack.remove(0);
 					} else {
-						System.out.println("not reducing " + si + " with " + rr);
+//						System.out.println("not reducing " + si + " with " + rr);
 						break;
 					}
 				}
 				srstack.add(0, tree);
-				if (!shifted.isEmpty())
-					System.out.println("shifted = " + shifted);
+//				if (!shifted.isEmpty())
+//					System.out.println("shifted = " + shifted);
 				srstack.addAll(0, shifted);
 			}
 		}

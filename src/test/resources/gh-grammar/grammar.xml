@@ -601,6 +601,7 @@
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
 		<reduces-as rule='function-case-default' />
+	    <token type='GUARD'/>
 	    <token type='EQ'/>
 	    <ref production='expression'/>
 	    <eol />

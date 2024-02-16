@@ -21,6 +21,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		private int end;
 		private final List<Expr> terms = new ArrayList<>();
 		private String currentVar;
+		private InputPosition comma;
 
 		public ParenCloseRewriter(InputPosition from, String op) {
 			this.from = from;
@@ -46,6 +47,8 @@ public class ParenTermConsumer implements ExprTermConsumer {
 
 		@Override
 		public void term(Expr term) {
+			InputPosition loc = term.location();
+			// I am unconvinced any of this is correct.  But there may be cases where it is
 			if (term instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) term;
 				term = new ApplyExpr(from.copySetEnd(end), ae.fn, ae.args);
@@ -60,6 +63,10 @@ public class ParenTermConsumer implements ExprTermConsumer {
 				if (currentVar == null)
 					throw new RuntimeException("need field and colon"); // I don't think this can happen
 				term = new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(from, ":"), new StringLiteral(from, currentVar), term);
+			}
+			if (comma != null) {
+				errors.logReduction("comma-expression", comma, loc);
+				comma = null;
 			}
 			terms.add(term);
 		}
@@ -101,6 +108,10 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		public boolean isObjectLiteral() {
 			return op.equals("{}");
 		}
+
+		public void commaAt(InputPosition loc) {
+			this.comma = loc;
+		}
 	}
 
 	private final ErrorReporter errors;
@@ -109,6 +120,8 @@ public class ParenTermConsumer implements ExprTermConsumer {
 	private final ParenCloseRewriter closer;
 	private final TDAExprReducer curr;
 	private boolean expectingColon;
+	private InputPosition comma;
+	private InputPosition lastLoc;
 
 	public ParenTermConsumer(InputPosition from, ErrorReporter errors, ExprTermConsumer builder, Punctuator open) {
 		this.errors = errors;
@@ -138,9 +151,16 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			if (punc.is(")") || punc.is("]") || punc.is("}")) {
 				punc.checkCloserFor(errors, open);
 				closer.endAt(term);
+//				if (comma != null) { // we have a previous comma expression)
+//					errors.logReduction("comma-expression", comma, lastLoc);
+//				}
 				curr.done();
 			} else if (punc.is(",")) {
-				curr.seenComma();
+//				if (comma != null) { // we have a previous comma expression)
+//					errors.logReduction("comma-expression", comma, lastLoc);
+//				}
+				comma = punc.location;
+				curr.seenComma(comma);
 				if (closer.isObjectLiteral())
 					expectingColon = true;
 			} else if (punc.is(":")) {
@@ -153,8 +173,10 @@ public class ParenTermConsumer implements ExprTermConsumer {
 				curr.term(term);
 			} else
 				throw new RuntimeException("Unexpected punc: " + punc);
-		} else
+		} else {
 			curr.term(term);
+		}
+		lastLoc = term.location();
 	}
 
 	@Override
