@@ -55,13 +55,13 @@ public class TDATypeReferenceParser implements TDAParsing {
 							return null;
 						}
 					}
-					errors.logReduction("simple-type-name-with-polys", qn.location, andTypeParameters.get(andTypeParameters.size()-1).location());
+					errors.logReduction("simple-type-name-with-polys", qn, qn);
 				} else {
 					// whatever it was, we didn't want it, so put it back in the pool for somebody else
 					toks.reset(mark);
 					
 					if (reduceSimple)
-						errors.logReduction("simple-type-name", qn.location, qn.location.locAtEnd());
+						errors.logReduction("simple-type-name", qn, qn);
 				}
 			}
 		} else if (reduceSimple) {

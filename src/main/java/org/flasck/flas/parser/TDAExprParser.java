@@ -23,11 +23,11 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDAExprParser implements TDAParsing {
 	private final IntroduceNamer namer;
 	private final ExprTermConsumer builder;
-	private final ErrorReporter errors;
+	private final ExprReducerErrors errors;
 	private final IntroductionConsumer consumer;
 
 	public TDAExprParser(ErrorReporter errors, IntroduceNamer namer, ExprTermConsumer builder, IntroductionConsumer consumer) {
-		this.errors = errors;
+		this.errors = new ExprReducerErrors(errors);
 		this.namer = namer;
 		this.builder = builder;
 		this.consumer = consumer;
@@ -39,6 +39,7 @@ public class TDAExprParser implements TDAParsing {
 			ExprToken tok = ExprToken.from(errors, line);
 			if (tok == null) {
 				builder.done();
+				errors.doneReducing();
 				return null;
 			}
 			switch (tok.type) {
@@ -81,6 +82,7 @@ public class TDAExprParser implements TDAParsing {
 				if ("=".equals(tok.text) || "=>".equals(tok.text) || "<-".equals(tok.text)) {
 					line.reset(mark);
 					builder.done();
+					errors.doneReducing();
 					return null;
 				}
 				builder.term(new UnresolvedOperator(tok.location, tok.text));
@@ -91,6 +93,7 @@ public class TDAExprParser implements TDAParsing {
 				else if (tok.text.equals(")") && builder.isTop()) {
 					line.reset(mark);
 					builder.done();
+					errors.doneReducing();
 					return null;
 				} else
 					builder.term(new Punctuator(tok.location, tok.text));
