@@ -48,17 +48,6 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		@Override
 		public void term(Expr term) {
 			InputPosition loc = term.location();
-			// I am unconvinced any of this is correct.  But there may be cases where it is
-			if (term instanceof ApplyExpr) {
-				ApplyExpr ae = (ApplyExpr) term;
-				term = new ApplyExpr(from.copySetEnd(end), ae.fn, ae.args);
-			} else if (term instanceof TypeExpr) {
-				TypeExpr te = (TypeExpr) term;
-				term = new TypeExpr(from.copySetEnd(end), te.tyLoc, te.type);
-			} else if (term instanceof CastExpr) {
-				CastExpr ce = (CastExpr) term;
-				term = new CastExpr(from.copySetEnd(end), ce.tyLoc, ce.valLoc, ce.type, ce.val);
-			}
 			if (op.equals("{}")) {
 				if (currentVar == null)
 					throw new RuntimeException("need field and colon"); // I don't think this can happen
