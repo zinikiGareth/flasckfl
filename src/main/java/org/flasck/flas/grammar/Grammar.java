@@ -293,6 +293,8 @@ public class Grammar {
 
 	private Definition handleSeq(String ruleName, XMLElement rule) {
 		final SequenceDefinition ret = new SequenceDefinition();
+		ret.borrowFinalIndent(rule.optionalBoolean("borrow-final-indent", false));
+		rule.attributesDone();
 		for (XMLElement xe : rule.elementChildren()) {
 			ret.add(parseDefn(ruleName, xe));
 		}

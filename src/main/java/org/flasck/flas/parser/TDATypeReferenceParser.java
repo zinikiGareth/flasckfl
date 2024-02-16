@@ -14,12 +14,14 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 public class TDATypeReferenceParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final VarNamer namer;
+	private final boolean reduceSimple;
 	private final Consumer<TypeReference> consumer;
 	private final FunctionScopeUnitConsumer topLevel;
 	
-	public TDATypeReferenceParser(ErrorReporter errors, VarNamer namer, Consumer<TypeReference> consumer, FunctionScopeUnitConsumer topLevel) {
+	public TDATypeReferenceParser(ErrorReporter errors, VarNamer namer, boolean reduceSimple, Consumer<TypeReference> consumer, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
 		this.namer = namer;
+		this.reduceSimple = reduceSimple;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 	}
@@ -37,7 +39,7 @@ public class TDATypeReferenceParser implements TDAParsing {
 			PattToken tok = PattToken.from(errors, toks);
 			if (tok != null) {
 				if (tok.type == PattToken.OSB) {
-					TDATypeReferenceParser inner = new TDATypeReferenceParser(errors, namer, x -> andTypeParameters.add(x), topLevel);
+					TDATypeReferenceParser inner = new TDATypeReferenceParser(errors, namer, false, x -> andTypeParameters.add(x), topLevel);
 					while (true) {
 						if (inner.tryParsing(toks) == null) {
 							// it failed, we fail ...
@@ -53,11 +55,17 @@ public class TDATypeReferenceParser implements TDAParsing {
 							return null;
 						}
 					}
+					errors.logReduction("simple-type-name-with-polys", qn.location, andTypeParameters.get(andTypeParameters.size()-1).location());
 				} else {
 					// whatever it was, we didn't want it, so put it back in the pool for somebody else
 					toks.reset(mark);
+					
+					if (reduceSimple)
+						errors.logReduction("simple-type-name", qn.location, qn.location.locAtEnd());
 				}
 			}
+		} else if (reduceSimple) {
+			errors.logReduction("simple-type-name", qn.location, qn.location.locAtEnd());
 		}
 		consumer.accept(new TypeReference(qn.location, qn.text, andTypeParameters));
 		return new NoNestingParser(errors);

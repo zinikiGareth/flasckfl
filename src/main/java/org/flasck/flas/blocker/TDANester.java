@@ -73,6 +73,12 @@ public class TDANester implements BlockConsumer {
 	private void pop() {
 		TDAParsingWithAction endScope = stack.remove(stack.size()-1);
 		endScope.scopeComplete(lastloc);
+		afterParsing(endScope);
+	}
+
+	private void afterParsing(TDAParsingWithAction endScope) {
+		if (endScope.parser instanceof TDAParsingWithAction)
+			afterParsing((TDAParsingWithAction) endScope.parser);
 		if (endScope.afterParsing != null)
 			endScope.afterParsing.run();
 	}

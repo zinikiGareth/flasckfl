@@ -57,7 +57,7 @@ public class TDAExprParser implements TDAParsing {
 						line.reset(mark);
 						List<TypeReference> ltr = new ArrayList<>();
 						Consumer<TypeReference> captureTR = tr -> ltr.add(tr);
-						new TDATypeReferenceParser(errors, (VarNamer)namer, captureTR, (FunctionScopeUnitConsumer)consumer).tryParsing(line);
+						new TDATypeReferenceParser(errors, (VarNamer)namer, false, captureTR, (FunctionScopeUnitConsumer)consumer).tryParsing(line);
 						if (!ltr.isEmpty())
 							term = ltr.get(0);
 						else

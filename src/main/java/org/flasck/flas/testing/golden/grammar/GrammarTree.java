@@ -94,9 +94,21 @@ public class GrammarTree implements GrammarStep {
 	}
 
 	public boolean isSingleton() {
-		return members.size() == 1 && members.get(0) instanceof GrammarTree;
+		return members.size() == 1 && members.get(0) instanceof GrammarTree && !isSpecial(((GrammarTree)members.get(0)).reducedTo.ruleName());
 	}
 	
+	private boolean isSpecial(String ruleName) {
+		switch (ruleName) {
+		case "assign-method-action":
+		case "message-method-action":
+		case "function-case-with-guard":
+		case "function-case-default":
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	public boolean isTerminal() {
 		return members.size() == 1 && members.get(0) instanceof GrammarToken;
 	}

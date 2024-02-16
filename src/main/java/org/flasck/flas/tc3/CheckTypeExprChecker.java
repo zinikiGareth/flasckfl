@@ -46,8 +46,9 @@ public class CheckTypeExprChecker extends LeafAdapter implements ResultAware {
 			return;
 		}
 		
-		if (!typeValue.type.incorporates(expr.type.location(), expr.type.namedDefn())) {
-			errors.message(expr.type.location(), "expression cannot be a " + expr.type.name());
+		if (!typeValue.type.incorporates(expr.type.location(), expr.type.namedDefn()) &&
+			!expr.type.namedDefn().incorporates(expr.type.location(), typeValue.type)) {
+			errors.message(typeValue.location(), "expression cannot be a " + expr.type.name());
 			nv.result(new ErrorType());
 			return;
 		}

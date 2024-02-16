@@ -9,4 +9,6 @@ public interface TrackProduction {
 //	public boolean is(String rule);
 
 	public TrackProduction choose(String rule);
+	
+	public default boolean canBeKeyword(String keyword) { return false; }
 }

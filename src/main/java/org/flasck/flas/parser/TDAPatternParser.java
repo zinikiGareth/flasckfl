@@ -188,7 +188,7 @@ public class TDAPatternParser implements TDAParsing {
 
 	public TDAParsing handleCasesStartingWithAType(Tokenizable toks, TypeNameToken type) {
 		List<TypeReference> ref = new ArrayList<>();
-		if (new TDATypeReferenceParser(errors, namer, x->ref.add(x), topLevel).tryParsing(toks) == null) {
+		if (new TDATypeReferenceParser(errors, namer, false, x->ref.add(x), topLevel).tryParsing(toks) == null) {
 			// it didn't parse, so give up hope
 			return null;
 		}

@@ -10,6 +10,7 @@ import org.zinutils.exceptions.CantHappenException;
 public class SequenceDefinition extends Definition {
 	private List<Definition> elts = new ArrayList<>();
 	private ReducesAs baseReducesAs;
+	private boolean borrowFinalIndent;
 	
 	public String reducesAs() {
 		if (baseReducesAs == null)
@@ -82,6 +83,15 @@ public class SequenceDefinition extends Definition {
 		SequenceDefinition ret = new SequenceDefinition();
 		ret.elts.addAll(elts);
 		ret.baseReducesAs = this.baseReducesAs;
+		ret.borrowFinalIndent = this.borrowFinalIndent;
 		return ret;
+	}
+
+	public void borrowFinalIndent(boolean bool) {
+		this.borrowFinalIndent = bool;
+	}
+
+	public boolean borrowFinalIndent() {
+		return borrowFinalIndent;
 	}
 }

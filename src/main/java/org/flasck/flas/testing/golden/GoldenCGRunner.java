@@ -275,6 +275,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 //		} finally {
 //		FileUtils.cat(new File(s, "repo.txt"));
 //		}
+		checkExpectedErrors(te, expectedErrors, actualErrors);
 		GrammarChecker r = new GrammarChecker(parseTokens, reconstruct);
 		// TODO: allow it to merge in other grammars such as Ziniki
 		Map<String, GrammarTree> fileOrchards = r.checkParseTokenLogic(expectedErrors.isDirectory());
@@ -299,7 +300,6 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 				}
 			}
 //		}
-		checkExpectedErrors(te, expectedErrors, actualErrors);
 		if (tmp != null)
 			throw tmp;
 	}

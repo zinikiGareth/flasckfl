@@ -797,13 +797,9 @@
       <ref production='paren-expression' />
       <ref production='tuple-expression' />
       <ref production='function-call' />
+      <ref production='get-type-expr' />'
       <ref production='check-type-expr' />
       <ref production='member-expr' />
-      <seq>
-		<reduces-as rule='type-expr' />
-		<token type='TYPE' />
-        <ref production='expression-term'/>
-	  </seq>
       <seq>
         <token type='UNOP'/>
         <ref production='expression'/>
@@ -854,9 +850,25 @@
     <tested by='test.parsing.ExprTokenizationTests' />
     <seq>
 	  <token type='ISTYPE' />
-      <ref production='type-reference'/>
+      <token type='type-name'/>
       <ref production='expression-term'/>
     </seq>
+  </production>
+  <production name='get-type-expr'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprTokenizationTests' />
+    <or>
+      <seq>
+		<reduces-as rule='type-expr-type' />
+		<token type='TYPE' />
+        <token type='type-name'/>
+	  </seq>
+      <seq>
+		<reduces-as rule='type-expr-expr' />
+		<token type='TYPE' />
+        <ref production='expression'/>
+	  </seq>
+	</or>
   </production>
   <production name='value-expression'>
     <section title='Expressions' />
@@ -1031,8 +1043,8 @@
   <production name='object-method-definition'>
     <section title='Method' />
 	<tested by='test.parsing.TDAObjectElementParsingTests' />
-	<seq>
-	  <reduces-as rule='method-intro' />
+	<seq borrow-final-indent='true'>
+	  <reduces-as rule='object-method-intro' />
       <token type='METHOD'/>
       <will-name pattern='ObjectMethod\[${name}\(.*\)\]' />
       <ref production='method-definition'/>
@@ -1096,6 +1108,7 @@
     <tested by='test.parsing.TDAMethodNestedParsingTests' />
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <seq>
+	  <reduces-as rule='method-actions' />
       <many>
         <ref production='method-action'/>
       </many>
@@ -1149,10 +1162,10 @@
     <section title='Method'/>
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <seq>
-    	  <token type='var-name'/>
-    	  <many>
-    	    <ref production='member-path-apply'/>
-    	  </many>
+      <token type='var-name'/>
+      <many>
+   	    <ref production='member-path-apply'/>
+   	  </many>
     </seq>
   </production>
   <production name='member-path-apply'>

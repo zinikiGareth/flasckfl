@@ -44,7 +44,7 @@ public class TDAUnitTestDataParser extends BlockLocationTracker implements TDAPa
 	public TDAParsing tryParsing(Tokenizable toks) {
 		InputPosition pos = toks.realinfo();
 		List<TypeReference> tr = new ArrayList<>();
-		TDATypeReferenceParser parser = new TDATypeReferenceParser(errors, namer, x -> tr.add(x), topLevel);
+		TDATypeReferenceParser parser = new TDATypeReferenceParser(errors, namer, true, x -> tr.add(x), topLevel);
 		if (parser.tryParsing(toks) == null) {
 			// it failed
 			return new IgnoreNestedParser(errors);

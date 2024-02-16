@@ -70,8 +70,16 @@ public class SeqProduction implements TrackProduction {
 
 	private TrackProduction figureIndent() {
 		Definition last = d.nth(d.length()-1);
-		if (!(last instanceof IndentDefinition))
-			return null;
+		if (!(last instanceof IndentDefinition)) {
+			if (!d.borrowFinalIndent())
+				return null;
+			System.out.print("borrowing");
+			RefDefinition rd = (RefDefinition) last;
+			String refersTo = rd.ruleName();
+			Production other = grammar.findRule(refersTo);
+			SequenceDefinition od = (SequenceDefinition) other.defn;
+			last = od.nth(od.length()-1);
+		}
 		IndentDefinition id = (IndentDefinition)last;
 		String r = id.reducesTo();
 		Definition rd = id.indented();
@@ -98,6 +106,15 @@ public class SeqProduction implements TrackProduction {
 			return this;
 		else
 			return null;
+	}
+	
+	@Override
+	public boolean canBeKeyword(String keyword) {
+		for (SeqReduction e : reduceAs.values()) {
+			if (e.canBeKeyword(keyword))
+				return true;
+		}
+		return false;
 	}
 	
 	public SeqReduction get(String name) {

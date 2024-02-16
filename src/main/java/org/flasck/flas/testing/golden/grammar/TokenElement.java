@@ -36,4 +36,8 @@ public class TokenElement implements SeqElement {
 	public boolean canBeSkipped() {
 		return false;
 	}
+
+	public boolean canBeKeyword(String keyword) {
+		return td.isToken(g, null, keyword);
+	}
 }

@@ -163,6 +163,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				lastLoc = p.location();
 			}
 			builder.addConstructor(ctor);
+			errors.logReduction("method-intro", var.location, lastLoc);
 			errors.logReduction("object-ctor-decl", kw.location, lastLoc);
 			tellParent(kw.location);
 			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
@@ -203,7 +204,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 //				reduce(kw.location, "object-method-line");
 			};
 			tellParent(kw.location);
-			TDAMethodParser mp = new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this, "method-intro", false);
+			TDAMethodParser mp = new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this, "object-method-intro", false);
 			return new TDAParsingWithAction(
 				mp.parseMethod(kw, methodNamer, toks),
 				mp.reduction(kw.location, "object-method-definition")

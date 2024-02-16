@@ -17,7 +17,7 @@ public class AssignMessage implements ActionMessage {
 	
 	@Override
 	public InputPosition location() {
-		return kw;
+		return slot.location();
 	}
 	
 	@Override

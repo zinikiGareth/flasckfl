@@ -1,3 +1,9 @@
 	f (Any x)
 		| istype List x = 1
 		| = 0
+		
+		
+	q = istype List []
+	r = istype Number (3+6)
+	s = istype Number (f 19)
+	

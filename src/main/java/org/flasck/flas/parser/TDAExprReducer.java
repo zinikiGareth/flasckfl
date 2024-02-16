@@ -170,15 +170,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 		if (isCheckTypeExpr(t0))
 			return resolveCheckTypeExpr(t0, from, to);
 		if (from+1 == to && !isConstructor(t0)) {
-			if (t0 instanceof UnresolvedVar) { // it's trivially a function call for the grammar...
-				errors.logReduction("function-call", t0.location(), t0.location().locAtEnd());
-			} else if (t0 instanceof NumericLiteral) {
-				errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
-			} else if (t0 instanceof StringLiteral) {
-				errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
-			}
-			errors.logReduction("expression", t0.location(), t0.location().locAtEnd());
-			return t0;
+			return reduceSingletonToExpression(t0);
 		} else {
 //			for (int i=from+1;i<to;i++) {
 //				Expr ti = terms.get(i);
@@ -196,6 +188,18 @@ public class TDAExprReducer implements ExprTermConsumer {
 //				}
 			return new ApplyExpr(t0.location().copySetEnd(terms.get(to-1).location().pastEnd()), t0, args(from+1, to).toArray());
 		}
+	}
+
+	private Expr reduceSingletonToExpression(final Expr t0) {
+		if (t0 instanceof UnresolvedVar) { // it's trivially a function call for the grammar...
+			errors.logReduction("function-call", t0.location(), t0.location().locAtEnd());
+		} else if (t0 instanceof NumericLiteral) {
+			errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
+		} else if (t0 instanceof StringLiteral) {
+			errors.logReduction("literal", t0.location(), t0.location().locAtEnd());
+		}
+		errors.logReduction("expression", t0.location(), t0.location().locAtEnd());
+		return t0;
 	}
 
 	private boolean isConstructor(Expr t0) {
@@ -258,9 +262,14 @@ public class TDAExprReducer implements ExprTermConsumer {
 			errors.message(t0.location(), "type must have exactly one argument");
 			return null;
 		}
-		Expr ctor = terms.get(from+1);
-		errors.logReduction("type-expr", t0, ctor);
-		return new TypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ctor);
+		Expr expr = terms.get(from+1);
+		if (expr instanceof TypeReference)
+			errors.logReduction("type-expr-type", t0, expr);
+		else {
+			reduceSingletonToExpression(expr);
+			errors.logReduction("type-expr-expr", t0, expr);
+		}
+		return new TypeExpr(t0.location().copySetEnd(expr.location().pastEnd()), expr.location(), expr);
 	}
 	
 	private Expr resolveCheckTypeExpr(Expr t0, int from, int to) {
@@ -271,8 +280,6 @@ public class TDAExprReducer implements ExprTermConsumer {
 			return null;
 		}
 		Expr type = terms.get(from+1);
-		// TODO: I think this should have already been done elsewhere, and the correct rule applied if it has polys
-		errors.logReduction("simple-type-name", type.location(), type.location());
 		Expr expr = terms.get(from+2);
 		errors.logReduction("check-type-expr", t0, expr);
 		return new CheckTypeExpr(t0.location().copySetEnd(type.location().pastEnd()), type.location(), type, expr);

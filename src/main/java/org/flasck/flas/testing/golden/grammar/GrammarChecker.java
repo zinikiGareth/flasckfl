@@ -265,7 +265,7 @@ public class GrammarChecker {
 		if (tree.isSingleton()) {
 			traverseTree((GrammarTree) tree.members().next(), gn);
 		} else if (tree.isTerminal()) {
-			matchTerminal((OrChoice) prod, tree.terminal());
+			matchTerminal(prod, tree.terminal());
 		} else if (tree.hasMembers()) {
 			matchLineSegment(rule, tree, gn);
 		} else
@@ -407,13 +407,18 @@ public class GrammarChecker {
 		}
 	}
 
-	private void matchTerminal(OrChoice tp, GrammarToken tok) {
-		System.out.println(tok);
+	private void matchTerminal(TrackProduction tp, GrammarToken tok) {
+		System.out.println(tok + ":: " + tok.type);
 		TokenProduction rule = (TokenProduction) tp.choose(tok.type);
-		if (rule == null)
-			throw new CantHappenException("the token did not match " + tok.type);
-		if (!rule.matches(tok.text))
-			throw new CantHappenException("the token did not match the pattern " + tok.text);
+		if (rule != null) {
+			// check it matches
+			if (!rule.matches(tok.text))
+				throw new CantHappenException("the token did not match the pattern " + tok.text);
+		} else {
+			// try seeing if it is a keyword here
+			if (!tp.canBeKeyword(tok.text))
+				throw new CantHappenException("no rule could be found for " + tok.type);
+		}
 	}
 	
 	/*

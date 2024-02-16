@@ -61,6 +61,7 @@ public class TDAMethodParser extends BlockLocationTracker {
 		}
 		if (reduceAs != null) {
 			if (kw != null) {
+				errors.logReduction("method-intro", var.location, endOf);
 				errors.logReduction(reduceAs, kw.location, endOf);
 				tellParent(kw.location);
 			} else {
@@ -72,13 +73,23 @@ public class TDAMethodParser extends BlockLocationTracker {
 		builder.addMethod(meth);
 		FunctionScopeNamer nestedNamer = new InnerPackageNamer(fnName);
 		TDAMethodGuardParser normal = new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder, this), this);
+		
+		// TODO: this needs more work to handle the "guard" case
+		// And the guard case needs more work to handle *its* nested cases
+		TDAParsing reducer = new TDAParsingWithAction(normal,
+				() -> {
+					if (!meth.messages().isEmpty()) {
+						reduce(meth.messages().get(0).location(), "method-actions");
+					}
+				});
+		
 		if (standalone)
 			return new TDAParsingWithAction(
-				normal,
+				reducer,
 				reduction(kw.location, "standalone-method-definition")
 			);
 		else
-			return normal;
+			return reducer;
 	}
 
 	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker) {

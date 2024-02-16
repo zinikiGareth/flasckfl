@@ -60,6 +60,15 @@ public class SeqReduction implements Iterable<SeqElement> {
 			throw new NotImplementedException("converting " + x + " of " + x.getClass());
 	}
 
+	public boolean canBeKeyword(String keyword) {
+		if (matchers.size() != 1)
+			return false;
+		if (matchers.get(0) instanceof TokenElement)
+			return ((TokenElement)matchers.get(0)).canBeKeyword(keyword);
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	@Override
 	public Iterator<SeqElement> iterator() {
 		return matchers.iterator();
