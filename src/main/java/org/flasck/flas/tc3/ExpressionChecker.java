@@ -228,11 +228,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			throw new RuntimeException("Cannot handle " + op);
 	}
 	
-	@Override
-	public void visitHandleExpr(InputPosition location, Expr expr, Expr handler) {
-		this.exprPos = location;
-		nv.push(new MessageHandlerExpressionChecker(errors, repository, state, nv, fnCxt));
-	}
+//	@Override
+//	public void visitHandleExpr(InputPosition location, Expr expr, Expr handler) {
+//		this.exprPos = location;
+//		nv.push(new MessageHandlerExpressionChecker(errors, repository, state, nv, fnCxt));
+//	}
 	
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {

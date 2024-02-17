@@ -756,12 +756,20 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitSendMessage(msg);
 	}
 
-	public void visitHandlerName(Expr handlerName) {
-		top.visitHandlerName(handlerName);
+	public void visitSendHandler(Expr handlerExpr) {
+		top.visitSendHandler(handlerExpr);
 	}
 
-	public void leaveHandlerName(Expr handlerName) {
-		top.leaveHandlerName(handlerName);
+	public void leaveSendHandler(Expr handlerExpr) {
+		top.leaveSendHandler(handlerExpr);
+	}
+
+	public void visitSubscriberName(Expr handlerName) {
+		top.visitSubscriberName(handlerName);
+	}
+
+	public void leaveSubscriberName(Expr handlerName) {
+		top.leaveSubscriberName(handlerName);
 	}
 
 	public void leaveSendMessage(SendMessage msg) {
@@ -778,14 +786,6 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveStandaloneMethod(StandaloneMethod meth) {
 		top.leaveStandaloneMethod(meth);
-	}
-
-	public void visitHandleExpr(InputPosition location, Expr expr, Expr handler) {
-		top.visitHandleExpr(location, expr, handler);
-	}
-
-	public void leaveHandleExpr(Expr expr, Expr handler) {
-		top.leaveHandleExpr(expr, handler);
 	}
 
 	public void leaveStateDefinition(StateDefinition state) {

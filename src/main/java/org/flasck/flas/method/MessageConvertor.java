@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -31,7 +32,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class MessageConvertor extends LeafAdapter implements ResultAware {
 	public enum Mode {
-		RHS, SLOT, NESTEDSLOT, HAVESLOT
+		RHS, SLOT, NESTEDSLOT, HAVESLOT, SUBSCRIBERNAME
 	}
 
 	private final ErrorReporter errors;
@@ -49,6 +50,23 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		this.assign = assign;
 	}
 
+	@Override
+	public void leaveSendHandler(Expr handlerExpr) {
+		if (stack.size() != 2) {
+			throw new CantHappenException("when we have a handler, there should be two items on the stack");
+		}
+		Object sr = stack.get(0);
+		MakeSend ms;
+		if (sr instanceof MakeSend)
+			ms = (MakeSend) sr;
+		else if (sr instanceof ApplyExpr)
+			ms = (MakeSend) ((ApplyExpr)sr).fn;
+		else
+			throw new NotImplementedException();
+		Expr h = (Expr) stack.remove(1);
+		ms.handler = h;
+	}
+	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
 		if (expr instanceof ApplyExpr)
@@ -98,7 +116,7 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		if (mode == Mode.RHS)
+		if (mode == Mode.RHS || mode == Mode.SUBSCRIBERNAME)
 			stack.add((Expr) r);
 		else {
 			if (slotContainer != null)
@@ -169,21 +187,6 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void leaveHandleExpr(Expr expr, Expr handler) {
-		Object sr = stack.remove(0);
-		MakeSend ms;
-		if (sr instanceof MakeSend)
-			ms = (MakeSend) sr;
-		else if (sr instanceof ApplyExpr)
-			ms = (MakeSend) ((ApplyExpr)sr).fn;
-		else
-			throw new NotImplementedException();
-		Expr h = (Expr) stack.remove(0);
-		ms.handler = h;
-		nv.result(sr);
-	}
-	
-	@Override
 	public void leaveStructField(StructField sf) {
 		if (stack.isEmpty())
 			return;
@@ -194,8 +197,27 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void leaveHandlerName(Expr handlerName) {
+	public void visitSubscriberName(Expr expr) {
+		mode = Mode.SUBSCRIBERNAME;
+		nv.push(new MessageConvertor(errors, nv, oah, null));
+	}
+	
+	@Override
+	public void leaveSubscriberName(Expr handlerName) {
 		nv.result(stack.remove(0));
+	}
+
+	@Override
+	public void leaveSendMessage(SendMessage msg) {
+		if (msg.subscriberName() != null) {
+			// the handler name expr has been added to the end of results, and needs to be moved onto the MakeSend just before that
+			Expr hn = (Expr) stack.remove(1);
+			Expr ms = (Expr) stack.get(0);
+			if (ms instanceof ApplyExpr) { // it is a MakeSend with a handler
+				ms = (MakeSend)((ApplyExpr)ms).fn;
+			}
+			((MakeSend)ms).handlerName = hn;
+		}
 	}
 	
 	@Override

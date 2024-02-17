@@ -78,7 +78,7 @@ public class ExprReducerErrors implements ErrorReporter {
 
 		
 		System.out.println("reduce " + ruleId + " " + first.location() + " - " + last.location() + " " + first + " -- " + last);
-		System.out.println("before: " + linear);
+		System.out.println("before: " + linear.size() + ": " + linear);
 		Iterator<Entry<InputPosition, Composite>> it = linear.entrySet().iterator();
 		List<Composite> collect = new ArrayList<>();
 		boolean collecting = false;
@@ -115,7 +115,7 @@ public class ExprReducerErrors implements ErrorReporter {
 			throw new CantHappenException("nothing matched");
 		}
 		linear.put(first.location(), new Composite(ruleId, last, collect));
-		System.out.println("after: " + linear);
+		System.out.println("after: " + linear.size() + ": " + linear);
 	}
 
 	public void logReduction(String ruleId, InputPosition from, InputPosition to) {
@@ -134,8 +134,11 @@ public class ExprReducerErrors implements ErrorReporter {
 	public void doneReducing() {
 		System.out.println("done reducing");
 		System.out.println(linear);
-//		if (linear.size() != 1)
-//			throw new CantHappenException("Not fully reduced");
+		if (linear.size() > 1) {
+			for (Entry<InputPosition, Composite> e : linear.entrySet())
+				System.out.println(e.getKey() + " ====> " + e.getValue());
+//			throw new CantHappenException("Not fully reduced: " + linear.size());
+		}
 	}
 
 	public ErrorReporter message(InputPosition pos, String msg) {

@@ -6,7 +6,8 @@ import org.flasck.flas.commonBase.Expr;
 public class SendMessage implements ActionMessage {
 	public final InputPosition kw;
 	public final Expr expr;
-	private Expr handlerName;
+	private Expr handler; // the handler after ->
+	private Expr subscriberName; // the subscription after =>
 
 	public SendMessage(InputPosition kw, Expr expr) {
 		this.kw = kw;
@@ -17,12 +18,20 @@ public class SendMessage implements ActionMessage {
 		return kw;
 	}
 	
-	public void handlerNameExpr(Expr t) {
-		this.handlerName = t;
+	public void handlerExpr(Expr t) {
+		this.handler = t;
 	}
 	
-	public Expr handlerName() {
-		return handlerName;
+	public Expr handlerExpr() {
+		return this.handler;
+	}
+	
+	public void subscriberNameExpr(Expr t) {
+		this.subscriberName = t;
+	}
+	
+	public Expr subscriberName() {
+		return subscriberName;
 	}
 	
 	@Override

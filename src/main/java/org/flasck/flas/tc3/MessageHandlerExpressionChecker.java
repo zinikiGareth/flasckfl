@@ -49,6 +49,7 @@ public class MessageHandlerExpressionChecker extends LeafAdapter implements Resu
 		results.add(ty);
 	}
 	
+	/*
 	@Override
 	public void leaveHandleExpr(Expr expr, Expr handler) {
 		PosType pfn = results.remove(0);
@@ -89,4 +90,5 @@ public class MessageHandlerExpressionChecker extends LeafAdapter implements Resu
 		}
 		nv.result(fn.get(1));
 	}
+	*/
 }

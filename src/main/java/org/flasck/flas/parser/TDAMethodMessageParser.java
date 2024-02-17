@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
@@ -30,53 +30,67 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 		ExprToken tok = ExprToken.from(errors, toks);
 		updateLoc(tok.location);
 		if ("<-".equals(tok.text))
-			return handleSend(tok.location, toks);
+			return handleSend(tok, toks);
 		else if (tok.type == ExprToken.IDENTIFIER)
 			return handleAssign(tok, toks);
 		else {
 			errors.message(toks, "expected assign or send message");
 			return new IgnoreNestedParser(errors);
 		}
-			
 	}
 
-	private TDAParsing handleSend(InputPosition arrowPos, Tokenizable toks) {
+	private TDAParsing handleSend(Locatable arrowPos, Tokenizable toks) {
 		List<SendMessage> seen = new ArrayList<>();
+		Tokenizable ec = toks.copyTo("->");
 		new TDAExpressionParser(errors, t -> {
-			SendMessage msg = new SendMessage(arrowPos, t);
+			SendMessage msg = new SendMessage(arrowPos.location(), t);
 			seen.add(msg);
-			builder.sendMessage(msg);
-		}).tryParsing(toks);
+		}).tryParsing(ec);
 		if (seen.isEmpty()) {
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser(errors);
 		}
 		
-		String handled = "";
 		SendMessage send = seen.get(0);
-		if (ApplyExpr.isOp(send.expr, "->")) {
-			handled = "-handled";
-		}
-		
-		if (toks.hasMoreContent(errors)) {
-			ExprToken tok = ExprToken.from(errors, toks);
-			if (tok.type == ExprToken.SYMBOL && tok.text.equals("=>")) {
+		Locatable last = send;
+
+		if (ec != toks) { // handler case
+			String handled = "";
+			toks.reset(ec.at());
+			ExprToken htok = ExprToken.from(errors, toks);
+			if (htok.text.equals("->")) {
+				handled = "-handled";
+				Tokenizable handlerText = toks.copyTo("=>");
 				new TDAExpressionParser(errors, t -> {
-					seen.get(0).handlerNameExpr(t);
-				}).tryParsing(toks);
-				if (toks.hasMoreContent(errors)) {
+					seen.get(0).handlerExpr(t);
+				}).tryParsing(handlerText);
+				toks.reset(handlerText.at());
+			} else {
+				toks.reset(ec.at());
+			}
+			if (toks.hasMoreContent(errors)) {
+				ExprToken tok = ExprToken.from(errors, toks);
+				if (tok.type == ExprToken.SYMBOL && tok.text.equals("=>")) {
+					new TDAExpressionParser(errors, t -> {
+						seen.get(0).subscriberNameExpr(t);
+					}).tryParsing(toks);
+					if (toks.hasMoreContent(errors)) {
+						errors.message(toks, "syntax error");
+						return new IgnoreNestedParser(errors);
+					}
+					errors.logReduction("method-message-send" + handled +"-subscribed", arrowPos, last);
+				} else {
 					errors.message(toks, "syntax error");
 					return new IgnoreNestedParser(errors);
 				}
-				errors.logReduction("method-message-send" + handled +"-subscribed", arrowPos, toks.realinfo());
 			} else {
-				errors.message(toks, "syntax error");
-				return new IgnoreNestedParser(errors);
+				errors.logReduction("method-message-send" + handled, arrowPos, last);
 			}
 		} else {
-			errors.logReduction("method-message-send" + handled, arrowPos, toks.realinfo());
+			errors.logReduction("method-message-send", arrowPos, last);
 		}
-		tellParent(arrowPos);
+		builder.sendMessage(seen.get(0));
+		tellParent(arrowPos.location());
 		return nestedParser;
 	}
 

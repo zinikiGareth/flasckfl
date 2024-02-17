@@ -51,7 +51,7 @@ public class TDAMethodGuardsTests {
 	@Test
 	public void weDontNeedToUseGuards() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot")), null).location("fred", 1, 0, 2)));
 			oneOf(builder).done();
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
@@ -94,7 +94,7 @@ public class TDAMethodGuardsTests {
 	@Test
 	public void theFirstMessageCommitsUsToMessages() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot")), null).location("fred", 1, 0, 2)));
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.fetchRoot"));

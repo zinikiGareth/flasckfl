@@ -80,16 +80,22 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private final ErrorReporter errors;
+	private final RepositoryReader repository;
 	private final CurrentTCState state;
 	private final NestedVisitor sv;
+	private final String fnCxt;
 	private final ObjectActionHandler inMeth;
 	private final AssignMessage assign;
+	private boolean expectHandler;
 	private ExprResult rhsType;
+	private ExprResult handlerType;
 
 	public MessageChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, String fnCxt, ObjectActionHandler inMeth, AssignMessage assign) {
 		this.errors = errors;
+		this.repository = repository;
 		this.state = state;
 		this.sv = sv;
+		this.fnCxt = fnCxt;
 		this.inMeth = inMeth;
 		this.assign = assign;
 		sv.push(this);
@@ -100,11 +106,28 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	// The first thing that should happen is the RHS returns a result
 	@Override
 	public void result(Object r) {
-		if (rhsType != null)
-			throw new NotImplementedException("was not expecting multiple results");
-		rhsType = (ExprResult) r;
+		if (expectHandler) {
+			if (handlerType != null)
+				throw new CantHappenException("not expecting multiple handlers");
+			this.handlerType = (ExprResult) r;
+		} else {
+			if (rhsType != null)
+				throw new NotImplementedException("was not expecting multiple results");
+			rhsType = (ExprResult) r;
+		}
 	}
 
+	@Override
+	public void visitSendHandler(Expr handlerExpr) {
+		this.expectHandler = true;
+		sv.push(new ExpressionChecker(errors, repository, state, sv, fnCxt, false));
+	}
+	
+	@Override
+	public void leaveSendHandler(Expr handlerExpr) {
+		this.expectHandler = false;
+	}
+	
 	// a slot is 0-or-more MemberExprs wrapped around an UnresolvedVar.  Unpack it recursively
 	@Override
 	public void visitAssignSlot(Expr toSlot) {
@@ -275,15 +298,33 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		Type ty = rhsType.type;
 		
 		if (msg instanceof SendMessage) {
-			if (!TypeHelpers.isListMessage(pos, ty)) {
+			SendMessage sm = (SendMessage) msg;
+			if (TypeHelpers.isListMessage(pos, ty)) {
+				// it is a message, or list of messages, so the handler type must be null
+				if (handlerType != null)
+					errors.message(pos, ty.signature() + " cannot have a handler");
+			} else {
+				boolean isError = true;
 				if (ty instanceof ErrorType)
 					;
 				else if (TypeHelpers.isList(ty))
 					errors.message(pos, ((PolyInstance)ty).polys().get(0).signature() + " cannot be a Message");
-				else
-					errors.message(pos, ty.signature() + " cannot be a Message");
-				sv.result(new ExprResult(pos, new ErrorType()));
-				return;
+				else {
+					if (ty instanceof Apply && handlerType != null) {
+						Apply ae = (Apply) ty;
+						if (ae.argCount() != 1)
+							errors.message(sm.expr.location().locAtEnd().plus(1), "insufficient arguments");
+						else if (!ae.tys.get(0).incorporates(pos, handlerType.type)) 
+							errors.message(sm.expr.location().locAtEnd().plus(1), "message method was expecting a handler of " + ae.tys.get(0).signature() + " not " + handlerType.type.signature());
+						else
+							isError = false;
+					} else
+						errors.message(pos, ty.signature() + " cannot be a Message");
+				}
+				if (isError) {
+					sv.result(new ExprResult(pos, new ErrorType()));
+					return;
+				}
 			}
 		}
 		

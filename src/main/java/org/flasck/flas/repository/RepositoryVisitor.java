@@ -176,8 +176,10 @@ public interface RepositoryVisitor {
 	void visitAssignSlot(Expr slot);
 	void leaveAssignMessage(AssignMessage msg);
 	void visitSendMessage(SendMessage msg);
-	void visitHandlerName(Expr handlerName);
-	void leaveHandlerName(Expr handlerName);
+	void visitSendHandler(Expr handlerExpr);
+	void leaveSendHandler(Expr handlerExpr);
+	void visitSubscriberName(Expr subscriberName);
+	void leaveSubscriberName(Expr subscriberName);
 	void leaveSendMessage(SendMessage msg);
 	void leaveMessage(ActionMessage msg);
 	void leaveMessages(Messages msgs);
@@ -213,8 +215,6 @@ public interface RepositoryVisitor {
 	void leaveUnitTestInput(UnitTestInput e);
 	void leaveUnitTestStep(UnitTestStep s);
 	void visitSendMethod(NamedType defn, UnresolvedVar expr);
-	void visitHandleExpr(InputPosition location, Expr expr, Expr handler);
-	void leaveHandleExpr(Expr expr, Expr handler);
 	void traversalDone();
 	void visitObjectContract(ObjectContract oc);
 	void leaveObjectContract(ObjectContract oc);

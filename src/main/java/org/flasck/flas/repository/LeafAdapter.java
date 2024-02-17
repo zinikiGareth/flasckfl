@@ -344,11 +344,19 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitHandlerName(Expr handlerName) {
+	public void visitSendHandler(Expr handlerExpr) {
 	}
 
 	@Override
-	public void leaveHandlerName(Expr handlerName) {
+	public void leaveSendHandler(Expr handlerExpr) {
+	}
+
+	@Override
+	public void visitSubscriberName(Expr handlerName) {
+	}
+
+	@Override
+	public void leaveSubscriberName(Expr handlerName) {
 	}
 
 	@Override
@@ -714,14 +722,6 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
-	}
-
-	@Override
-	public void visitHandleExpr(InputPosition location, Expr expr, Expr handler) {
-	}
-
-	@Override
-	public void leaveHandleExpr(Expr expr, Expr handler) {
 	}
 
 	@Override

@@ -1460,20 +1460,33 @@ public class Traverser implements RepositoryVisitor {
 	public void visitSendMessage(SendMessage msg) {
 		visitor.visitSendMessage(msg);
 		visitExpr(msg.expr, 0);
-		if (msg.handlerName() != null) {
-			visitHandlerName(msg.handlerName());
+		if (msg.handlerExpr() != null) {
+			visitSendHandler(msg.handlerExpr());
+		}
+		if (msg.subscriberName() != null) {
+			visitSubscriberName(msg.subscriberName());
 		}
 		leaveSendMessage(msg);
 	}
 
-	public void visitHandlerName(Expr handlerName) {
-		visitor.visitHandlerName(handlerName);
-		visitExpr(handlerName, 0);
-		leaveHandlerName(handlerName);
+	public void visitSendHandler(Expr handlerExpr) {
+		visitor.visitSendHandler(handlerExpr);
+		visitExpr(handlerExpr, 0);
+		leaveSendHandler(handlerExpr);
 	}
 
-	public void leaveHandlerName(Expr handlerName) {
-		visitor.leaveHandlerName(handlerName);
+	public void leaveSendHandler(Expr handlerExpr) {
+		visitor.leaveSendHandler(handlerExpr);
+	}
+
+	public void visitSubscriberName(Expr subscriberName) {
+		visitor.visitSubscriberName(subscriberName);
+		visitExpr(subscriberName, 0);
+		leaveSubscriberName(subscriberName);
+	}
+
+	public void leaveSubscriberName(Expr handlerName) {
+		visitor.leaveSubscriberName(handlerName);
 	}
 
 	@Override
@@ -1716,28 +1729,11 @@ public class Traverser implements RepositoryVisitor {
 				visitor.visitExpr(ae, 0);
 		}
 		
-		if (fn instanceof UnresolvedOperator && ((UnresolvedOperator)fn).op.equals("->")) {
-			visitHandleExpr(fn.location(), (Expr)ae.args.get(0), (Expr)ae.args.get(1));
-		} else {
-			visitor.visitApplyExpr(ae);
-			visitExpr(fn, ae.args.size());
-			for (Object x : ae.args)
-				visitExpr((Expr) x, 0);
-			leaveApplyExpr(ae);
-		}
-	}
-
-	@Override
-	public void visitHandleExpr(InputPosition location, Expr expr, Expr handler) {
-		visitor.visitHandleExpr(location, expr, handler);
-		visitExpr(expr, 0);
-		visitExpr(handler, 0);
-		leaveHandleExpr(expr, handler);
-	}
-
-	@Override
-	public void leaveHandleExpr(Expr expr, Expr handler) {
-		visitor.leaveHandleExpr(expr, handler);
+		visitor.visitApplyExpr(ae);
+		visitExpr(fn, ae.args.size());
+		for (Object x : ae.args)
+			visitExpr((Expr) x, 0);
+		leaveApplyExpr(ae);
 	}
 
 	private NestedVarReader isFnNeedingNesting(Expr fn) {
