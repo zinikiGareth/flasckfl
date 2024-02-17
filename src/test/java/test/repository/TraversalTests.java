@@ -662,7 +662,7 @@ public class TraversalTests {
 		UnresolvedVar f = new UnresolvedVar(pos, "f");
 		StringLiteral hello = new StringLiteral(pos, "hello");
 		ApplyExpr inv = new ApplyExpr(pos, f, hello);
-		UnitTestSend uts = new UnitTestSend(new UnresolvedVar(pos, "card"), tr, inv);
+		UnitTestSend uts = new UnitTestSend(new UnresolvedVar(pos, "card"), tr, inv, null);
 		utc.steps.add(uts);
 		r.addEntry(errors, name, utp);
 		context.checking(new Expectations() {{

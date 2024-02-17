@@ -116,7 +116,7 @@ public class UnitTestBuilding {
 	@Test
 	public void addingAContractStep() {
 		TestStepHolder utc = new UnitTestCase(name, "this is a test");
-		utc.sendOnContract(new UnresolvedVar(pos, "x"), new TypeReference(pos, "ContractName"), new UnresolvedVar(pos, "method"));
+		utc.sendOnContract(new UnresolvedVar(pos, "x"), new TypeReference(pos, "ContractName"), new UnresolvedVar(pos, "method"), null);
 		assertEquals(1, utc.steps.size());
 		assertTrue(utc.steps.get(0) instanceof UnitTestSend);
 		UnitTestSend ev = (UnitTestSend) utc.steps.get(0);

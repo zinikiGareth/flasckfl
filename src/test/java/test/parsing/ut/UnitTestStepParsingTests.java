@@ -309,7 +309,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanHandleAContractStep() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.apply(ExprMatcher.unresolved("method"), ExprMatcher.unresolved("true"), ExprMatcher.number(86), ExprMatcher.string("hello"))));
+			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.apply(ExprMatcher.unresolved("method"), ExprMatcher.unresolved("true"), ExprMatcher.number(86), ExprMatcher.string("hello"))), with(aNull(UnresolvedVar.class)));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("contract card SomeContract method true 86 'hello'"));
@@ -321,7 +321,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanHandleAContractStepWithNoArgumentsToTheMethod() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.unresolved("method")));
+			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.unresolved("method")), with(aNonNull(UnresolvedVar.class)));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("contract card SomeContract method"));
@@ -334,7 +334,7 @@ public class UnitTestStepParsingTests {
 	public void testAContractStepNeedsEverything() {
 		final Tokenizable toks = UnitTestTopLevelParsingTests.line("contract card SomeContract");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(toks, "missing arguments");
+			oneOf(errors).message(toks, "missing method call");
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(toks);

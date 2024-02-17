@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -209,30 +210,47 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "contract requires a Contract name");
 			return new IgnoreNestedParser(errors);
 		}
+		Tokenizable ec = toks.copyTo("->");
 		List<Expr> eventObj = new ArrayList<>();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
-		expr.tryParsing(toks);
+		expr.tryParsing(ec);
 		if (errors.hasErrors()){
 			return new IgnoreNestedParser(errors);
 		}
 		if (eventObj.isEmpty()) {
-			errors.message(toks, "missing arguments");
+			errors.message(toks, "missing method call");
 			return new IgnoreNestedParser(errors);
 		}
-		if (toks.hasMoreContent(errors)) {
+		if (ec == toks && toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
 		Expr fe = eventObj.get(0);
-		if (ApplyExpr.isOp(fe, "->")) {
-			ApplyExpr ae = (ApplyExpr) fe;
-			InputPosition oploc = ((UnresolvedOperator)ae.fn).location();
-			errors.logReduction("unit-contract-handle-expr", oploc, ((Expr) ae.args.get(1)).location());
-			errors.logReduction("unit-contract-action-with-handle", kw.location, oploc);
-		} else
+		if (ec != toks) {
+			toks.reset(ec.at());
+			ExprToken arrow = ExprToken.from(errors, toks);
+			if (arrow == null) {
+				errors.message(toks, "expected ->");
+				return new NoNestingParser(errors);
+			}
+			ExprToken name = ExprToken.from(errors, toks);
+			if (name == null) {
+				errors.message(toks, "expected var to store in");
+				return new NoNestingParser(errors);
+			}
+			if (name.type != ExprToken.IDENTIFIER) {
+				errors.message(name.location, "expected var");
+				return new NoNestingParser(errors);
+			}
+			UnresolvedVar handler = new UnresolvedVar(name.location, name.text);
+			errors.logReduction("unit-contract-handle-expr", arrow, handler);
+			errors.logReduction("unit-contract-action-with-handle", kw, arrow);
+			builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0), handler);
+		} else {
 			errors.logReduction("unit-contract-action", kw, eventObj.get(0));
+			builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0), null);
+		}
 		tellParent(kw.location);
-		builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
 		return new NoNestingParser(errors);
 	}
 

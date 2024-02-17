@@ -56,32 +56,18 @@ public class SystemTestStepParser extends TestStepParser {
 		case "assert": {
 			return handleAssert(kw, toks);
 		}
-//		case "shove": {
-//			return handleShove(toks);
-//		}
 		case "contract": {
 			return handleSendToContract(kw, toks);
 		}
 		case "data": {
 			return handleDataDecl(kw, toks);
 		}
-//		case "newdiv":
-//			return handleNewdiv(toks);
-//		case "render": {
-//			return handleRender(toks);
-//		}
 		case "event": {
 			return handleEvent(kw, toks);
 		}
 		case "input": {
 			return handleInput(kw, toks);
 		}
-//		case "invoke": {
-//			return handleInvoke(toks);
-//		}
-//		case "expect": {
-//			return handleExpect(toks);
-//		}
 		case "match": {
 			return handleMatch(kw, toks);
 		}
@@ -196,12 +182,7 @@ public class SystemTestStepParser extends TestStepParser {
 			return new IgnoreNestedParser(errors);
 		}
 		UnresolvedVar app = new UnresolvedVar(tok.location, tok.text);
-		Tokenizable ec;
-		int k = toks.find("->");
-		if (k == -1) {
-			ec = toks;
-		} else
-			ec = toks.cropAt(k);
+		Tokenizable ec = toks.copyTo("->");
 		List<Expr> expr = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
 			expr.add(e);
@@ -215,8 +196,8 @@ public class SystemTestStepParser extends TestStepParser {
 		Expr route = expr.get(0);
 		InputPosition last = route.location();
 		IntroduceVar iv = null;
-		if (k != -1) {
-			toks.reset(k);
+		if (ec != toks) {
+			toks.reset(ec.at());
 			ExprToken arrow = ExprToken.from(errors, toks);
 			if (arrow == null) {
 				errors.message(toks, "expected ->");

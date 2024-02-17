@@ -64,33 +64,15 @@ public class UTSendChecker extends LeafAdapter implements ResultAware {
 		if (cd != null) {
 			int nargs;
 			String meth;
-			boolean haveHandler = false;
+			boolean haveHandler = send.handler != null;
 			if (send.expr instanceof UnresolvedVar) {
 				UnresolvedVar uv = (UnresolvedVar) send.expr;
 				meth = uv.var;
 				nargs = 0;
 			} else if (send.expr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) send.expr;
-				if (ae.fn instanceof UnresolvedOperator) {
-					if (((UnresolvedOperator)ae.fn).op.equals("->")) {
-						Expr as = (Expr) ae.args.get(0);
-						if (as instanceof UnresolvedVar) {
-							meth = ((UnresolvedVar)as).var;
-							nargs = 0;
-						} else {
-							ae = (ApplyExpr) as;
-							meth = ((UnresolvedVar) ae.fn).var;
-							nargs = ae.args.size();
-						}
-						haveHandler = true;
-					} else {
-						errors.message(send.card.location(), "syntax error");
-						return;
-					}
-				} else {
-					meth = ((UnresolvedVar) ae.fn).var;
-					nargs = ae.args.size();
-				}
+				meth = ((UnresolvedVar) ae.fn).var;
+				nargs = ae.args.size();
 			} else
 				throw new CantHappenException("What is this? " + send.expr.getClass());
 			ContractMethodDecl method = cd.getMethod(meth);

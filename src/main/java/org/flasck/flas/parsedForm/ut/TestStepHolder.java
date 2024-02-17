@@ -62,8 +62,8 @@ public class TestStepHolder implements UnitTestStepConsumer {
 	}
 
 	@Override
-	public void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation) {
-		this.steps.add(new UnitTestSend(card, contract, invocation));
+	public void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation, UnresolvedVar handler) {
+		this.steps.add(new UnitTestSend(card, contract, invocation, handler));
 	}
 
 	@Override

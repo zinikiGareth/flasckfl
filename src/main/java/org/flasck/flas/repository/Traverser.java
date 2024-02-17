@@ -2184,43 +2184,24 @@ public class Traverser implements RepositoryVisitor {
 		visitor.visitUnitTestSend(s);
 		visitUnresolvedVar(s.card, 0);
 		visitTypeReference(s.contract, true, -1);
-		visitSendExpr(s.contract, s.expr);
+		visitSendExpr(s.contract, s.expr, s.handler);
 		leaveUnitTestSend(s);
 	}
 
-	private void visitSendExpr(TypeReference contract, Expr expr) {
+	private void visitSendExpr(TypeReference contract, Expr expr, UnresolvedVar handler) {
 		if (contract.namedDefn() == null)
 			return;
 		if (expr instanceof UnresolvedVar) {
 			visitor.visitSendMethod(contract.namedDefn(), (UnresolvedVar)expr);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
-			UnresolvedVar te;
-			Expr h = null;
-			List<Object> args;
-			if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals("->")) {
-				h = (Expr) ae.args.get(1);
-				Expr tmp = (Expr)ae.args.get(0);
-				if (tmp instanceof UnresolvedVar) {
-					te = (UnresolvedVar) tmp;
-					args = new ArrayList<>();
-				} else if (tmp instanceof ApplyExpr) {
-					ae = (ApplyExpr) tmp;
-					te = (UnresolvedVar) ae.fn;
-					args = ae.args;
-				} else
-					throw new CantHappenException("what is this? " + tmp.getClass());
-			} else {
-				te = (UnresolvedVar)ae.fn;
-				args = ae.args;
-			}
-			visitSendMethod(contract.namedDefn(), te);
-			for (Object e : args)
+			visitSendMethod(contract.namedDefn(), (UnresolvedVar) ae.fn);
+			for (Object e : ae.args)
 				visitExpr((Expr) e, 0);
-			if (h != null)
-				visitExpr(h, 0);
 		} else
-			throw new NotImplementedException("I don't think that should happen");
+			throw new CantHappenException("the expr in send is not a var or an apply");
+		if (handler != null)
+			visitExpr(handler, 0);
 	}
 	
 	

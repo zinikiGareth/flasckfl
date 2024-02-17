@@ -22,7 +22,7 @@ public interface UnitTestStepConsumer {
 	void event(UnresolvedVar card, TargetZone targetZone, Expr event);
 	void input(UnresolvedVar card, TargetZone targetZone, Expr text);
 	void invokeObjectMethod(Expr expr);
-	void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation);
+	void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation, UnresolvedVar handler);
 	void expect(UnresolvedVar ctr, UnresolvedVar meth, Expr[] args, Expr handler);
 	void expectCancel(UnresolvedVar handlerName);
 	void match(UnresolvedVar card, MatchedItem what, TargetZone targetZone, boolean contains, boolean fails, FreeTextToken text);

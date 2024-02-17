@@ -1791,7 +1791,7 @@ match style ...
     <tested by='test.parsing.TDAImplementationMethodsParsingTests' />
 	<seq>
 	  <token type='HANDLE'/>
-	  <ref production='function-call' /> <!-- I think this should really just be a var name, but it gets reduced to function-call -->
+	  <token type='var-name' />
 	</seq>    
   </production>
   <production name='unit-test-assert'>

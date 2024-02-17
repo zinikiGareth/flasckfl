@@ -140,4 +140,12 @@ public class Tokenizable {
 		StringBuilder in2 = new StringBuilder(input.substring(0, k));
 		return new Tokenizable(line, in2, pos);
 	}
+
+	public Tokenizable copyTo(String string) {
+		int k = find("->");
+		if (k == -1) {
+			return this;
+		} else
+			return cropAt(k);
+	}
 }
