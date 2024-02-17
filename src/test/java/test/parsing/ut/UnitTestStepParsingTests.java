@@ -9,10 +9,12 @@ import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.AnonymousVar;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.MatchedItem;
@@ -29,6 +31,7 @@ import org.flasck.flas.parser.ut.UnitTestStepConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.testsupport.matchers.ExprMatcher;
 import org.flasck.flas.testsupport.matchers.FreeTextTokenMatcher;
+import org.flasck.flas.testsupport.matchers.IntroduceVarMatcher;
 import org.flasck.flas.testsupport.matchers.TargetZoneMatcher;
 import org.flasck.flas.testsupport.matchers.TypeReferenceMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -207,7 +210,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanHandleASimpleEventStep() {
 		context.checking(new Expectations() {{
-			oneOf(builder).event((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(TargetZoneMatcher.path("target")), with(ExprMatcher.apply(ExprMatcher.typeref("ClickEvent"), ExprMatcher.apply(ExprMatcher.operator("{}"), any(Expr.class), any(Expr.class)))));
+			oneOf(builder).event((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(TargetZoneMatcher.path("target")), with(ExprMatcher.paren(ExprMatcher.apply(ExprMatcher.typeref("ClickEvent"), ExprMatcher.apply(ExprMatcher.operator("{}"), any(Expr.class), any(Expr.class))))));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("event card target (ClickEvent { x: 42, y: 31 })"));
@@ -235,16 +238,18 @@ public class UnitTestStepParsingTests {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testWeCanHandleAnExpectationStepWithIntroduction() {
+	public void testWeCanHandleAnExpectationStepWithIntroductionButNoArgs() {
+		VarName vn = new VarName(pos, null, "handler");
 		context.checking(new Expectations() {{
+			oneOf(namer).introductionName(with(any(InputPosition.class)), with("handler")); will(returnValue(vn));
+			oneOf(topLevel).newIntroduction(with(any(ErrorReporter.class)), with(IntroduceVarMatcher.called("handler")));
 			oneOf(builder).expect((UnresolvedVar)with(ExprMatcher.unresolved("svc")),
 					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
-					(Expr[])with(Matchers.array(ExprMatcher.number(22),
-							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))),
-					with(any(AnonymousVar.class)));
+					(Expr[])with(Matchers.array()),
+					with(IntroduceVarMatcher.called("handler")));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
-		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth 22 (length 'hello') -> _handler"));
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth -> _handler"));
 		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
@@ -252,16 +257,19 @@ public class UnitTestStepParsingTests {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testWeCanHandleAnExpectationStepWithIntroductionButNoArgs() {
+	public void testWeCanHandleAnExpectationStepWithIntroduction() {
+		VarName vn = new VarName(pos, null, "handler");
 		context.checking(new Expectations() {{
+			oneOf(namer).introductionName(with(any(InputPosition.class)), with("handler")); will(returnValue(vn));
+			oneOf(topLevel).newIntroduction(with(any(ErrorReporter.class)), with(IntroduceVarMatcher.called("handler")));
 			oneOf(builder).expect((UnresolvedVar)with(ExprMatcher.unresolved("svc")),
 					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
 					(Expr[])with(Matchers.array(ExprMatcher.number(22),
-							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))),
-					with(any(AnonymousVar.class)));
+							ExprMatcher.paren(ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello"))))),
+					with(IntroduceVarMatcher.called("handler")));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
-		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth -> _handler"));
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth 22 (length 'hello') -> _handler"));
 		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
@@ -321,7 +329,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanHandleAContractStepWithNoArgumentsToTheMethod() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.unresolved("method")), with(aNonNull(UnresolvedVar.class)));
+			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.unresolved("method")), with(aNull(UnresolvedVar.class)));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("contract card SomeContract method"));

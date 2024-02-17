@@ -225,7 +225,6 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		Expr fe = eventObj.get(0);
 		if (ec != toks) {
 			toks.reset(ec.at());
 			ExprToken arrow = ExprToken.from(errors, toks);
@@ -426,26 +425,42 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		InputPosition lastLoc = meth.location;
+		Tokenizable ec = toks.copyTo("->");
 		List<Expr> args = new ArrayList<>();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, namer, x -> args.add(x), false, topLevel);
-		expr.tryParsing(toks);
+		expr.tryParsing(ec);
 		if (errors.hasErrors()){
 			return new IgnoreNestedParser(errors);
 		}
 		if (!args.isEmpty()) {
 			lastLoc = args.get(args.size()-1).location();
 		}
-		Expr handler = null;
-		if (args.size() >= 2) {
-			Expr op = args.get(args.size()-2);
-			if (op instanceof UnresolvedOperator && ((UnresolvedOperator)op).op.equals("->")) {
-				args.remove(args.size()-2);
-				handler = args.remove(args.size()-1);
-				lastLoc = handler.location();
-			} else
-				lastLoc = args.get(args.size()-1).location();
-		}
-		if (handler == null)
+		Expr handler;
+		if (ec != toks) {
+			toks.reset(ec.at());
+			ExprToken arrow = ExprToken.from(errors, toks);
+			if (arrow == null) {
+				errors.message(toks, "expected ->");
+				return new IgnoreNestedParser(errors);
+			}
+			ExprToken name = ExprToken.from(errors, toks);
+			if (name == null) {
+				errors.message(toks, "expected var to store in");
+				return new IgnoreNestedParser(errors);
+			}
+			if (name.type != ExprToken.IDENTIFIER) {
+				errors.message(name.location, "expected var");
+				return new IgnoreNestedParser(errors);
+			}
+			if (!name.text.startsWith("_")) {
+				errors.message(name.location, "introduce vars must start with _");
+				return new IgnoreNestedParser(errors);
+			}
+			lastLoc = name.location;
+			IntroduceVar iv = new IntroduceVar(name.location, namer, name.text.substring(1));
+			((IntroductionConsumer)topLevel).newIntroduction(errors, iv);
+			handler = iv;
+		} else
 			handler = new AnonymousVar(meth.location);
 		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");

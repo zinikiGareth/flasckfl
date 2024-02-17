@@ -201,20 +201,20 @@ public class SystemTestStepParser extends TestStepParser {
 			ExprToken arrow = ExprToken.from(errors, toks);
 			if (arrow == null) {
 				errors.message(toks, "expected ->");
-				return new NoNestingParser(errors);
+				return new IgnoreNestedParser(errors);
 			}
 			ExprToken name = ExprToken.from(errors, toks);
 			if (name == null) {
 				errors.message(toks, "expected var to store in");
-				return new NoNestingParser(errors);
+				return new IgnoreNestedParser(errors);
 			}
 			if (name.type != ExprToken.IDENTIFIER) {
 				errors.message(name.location, "expected var");
-				return new NoNestingParser(errors);
+				return new IgnoreNestedParser(errors);
 			}
 			if (!name.text.startsWith("_")) {
 				errors.message(name.location, "introduce vars must start with _");
-				return new NoNestingParser(errors);
+				return new IgnoreNestedParser(errors);
 			}
 			last = name.location;
 			iv = new IntroduceVar(name.location, namer, name.text.substring(1));
