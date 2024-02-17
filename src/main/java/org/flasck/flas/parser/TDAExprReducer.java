@@ -109,10 +109,12 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	public void seenColon(ParenCloseRewriter closer) {
 		Expr t = terms.get(0);
-		if (t instanceof UnresolvedVar)
-			closer.defineVar(((UnresolvedVar)t).var);
-		else if (t instanceof StringLiteral)
-			closer.defineVar(((StringLiteral)t).text);
+		if (t instanceof UnresolvedVar) {
+			UnresolvedVar uv = (UnresolvedVar)t;
+			closer.defineVar(new StringLiteral(uv.location(), uv.var));
+		} else if (t instanceof StringLiteral) {
+			closer.defineVar((StringLiteral)t);
+		}
 		terms.clear();
 	}
 

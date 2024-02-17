@@ -19,7 +19,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		private Expr endToken;
 		private int end;
 		private final List<Expr> terms = new ArrayList<>();
-		private String currentVar;
+		private StringLiteral currentVar;
 		private Punctuator comma;
 
 		public ParenCloseRewriter(Punctuator from, String op) {
@@ -37,11 +37,11 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			end = term.location().pastEnd();
 		}
 
-		public void defineVar(String var) {
+		public void defineVar(StringLiteral sl) {
 			// TODO: I think this can happen; write tests
 			if (!(op.equals("{}")))
 				throw new RuntimeException("Can't use colon here");
-			currentVar = var;
+			currentVar = sl;
 		}
 
 		@Override
@@ -49,7 +49,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			if (op.equals("{}")) {
 				if (currentVar == null)
 					throw new RuntimeException("need field and colon"); // I don't think this can happen
-				term = new ApplyExpr(from.location().copySetEnd(end), new UnresolvedOperator(from.location(), ":"), new StringLiteral(from.location(), currentVar), term);
+				term = new ApplyExpr(currentVar.location().copySetEnd(end), new UnresolvedOperator(from.location(), ":"), currentVar, term);
 			}
 			if (comma != null) {
 				errors.logReduction("comma-expression", comma, term);
@@ -75,7 +75,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			final Expr ae = terms.get(0);
 			if (terms.size() == 1 && op.equals("()")) {
 				errors.logReduction("paren-expression", from, endToken);
-				builder.term(new ParenExpr(from.location(), ae));
+				builder.term(new ParenExpr(from.location().copySetEnd(end), ae));
 			} else {
 				if (op.equals("[]")) {
 					errors.logReduction("non-empty-list-literal", from, endToken);

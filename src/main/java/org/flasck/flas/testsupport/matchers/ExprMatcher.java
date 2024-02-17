@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.ParenExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.TypeExpr;
@@ -270,6 +271,26 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 						return false;
 				}
 				return true;
+			}
+		};
+	}
+
+
+	public static ExprMatcher paren(Matcher<Expr> wrapped) {
+		return new ExprMatcher() {
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("paren (");
+				wrapped.describeTo(desc);
+				desc.appendText(") ");
+			}
+
+			@Override
+			protected boolean matchesSafely(Expr expr) {
+				if (!(expr instanceof ParenExpr))
+					return false;
+				ParenExpr ae = (ParenExpr) expr;
+				return wrapped.matches(ae.expr);
 			}
 		};
 	}

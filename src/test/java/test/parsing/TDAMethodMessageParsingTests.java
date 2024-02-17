@@ -79,7 +79,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void weCanAssignToAStateMemberByName() {
 		context.checking(new Expectations() {{
-			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x").with(ExprMatcher.number(42)).location("fred", 1, 2, 4)));
+			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x").with(ExprMatcher.number(42)).location("fred", 1, 0, 1)));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("x <- 42"));
@@ -89,7 +89,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void weCanAssignToANestedMemberByPath() {
 		context.checking(new Expectations() {{
-			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x", "y").with(ExprMatcher.number(42)).location("fred", 1, 4, 6)));
+			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x", "y").with(ExprMatcher.number(42)).location("fred", 1, 0, 1)));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("x.y <- 42"));

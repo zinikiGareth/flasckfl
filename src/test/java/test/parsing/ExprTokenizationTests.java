@@ -1,6 +1,7 @@
 package test.parsing;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
@@ -8,6 +9,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.ExprReducerErrors;
 import org.flasck.flas.parser.ExprTermConsumer;
+import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAExprParser;
 import org.flasck.flas.testsupport.matchers.ExprMatcher;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -38,7 +40,7 @@ public class ExprTokenizationTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("")));
+		assertTrue(parser.tryParsing(new Tokenizable("")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -47,7 +49,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.number(42).location("test", 1, 0, 2))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("42")));
+		assertTrue(parser.tryParsing(new Tokenizable("42")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -56,7 +58,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.string("hello").location("test", 1, 0, 7))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("'hello'")));
+		assertTrue(parser.tryParsing(new Tokenizable("'hello'")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -65,7 +67,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.string("hello").location("test", 1, 0, 7))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("\"hello\"")));
+		assertTrue(parser.tryParsing(new Tokenizable("\"hello\"")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -74,7 +76,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.operator("+").location("test", 1, 0, 1))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("+")));
+		assertTrue(parser.tryParsing(new Tokenizable("+")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -83,7 +85,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.punc("(").location("test", 1, 0, 1))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("(")));
+		assertTrue(parser.tryParsing(new Tokenizable("(")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -92,7 +94,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.punc(",").location("test", 1, 0, 1))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable(",")));
+		assertTrue(parser.tryParsing(new Tokenizable(",")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -101,7 +103,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.dot().location("test", 1, 0, 1))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable(".")));
+		assertTrue(parser.tryParsing(new Tokenizable(".")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -110,7 +112,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.unresolved("x").location("test", 1, 0, 1))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("x")));
+		assertTrue(parser.tryParsing(new Tokenizable("x")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -119,7 +121,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.typeref("Nil").location("test", 1, 0, 3))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("Nil")));
+		assertTrue(parser.tryParsing(new Tokenizable("Nil")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -131,7 +133,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.string("hello").location("test", 1, 7, 14))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("42 + f 'hello'")));
+		assertTrue(parser.tryParsing(new Tokenizable("42 + f 'hello'")) instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -143,7 +145,7 @@ public class ExprTokenizationTests {
 			oneOf(builder).term(with(ExprMatcher.string("hello").location("test", 1, 4, 11))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("42+f'hello'")));
+		assertTrue(parser.tryParsing(new Tokenizable("42+f'hello'")) instanceof IgnoreNestedParser);
 	}
 	
 	@Test
@@ -153,6 +155,6 @@ public class ExprTokenizationTests {
 			oneOf(errors).message(new InputPosition("test", 1, 15, null, ""), "unterminated string");
 			oneOf(builder).done();
 		}});
-		assertNull(parser.tryParsing(new Tokenizable("['hello', world']")));
+		assertTrue(parser.tryParsing(new Tokenizable("['hello', world']")) instanceof IgnoreNestedParser);
 	}
 }

@@ -41,7 +41,7 @@ public class TypeExprParser {
 		int mark = line.at();
 		TypeExprToken nt = TypeExprToken.from(errors, line);
 		if (nt == null) { // we have reached the end of the line
-			errors.logReduction("simple-type-name", tt.location, tt.location);
+			errors.logReduction("simple-type-name", tt, tt);
 			pt.provide(curr);
 			return;
 		} else if (nt.type == TypeExprToken.CSB) {

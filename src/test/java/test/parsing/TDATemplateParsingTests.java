@@ -242,7 +242,7 @@ public class TDATemplateParsingTests {
 		}});
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
 		TDAParsing styling = nested.tryParsing(TestSupport.tokline("| true => 'style1'"));
-		assertTrue(styling instanceof TDATemplateStylingParser);
+		assertTrue(TDAParsingWithAction.is(styling, TDATemplateStylingParser.class));
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
@@ -262,7 +262,7 @@ public class TDATemplateParsingTests {
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
 		TDAParsing styling = nested.tryParsing(TestSupport.tokline("<- 'hello'"));
 		TDAParsing nestedStyling = styling.tryParsing(TestSupport.tokline("| true => 'style1'"));
-		assertTrue(nestedStyling instanceof TDATemplateStylingParser);
+		assertTrue(TDAParsingWithAction.is(nestedStyling, TDATemplateStylingParser.class));
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
@@ -314,7 +314,7 @@ public class TDATemplateParsingTests {
 		}});
 		TDAParsing styling = parser.tryParsing(TestSupport.tokline("mmhhezj <- true - eg"));
 		TDAParsing nested = styling.tryParsing(TestSupport.tokline("| 'bsCy+/n5r7Rh-VjPK' => 'yhbLy_?e.7<sn'"));
-		assertTrue(nested instanceof TDATemplateStylingParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDATemplateStylingParser.class));
 		styling.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(0, binding.defaultBinding.events.size());

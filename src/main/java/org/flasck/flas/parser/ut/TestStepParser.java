@@ -391,7 +391,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		ValidIdentifierToken svc = VarNameToken.from(errors, toks);
 		if (svc == null) {
 			// If we don't have a service name, then it could be a contract.
-			// Look for the special operator "<x"
+			// Look for the special operator "<-"
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok != null && tok.type == ExprToken.SYMBOL) {
 				if (tok.text.equals("<~"))

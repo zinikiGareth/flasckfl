@@ -223,11 +223,45 @@ public class UnitTestStepParsingTests {
 			oneOf(builder).expect((UnresolvedVar)with(ExprMatcher.unresolved("svc")),
 					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
 					(Expr[])with(Matchers.array(ExprMatcher.number(22),
-							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))),
+							ExprMatcher.paren(ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello"))))),
 					with(any(AnonymousVar.class)));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth 22 (length 'hello')"));
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanHandleAnExpectationStepWithIntroduction() {
+		context.checking(new Expectations() {{
+			oneOf(builder).expect((UnresolvedVar)with(ExprMatcher.unresolved("svc")),
+					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
+					(Expr[])with(Matchers.array(ExprMatcher.number(22),
+							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))),
+					with(any(AnonymousVar.class)));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth 22 (length 'hello') -> _handler"));
+		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanHandleAnExpectationStepWithIntroductionButNoArgs() {
+		context.checking(new Expectations() {{
+			oneOf(builder).expect((UnresolvedVar)with(ExprMatcher.unresolved("svc")),
+					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
+					(Expr[])with(Matchers.array(ExprMatcher.number(22),
+							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))),
+					with(any(AnonymousVar.class)));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth -> _handler"));
 		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
