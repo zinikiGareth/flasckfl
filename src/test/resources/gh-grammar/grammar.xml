@@ -1137,7 +1137,10 @@
 		<reduces-as rule='-handled' />
 	    <ref production='maybe-handled' />
 	  </optional>
-	  <!-- TODO: there is a sends to which can name a subscription -->
+	  <optional>
+		<reduces-as rule='-subscribed' />
+	    <ref production='maybe-subscribed' />
+	  </optional>
 	  <eol />
     </seq>
   </production>
@@ -1146,6 +1149,14 @@
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <seq>
 	    <token type='HANDLE' />
+        <ref production='expression'/>
+    </seq>
+  </production>
+  <production name='maybe-subscribed'>
+    <section title='Method'/>
+    <tested by='test.parsing.TDAMethodMessageParsingTests' />
+    <seq>
+	    <token type='SENDTO' />
         <ref production='expression'/>
     </seq>
   </production>

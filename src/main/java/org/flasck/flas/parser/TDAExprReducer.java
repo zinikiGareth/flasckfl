@@ -158,10 +158,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 			UnresolvedOperator op = (UnresolvedOperator) oe;
 			final Expr rhs = reduce(oppos+1, to);
 			final Expr lhs = reduce(from, oppos);
-			if ("->".equals(op.op)) 
-				errors.logReduction("maybe-handled", op, rhs);
-			else
-				errors.logReduction("expr-binop", lhs, rhs);
+			errors.logReduction("expr-binop", lhs, rhs);
 			return new ApplyExpr(terms.get(from).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, lhs, rhs);
 		}
 	}

@@ -5,6 +5,7 @@ import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.ErrorResult;
 
 public class Tokenizable {
 	private final ContinuedLine line;
@@ -129,7 +130,17 @@ public class Tokenizable {
 	}
 
 	public int find(String sub) {
+		ErrorResult tmp = new ErrorResult();
+		int init = pos;
 		for (int i=pos;i<input.length();i++) {
+			if (input.substring(i).startsWith("//"))
+				return -1;
+			if (input.charAt(i) == '"' || input.charAt(i) == '\'') {
+				pos = i;
+				StringToken.from(tmp, this);
+				i = pos;
+				pos = init;
+			}
 			if (input.substring(i).startsWith(sub))
 				return i;
 		}

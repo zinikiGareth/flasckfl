@@ -61,9 +61,15 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 			if (htok.text.equals("->")) {
 				handled = "-handled";
 				Tokenizable handlerText = toks.copyTo("=>");
-				new TDAExpressionParser(errors, t -> {
-					seen.get(0).handlerExpr(t);
+				TDAParsing rp = new TDAExpressionParser(errors, t -> {
+					send.handlerExpr(t);
 				}).tryParsing(handlerText);
+				if (send.handlerExpr() == null) {
+					errors.message(htok.location, "no valid handler specified");
+					return rp;
+				}
+				last = send.handlerExpr();
+				errors.logReduction("maybe-handled", htok, seen.get(0).handlerExpr());
 				toks.reset(handlerText.at());
 			} else {
 				toks.reset(ec.at());
@@ -72,13 +78,18 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 				ExprToken tok = ExprToken.from(errors, toks);
 				if (tok.type == ExprToken.SYMBOL && tok.text.equals("=>")) {
 					new TDAExpressionParser(errors, t -> {
-						seen.get(0).subscriberNameExpr(t);
+						send.subscriberNameExpr(t);
 					}).tryParsing(toks);
 					if (toks.hasMoreContent(errors)) {
 						errors.message(toks, "syntax error");
 						return new IgnoreNestedParser(errors);
 					}
-					errors.logReduction("method-message-send" + handled +"-subscribed", arrowPos, last);
+					if (send.subscriberName() == null) {
+						errors.message(htok.location, "no valid subscription specified");
+						return new IgnoreNestedParser(errors);
+					}
+					errors.logReduction("maybe-subscribed", tok, send.subscriberName());
+					errors.logReduction("method-message-send" + handled +"-subscribed", arrowPos, tok);
 				} else {
 					errors.message(toks, "syntax error");
 					return new IgnoreNestedParser(errors);
@@ -89,7 +100,7 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 		} else {
 			errors.logReduction("method-message-send", arrowPos, last);
 		}
-		builder.sendMessage(seen.get(0));
+		builder.sendMessage(send);
 		tellParent(arrowPos.location());
 		return nestedParser;
 	}
