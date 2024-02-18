@@ -59,7 +59,7 @@ public class RefElement implements SeqElement {
 	public TrackProduction choose(String want) {
 		if (!chooser.hasRule(want))
 			return null;
-		TrackProduction ret = chooser.rule(want);
+		TrackProduction ret = chooser.rule(rule);
 		if (want.equals(rule))
 			return ret;
 		else

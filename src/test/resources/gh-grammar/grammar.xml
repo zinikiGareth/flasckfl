@@ -1847,7 +1847,7 @@ match style ...
     	    <ref production='expression' />
       </many>
       <optional>
-      	<reduces-as rule="-introduce-handlerl" />
+      	<reduces-as rule="-introduce-handler" />
         <ref production='unit-expect-introduce-handler' />
       </optional>
     </seq>

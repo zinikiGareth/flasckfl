@@ -419,6 +419,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "missing contract");
 			return new IgnoreNestedParser(errors);
 		}
+		String ih = "";
 		ValidIdentifierToken meth = VarNameToken.from(errors, toks);
 		if (meth == null) {
 			errors.message(toks, "missing method");
@@ -460,13 +461,15 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			IntroduceVar iv = new IntroduceVar(name.location, namer, name.text.substring(1));
 			((IntroductionConsumer)topLevel).newIntroduction(errors, iv);
 			handler = iv;
+			errors.logReduction("unit-expect-introduce-handler", arrow, name);
+			ih = "-introduce-handler";
 		} else
 			handler = new AnonymousVar(meth.location);
 		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("test-step-expect", kw.location, lastLoc);
+		errors.logReduction("test-step-expect" + ih, kw.location, lastLoc);
 		tellParent(kw.location);
 		builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
 		return new TDAParsingWithAction(
