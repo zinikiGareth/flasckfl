@@ -1,4 +1,4 @@
-package doc.grammar;
+package org.flasck.flas.doc.grammar;
 
 import static org.junit.Assert.assertEquals;
 

@@ -137,10 +137,10 @@ public class Grammar {
 					mergeInProductions(this.productions.get(theProd.name), theProd);
 				} else 
 					throw new RuntimeException("Duplicate definition of production " + theProd.name);
-			}
+			} else 
+				this.productions.put(theProd.name, theProd);
 			if (needsMoreTesting)
 				theProd.needsMoreTesting();
-			this.productions.put(theProd.name, theProd);
 			s.add(theProd);
 		}
 	}

@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.ParenExpr;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -953,6 +954,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	
 	@Override
 	public void visitRoutingExpr(RoutingAction a, int pos, Expr e) {
+		while (e instanceof ParenExpr)
+			e = (Expr) ((ParenExpr)e).expr;
 		if (e instanceof ApplyExpr) {
 			this.meth = appclz.createMethod("routing_expr_" + recnt, true);
 			a.exprFn(pos, recnt);

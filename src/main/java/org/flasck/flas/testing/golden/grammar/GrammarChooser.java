@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.doc.grammar.GenerateGrammarDoc;
 import org.flasck.flas.grammar.ActionDefinition;
 import org.flasck.flas.grammar.Definition;
 import org.flasck.flas.grammar.Grammar;
@@ -17,8 +18,6 @@ import org.flasck.flas.grammar.TokenDefinition;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
-
-import doc.grammar.GenerateGrammarDoc;
 
 public class GrammarChooser {
 	private final Grammar orig;
