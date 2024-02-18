@@ -672,10 +672,12 @@
     <tested by='test.parsing.TDAPatternParsingTests' />
     <or>
       <seq>
+		<reduces-as rule='pattern-empty-list' />
         <token type='OSB'/>
         <token type='CSB'/>
       </seq>
       <seq>
+		<reduces-as rule='pattern-non-empty-list' />
         <token type='OSB'/>
         <ref production='argument-pattern'/>
         <many>
@@ -710,7 +712,7 @@
       <seq>
 		<reduces-as rule='argument-pattern-ctor-trivial' />
         <token type='ORB'/>
-        <token type='type-name'/>
+        <ref production='type-reference'/>
         <token type='OCB'/>
         <token type='CCB'/>
         <token type='CRB'/>
@@ -718,7 +720,7 @@
       <seq>
   		<reduces-as rule='argument-pattern-ctor-fields' />
         <token type='ORB'/>
-        <token type='type-name'/>
+        <ref production='type-reference'/>
         <token type='OCB'/>
         <ref production='field-argument-pattern'/>
         <many>

@@ -88,6 +88,22 @@ public class PattToken implements LoggableToken {
 		switch (type) {
 		case 1:
 			return "var-name";
+		case 10:
+			return "ORB";
+		case 11:
+			return "CRB";
+		case 12:
+			return "OSB";
+		case 13:
+			return "CSB";
+		case 14:
+			return "OCB";
+		case 15:
+			return "CCB";
+		case 16:
+			return "COLON";
+		case 17:
+			return "COMMA";
 		default:
 			return "Patt_" + type;
 		}

@@ -181,14 +181,13 @@ public class TDAPatternParser implements TDAParsing {
 	}
 
 	public TDAParsing handleASimpleConstructor(TypeNameToken type) {
-		errors.logReduction("argument-pattern-type-name", type.location, type.location.locAtEnd());
 		consumer.accept(new ConstructorMatch(type.location, type.text));
 		return this;
 	}
 
 	public TDAParsing handleCasesStartingWithAType(Tokenizable toks, TypeNameToken type) {
 		List<TypeReference> ref = new ArrayList<>();
-		if (new TDATypeReferenceParser(errors, namer, false, x->ref.add(x), topLevel).tryParsing(toks) == null) {
+		if (new TDATypeReferenceParser(errors, namer, true, x->ref.add(x), topLevel).tryParsing(toks) == null) {
 			// it didn't parse, so give up hope
 			return null;
 		}
@@ -198,7 +197,6 @@ public class TDAPatternParser implements TDAParsing {
 		// Now, see what else we've got ...
 		PattToken tok = PattToken.from(errors, toks);
 		if (tok.type == PattToken.VAR) {
-			errors.logReduction("simple-type-name", type.location, type.location);
 			TypedPattern m = new TypedPattern(type.location, tr, namer.nameVar(tok.location, tok.text));
 			consumer.accept(m);
 			topLevel.argument(errors, m);
@@ -217,6 +215,7 @@ public class TDAPatternParser implements TDAParsing {
 
 	public TDAParsing handleAConstructorMatch(TypeNameToken type, Tokenizable toks) {
 		ConstructorMatch m = new ConstructorMatch(type.location, type.text);
+		PattToken comma = null;
 		while (true) {
 			PattToken fld = PattToken.from(errors, toks);
 			if (fld == null)
@@ -229,10 +228,14 @@ public class TDAPatternParser implements TDAParsing {
 			if (colon == null || colon.type != PattToken.COLON)
 				return invalidPattern(toks);
 			TDAParsing success = new TDAPatternParser(errors, namer, patt -> {
+				errors.logReduction("field-argument-pattern", fld, patt);
 				m.args.add(m.new Field(fld.location, fld.text, patt));
 			}, topLevel).tryParsing(toks);
 			if (success == null)
 				return null;
+			if (comma != null) {
+				errors.logReduction("comma-field-argument-pattern", comma, fld);
+			}
 			PattToken ccb = PattToken.from(errors, toks);
 			if (ccb == null)
 				return invalidPattern(toks);
@@ -240,6 +243,8 @@ public class TDAPatternParser implements TDAParsing {
 				break;
 			else if (ccb.type != PattToken.COMMA)
 				return invalidPattern(toks);
+			else
+				comma = ccb;
 		}
 		consumer.accept(m);
 		return this;
@@ -250,19 +255,22 @@ public class TDAPatternParser implements TDAParsing {
 		TDAPatternParser inner = new TDAPatternParser(errors, namer, patt -> {
 			members.add(0, patt); // store them in reverse order
 		}, topLevel);
+		PattToken csb = null;
 		while (true) {
 			int from = toks.at();
 			PattToken nx = PattToken.from(errors, toks);
 			if (nx.type == PattToken.CSB) {
+				csb = nx;
 				break;
 			}
 			toks.reset(from);
 			if (inner.tryParsing(toks) == null)
 				return null;
 			PattToken comma = PattToken.from(errors, toks);
-			if (comma.type == PattToken.CSB)
+			if (comma.type == PattToken.CSB) {
+				csb = nx;
 				break;
-			else if (comma.type != PattToken.COMMA)
+			} else if (comma.type != PattToken.COMMA)
 				return invalidPattern(toks);
 		}
 		ConstructorMatch ret = new ConstructorMatch(osb.location, "Nil");
@@ -279,6 +287,9 @@ public class TDAPatternParser implements TDAParsing {
 			ret.args.add(ret.new Field(ret.location(), "tail", prev));
 		}
 
+		if (ret.args.isEmpty()) {
+			errors.logReduction("pattern-empty-list", osb, csb);
+		}
 		consumer.accept(ret);
 		return this;
 	}
