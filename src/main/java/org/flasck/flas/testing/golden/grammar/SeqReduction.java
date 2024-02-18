@@ -61,12 +61,33 @@ public class SeqReduction implements Iterable<SeqElement> {
 	}
 
 	public boolean canBeKeyword(String keyword) {
-		if (matchers.size() != 1)
+		if (!canMatchOneToken())
 			return false;
 		if (matchers.get(0) instanceof TokenElement)
 			return ((TokenElement)matchers.get(0)).canBeKeyword(keyword);
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public boolean canMatchOneToken() {
+		int cnt = 0;
+		for (SeqElement m : matchers) {
+			if (m instanceof TokenElement || m instanceof RefElement)
+				cnt++;
+		}
+		return cnt <= 1;
+	}
+
+	public TrackProduction choose(String rule) {
+		if (!canMatchOneToken())
+			return null;
+		for (SeqElement m : matchers) {
+			if (m instanceof RefElement)
+				return ((RefElement)m).choose(rule);
+			else if (m instanceof ManyElement)
+				return ((ManyElement)m).choose(rule);
+		}
+		return null;
 	}
 
 	@Override

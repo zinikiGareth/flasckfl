@@ -94,4 +94,8 @@ public class SequenceDefinition extends Definition {
 	public boolean borrowFinalIndent() {
 		return borrowFinalIndent;
 	}
+
+	public boolean hasExplicitReduceAs() {
+		return baseReducesAs != null;
+	}
 }

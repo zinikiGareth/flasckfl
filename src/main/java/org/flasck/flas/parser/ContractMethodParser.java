@@ -38,12 +38,14 @@ public class ContractMethodParser implements TDAParsing {
 		InputPosition optLoc = null;
 		InputPosition firstLoc = null;
 		int mark = toks.at();
+		String withOptional = "";
 		KeywordToken ud = KeywordToken.from(errors, toks);
 		if (ud != null) {
 			if (ud.text.equals("optional")) {
 				required = false;
 				optLoc = ud.location;
 				firstLoc = optLoc;
+				withOptional = "-with-optional";
 			} else
 				toks.reset(mark);
 		}
@@ -81,6 +83,7 @@ public class ContractMethodParser implements TDAParsing {
 		}
 		if (emark.hasMoreNow())
 			return new IgnoreNestedParser(errors);
+		String withHandler = "";
 		TypedPattern handler = null;
 		if (toks.hasMoreContent(errors)) {
 			// it must be a handler specification
@@ -104,6 +107,8 @@ public class ContractMethodParser implements TDAParsing {
 			}
 			handler = (TypedPattern) p;
 			lastLoc = p.location();
+			withHandler = "-with-handler";
+			errors.logReduction("handled-by", tok, handler);
 		}
 		if (toks.hasMoreContent(errors)) {
 			errors.message(toks, "syntax error");
@@ -114,7 +119,7 @@ public class ContractMethodParser implements TDAParsing {
 			locTracker.updateLoc(firstLoc);
 		ContractMethodDecl ret = new ContractMethodDecl(optLoc, name.location, name.location, required, fnName, targs, handler);
 		builder.addMethod(ret);
-		errors.logReduction("contract-method-decl", firstLoc, lastLoc);
+		errors.logReduction("contract-method-decl" + withOptional + withHandler, firstLoc, lastLoc);
 		((ContractConsumer)topLevel).newContractMethod(errors, ret);
 		return new NoNestingParser(errors);
 	}

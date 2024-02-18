@@ -12,6 +12,7 @@ import org.flasck.flas.grammar.Grammar;
 import org.flasck.flas.grammar.ManyDefinition;
 import org.flasck.flas.grammar.OrProduction;
 import org.flasck.flas.grammar.Production;
+import org.flasck.flas.grammar.ReducesAs;
 import org.flasck.flas.grammar.RefDefinition;
 import org.flasck.flas.grammar.SequenceDefinition;
 import org.flasck.flas.grammar.TokenDefinition;
@@ -86,7 +87,7 @@ public class GrammarChooser {
 					continue;
 				ret.add(x);
 			}
-			if (ret.size() == 1)
+			if (!seq.hasExplicitReduceAs() && ret.size() == 1)
 				return ret.get(0);
 			else
 				return seq.cloneWith(ret);
@@ -104,6 +105,10 @@ public class GrammarChooser {
 	
 	public GrammarNavigator newNavigator() {
 		return new GrammarNavigator(this);
+	}
+
+	public boolean hasRule(String want) {
+		return grammar.containsKey(want);
 	}
 
 	public TrackProduction rule(String rule) {

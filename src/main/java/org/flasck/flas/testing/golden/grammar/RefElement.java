@@ -55,4 +55,14 @@ public class RefElement implements SeqElement {
 	public boolean canBeSkipped() {
 		return false;
 	}
+
+	public TrackProduction choose(String want) {
+		if (!chooser.hasRule(want))
+			return null;
+		TrackProduction ret = chooser.rule(want);
+		if (want.equals(rule))
+			return ret;
+		else
+			return ret.choose(want);
+	}
 }

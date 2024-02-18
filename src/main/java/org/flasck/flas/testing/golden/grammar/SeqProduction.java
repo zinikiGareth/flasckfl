@@ -12,6 +12,7 @@ import org.flasck.flas.grammar.OptionalDefinition;
 import org.flasck.flas.grammar.Production;
 import org.flasck.flas.grammar.RefDefinition;
 import org.flasck.flas.grammar.SequenceDefinition;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.CantHappenException;
 
 public class SeqProduction implements TrackProduction {
@@ -103,6 +104,8 @@ public class SeqProduction implements TrackProduction {
 			return this;
 		else if (reduceAs.containsKey(rule))
 			return this;
+		else if (reduceAs.size() == 1)
+			return CollectionUtils.any(reduceAs.values()).choose(rule);
 		else
 			return null;
 	}

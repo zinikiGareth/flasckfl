@@ -208,7 +208,6 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 				errors.logReduction("contract-card", kw.location, locEnd);
 			}
 
-			errors.logReduction("contract-intro", kw.location, locEnd);
 			TypeNameToken tn = TypeNameToken.unqualified(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");

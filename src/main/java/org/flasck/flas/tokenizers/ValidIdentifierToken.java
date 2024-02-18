@@ -46,7 +46,7 @@ public class ValidIdentifierToken implements LoggableToken {
 
 	@Override
 	public String type() {
-		return "identifier";
+		return "var-name";
 	}
 
 	@Override

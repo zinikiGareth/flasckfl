@@ -408,7 +408,7 @@ public class GrammarChecker {
 	}
 
 	private void matchTerminal(TrackProduction tp, GrammarToken tok) {
-		System.out.println(tok + ":: " + tok.type);
+		System.out.println("match terminal: " + tok + ":: " + tok.type);
 		TokenProduction rule = (TokenProduction) tp.choose(tok.type);
 		if (rule != null) {
 			// check it matches

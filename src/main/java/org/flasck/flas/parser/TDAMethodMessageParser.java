@@ -52,7 +52,7 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 		}
 		
 		SendMessage send = seen.get(0);
-		Locatable last = send;
+		Locatable last = send.expr;
 
 		if (ec != toks) { // handler case
 			String handled = "";

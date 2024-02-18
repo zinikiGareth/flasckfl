@@ -10,10 +10,12 @@ import org.flasck.flas.testing.golden.ParsedTokens.GrammarToken;
 import org.zinutils.exceptions.CantHappenException;
 
 public class ManyElement implements SeqElement {
+	private final GrammarChooser chooser;
 	private final TrackProduction matchRef;
 	private final TokenElement matchTok;
 
 	public ManyElement(GrammarChooser chooser, Grammar g, ManyDefinition md) {
+		this.chooser = chooser;
 		Definition child = md.repeats();
 		if (child instanceof RefDefinition) {
 			String rule = ((RefDefinition)child).ruleName();
@@ -68,6 +70,13 @@ public class ManyElement implements SeqElement {
 	
 	public TrackProduction matchRef() {
 		return matchRef;
+	}
+
+	public TrackProduction choose(String want) {
+		if (matchRef != null)
+			return matchRef.choose(want);
+		else
+			return null;
 	}
 
 	@Override
