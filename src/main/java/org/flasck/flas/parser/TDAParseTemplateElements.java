@@ -157,6 +157,7 @@ public class TDAParseTemplateElements {
 		if (expr != null)
 			lastLoc = expr.location();
 		while (toks.hasMoreContent(errors)) {
+			int mark = toks.at();
 			ExprToken et = ExprToken.from(errors, toks);
 			if (et != null) {
 				lastLoc = et.location;
@@ -182,6 +183,7 @@ public class TDAParseTemplateElements {
 					}
 				} else if (et.type == ExprToken.PUNC) {
 					if (et.text.equals("(")) {
+						toks.reset(mark);
 						List<Expr> ret = new ArrayList<>();
 						Consumer<Expr> handler = new Consumer<Expr>() {
 							@Override
@@ -196,15 +198,15 @@ public class TDAParseTemplateElements {
 							errors.message(et.location, "valid style expected");
 							return null;
 						}
-						ExprToken crb = ExprToken.from(errors, toks);
-						if (crb == null) {
-							errors.message(toks, "expected )");
-							return null;
-						} else if (!crb.text.equals(")")) {
-							errors.message(crb.location, "expected )");
-							return null;
-						}
-						errors.logReduction("orb-closed-top", et.location, crb.location);
+//						ExprToken crb = ExprToken.from(errors, toks);
+//						if (crb == null) {
+//							errors.message(toks, "expected )");
+//							return null;
+//						} else if (!crb.text.equals(")")) {
+//							errors.message(crb.location, "expected )");
+//							return null;
+//						}
+//						errors.logReduction("orb-closed-top", et.location, crb.location);
 						addTo.add(ret.get(0));
 						continue;
 					}

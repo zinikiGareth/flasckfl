@@ -45,12 +45,12 @@ public class TDAExpressionParser implements TDAParsing {
 	}
 
 	public TDAExpressionParser(ErrorReporter errors, Consumer<Expr> exprHandler, boolean reduceToOne) {
-		ExprReducerErrors ere = new ExprReducerErrors(errors);
+		ExprReducerErrors ere = new ExprReducerErrors(errors, reduceToOne);
 		this.parser = new TDAExprParser(errors, ere, null, new TDAStackReducer(ere, new Builder(exprHandler), reduceToOne), null);
 	}
 
 	public TDAExpressionParser(ErrorReporter errors, IntroduceNamer namer, Consumer<Expr> exprHandler, boolean reduceToOne, IntroductionConsumer consumer) {
-		ExprReducerErrors ere = new ExprReducerErrors(errors);
+		ExprReducerErrors ere = new ExprReducerErrors(errors, reduceToOne);
 		this.parser = new TDAExprParser(errors, ere, namer, new TDAStackReducer(ere, new Builder(exprHandler), reduceToOne), consumer);
 	}
 

@@ -17,6 +17,8 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.grammar.tracking.LoggableToken;
+import org.flasck.flas.tokenizers.CommentToken;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
@@ -55,9 +57,11 @@ public class ExprReducerErrors implements ErrorReporter {
 
 	private final ErrorReporter errors;
 	private final Map<InputPosition, Composite> linear = new TreeMap<>();
+	private final boolean reduceToOne;
 
-	public ExprReducerErrors(ErrorReporter errors) {
+	public ExprReducerErrors(ErrorReporter errors, boolean reduceToOne) {
 		this.errors = errors;
+		this.reduceToOne = reduceToOne;
 	}
 
 	public void track(File f) {
@@ -65,12 +69,24 @@ public class ExprReducerErrors implements ErrorReporter {
 	}
 
 	public <T extends LoggableToken> T logParsingToken(T token) {
+		// For reconstruction purposes, we need to log the token, but we don't want it involved in reductions
+		if (token instanceof CommentToken) {
+			errors.logParsingToken(token);
+			return token;
+		}
+
+		
 		errors.logParsingToken(token); // DELETE ME!
 		
 		
 		System.out.println("token " + token.location() + ": " + token);
 		linear.put(token.location(), new Composite(token));
 		return token;
+	}
+
+	// Remove a token when we back up
+	public void cancel(ExprToken tok) {
+		linear.remove(tok.location);
 	}
 
 	public void logReduction(String ruleId, Locatable first, Locatable last) {
@@ -134,10 +150,10 @@ public class ExprReducerErrors implements ErrorReporter {
 	public void doneReducing() {
 		System.out.println("done reducing");
 		System.out.println(linear);
-		if (linear.size() > 1) {
+		if (reduceToOne && linear.size() > 1) {
 			for (Entry<InputPosition, Composite> e : linear.entrySet())
 				System.out.println(e.getKey() + " ====> " + e.getValue());
-//			throw new CantHappenException("Not fully reduced: " + linear.size());
+			throw new CantHappenException("Not fully reduced: " + linear.size());
 		}
 	}
 

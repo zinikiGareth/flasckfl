@@ -150,12 +150,14 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	private Expr handleOperators(int from, int to, int oppos, int prec) {
 		Expr oe = terms.get(oppos);
-		if (oppos == from) { // unary operator
-			return new ApplyExpr(oe.location().copySetEnd(terms.get(to-1).location().pastEnd()), oe, reduce(from+1, to));
+		if (oppos == from) { // prefix unary operator
+			UnresolvedOperator op = (UnresolvedOperator) oe;
+			final Expr rhs = reduce(oppos+1, to);
+			errors.logReduction("expr-unop", op, rhs);
+			return new ApplyExpr(oe.location().copySetEnd(terms.get(to-1).location().pastEnd()), oe, rhs);
 		} else if (prec == 10) {
 			throw new NotImplementedException();
 		} else {
-			UnresolvedOperator op = (UnresolvedOperator) oe;
 			final Expr rhs = reduce(oppos+1, to);
 			final Expr lhs = reduce(from, oppos);
 			errors.logReduction("expr-binop", lhs, rhs);
