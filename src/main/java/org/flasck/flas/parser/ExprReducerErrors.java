@@ -27,19 +27,22 @@ public class ExprReducerErrors implements ErrorReporter {
 	public class Composite {
 		private final LoggableToken tok;
 		private final String ruleId;
-		private final List<Composite> collect;
+		private final Locatable first;
 		private final Locatable last;
+		private final List<Composite> collect;
 
 		public <T extends LoggableToken> Composite(T token) {
 			this.tok = token;
 			this.ruleId = null;
+			this.first = null;
 			this.last = null;
 			this.collect = null;
 		}
 		
-		public Composite(String ruleId, Locatable last, List<Composite> collect) {
+		public Composite(String ruleId, Locatable first, Locatable last, List<Composite> collect) {
 			this.tok = null;
 			this.ruleId = ruleId;
+			this.first = first;
 			this.last = last;
 			this.collect = collect;
 		}
@@ -76,7 +79,7 @@ public class ExprReducerErrors implements ErrorReporter {
 		}
 
 		
-		errors.logParsingToken(token); // DELETE ME!
+//		errors.logParsingToken(token); // DELETE ME!
 		
 		
 		System.out.println("token " + token.location() + ": " + token);
@@ -90,7 +93,7 @@ public class ExprReducerErrors implements ErrorReporter {
 	}
 
 	public void logReduction(String ruleId, Locatable first, Locatable last) {
-		errors.logReduction(ruleId, first, last); // DELETE ME
+//		errors.logReduction(ruleId, first, last); // DELETE ME
 
 		
 		System.out.println("reduce " + ruleId + " " + first.location() + " - " + last.location() + " " + first + " -- " + last);
@@ -130,7 +133,7 @@ public class ExprReducerErrors implements ErrorReporter {
 		if (collect.isEmpty()) {
 			throw new CantHappenException("nothing matched");
 		}
-		linear.put(first.location(), new Composite(ruleId, last, collect));
+		linear.put(first.location(), new Composite(ruleId, first, last, collect));
 		System.out.println("after: " + linear.size() + ": " + linear);
 	}
 
@@ -154,6 +157,21 @@ public class ExprReducerErrors implements ErrorReporter {
 			for (Entry<InputPosition, Composite> e : linear.entrySet())
 				System.out.println(e.getKey() + " ====> " + e.getValue());
 			throw new CantHappenException("Not fully reduced: " + linear.size());
+		}
+		
+		// Because of "reduceToOne", there may actually be more than one, but in that case generate them in order anyway
+		for (Entry<InputPosition, Composite> e : linear.entrySet()) {
+			dumpTreeInPostfixOrder(e.getValue());
+		}
+	}
+
+	private void dumpTreeInPostfixOrder(Composite comp) {
+		if (comp.tok != null) {
+			errors.logParsingToken(comp.tok);
+		} else {
+			for (Composite e : comp.collect)
+				dumpTreeInPostfixOrder(e);
+			errors.logReduction(comp.ruleId, comp.first, comp.last);
 		}
 	}
 

@@ -41,8 +41,6 @@ public class TDAExprParser implements TDAParsing {
 			ExprToken tok = ExprToken.from(errors, line);
 			if (tok == null) {
 				builder.done();
-				if (!errors.hasErrors())
-					errors.doneReducing();
 				return new IgnoreNestedParser(origErrors);
 			}
 			switch (tok.type) {
@@ -87,9 +85,9 @@ public class TDAExprParser implements TDAParsing {
 				// A "declaration" or "sendto" operator ends an expression without being consumed
 				if ("=".equals(tok.text) || "=>".equals(tok.text) || "<-".equals(tok.text)) {
 					line.reset(mark);
+					errors.cancel(tok);
 					builder.done();
-					errors.cancelReduction();
-					return null;
+					return new IgnoreNestedParser(origErrors);
 				}
 				builder.term(new UnresolvedOperator(tok.location, tok.text));
 				break;

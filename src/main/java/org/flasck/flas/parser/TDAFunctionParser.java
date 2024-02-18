@@ -91,7 +91,7 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 		}
 		List<FunctionCaseDefn> fcds = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
-			errors.logReduction("expression", e, e);
+//			errors.logReduction("expression", e, e);
 			final FunctionCaseDefn fcd = new FunctionCaseDefn(e.location(), intro, null, e);
 			fcds.add(fcd);
 			intro.functionCase(fcd);

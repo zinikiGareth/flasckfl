@@ -12,9 +12,11 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDAExpressionParser implements TDAParsing {
 	public static class Builder implements ExprTermConsumer {
 		private final Consumer<Expr> handler;
+		private final ExprReducerErrors ere;
 
-		public Builder(Consumer<Expr> handler) {
+		public Builder(Consumer<Expr> handler, ExprReducerErrors ere) {
 			this.handler = handler;
+			this.ere = ere;
 		}
 
 		@Override
@@ -24,6 +26,7 @@ public class TDAExpressionParser implements TDAParsing {
 
 		@Override
 		public void term(Expr term) {
+			ere.doneReducing();
 			handler.accept(term);
 		}
 
@@ -46,12 +49,12 @@ public class TDAExpressionParser implements TDAParsing {
 
 	public TDAExpressionParser(ErrorReporter errors, Consumer<Expr> exprHandler, boolean reduceToOne) {
 		ExprReducerErrors ere = new ExprReducerErrors(errors, reduceToOne);
-		this.parser = new TDAExprParser(errors, ere, null, new TDAStackReducer(ere, new Builder(exprHandler), reduceToOne), null);
+		this.parser = new TDAExprParser(errors, ere, null, new TDAStackReducer(ere, new Builder(exprHandler, ere), reduceToOne), null);
 	}
 
 	public TDAExpressionParser(ErrorReporter errors, IntroduceNamer namer, Consumer<Expr> exprHandler, boolean reduceToOne, IntroductionConsumer consumer) {
 		ExprReducerErrors ere = new ExprReducerErrors(errors, reduceToOne);
-		this.parser = new TDAExprParser(errors, ere, namer, new TDAStackReducer(ere, new Builder(exprHandler), reduceToOne), consumer);
+		this.parser = new TDAExprParser(errors, ere, namer, new TDAStackReducer(ere, new Builder(exprHandler, ere), reduceToOne), consumer);
 	}
 
 	@Override
