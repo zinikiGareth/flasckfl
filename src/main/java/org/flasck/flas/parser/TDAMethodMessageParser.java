@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
@@ -17,18 +18,23 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDAMethodMessageParser extends BlockLocationTracker implements TDAParsing {
 	protected final MethodMessagesConsumer builder;
 	protected final LastOneOnlyNestedParser nestedParser;
+	protected final BlockLocationTracker actionsTracker;
 
-	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker locTracker) {
+	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker locTracker, BlockLocationTracker actionsTracker) {
 		super(errors, locTracker);
 		this.builder = builder;
 		this.nestedParser = nestedParser;
+		this.actionsTracker = actionsTracker;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		nestedParser.anotherParent();
+		nestedParser.bindLocationTracker(this);
 		ExprToken tok = ExprToken.from(errors, toks);
 		updateLoc(tok.location);
+		if (actionsTracker != null && actionsTracker.lastInner() == null)
+			actionsTracker.updateLoc(tok.location);
 		if ("<-".equals(tok.text))
 			return handleSend(tok, toks);
 		else if (tok.type == ExprToken.IDENTIFIER)
@@ -102,7 +108,7 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 		}
 		builder.sendMessage(send);
 		tellParent(arrowPos.location());
-		return nestedParser;
+		return new TDAParsingWithAction(nestedParser, reduceToActions(arrowPos));
 	}
 
 	private TDAParsing handleAssign(ExprToken tok, Tokenizable toks) {
@@ -148,7 +154,16 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 		errors.logReduction("member-path", slot.location(), slot.location());
 		errors.logReduction("assign-method-action", slot, seen.get(seen.size()-1));
 		tellParent(slot.location());
-		return nestedParser;
+		return new TDAParsingWithAction(nestedParser, reduceToActions(slot));
+	}
+
+	private Runnable reduceToActions(Locatable start) {
+		return () -> {
+			System.out.println("method-actions?" + this + ":" + start + actionsTracker.lastInner());
+			if (lastInner().compareTo(start.location()) > 0) {
+				reduce(actionsTracker.lastInner(), "method-actions");
+			}
+		};
 	}
 
 	@Override

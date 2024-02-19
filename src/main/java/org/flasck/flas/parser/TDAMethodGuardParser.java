@@ -18,7 +18,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 	private boolean seenDefault = false;
 
 	public TDAMethodGuardParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser, LocationTracker locTracker) {
-		super(errors, builder, nestedParser, locTracker);
+		super(errors, builder, nestedParser, locTracker, new BlockLocationTracker(errors, null));
 		consumer = (GuardedMessagesConsumer) builder;
 	}
 
@@ -63,7 +63,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			tellParent(tok.location);
 			seenDefault = true;
 			return new TDAParsingWithAction(
-				new TDAMethodMessageParser(errors, dgm, nestedParser, this),
+				new TDAMethodMessageParser(errors, dgm, nestedParser, this, new BlockLocationTracker(errors, null)),
 				reduction(tok.location, "method-guard")
 			);
 		}
@@ -81,7 +81,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 		errors.logReduction("method-guard-with-cond", tok.location, seen.get(seen.size()-1).guard.location());
 		tellParent(tok.location);
 		return new TDAParsingWithAction(
-			new TDAMethodMessageParser(errors, seen.get(0), nestedParser, this),
+			new TDAMethodMessageParser(errors, seen.get(0), nestedParser, this, new BlockLocationTracker(errors, null)),
 			reduction(tok.location, "method-guard")
 		);
 	}

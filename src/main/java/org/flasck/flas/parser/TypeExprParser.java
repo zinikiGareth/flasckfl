@@ -34,7 +34,6 @@ public class TypeExprParser {
 			curr = trs.get(0);
 		} else {
 			errors.message(tt.location, "invalid type reference");
-//			throw new NotImplementedException("handle ORB at least");
 			return;
 		}
 		
@@ -45,6 +44,7 @@ public class TypeExprParser {
 			pt.provide(curr);
 			return;
 		} else if (nt.type == TypeExprToken.CSB) {
+			errors.logReduction("simple-type-name", tt, tt);
 			line.reset(mark);
 			pt.provide(curr);
 			return;
@@ -52,18 +52,24 @@ public class TypeExprParser {
 
 		// we may have polymorphic args
 		if (nt.type == TypeExprToken.OSB) {
+			TypeExprToken osb = nt;
 			List<TypeReference> trs = new ArrayList<>();
 			int cnt = 0;
+			TypeExprToken comma = null, csb = null;
 			while (true) {
 				tryParsing(line, x -> trs.add(x));
 				if (++cnt != trs.size()) { // we didn't get a type
 					return;
 				}
+				if (comma != null) {
+					errors.logReduction("comma-type-reference", comma, trs.get(trs.size()-1));
+				}
 				nt = TypeExprToken.from(errors, line); // get the next token
 				// TODO: can probably be null
 				if (nt.type == TypeExprToken.COMMA) {
-					// carry on
+					comma = nt;
 				} else if (nt.type == TypeExprToken.CSB) {
+					csb = nt;
 					break;
 				} else {
 					// probably a real error
@@ -71,6 +77,8 @@ public class TypeExprParser {
 				}
 			}
 			curr = new TypeReference(curr.location(), curr.name(), trs);
+			errors.logReduction("poly-type-list", osb, csb);
+			errors.logReduction("simple-type-name-with-polys", tt, csb);
 			mark = line.at();
 		}
 		
@@ -97,70 +105,6 @@ public class TypeExprParser {
 			line.reset(mark);
 		}
 	
-			/*
-			List<TypeReference> polys = new ArrayList<TypeReference>();
-			int mark = line.at();
-			TypeExprToken osb = TypeExprToken.from(line);
-			if (osb != null && osb.type == TypeExprToken.OSB) {
-				while (line.hasMoreContent()) {
-					tryParsing(line, tmp -> polys.add(tmp));
-					osb = TypeExprToken.from(line);
-					if (osb.type == TypeExprToken.CSB) {
-						break;
-					}
-					else if (osb.type != TypeExprToken.COMMA)
-						return;
-				}
-			} else
-				line.reset(mark);
-			List<TypeReference> fnargs = new ArrayList<TypeReference>();
-			fnargs.add(new TypeReference(tt.location, tt.text, polys));
-			InputPosition arrow = null;
-			while (true) {
-				mark = line.at();
-				TypeExprToken arr = TypeExprToken.from(line);
-				if (arr != null && arr.type == TypeExprToken.ARROW) {
-					arrow = arr.location;
-					tryOneExpr(line, tr -> fnargs.add((TypeReference) tr) );
-				} else {
-					line.reset(mark);
-					break;
-				}
-			}
-			// The normal case, where we just have one type
-			if (fnargs.size() == 1) {
-				pt.provide(fnargs.get(0));
-			} else {
-				// This is a function type, such as "A->B mapper"
-				pt.provide(new FunctionTypeReference(arrow, fnargs));
-				return;
-			}
-		}
-		else if (tt.type == TypeExprToken.ORB) {
-			// either a complex type, grouped OR a tuple type
-			// Start parsing nested expression and see what happens
-			int cnt = 0;
-			List<TypeReference> inner = new ArrayList<>();
-			while (line.hasMoreContent()) {
-				tryOneExpr(line, add -> inner.add((TypeReference) add) );
-				if (++cnt != inner.size())
-					return;
-				TypeExprToken crb = TypeExprToken.from(line);
-				if (crb.type == TypeExprToken.CRB) {
-					if (inner.size() == 1) {
-						pt.provide(inner.get(0));
-						return;
-					} else if (inner.size() > 1) {
-						pt.provide(new TupleTypeReference(tt.location, inner));
-						return;
-					}
-				} else if (crb.type != TypeExprToken.COMMA)
-					return; // this is an error
-			}
-		} 
-		// not a valid type expression
-		 */
-		
 		pt.provide(curr);
 	}
 
@@ -187,33 +131,4 @@ public class TypeExprParser {
 			}
 		}			
 	}
-
-	/*
-	public void tryOneExpr(Tokenizable line, TDAProvideType pt) {
-		int mark = line.at();
-		TypeExprToken next = TypeExprToken.from(line);
-		if (next == null)
-			return; // some kind of error - EOF? invalid token?
-		else if (next.type == TypeExprToken.ORB) {
-			// it's a complex nested type; push this back and call ourselves recursively
-			line.reset(mark);
-			tryParsing(line, pt);
-		} else if (next.type == TypeExprToken.NAME) {
-			// it's a function application of types
-			TypeExprToken look;
-			mark = line.at();
-			int cnt = 0;
-			List<TypeReference> args = new ArrayList<TypeReference>();
-			while (line.hasMoreContent() && (look = TypeExprToken.from(line)) != null && look.type == TypeExprToken.ARROW) {
-				tryOneExpr(line, t -> args.add(t));
-				if (++cnt != args.size())
-					return; // there was an error
-				mark = line.at(); // update mark
-			}
-			TypeReference tr = new TypeReference(next.location, next.text, args);
-			line.reset(mark); // want to see the CRB/COMMA again
-			pt.provide(tr);
-		}
-	}
-	*/
 }

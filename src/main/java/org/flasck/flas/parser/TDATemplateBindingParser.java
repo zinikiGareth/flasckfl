@@ -78,6 +78,7 @@ public class TDATemplateBindingParser extends BlockLocationTracker implements TD
 				}
 				lastLoc = dest.location;
 				sendsTo = new TemplateReference(dest.location, namer.template(dest.location, dest.text));
+				errors.logReduction("pass-to-template", format, dest);			
 			}
 			simple = new TemplateBindingOption(tok.location, field, null, expr, sendsTo);
 		}
@@ -86,7 +87,7 @@ public class TDATemplateBindingParser extends BlockLocationTracker implements TD
 		} else if (sendsTo == null) {
 			errors.logReduction("template-binding-with-send", tok.location, lastLoc);			
 		} else {
-			errors.logReduction("template-binding-sends-to", tok.location, lastLoc);			
+			errors.logReduction("template-binding-with-send-sends-to", tok.location, lastLoc);			
 		}
 		final TemplateBinding binding = new TemplateBinding(field, simple);
 		consumer.addBinding(binding);
