@@ -61,7 +61,7 @@ public class TDAMethodParser extends BlockLocationTracker {
 		}
 		if (reduceAs != null) {
 			if (kw != null) {
-				errors.logReduction("method-intro", var.location, endOf);
+//				errors.logReduction("method-intro", var.location, endOf);
 				errors.logReduction(reduceAs, kw.location, endOf);
 				tellParent(kw.location);
 			} else {

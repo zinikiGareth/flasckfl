@@ -113,10 +113,12 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 
 	private TDAParsing handleAssign(ExprToken tok, Tokenizable toks) {
 		Expr slot = null;
+		Locatable last = null;
 		while (true) {
 			UnresolvedVar var = new UnresolvedVar(tok.location, tok.text);
 			if (slot == null) {
 				slot = var;
+				last = var;
 			} else
 				slot = new MemberExpr(slot.location(), slot, var);
 			// read . or <-
@@ -126,15 +128,19 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 				return new IgnoreNestedParser(errors);
 			}
 			if (tok.type == ExprToken.PUNC && ".".equals(tok.text)) {
+				ExprToken dot = tok;
 				// read another identifier
 				tok = ExprToken.from(errors, toks);
 				if (tok == null || tok.type != ExprToken.IDENTIFIER) {
 					errors.message(toks, "expected identifier");
 					return new IgnoreNestedParser(errors);
 				}
+				errors.logReduction("member-path-apply", dot, tok);
+				last = dot;
 			} else
 				break;
 		}
+		errors.logReduction("member-path", slot, last);
 		if (!"<-".equals(tok.text)) {
 			errors.message(tok.location, "expected <-");
 			return new IgnoreNestedParser(errors);
@@ -151,7 +157,6 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("member-path", slot.location(), slot.location());
 		errors.logReduction("assign-method-action", slot, seen.get(seen.size()-1));
 		tellParent(slot.location());
 		return new TDAParsingWithAction(nestedParser, reduceToActions(slot));
