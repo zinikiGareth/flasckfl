@@ -23,7 +23,7 @@ public class TokenProduction implements TrackProduction {
 
 	@Override
 	public TrackProduction choose(String rule) {
-		if (matches(rule))
+		if (name.equalsIgnoreCase(rule))
 			return this;
 		else
 			return null;

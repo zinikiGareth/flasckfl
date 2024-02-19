@@ -1882,11 +1882,6 @@ match style ...
       	<reduces-as rule="-with-zone" />
 		<ref production='unit-test-target-zone' />
 	  </optional>
-      <!-- optional "selector" (but not CSS?) -->
-      <!-- optional "contains" -->
-      <!--  as with the template definitions before, I'm not really sure what comes here ... -->
-      <!--  I do know I want it to be as independent of HTML as possible, and thus close to the syntax used for specifying them -->
-      <!--  but obviously I want something disconnected from the actual logic -->
       <indent-one>
 	    <ref production='unit-match-free-text' />
 	  </indent-one>

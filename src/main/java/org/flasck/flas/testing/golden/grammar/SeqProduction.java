@@ -84,9 +84,12 @@ public class SeqProduction implements TrackProduction {
 		String r = id.reducesTo();
 		Definition rd = id.indented();
 		TrackProduction rule = null;
-		if (rd instanceof RefDefinition)
-			rule = chooser.rule(((RefDefinition)rd).ruleName());
-		else
+		if (rd instanceof RefDefinition) {
+			RefDefinition rrd = (RefDefinition)rd;
+			rule = chooser.rule(rrd.ruleName());
+			if (rule instanceof TokenProduction)
+				r = rrd.ruleName();
+		} else
 			throw new CantHappenException("rd is " + rd.getClass());
 		if (r == null)
 			return rule;
