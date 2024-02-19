@@ -89,11 +89,17 @@
   <lex token='HANDLER' pattern='handler'>
   	<p>The <tt>handler</tt> keyword introduces a callback handler.</p>
   </lex>
+  <lex token='HREF' pattern='href'>
+  	<p><tt>href</tt> is a keyword used with the <tt>match</tt> unit test command to match hyperlink text.</p>
+  </lex>
   <!--  NYI
   <lex token='HEADER' pattern='header'>
   	<p>The ajax system test keyword <tt>header</tt>.</p>
   </lex>
   -->
+  <lex token='IMAGE' pattern='image'>
+  	<p><tt>image</tt> is a keyword used with the <tt>match</tt> unit test command to match image URIs.</p>
+  </lex>
   <lex token='IMPLEMENTS' pattern='implements'>
   	<p>The <tt>implements</tt> keyword introduces a contract implementation in a card.</p>
   </lex>
@@ -151,6 +157,9 @@
   <lex token='RESPONSES' pattern='responses'>
   	<p>The ajax system test keyword <tt>create</tt>.</p>
   </lex>
+  <lex token='SCROLL' pattern='scroll'>
+  	<p><tt>scroll</tt> is a keyword used with the <tt>match</tt> unit test command to check on where the window has scrolled to.</p>
+  </lex>
   <lex token='SEND' pattern='&lt;-'>
   	<p>Method actions, variable assignments and template definitions are defined using the SEND operator.</p>
   </lex>
@@ -189,6 +198,9 @@
   </lex>
   <lex token='TEXT' pattern='text'>
   	<p>The <tt>text</tt> keyword is used to match text on a card.</p>
+  </lex>
+  <lex token='TITLE' pattern='title'>
+  	<p><tt>title</tt> is a keyword used with the <tt>match</tt> unit test command to test the current window title.</p>
   </lex>
   <lex token='TRUE' pattern='True'>
   	<p>The boolean literal <tt>True</tt>.</p>
@@ -1883,8 +1895,12 @@ match style ...
   <production name='unit-test-match-category'>
     <section title='Unit Tests' />
     <or>
+	  <token type='HREF' />
+	  <token type='IMAGE' />
+      <token type='SCROLL' />
+      <token type='STYLE' />
       <token type='TEXT' />
-      <token type='STYLE' /> <!-- the card -->
+      <token type='TITLE' />
     </or>
   </production>
   <production name='unit-test-target-zone'>

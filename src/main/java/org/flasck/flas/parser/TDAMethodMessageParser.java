@@ -159,7 +159,6 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 
 	private Runnable reduceToActions(Locatable start) {
 		return () -> {
-			System.out.println("method-actions?" + this + ":" + start + actionsTracker.lastInner());
 			if (lastInner().compareTo(start.location()) > 0) {
 				reduce(actionsTracker.lastInner(), "method-actions");
 			}

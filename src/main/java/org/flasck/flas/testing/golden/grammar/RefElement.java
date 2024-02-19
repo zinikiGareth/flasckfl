@@ -34,10 +34,14 @@ public class RefElement implements SeqElement {
 			// What is directly descended from here?
 			TrackProduction tracker = chooser.rule(rule);
 			TrackProduction ret = tracker.choose(tok.type);
-			if (ret == null)
-				return MatchResult.SINGLE_MATCH_FAILED;
-			else
+			if (ret != null)
 				return MatchResult.SINGLE_MATCH_ADVANCE;
+			
+			// It's also possible that we match by the token text ...
+			ret = tracker.choose(tok.text);
+			if (ret != null)
+				return MatchResult.SINGLE_MATCH_ADVANCE;
+			return MatchResult.SINGLE_MATCH_FAILED;
 		} else
 			return MatchResult.SINGLE_MATCH_FAILED;
 	}

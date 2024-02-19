@@ -499,7 +499,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "missing card");
 			return new IgnoreNestedParser(errors);
 		}
-		ValidIdentifierToken whattok = VarNameToken.from(errors, toks);
+		KeywordToken whattok = KeywordToken.from(errors, toks);
 		if (whattok == null) {
 			errors.message(toks, "missing category");
 			return new IgnoreNestedParser(errors);
