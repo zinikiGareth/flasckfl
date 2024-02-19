@@ -49,10 +49,16 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			if (op.equals("{}")) {
 				if (currentVar == null)
 					throw new RuntimeException("need field and colon"); // I don't think this can happen
+				errors.logReduction("object-member", currentVar, term);
 				term = new ApplyExpr(currentVar.location().copySetEnd(end), new UnresolvedOperator(from.location(), ":"), currentVar, term);
 			}
 			if (comma != null) {
-				errors.logReduction("comma-expression", comma, term);
+				if (op.equals("()"))
+					errors.logReduction("comma-expression", comma, term);
+				else if (op.equals("[]"))
+					errors.logReduction("comma-expression", comma, term);
+				else if (op.equals("{}"))
+					errors.logReduction("comma-object-member", comma, term);
 				comma = null;
 			}
 			terms.add(term);
@@ -137,14 +143,8 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			if (punc.is(")") || punc.is("]") || punc.is("}")) {
 				punc.checkCloserFor(errors, open);
 				closer.endAt(term);
-//				if (comma != null) { // we have a previous comma expression)
-//					errors.logReduction("comma-expression", comma, lastLoc);
-//				}
 				curr.done();
 			} else if (punc.is(",")) {
-//				if (comma != null) { // we have a previous comma expression)
-//					errors.logReduction("comma-expression", comma, lastLoc);
-//				}
 				comma = punc;
 				curr.seenComma(comma);
 				if (closer.isObjectLiteral())
