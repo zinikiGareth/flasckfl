@@ -580,7 +580,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 				errors.logReduction("unit-match-free-text", text.location(), lastPos);
 				errors.logReduction("unit-test-match", kw.location, text.location());
 			} else {
-				errors.logReduction("unit-test-match-blank", kw.location, kw.location);
+				errors.logReduction("unit-test-match", kw.location, kw.location);
 			}
 			tellParent(kw.location);
 			builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, fails, text);
