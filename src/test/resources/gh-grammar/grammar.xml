@@ -1297,7 +1297,7 @@
     <section title='Service' />
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
-	  <reduces-as rule='agent-provides-block' />
+	  <reduces-as rule='provides-contract-name' />
       <token type='PROVIDES' />
       <token type='type-name'/>
    	  <push-part prefix='S' />

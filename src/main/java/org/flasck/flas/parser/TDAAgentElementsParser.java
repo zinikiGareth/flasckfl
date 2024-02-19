@@ -73,7 +73,7 @@ public class TDAAgentElementsParser extends BlockLocationTracker implements TDAP
 				return new IgnoreNestedParser(errors);
 			}
 			updateLoc(tn.location);
-			errors.logReduction("requires-contract", kw.location, tn.location);
+			errors.logReduction("provides-contract-name", kw.location, tn.location);
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName csn = namer.csn(tn.location, "S");
 			final Provides contractService = new Provides(kw.location, tn.location, (NamedType)consumer, ctr, csn);

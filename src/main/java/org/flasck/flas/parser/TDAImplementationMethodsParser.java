@@ -46,6 +46,7 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 		List<Pattern> args = new ArrayList<>();
 		final FunctionName methName = namer.functionName(name.location, name.text);
 		VarPattern handler = null;
+		String withResult = "";
 		InputPosition lastLoc = methName.location.locAtEnd();
 		while (toks.hasMoreContent(errors)) {
 			ValidIdentifierToken arg = VarNameToken.from(errors, toks);
@@ -59,7 +60,9 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 					}
 					handler = new VarPattern(h.location, new VarName(h.location, methName, h.text));
 					topLevel.argument(errors, handler);
-					lastLoc = h.location;
+					errors.logReduction("implementation-result", tok, h);
+					lastLoc = tok.location;
+					withResult = "-with-result";
 					break;
 				} else {
 					errors.message(tok.location, "invalid argument name");
@@ -76,7 +79,7 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 			return new IgnoreNestedParser(errors);
 		}
 		final ObjectMethod meth = new ObjectMethod(name.location, methName, args, handler, holder);
-		errors.logReduction("implementation-method-first-line", methName.location, lastLoc);
+		errors.logReduction("implementation-method-first-line" + withResult, methName.location, lastLoc);
 		super.updateLoc(name.location);
 		consumer.addImplementationMethod(meth);
 		topLevel.newObjectMethod(errors, meth);
