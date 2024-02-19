@@ -77,7 +77,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				if (chain.location() != null)
 					lastLoc = chain.location();
 			}
-			if (chain != null)
+			if (chain != null && !chain.isEmpty())
 				errors.logReduction("card-template-intro-with-chain", kw.location, lastLoc);
 			else
 				errors.logReduction("card-template-intro", kw.location, lastLoc);

@@ -353,12 +353,15 @@ public class GrammarChecker {
 				throw new NotImplementedException("match result " + mr);
 			}
 		}
-		if (mit.hasNext())
-			throw new CantHappenException("there are remaining members");
+		if (mi != null || mit.hasNext()) {
+			if (mi == null)
+				mi = mit.next();
+			throw new CantHappenException("the tree has remaining members which were not consumed by the grammar: " + mi);
+		}
 		while (sit.hasNext()) {
 			si = sit.next();
 			if (!si.canBeSkipped())
-				throw new CantHappenException("there are remaining unmatched elements");
+				throw new CantHappenException("the grammar expects the tree to have more members which were not there: " + si);
 		}
 		System.out.println("matched line segment");
 	}

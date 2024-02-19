@@ -8,6 +8,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
@@ -158,7 +159,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 
 	protected TDAParsing handleShove(KeywordToken kw, Tokenizable toks) {
 		List<UnresolvedVar> slots = new ArrayList<>();
-		boolean haveDot = false;
+		Locatable haveDot = null, firstMPV = null;
 		while (true) {
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok == null || tok.type != ExprToken.IDENTIFIER) {
@@ -167,16 +168,22 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			}
 			UnresolvedVar v = new UnresolvedVar(tok.location, tok.text);
 			slots.add(v);
+			if (haveDot != null) {
+				if (firstMPV == null)
+					firstMPV = v;
+				else
+					errors.logReduction("member-path-apply", haveDot, v);
+			}
 			PuncToken dot = PuncToken.from(errors, toks);
 			if (dot == null) {
-				if (!haveDot) {
+				if (haveDot == null) {
 					errors.message(toks, ". expected");
 					return new IgnoreNestedParser(errors);
 				}
 				break;
 			}
 			if (".".equals(dot.text)) {
-				haveDot = true;
+				haveDot = dot;
 			} else {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
@@ -188,7 +195,9 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 
-		errors.logReduction("test-step-shove", kw, slots.get(slots.size()-1));
+		UnresolvedVar last = slots.get(slots.size()-1);
+		errors.logReduction("member-path", firstMPV, last);
+		errors.logReduction("test-step-shove", kw, last);
 
 		Consumer<Expr> exprConsumer = expr -> {
 			builder.shove(slots, expr); 
