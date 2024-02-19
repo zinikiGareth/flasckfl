@@ -276,7 +276,13 @@ public class GrammarChecker {
 		if (tree.hasIndents()) {
 			if (!scopeOnly) {
 				if (!(prod instanceof SeqProduction)) {
-					throw new CantHappenException("tree has indents but rule is not a SeqProduction: " + prod + " " + prod.getClass());
+					// It's possible we have an OrChoice and the tree is a singleton which specifically named a reduction, in which case we should look into that
+					if (prod instanceof OrChoice && tree.isSingleton()) {
+						String reduction = ((GrammarTree) tree.members().next()).reducedToRule();
+						prod = prod.choose(reduction);
+					}
+					if (!(prod instanceof SeqProduction))
+						throw new CantHappenException("tree has indents but rule " + rule + " is not a SeqProduction, but " + prod + " " + prod.getClass());
 				}
 				SeqProduction sp = (SeqProduction) prod;
 				TrackProduction indent = sp.indented();
@@ -363,7 +369,7 @@ public class GrammarChecker {
 			if (!si.canBeSkipped())
 				throw new CantHappenException("the grammar expects the tree to have more members which were not there: " + si);
 		}
-		System.out.println("matched line segment");
+		System.out.println("matched line segment " + rule);
 	}
 
 	private void matchNested(GrammarNavigator gn, GrammarStep mi, SeqElement si) {
