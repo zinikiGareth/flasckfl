@@ -122,6 +122,11 @@ public class SeqProduction implements TrackProduction {
 		return false;
 	}
 	
+	@Override
+	public boolean isSeqReducer(String rule) {
+		return reduceAs.containsKey(rule);
+	}
+
 	public SeqReduction get(String name) {
 		if (!reduceAs.containsKey(name))
 			throw new CantHappenException("there is no reduction for " + name);

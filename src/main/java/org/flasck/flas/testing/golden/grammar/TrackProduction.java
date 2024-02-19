@@ -11,4 +11,6 @@ public interface TrackProduction {
 	public TrackProduction choose(String rule);
 	
 	public default boolean canBeKeyword(String keyword) { return false; }
+
+	public default boolean isSeqReducer(String rule) { return false; }
 }

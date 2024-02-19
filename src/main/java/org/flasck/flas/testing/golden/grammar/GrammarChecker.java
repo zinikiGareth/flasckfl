@@ -263,7 +263,7 @@ public class GrammarChecker {
 
 		System.out.println("using rule " + prod);
 		boolean scopeOnly = false;
-		if (tree.isSingleton()) {
+		if (tree.isSingleton() && !prod.isSeqReducer(rule)) {
 			traverseTree((GrammarTree) tree.members().next(), gn);
 		} else if (tree.isTerminal()) {
 			if (!matchTerminal(prod, tree.terminal()))

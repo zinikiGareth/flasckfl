@@ -27,14 +27,14 @@ public class BlockLocationTracker implements LocationTracker {
 		return lastInner;
 	}
 
-	protected void reduce(InputPosition from, String rule) {
+	public void reduce(InputPosition from, String rule) {
 		updateLoc(from);
 		errors.logReduction(rule, from, lastInner);
 		if (parent != null)
 			parent.updateLoc(from);
 	}
 	
-	protected Runnable reduction(InputPosition from, String rule) {
+	public Runnable reduction(InputPosition from, String rule) {
 		return new Runnable() {
 			@Override
 			public void run() {

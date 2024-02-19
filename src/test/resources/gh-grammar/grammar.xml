@@ -2041,6 +2041,7 @@ match style ...
   <production name='system-test-unit'>
     <section title='System Tests'/>
     <seq>
+	  <reduces-as rule='system-test-stage-test' />
       <token type='TEST' />
       <token type='TESTDESCRIPTION' />
       <push-part prefix='ut' />

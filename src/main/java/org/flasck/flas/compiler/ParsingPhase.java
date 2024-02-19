@@ -9,11 +9,13 @@ import java.io.StringReader;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.blocker.TDANester;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.compiler.modules.ParserModule;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
+import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.FunctionAssembler;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionScopeNamer;
@@ -35,6 +37,7 @@ import org.flasck.flas.parser.st.SystemTestNamer;
 import org.flasck.flas.parser.st.SystemTestPackageNamer;
 import org.flasck.flas.parser.st.SystemTestStepParser;
 import org.flasck.flas.parser.st.TDASystemTestParser;
+import org.flasck.flas.parser.st.TDASystemTestParser.OptionsRecorder;
 import org.flasck.flas.parser.ut.TDAUnitTestParser;
 import org.flasck.flas.parser.ut.TestStepNamer;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
@@ -117,13 +120,18 @@ public class ParsingPhase implements ParserScanner {
 
 	public static TDAParsing systemTestUnit(ErrorReporter errors, SystemTestNamer namer, SystemTestDefinitionConsumer stdc, TopLevelDefinitionConsumer tldc, Iterable<ParserModule> modules, LocationTracker locTracker) {
 		TDAMultiParser ret = new TDAMultiParser(errors);
-		ret.add(new TDASystemTestParser(errors, namer, stdc, tldc, modules, locTracker));
+		OptionsRecorder rec = new OptionsRecorder();
+		BlockLocationTracker blt = new BlockLocationTracker(errors, locTracker);
+		ret.add(new TDASystemTestParser(errors, namer, stdc, tldc, modules, blt, rec));
 		for (ParserModule m : modules) {
 			TDAParsing r = m.systemTestParser(errors, namer, stdc, tldc);
 			if (r != null)
 				ret.add(r);
 		}
-		return ret;
+		return new TDAParsingWithAction(ret, () -> {
+			if (rec.firstLoc() != null)
+				blt.reduce(rec.firstLoc().location(), rec.toString());
+		});
 	}
 
 	public static TDAParsing systemTestStep(ErrorReporter errors, TestStepNamer namer, SystemTestStage stg, TopLevelDefinitionConsumer topLevel, Iterable<ParserModule> modules, LocationTracker locTracker) {
