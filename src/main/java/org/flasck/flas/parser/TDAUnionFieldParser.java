@@ -34,7 +34,7 @@ public class TDAUnionFieldParser implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		TypeReference ty = types.get(0);
-		errors.logReduction("union-member", ty, ty);
+//		errors.logReduction("union-member", ty, ty);
 		consumer.addCase(ty);
 		return new NoNestingParser(errors);
 	}

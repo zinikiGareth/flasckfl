@@ -410,15 +410,8 @@
       <token type='UNION'/>
       <token type='type-name' names='Union\[${name}\[.*\]\]'/>
       <indent-non-zero>
-        <ref production='union-member'/>
+        <ref production='type-reference'/>
       </indent-non-zero>
-    </seq>
-  </production>
-  <production name='union-member'>
-    <section title='Data Declarations'/>
-	<tested by='test.parsing.TDAUnionParsingTests' />
-    <seq>
-      <ref production='type-reference'/>
     </seq>
   </production>
   <production name='contract-declaration'>
