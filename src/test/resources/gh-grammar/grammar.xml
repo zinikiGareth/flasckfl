@@ -1521,6 +1521,7 @@
           <ref production='option-template-binds'/>
         </indent-one>
 	  </seq>
+	  <ref production='template-customization' />
     </or>
   </production>
   <production name='option-template-binds'>

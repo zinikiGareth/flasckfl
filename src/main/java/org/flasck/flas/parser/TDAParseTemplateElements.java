@@ -198,15 +198,6 @@ public class TDAParseTemplateElements {
 							errors.message(et.location, "valid style expected");
 							return null;
 						}
-//						ExprToken crb = ExprToken.from(errors, toks);
-//						if (crb == null) {
-//							errors.message(toks, "expected )");
-//							return null;
-//						} else if (!crb.text.equals(")")) {
-//							errors.message(crb.location, "expected )");
-//							return null;
-//						}
-//						errors.logReduction("orb-closed-top", et.location, crb.location);
 						addTo.add(ret.get(0));
 						continue;
 					}
@@ -217,7 +208,7 @@ public class TDAParseTemplateElements {
 			errors.message(toks, "valid style expected");
 			return null;
 		}
-		errors.logReduction("template-styling-option", barPos, lastLoc);
+		errors.logReduction("template-conditional-styling" + (expr != null ? "-with-guard": ""), barPos, lastLoc);
 		if (locTracker != null)
 			locTracker.updateLoc(barPos);
 		return new TemplateStylingOption(barPos, expr, styles, orelse);
