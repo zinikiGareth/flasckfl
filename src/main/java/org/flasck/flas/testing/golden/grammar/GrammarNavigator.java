@@ -3,19 +3,15 @@ package org.flasck.flas.testing.golden.grammar;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.grammar.Production;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class GrammarNavigator {
 	public static final Logger logger = LoggerFactory.getLogger("GrammarChecker");
-	private final GrammarChooser grammar;
 	private final List<TrackProduction> stack = new ArrayList<>();
 
 	public GrammarNavigator(GrammarChooser grammar) {
-		this.grammar = grammar;
 		this.push(grammar.rule("file"));
 	}
 

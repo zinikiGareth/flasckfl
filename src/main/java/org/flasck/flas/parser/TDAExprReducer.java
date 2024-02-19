@@ -182,7 +182,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 //					errors.logReduction("function-call", ti.location(), ti.location().locAtEnd());
 //			}
 			errors.logReduction("function-call", t0, terms.get(to-1));
-			errors.logReduction("expression", t0, terms.get(to-1));
+//			errors.logReduction("expression", t0, terms.get(to-1));
 			// It is true that literals cannot be functions, but this is too hard
 			// (for me, right now) to include in the grammar, and this will be
 			// caught during typechecking
@@ -202,7 +202,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 		} else if (t0 instanceof StringLiteral) {
 			errors.logReduction("literal", t0, t0);
 		}
-		errors.logReduction("expression", t0, t0);
+//		errors.logReduction("expression", t0, t0);
 		return t0;
 	}
 

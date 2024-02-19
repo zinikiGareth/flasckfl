@@ -261,11 +261,13 @@ public class GrammarChecker {
 			throw new CantHappenException("there is no chooseable rule to match " + rule + " in " + gn);
 		gn.push(prod);
 
+		System.out.println("using rule " + prod);
 		boolean scopeOnly = false;
 		if (tree.isSingleton()) {
 			traverseTree((GrammarTree) tree.members().next(), gn);
 		} else if (tree.isTerminal()) {
-			matchTerminal(prod, tree.terminal());
+			if (!matchTerminal(prod, tree.terminal()))
+				matchLineSegment(rule, tree, gn);
 		} else if (tree.hasMembers()) {
 			matchLineSegment(rule, tree, gn);
 		} else
@@ -376,11 +378,15 @@ public class GrammarChecker {
 					throw new CantHappenException("there is no reduction for " + reducedAs + " in " + inRule);
 				if (tp instanceof SeqProduction) {
 					gn.push(tp);
-					matchLineSegment(reducedAs, inner, gn);
+					boolean matched = false;
+					if (tree.isTerminal())
+						matched = matchTerminal(tp, tree.terminal());
+					if (!matched)
+						matchLineSegment(reducedAs, inner, gn);
 					gn.pop();
 				} else if (tp instanceof OrChoice) {
 					if (inner.isTerminal())
-						matchTerminal((OrChoice) tp, inner.terminal());
+						matchTerminal(tp, inner.terminal());
 					else {
 						matchNested(gn, inner, si);
 					}
@@ -395,8 +401,13 @@ public class GrammarChecker {
 			} else if (si instanceof RefElement) {
 				// we should have a sequence in both the members and in the rule
 				RefElement re = (RefElement) si;
-				gn.push(grammar.rule(re.refersTo()));
-				matchLineSegment(inRule, tree, gn);
+				TrackProduction tp = grammar.rule(re.refersTo());
+				gn.push(tp);
+				boolean matched = false;
+				if (tree.isTerminal())
+					matched = matchTerminal(tp, tree.terminal());
+				if (!matched)
+					matchLineSegment(inRule, tree, gn);
 				gn.pop();
 			} else if (tree.isTerminal()) {
 				throw new NotImplementedException("handle terminal case");
@@ -407,17 +418,23 @@ public class GrammarChecker {
 		}
 	}
 
-	private void matchTerminal(TrackProduction tp, GrammarToken tok) {
-		System.out.println("match terminal: " + tok + ":: " + tok.type);
+	private boolean matchTerminal(TrackProduction tp, GrammarToken tok) {
+		System.out.println("match terminal: " + tok + " == " + tp);
 		TokenProduction rule = (TokenProduction) tp.choose(tok.type);
 		if (rule != null) {
 			// check it matches
-			if (!rule.matches(tok.text))
-				throw new CantHappenException("the token did not match the pattern " + tok.text);
+			if (rule.matches(tok.text))
+				return true;
+			else
+				return false;
+//				throw new CantHappenException("the token did not match the pattern " + tok.text);
 		} else {
 			// try seeing if it is a keyword here
-			if (!tp.canBeKeyword(tok.text))
-				throw new CantHappenException("no rule could be found for " + tok.type);
+			if (tp.canBeKeyword(tok.text))
+				return true;
+			else
+				return false;
+//				throw new CantHappenException("no rule could be found for " + tok.type);
 		}
 	}
 	
