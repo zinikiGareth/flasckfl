@@ -55,16 +55,19 @@ public class TDATemplateBindingParser extends BlockLocationTracker implements TD
 					errors.message(toks, "syntax error");
 				return new IgnoreNestedParser(errors);
 			}
-			List<Expr> seen = new ArrayList<>();
-			new TDAExpressionParser(errors, t -> {
-				seen.add(t);
-			}).tryParsing(toks);
-			if (seen.isEmpty()) {
-				errors.message(toks, "no expression to send");
-				return new IgnoreNestedParser(errors);
+			Expr expr = null;
+			if ("<-".equals(send.text)) { 
+				List<Expr> seen = new ArrayList<>();
+				new TDAExpressionParser(errors, t -> {
+					seen.add(t);
+				}).tryParsing(toks);
+				if (seen.isEmpty()) {
+					errors.message(toks, "no expression to send");
+					return new IgnoreNestedParser(errors);
+				}
+				expr = seen.get(0);
+				lastLoc = expr.location();
 			}
-			Expr expr = seen.get(0);
-			lastLoc = expr.location();
 			if (toks.hasMoreContent(errors)) {
 				ExprToken format = ExprToken.from(errors, toks);
 				if (format == null || !"=>".equals(format.text)) {

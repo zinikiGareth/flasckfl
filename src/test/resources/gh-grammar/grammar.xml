@@ -1521,13 +1521,6 @@
           <ref production='option-template-binds'/>
         </indent-one>
 	  </seq>
-      <seq>
-		<reduces-as rule="template-binding-no-send" />
-	    <token type='template-name'/>
-        <indent-non-zero>
-          <ref production='template-customization'/>
-        </indent-non-zero>
-	  </seq>
     </or>
   </production>
   <production name='option-template-binds'>
@@ -1553,6 +1546,7 @@
           <ref production='template-customization'/>
         </indent>
       </seq>
+      <ref production='template-customization' />
     </or>
   </production>
   <production name='option-template-bind'>
