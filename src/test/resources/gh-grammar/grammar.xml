@@ -1483,7 +1483,7 @@
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
     	<token type='ORB' />
-    	<token type='type-name' />
+    	<ref production='type-reference' />
     	<token type='var-name' />
     	<token type='CRB' />
     </seq>

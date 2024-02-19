@@ -148,7 +148,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 		}
 		InputPosition orb = tok.location;
 		List<TypeReference> ref = new ArrayList<>();
-		if (new TDATypeReferenceParser(errors, namer, false, x->ref.add(x), null).tryParsing(toks) == null) {
+		if (new TDATypeReferenceParser(errors, namer, true, x->ref.add(x), null).tryParsing(toks) == null) {
 			// it didn't parse, so give up hope
 			return null;
 		}
