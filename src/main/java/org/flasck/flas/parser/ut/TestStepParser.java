@@ -541,6 +541,8 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		TargetZone targetZoneTmp = new TargetZone(toks.realinfo(), new ArrayList<>());
 		boolean containsTmp = false;
 		boolean failsTmp = false;
+		String withZone = "";
+		String withType = "";
 		InputPosition lastLoc = whattok.location;
 		if (toks.hasMoreContent(errors)) {
 			targetZoneTmp = parseTargetZone(toks);
@@ -548,9 +550,11 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 			lastLoc = targetZoneTmp.location;
-			ValidIdentifierToken option = VarNameToken.from(errors, toks);
+			withZone = "-with-zone";
+			KeywordToken option = KeywordToken.from(errors, toks);
 			if (option != null) {
 				lastLoc = option.location;
+				withType = "-with-location-type";
 				if ("contains".equals(option.text)) {
 					containsTmp = true;
 				} else if ("fails".equals(option.text)) {
@@ -568,7 +572,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		final TargetZone targetZone = targetZoneTmp;
 		final boolean contains = containsTmp;
 		final boolean fails = failsTmp;
-		errors.logReduction("unittest-match-command", kw.location, lastLoc);
+		errors.logReduction("unittest-match-command" + withZone + withType, kw.location, lastLoc);
 		// TODO: should we return an expression parser for scroll matching?
 		return new FreeTextParser(kw, errors, (lastPos, text) -> {
 			if (text != null) {
