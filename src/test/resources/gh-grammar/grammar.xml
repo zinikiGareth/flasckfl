@@ -631,7 +631,7 @@
       <one-or-more>
       	<ref production='comma-var-name' />
       </one-or-more>
-    	  <token type='CRB' />
+      <token type='CRB' />
       <token type='EQ'/>
       <ref production='expression'/>
       <indent>
@@ -1048,7 +1048,7 @@
       </description>
     </section>
     <tested by='test.parsing.TDAMethodNestedParsingTests' />
-    <seq>
+    <seq borrow-final-indent='true'>
 	  <reduces-as rule='method-intro' />
       <token type='METHOD'/>
       <will-name pattern='StandaloneMethod\[${name}\([0-9]+\)\]' /> <!-- this will bind to the use-name in the method-definition -->

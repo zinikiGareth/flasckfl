@@ -38,7 +38,7 @@ public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 			return null;
 
 		List<LocatedName> vars = new ArrayList<>();
-		InputPosition last = null;
+		InputPosition last = null, comma = null;
 		while (line.hasMoreContent(errors)) {
 			PattToken nx = PattToken.from(errors, line);
 			if (nx.type == PattToken.CRB) {
@@ -53,6 +53,9 @@ public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 				return null;
 			}
 			vars.add(new LocatedName(nx.location, nx.text));
+			if (comma != null) {
+				errors.logReduction("comma-var-name", comma, nx.location);
+			}
 			PattToken cm = PattToken.from(errors, line);
 			if (cm == null) {
 				errors.message(line, "syntax error");
@@ -65,6 +68,7 @@ public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 				errors.message(line, "syntax error");
 				return null;
 			}
+			comma = cm.location;
 		}
 		
 		if (last == null) {

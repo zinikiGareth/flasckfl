@@ -280,7 +280,7 @@ public class GrammarChecker {
 				}
 				SeqProduction sp = (SeqProduction) prod;
 				TrackProduction indent = sp.indented();
-				assertNotNull("have a tree indent but not in rule", indent);
+				assertNotNull("have a tree indent in " + rule + " but not in rule: " + gn, indent);
 				gn.push(indent);
 				System.out.println("matching indents " + indent);
 			}
