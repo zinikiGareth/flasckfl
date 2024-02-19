@@ -23,14 +23,16 @@ public class TDAMethodParser extends BlockLocationTracker {
 	private final FunctionScopeUnitConsumer topLevel;
 	private final StateHolder holder;
 	private final String reduceAs;
+	private final String kwReduceAs;
 	private final boolean standalone;
 
-	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker, String reduceAs, boolean standalone) {
+	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel, StateHolder holder, LocationTracker locTracker, String reduceAs, String kwReduceAs, boolean standalone) {
 		super(errors, locTracker);
 		this.builder = builder;
 		this.topLevel = topLevel;
 		this.holder = holder;
 		this.reduceAs = reduceAs;
+		this.kwReduceAs = kwReduceAs;
 		this.standalone = standalone;
 	}
 	
@@ -60,14 +62,13 @@ public class TDAMethodParser extends BlockLocationTracker {
 			endOf = args.get(args.size()-1).location();
 		}
 		if (reduceAs != null) {
-			if (kw != null) {
-//				errors.logReduction("method-intro", var.location, endOf);
-				errors.logReduction(reduceAs, kw.location, endOf);
-				tellParent(kw.location);
-			} else {
-				errors.logReduction(reduceAs, var.location, endOf);
-				tellParent(var.location);
-			}
+			errors.logReduction(reduceAs, var.location, endOf);
+			tellParent(var.location);
+			endOf = var.location;
+		}
+		if (kw != null && kwReduceAs != null) {
+			errors.logReduction(kwReduceAs, kw.location, endOf);
+			tellParent(kw.location);
 		}
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null, holder);
 		builder.addMethod(meth);
@@ -102,7 +103,7 @@ public class TDAMethodParser extends BlockLocationTracker {
 						KeywordToken kw = KeywordToken.from(errors, toks);
 						if (kw == null || !"method".equals(kw.text))
 							return null;
-						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder, locTracker, "method-intro", true).parseMethod(kw, namer, toks);
+						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder, locTracker, null, "method-intro", true).parseMethod(kw, namer, toks);
 					}
 					
 					@Override

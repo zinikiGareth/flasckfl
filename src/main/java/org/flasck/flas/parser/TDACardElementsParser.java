@@ -110,7 +110,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				consumer.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);
 			};
-			TDAMethodParser np = new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this, "event-from-method", false);
+			TDAMethodParser np = new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder, this, null, "event-from-method", false);
 			return new TDAParsingWithAction(
 				np.parseMethod(kw, namer, toks),
 				np.reduction(kw.location, "event-handler")

@@ -1252,6 +1252,7 @@
     <section title='Object'/>
     <tested by='test.parsing.TDAObjectElementParsingTests' />
     <seq>
+	  <reduces-as rule='object-acor-decl' />
       <token type='ACOR' />
       <dict var='allow-repeat-last' val='false' /> 
       <ref production='function-case-definition'/>

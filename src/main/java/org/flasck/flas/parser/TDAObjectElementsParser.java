@@ -134,7 +134,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			};
 			tellParent(kw.location);
 			return new TDAParsingWithAction(
-				new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this, "object-event-handler-intro", false).parseMethod(kw, namer, toks),
+				new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this, "object-event-handler-intro", null, false).parseMethod(kw, namer, toks),
 				reduction(kw.location, "object-event-handler")
 			);
 		}
@@ -178,7 +178,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				f.isObjAccessor(true);
 				builder.addAccessor(oa);
 				topLevel.newObjectAccessor(errors, oa);
-				errors.logReduction("object-acor", kw.location, f.location());
+				errors.logReduction("object-acor-decl", kw.location, f.location());
 			};
 			
 			toks.skipWS(errors);
@@ -190,9 +190,8 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				return null;
 			else {
 				return new TDAParsingWithAction(ret, () -> {
-					TDAParsingWithAction.invokeAction(ret);
 					fa.moveOn();
-					reduce(kw.location, "object-acor");
+					reduce(kw.location, "object-acor-definition");
 				});
 			}
 		}
@@ -204,7 +203,7 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 //				reduce(kw.location, "object-method-line");
 			};
 			tellParent(kw.location);
-			TDAMethodParser mp = new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this, "object-method-intro", false);
+			TDAMethodParser mp = new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder, this, "method-intro", "object-method-intro", false);
 			return new TDAParsingWithAction(
 				mp.parseMethod(kw, methodNamer, toks),
 				mp.reduction(kw.location, "object-method-definition")
