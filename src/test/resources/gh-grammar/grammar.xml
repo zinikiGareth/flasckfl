@@ -1090,9 +1090,14 @@
     <tested by='test.parsing.TDAMethodNestedParsingTests' />
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <seq>
+	  <reduces-as rule='method-guard-list' />
       <many>
         <ref production='method-guard'/>
       </many>
+	  <optional>
+		<reduces-as rule='-with-default' />
+	    <ref production='method-guard-default' />
+	  </optional>
       <indent>
         <ref production='function-scope-unit'/>
       </indent>
@@ -1106,6 +1111,18 @@
 	  <reduces-as rule='method-guard-with-cond' />
       <token type='GUARD'></token>
       <ref production='expression'/>
+      <indent>
+        <ref production='method-action'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='method-guard-default'>
+    <section title='Method'/>
+    <tested by='test.parsing.TDAMethodNestedParsingTests' />
+    <tested by='test.parsing.TDAMethodMessageParsingTests' />
+    <seq>
+	  <reduces-as rule='method-guard-default-bar' />
+      <token type='GUARD' />
       <indent>
         <ref production='method-action'/>
       </indent>
@@ -1555,7 +1572,7 @@
     <section title='Template Bindings'/>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
-      <reduces-as rule="option-template-bind" />
+      <reduces-as rule="template-conditional-binding" />
       <token type='GUARD'/>
 	  <ref production='expression'/>
 	  <token type='SEND'/>
@@ -1564,14 +1581,16 @@
       	<reduces-as rule="-with-template" />
         <ref production='pass-to-template' />
 	  </optional>
-      <eol />
+      <indent-one>
+        <ref production='option-template-binds'/>
+	  </indent-one>
 	</seq>
   </production>
   <production name='default-option-template-bind'>
     <section title='Template Bindings'/>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
-      <reduces-as rule="default-option-template-bind" />
+      <reduces-as rule="template-default-binding" />
 	  <token type='SEND'/>
 	  <ref production='expression'/>
 	  <optional>

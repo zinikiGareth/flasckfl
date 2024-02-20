@@ -44,7 +44,10 @@ public class TDAParseTemplateElements {
 			errors.logReduction("template-conditional-binding", barPos, tbo.location());
 			if (tracker != null)
 				tracker.updateLoc(barPos);
-			return new TDATemplateOptionsParser(errors, source, namer, tc, field, tracker);
+			return new TDAParsingWithAction(
+				new TDATemplateOptionsParser(errors, source, namer, tc, field, tracker),
+				() -> errors.logReduction("option-template-bind", barPos, tracker.lastInner())
+			);
 		} else {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
@@ -56,10 +59,16 @@ public class TDAParseTemplateElements {
 		if (tc == null)
 			return new IgnoreNestedParser(errors);
 		consumer.accept(tc);
-		errors.logReduction("template-default-binding", sendPos, tc.location());
+		if (tc.sendsTo != null)
+			errors.logReduction("template-default-binding-with-send", sendPos, tc.location());
+		else
+			errors.logReduction("template-default-binding", sendPos, tc.location());
 		if (tracker != null)
 			tracker.updateLoc(sendPos);
-		return new TDATemplateOptionsParser(errors, source, namer, tc, field, tracker);
+		return new TDAParsingWithAction(
+			new TDATemplateOptionsParser(errors, source, namer, tc, field, tracker),
+			() -> errors.logReduction("default-option-template-bind", sendPos, tracker.lastInner())
+		);
 	}
 
 	public static TDAParsing parseStyling(ErrorReporter errors, InputPosition barPos, Template source, TemplateNamer namer, Tokenizable toks, Consumer<TemplateStylingOption> consumer, LocationTracker locTracker) {

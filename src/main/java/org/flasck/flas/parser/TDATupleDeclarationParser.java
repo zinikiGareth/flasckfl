@@ -116,6 +116,11 @@ public class TDATupleDeclarationParser implements TDAParsing, LocationTracker {
 	}
 	
 	@Override
+	public InputPosition lastInner() {
+		return lastInner;
+	}
+
+	@Override
 	public void scopeComplete(InputPosition location) {
 	}
 

@@ -81,6 +81,11 @@ public class TDAMethodParser extends BlockLocationTracker {
 				() -> {
 					if (!meth.messages().isEmpty()) {
 						reduce(meth.messages().get(0).location(), "method-actions");
+					} else if (!meth.guards.isEmpty()) {
+						String def = "";
+						if (meth.guards.get(meth.guards.size()-1).guard == null)
+							def = "-with-default";
+						reduce(meth.guards.get(0).location(), "method-guard-list" + def);
 					}
 				});
 		

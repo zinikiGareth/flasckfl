@@ -23,7 +23,8 @@ public class BlockLocationTracker implements LocationTracker {
 		return parent;
 	}
 
-	protected InputPosition lastInner() {
+	@Override
+	public InputPosition lastInner() {
 		return lastInner;
 	}
 

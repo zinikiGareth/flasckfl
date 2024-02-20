@@ -6,4 +6,6 @@ public interface LocationTracker {
 
 	void updateLoc(InputPosition location);
 
+	InputPosition lastInner();
+
 }

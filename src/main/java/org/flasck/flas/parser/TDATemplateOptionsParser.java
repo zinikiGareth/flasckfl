@@ -87,6 +87,23 @@ public class TDATemplateOptionsParser extends BlockLocationTracker implements TD
 			errors.message(binding.assignsTo.location(), "simple template name must have options or customization");
 			return;
 		}
+		if (binding != null) {
+			InputPosition first = null, last = null;
+			String opt = "";
+			if (!binding.conditionalBindings.isEmpty()) {
+				first = binding.conditionalBindings.get(0).location();
+				last = binding.conditionalBindings.get(binding.conditionalBindings.size()-1).location();
+			}
+			if (binding.defaultBinding != null) {
+				last = binding.defaultBinding.location();
+				if (first == null)
+					first = last;
+				opt = "-with-default";
+			}
+			if (first != null && last != null) {
+				errors.logReduction("template-binds"+opt, first, last);
+			}
+		}
 	}
 
 	private boolean toksHasSend(Tokenizable toks) {

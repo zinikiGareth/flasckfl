@@ -51,11 +51,16 @@ public class TDAHandlerParser implements TDAParsing, LocationTracker {
 		return parseHandler(kw.location, false, toks);
 	}
 
-
 	@Override
 	public void updateLoc(InputPosition location) {
 		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
 			lastInner = location;
+	}
+
+	
+	@Override
+	public InputPosition lastInner() {
+		return lastInner;
 	}
 
 	@Override

@@ -127,4 +127,9 @@ public class TDAServiceElementsParser implements TDAParsing, LocationTracker {
 		if (location != null && (lastInner == null || location.compareTo(lastInner) > 0))
 			lastInner = location;
 	}
+	
+	@Override
+	public InputPosition lastInner() {
+		return lastInner;
+	}
 }
