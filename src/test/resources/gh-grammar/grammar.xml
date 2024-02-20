@@ -100,6 +100,9 @@
   	<p>The ajax system test keyword <tt>header</tt>.</p>
   </lex>
   -->
+  <lex token='IDENTICAL' pattern='identical'>
+  	<p>The <tt>identical</tt> keyword introduces an assertion that two expressions refer to the same node.</p>
+  </lex>
   <lex token='IMAGE' pattern='image'>
   	<p><tt>image</tt> is a keyword used with the <tt>match</tt> unit test command to match image URIs.</p>
   </lex>
@@ -1811,6 +1814,7 @@ match style ...
       <ref production='unit-invoke-action' />
       <ref production='unit-contract-action' />
       <ref production='unit-test-assert' />
+      <ref production='unit-test-identical' />
       <ref production='unit-test-shove' />
       <ref production='unit-test-input' />
       <ref production='unit-test-expect' />
@@ -1876,6 +1880,19 @@ match style ...
       <ref production='expression' />
       <indent-one>
 	    <reduces-as rule='ut-assert-expected-value' />
+        <ref production='expression' />
+      </indent-one>
+    </seq>
+  </production>
+  <production name='unit-test-identical'>
+    <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
+    <seq>
+	  <reduces-as rule='ut-identical-expr' />
+      <token type='IDENTICAL' />
+      <ref production='expression' />
+      <indent-one>
+	    <reduces-as rule='ut-identical-expected-value' />
         <ref production='expression' />
       </indent-one>
     </seq>

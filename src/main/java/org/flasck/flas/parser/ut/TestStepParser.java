@@ -151,7 +151,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			builder.identical(test.get(0), ex);
 			updateLoc(ex.location());
 			errors.logReduction("ut-identical-expected-value", ex, ex);
-			reduce(kw.location, "ut-identical");
+			reduce(kw.location, "unit-test-identical");
 		};
 		return new SingleExpressionParser(errors, "identical", exprConsumer, this);
 	}
