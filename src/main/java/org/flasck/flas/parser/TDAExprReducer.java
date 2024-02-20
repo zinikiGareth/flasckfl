@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.DotOperator;
@@ -195,7 +196,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 
 	private Expr reduceSingletonToExpression(final Expr t0) {
-		if (t0 instanceof UnresolvedVar) { // it's trivially a function call for the grammar...
+		if (t0 instanceof UnresolvedVar || t0 instanceof AnonymousVar) { // it's trivially a function call for the grammar...
 			errors.logReduction("function-call", t0, t0);
 		} else if (t0 instanceof NumericLiteral) {
 			errors.logReduction("literal", t0, t0);
