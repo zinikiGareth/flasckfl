@@ -108,11 +108,14 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			final Template template = new Template(kw.location, tn.location, namer.template(tn.location, tn.text), pos, chain);
 			builder.addTemplate(template);
 			topLevel.newTemplate(errors, template);
-			errors.logReduction("template-introduction", kw.location, lastPos);
+			if (chain != null && !chain.isEmpty())
+				errors.logReduction("template-introduction-with-chain", kw.location, lastPos);
+			else
+				errors.logReduction("template-introduction", kw.location, lastPos);
 			tellParent(kw.location);
 			return new TDAParsingWithAction(
 				new TDATemplateBindingParser(errors, template, namer, template, this),
-				reduction(kw.location, "object-template")
+				reduction(kw.location, "named-template-definition")
 			);
 		}
 		case "event": {

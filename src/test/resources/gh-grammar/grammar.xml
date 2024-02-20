@@ -1476,7 +1476,7 @@
     </section>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
-	  <reduces-as rule='card-template-intro' />
+	  <reduces-as rule='template-introduction' />
       <token type='TEMPLATE'/>
       <token type='template-name' names='Template\[${name}\]'/>
       <optional var='template-posn' ne='1'>

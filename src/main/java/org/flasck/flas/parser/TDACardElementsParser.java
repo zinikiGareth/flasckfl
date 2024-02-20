@@ -78,9 +78,9 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 					lastLoc = chain.location();
 			}
 			if (chain != null && !chain.isEmpty())
-				errors.logReduction("card-template-intro-with-chain", kw.location, lastLoc);
+				errors.logReduction("template-introduction-with-chain", kw.location, lastLoc);
 			else
-				errors.logReduction("card-template-intro", kw.location, lastLoc);
+				errors.logReduction("template-introduction", kw.location, lastLoc);
 			updateLoc(kw.location);
 			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.location, tn.text), pos, chain);
 			consumer.addTemplate(template);
