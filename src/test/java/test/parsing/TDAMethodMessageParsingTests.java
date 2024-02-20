@@ -3,11 +3,13 @@ package test.parsing;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -35,6 +37,7 @@ public class TDAMethodMessageParsingTests {
 	public void setup() {
 		context.checking(new Expectations() {{
 			allowing(nestedFunctionScope).anotherParent();
+			allowing(nestedFunctionScope).bindLocationTracker(with(any(LocationTracker.class)));
 			allowing(errorsMock).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
 			allowing(errorsMock).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
@@ -51,7 +54,7 @@ public class TDAMethodMessageParsingTests {
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.fetchRoot"));
 		// I'm not sure if this is quite right, because of the weird thing about the final method being able to have an indented block for everybody
 		// That needs separate testing elsewhere
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(TDAParsingWithAction.is(nested, LastOneOnlyNestedParser.class));
 		parser.scopeComplete(pos);
 	}
 
@@ -62,7 +65,7 @@ public class TDAMethodMessageParsingTests {
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.get 'hello'"));
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(TDAParsingWithAction.is(nested, LastOneOnlyNestedParser.class));
 	}
 
 	@Test
@@ -72,7 +75,7 @@ public class TDAMethodMessageParsingTests {
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.get 'hello' -> hdlr"));
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(TDAParsingWithAction.is(nested, LastOneOnlyNestedParser.class));
 	}
 
 	// And in this corner, we have "ASSIGN" messages, see Rule assign-method-action
@@ -83,7 +86,7 @@ public class TDAMethodMessageParsingTests {
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("x <- 42"));
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(TDAParsingWithAction.is(nested, LastOneOnlyNestedParser.class));
 	}
 
 	@Test
@@ -93,7 +96,7 @@ public class TDAMethodMessageParsingTests {
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("x.y <- 42"));
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(TDAParsingWithAction.is(nested, LastOneOnlyNestedParser.class));
 	}
 
 	// TODO: What about things like "Debug"?

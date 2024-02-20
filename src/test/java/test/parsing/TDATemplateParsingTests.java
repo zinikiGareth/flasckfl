@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATemplateBindingParser;
@@ -139,7 +140,7 @@ public class TDATemplateParsingTests {
 		}});
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("styling-area"));
 		TDAParsing styling = nested.tryParsing(TestSupport.tokline("<- 'hello'"));
-		assertTrue(styling instanceof TDATemplateOptionsParser);
+		assertTrue(TDAParsingWithAction.is(nested, TDATemplateOptionsParser.class));
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
 		final TemplateBindingOption db = ((TemplateBinding)captureIt.get(0)).defaultBinding;

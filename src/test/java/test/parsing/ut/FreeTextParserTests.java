@@ -3,10 +3,12 @@ package test.parsing.ut;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parser.LocatableConsumer;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.ut.FreeTextParser;
 import org.flasck.flas.testsupport.matchers.FreeTextTokenMatcher;
@@ -27,11 +29,14 @@ public class FreeTextParserTests {
 	private LocatableConsumer<FreeTextToken> handler = context.mock(LocatableConsumer.class);
 	private InputPosition pos = new InputPosition("fred", 1, 0, null, "hello");
 	private KeywordToken kw = new KeywordToken(pos, "match", 5);
+	private LocationTracker locTracker = context.mock(LocationTracker.class);
 
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			allowing(locTracker).updateLoc(with(any(InputPosition.class)));
+			allowing(errors).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 		}});
 	}
 
@@ -40,7 +45,7 @@ public class FreeTextParserTests {
 		context.checking(new Expectations() {{
 			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello")));
 		}});
-		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, locTracker, handler);
 		p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		p.scopeComplete(pos);
 	}
@@ -50,7 +55,7 @@ public class FreeTextParserTests {
 		context.checking(new Expectations() {{
 			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello world")));
 		}});
-		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, locTracker, handler);
 		p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		p.tryParsing(UnitTestTopLevelParsingTests.line("world"));
 		p.scopeComplete(pos);
@@ -61,7 +66,7 @@ public class FreeTextParserTests {
 		context.checking(new Expectations() {{
 			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello world")));
 		}});
-		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, locTracker, handler);
 		TDAParsing indented = p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		assertTrue(indented instanceof FreeTextParser);
 		indented.tryParsing(UnitTestTopLevelParsingTests.line("world"));
@@ -74,7 +79,7 @@ public class FreeTextParserTests {
 		context.checking(new Expectations() {{
 			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello there world")));
 		}});
-		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, locTracker, handler);
 		TDAParsing indented = p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		assertTrue(indented instanceof FreeTextParser);
 		indented.tryParsing(UnitTestTopLevelParsingTests.line("there"));
@@ -88,7 +93,7 @@ public class FreeTextParserTests {
 		context.checking(new Expectations() {{
 			oneOf(handler).accept(with(pos), with(FreeTextTokenMatcher.text("hello there world")));
 		}});
-		FreeTextParser p = new FreeTextParser(kw, tracker, handler);
+		FreeTextParser p = new FreeTextParser(kw, tracker, locTracker, handler);
 		TDAParsing indented = p.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		assertTrue(indented instanceof FreeTextParser);
 		indented.tryParsing(UnitTestTopLevelParsingTests.line("there"));

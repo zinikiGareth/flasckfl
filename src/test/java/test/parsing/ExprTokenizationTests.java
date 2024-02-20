@@ -163,7 +163,6 @@ public class ExprTokenizationTests {
 	public void anErrorInStringParsingIsAtACrediblePlace() {
 		context.checking(new Expectations() {{
 			allowing(builder).term(with(any(Expr.class)));
-			oneOf(errors).hasErrors(); will(returnValue(true));
 			oneOf(errors).message(new InputPosition("test", 1, 15, null, ""), "unterminated string");
 			oneOf(builder).done();
 		}});

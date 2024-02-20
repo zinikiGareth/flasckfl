@@ -11,6 +11,7 @@ import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.GuardedMessagesConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.parser.TDAMethodGuardParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
@@ -40,6 +41,7 @@ public class TDAMethodGuardsTests {
 	public void setup() {
 		context.checking(new Expectations() {{
 			allowing(nestedFunctionScope).anotherParent();
+			allowing(nestedFunctionScope).bindLocationTracker(with(any(LocationTracker.class)));
 			allowing(errorsMock).logReduction(with(any(String.class)), with(any(InputPosition.class)), with(any(InputPosition.class)));
 			allowing(errorsMock).logReduction(with(any(String.class)), with(any(Locatable.class)), with(any(Locatable.class)));
 			allowing(errorsMock).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
@@ -56,7 +58,7 @@ public class TDAMethodGuardsTests {
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.fetchRoot"));
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(TDAParsingWithAction.is(nested, LastOneOnlyNestedParser.class));
 		parser.scopeComplete(pos);
 	}
 
@@ -98,7 +100,7 @@ public class TDAMethodGuardsTests {
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.fetchRoot"));
-		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		assertTrue(TDAParsingWithAction.is(nested, LastOneOnlyNestedParser.class));
 		context.assertIsSatisfied();
 		Tokenizable toks = TestSupport.tokline("| True");
 		context.checking(new Expectations() {{
