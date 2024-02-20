@@ -21,7 +21,7 @@
   <lex token='ASSERT' pattern='assert'>
   	<p>The <tt>assert</tt> keyword introduces an assert step in a unit test.</p>
   </lex>
-  <lex token='BINOP' pattern='[-+*/.]|==|\+\+'>
+  <lex token='BINOP' pattern='[-+*/.&lt;&gt;]|==|&lt;=|&gt;=|\+\+|&amp;&amp;|\|\|'>
   	<p>One of the standard binary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
   </lex>
@@ -214,7 +214,7 @@
   <lex token='UNION' pattern='union'>
   	<p>The <tt>union</tt> keyword introduces a union declaration.</p>
   </lex>
-  <lex token='UNOP' pattern='[\-]'>
+  <lex token='UNOP' pattern='[!]'>
   	<p>One of the standard unary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
   </lex>
@@ -821,6 +821,7 @@
       <ref production='check-type-expr' />
       <ref production='member-expr' />
       <seq>
+		<reduces-as rule='expr-unop' />
         <token type='UNOP'/>
         <ref production='expression'/>
       </seq>
