@@ -1924,13 +1924,29 @@ match style ...
 			  <reduces-as rule='uttz-field' />
 			  <token type='APPLY' />
 			  <token type='zone-name' />
+			  <optional>
+				  <reduces-as rule='-with-qualifier' />
+				  <ref production='unit-test-target-zone-qualifier' />
+			  </optional>
 		  </seq>
 		  <seq>
 			  <reduces-as rule='uttz-index' />
 			  <token type='APPLY' />
 			  <token type='NUMBER' />
+			  <optional>
+				  <reduces-as rule='-with-qualifier' />
+				  <ref production='unit-test-target-zone-qualifier' />
+			  </optional>
 		  </seq>
 	  </or>
+  </production>
+  <production name='unit-test-target-zone-qualifier'>
+	  <section title='Unit Tests' />
+	  <seq>
+	    <reduces-as rule='uttz-qualifier' />
+		  <token type='COLON' />
+		  <token type='zone-name' />
+	  </seq>
   </production>
   <production name='unit-match-free-text'>
     <section title='Unit Tests' />

@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
-import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorMark;
@@ -16,7 +15,6 @@ import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.MatchedItem;
 import org.flasck.flas.parser.BlockLocationTracker;
@@ -36,6 +34,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
+import org.zinutils.collections.TriConsumer;
 
 public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 	protected final UnitTestStepConsumer builder;
@@ -592,6 +591,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		int start = toks.at();
 		InputPosition first = null, last = null, prevdot = null;
 		boolean lastWasNumber = false;
+		TriConsumer<String, InputPosition, InputPosition> reduce = (s,f,t) -> {}; 
 		while (true) {
 			EventZoneToken tok = EventZoneToken.from(errors, toks);
 			if (tok == null) {
@@ -606,7 +606,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 				}
 			} else if (tok.type == EventZoneToken.NAME) {
 				if (prevdot != null) {
-					errors.logReduction("uttz-field", prevdot, tok.location);
+					reduce = (opt,from,to) -> errors.logReduction("uttz-field" + opt, from, to);
 				}
 				tz.add(tok.text);
 				lastWasNumber = false;
@@ -619,7 +619,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 					return null;
 				}
 				if (prevdot != null) {
-					errors.logReduction("uttz-index", prevdot, tok.location);
+					reduce = (opt, from, to) -> errors.logReduction("uttz-index" + opt, from, to);
 				}
 				tz.add(Integer.parseInt(tok.text));
 				lastWasNumber = true;
@@ -632,14 +632,18 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			}
 			last = tok.location;
 				
-			if (!toks.hasMoreContent(errors))
+			if (!toks.hasMoreContent(errors)) {
+				reduce.accept("", prevdot, tok.location);
 				break;
+			}
 			
 			int mark = toks.at();
 			EventZoneToken dot = EventZoneToken.from(errors, toks);
 			if (dot == null) {
+				reduce.accept("", prevdot, tok.location);
 				break;
 			} else if (dot.type == EventZoneToken.DOT) {
+				reduce.accept("", prevdot, tok.location);
 				prevdot = dot.location;
 				continue; // look for next symbol
 			} else if (dot.type == EventZoneToken.COLON) {
@@ -651,15 +655,20 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 					errors.message(dot.location, "target zone qualifier must be a name");
 					return null;
 				}
+				errors.logReduction("uttz-qualifier", dot.location, qualifyingTemplate.location);
+				reduce.accept("-with-qualifier", prevdot, dot.location);
+				last = dot.location;
 				dot = EventZoneToken.from(errors, toks);
 				if (dot == null)
 					break;
 				if (dot.type != EventZoneToken.DOT) {
-					errors.message(dot.location, "target zone qualifier must be followed by field");
+					errors.message(dot.location, "target zone qualifier must be last item or followed by field");
 					return null;
 				}
+				prevdot = dot.location;
 				tz.add(new TargetZone.Qualifier(qualifyingTemplate.location, qualifyingTemplate.text));
 			} else { // whatever it was, not what we want: assume the best and give it to the caller
+				reduce.accept("", prevdot, tok.location);
 				toks.reset(mark);
 				break;
 			}
