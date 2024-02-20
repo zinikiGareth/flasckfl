@@ -64,6 +64,7 @@ public class EventZoneToken implements LoggableToken {
 	public String type() {
 		switch (type) {
 		case NAME:
+		case CARD:
 			return "zone-name";
 		default:
 			return "EventZoneToken";

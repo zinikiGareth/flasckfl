@@ -592,8 +592,10 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 				errors.message(toks, "valid target zone expected");
 				return null;
 			} else if (tok.type == EventZoneToken.CARD) {
-				if (tz.isEmpty())
+				if (tz.isEmpty()) {
+					errors.logReduction("unit-test-target-zone", tok.location, tok.location().locAtEnd());
 					return new TargetZone(tok.location, new ArrayList<>());
+				}
 				else {
 					errors.message(tok.location, "valid target zone expected");
 					return null;
