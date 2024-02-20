@@ -103,6 +103,9 @@
   <lex token='IMPLEMENTS' pattern='implements'>
   	<p>The <tt>implements</tt> keyword introduces a contract implementation in a card.</p>
   </lex>
+  <lex token='INPUT' pattern='input'>
+  	<p>The <tt>input</tt> keyword allows tests to enter data into boxes.</p>
+  </lex>
   <lex token='INVOKE' pattern='invoke'>
   	<p>The <tt>invoke</tt> keyword is used in unit tests to invoke a method on an object.</p>
   </lex>
@@ -1773,6 +1776,7 @@ match style ...
       <ref production='unit-contract-action' />
       <ref production='unit-test-assert' />
       <ref production='unit-test-shove' />
+      <ref production='unit-test-input' />
       <ref production='unit-test-expect' />
       <ref production='unit-test-match' />
       <ref production='internal-test-newdiv' />
@@ -1851,6 +1855,20 @@ match style ...
       <ref production='member-path' />
       <indent-one>
 	    <reduces-as rule='ut-shove-expected-expr' />
+    	<ref production='expression' />
+      </indent-one>
+    </seq>
+  </production>
+  <production name='unit-test-input'>
+    <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
+    <seq>
+	  <reduces-as rule='ut-input-line' />
+      <token type='INPUT' />
+      <token type='var-name' />
+      <ref production='unit-test-target-zone' />
+      <indent-one>
+	    <reduces-as rule='ut-input-entry-value' />
     	<ref production='expression' />
       </indent-one>
     </seq>

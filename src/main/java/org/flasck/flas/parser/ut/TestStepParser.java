@@ -385,7 +385,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			builder.input(new UnresolvedVar(tok.location, tok.text), targetZone, text);
 			updateLoc(text.location());
 			errors.logReduction("ut-input-entry-value", text, text);
-			reduce(kw.location, "ut-input");
+			reduce(kw.location, "unit-test-input");
 		};
 		return new SingleExpressionParser(errors, "input", exprConsumer, this);
 	}
