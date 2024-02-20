@@ -652,6 +652,7 @@
     <or>
       <ref production='argument-pattern-type-name'/>
       <ref production='argument-pattern-variable'/>
+      <ref production='argument-pattern-literal'/>
       <ref production='argument-pattern-list'/>
       <ref production='argument-pattern-typed'/>
       <ref production='argument-pattern-ctor'/>
@@ -674,6 +675,14 @@
     <section title='Patterns'/>
     <tested by='test.parsing.TDAPatternParsingTests' />
     <token type='var-name' names='(HandlerLambda|VarPattern)\[${name}\]' scope='false'/>
+  </production>
+  <production name='argument-pattern-literal'>
+    <section title='Patterns'/>
+    <tested by='test.parsing.TDAPatternParsingTests' />
+    <or>
+      <token type='NUMBER'/>
+      <token type='STRING' />
+    </or>
   </production>
   <production name='argument-pattern-list'>
     <section title='Patterns'/>

@@ -268,7 +268,7 @@ public class TDAPatternParser implements TDAParsing {
 				return null;
 			PattToken comma = PattToken.from(errors, toks);
 			if (comma.type == PattToken.CSB) {
-				csb = nx;
+				csb = comma;
 				break;
 			} else if (comma.type != PattToken.COMMA)
 				return invalidPattern(toks);
@@ -289,7 +289,10 @@ public class TDAPatternParser implements TDAParsing {
 
 		if (ret.args.isEmpty()) {
 			errors.logReduction("pattern-empty-list", osb, csb);
+		} else {
+			errors.logReduction("pattern-non-empty-list", osb, csb);
 		}
+			
 		consumer.accept(ret);
 		return this;
 	}

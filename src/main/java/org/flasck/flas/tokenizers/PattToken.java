@@ -88,6 +88,10 @@ public class PattToken implements LoggableToken {
 		switch (type) {
 		case 1:
 			return "var-name";
+		case NUMBER:
+			return "NUMBER";
+		case STRING:
+			return "STRING";
 		case 10:
 			return "ORB";
 		case 11:
