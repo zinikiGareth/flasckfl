@@ -65,14 +65,21 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 				inner,
 				() -> { 
 					consumer.done();
-					if (intro.cases().size() > 1) {
+					if (intro.cases().isEmpty()) {
+						// this is an error which I think will be reported elsewhere
+					} else if (intro.cases().size() > 1) {
 						if (intro.cases().get(intro.cases().size()-1).guard == null) {
 							reduce(intro.cases().get(0).location, "guarded-equations-with-default");
 						} else
 							reduce(intro.cases().get(0).location, "guarded-equations");
 						reduce(t.location, "guarded-function-case-definition");
 					} else {
-						reduce(t.location, "degenerate-guarded-function-case-definition");
+						if (intro.cases().get(0).guard == null) {
+							reduce(t.location, "degenerate-guarded-function-case-definition");
+						} else {
+							reduce(intro.cases().get(0).location, "guarded-equations");
+							reduce(t.location, "guarded-function-case-definition");
+						}
 					}
 				}
 			);

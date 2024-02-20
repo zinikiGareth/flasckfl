@@ -18,6 +18,9 @@
   <lex token='APPLY' pattern='\.'>
   	<p>The apply operator.</p>
   </lex>
+  <lex token='ARROW' pattern='-&gt;'>
+  	<p><tt>ARROW</tt> is used to describe function types.</p>
+  </lex>
   <lex token='ASSERT' pattern='assert'>
   	<p>The <tt>assert</tt> keyword introduces an assert step in a unit test.</p>
   </lex>
@@ -781,6 +784,27 @@
         </optional>
       </seq>
       <token type='poly-var'/>
+      <seq>
+		  <reduces-as rule='function-type-reference' />
+		  <ref production='type-reference' />
+		  <token type='ARROW' />
+		  <ref production='type-reference' />
+	  </seq>
+	  <seq>
+		  <reduces-as rule='tuple-type-reference' />
+		  <token type='ORB' />
+		  <ref production='type-reference' />
+		  <one-or-more>
+			  <ref production='comma-type-reference' />
+		  </one-or-more>
+		  <token type='CRB' />
+	  </seq>
+	  <seq>
+		  <reduces-as rule='paren-type-reference' />
+		  <token type='ORB' />
+		  <ref production='type-reference' />
+		  <token type='CRB' />
+	  </seq>
     </or>
   </production>
   <production name='poly-type-list'>
@@ -917,11 +941,12 @@
   <production name='expression-term'>
     <section title='Expressions' />
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='30 10 10 5 5'/>
+    <producer shares='30 10 10 5 5 5'/>
     <or>
       <ref production='literal'/>
       <token type='var-name'/>
       <token type='type-name'/>
+      <ref production='tuple-expression' />
       <ref production='member-expr' />
       <ref production='paren-expression' />
     </or>
@@ -1244,7 +1269,7 @@
   <production name='object-scope-unit'>
     <section title='Object'/>
     <tested by='test.parsing.TDAObjectElementParsingTests' />
-    <producer shares='20 5 20 10 25 25 10 10'/>
+    <producer shares='20 5 20 10 25 25 10 10 5'/>
     <or>
       <!--  these annotations should be notes on the grammar as well -->
       <ref production='state-declaration' from='0' to='1'/> <!--  tie this together with the producer shares -->
@@ -1255,6 +1280,7 @@
       <ref production='object-method-definition'/>
       <ref production='function-case-definition'/>
       <ref production='handler-definition'/>
+      <ref production='event-handler'/>
     </or>
   </production>
   <production name='state-declaration'>

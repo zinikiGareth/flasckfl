@@ -136,9 +136,10 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 				topLevel.newObjectMethod(errors, em);
 			};
 			tellParent(kw.location);
+			TDAMethodParser np = new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this, null, "event-from-method", false);
 			return new TDAParsingWithAction(
-				new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder, this, "object-event-handler-intro", null, false).parseMethod(kw, namer, toks),
-				reduction(kw.location, "object-event-handler")
+				np.parseMethod(kw, namer, toks),
+				np.reduction(kw.location, "event-handler")
 			);
 		}
 		case "ctor": {

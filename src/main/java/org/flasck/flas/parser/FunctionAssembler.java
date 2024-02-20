@@ -85,7 +85,10 @@ public class FunctionAssembler extends BlockLocationTracker implements FunctionI
 				if (!curr.args.isEmpty())
 					to = curr.args.get(curr.args.size()-1).location();
 				// or it's the degenerate case
-				errors.logReduction("degenerate-guarded-function-case-definition-intro", curr.location(), to);
+				if (curr.cases().get(0).guard == null)
+					errors.logReduction("degenerate-guarded-function-case-definition-intro", curr.location(), to);
+				else
+					errors.logReduction("guarded-function-case-definition-intro", curr.location(), to);
 			}
 		} else {
 			InputPosition to = curr.location;

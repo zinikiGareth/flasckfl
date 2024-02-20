@@ -62,10 +62,18 @@ public class TypeExprToken implements LoggableToken {
 		switch (type) {
 		case NAME:
 			return "type-name";
+		case ORB:
+			return "ORB";
+		case CRB:
+			return "CRB";
 		case OSB:
 			return "OSB";
 		case CSB:
 			return "CSB";
+		case COMMA:
+			return "COMMA";
+		case ARROW:
+			return "ARROW";
 		default:
 			return "TypeExprToken_" + type;
 		}

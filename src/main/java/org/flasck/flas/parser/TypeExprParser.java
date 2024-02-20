@@ -24,27 +24,35 @@ public class TypeExprParser {
 		if (tt == null)
 			return; // not even a valid token (or line ended)
 		TypeReference curr = null;
+		boolean reduced;
 		if (tt.type == TypeExprToken.NAME) {
 			curr = new TypeReference(tt.location, tt.text);
+			reduced = false;
 		} else if (tt.type == TypeExprToken.ORB) {
 			List<TypeReference> trs = new ArrayList<>();
 			parseInsideRB(tt.location, line, x -> trs.add(x));
 			if (trs.isEmpty())
 				return;
 			curr = trs.get(0);
+			reduced = true;
 		} else {
 			errors.message(tt.location, "invalid type reference");
 			return;
 		}
 		
+		// TODO: I think this should be inside the "NAME" case above, as I don't think
+		// a function type (say) can have polymorphic args
+		// It seems to me this allows (String->String)[Number] which is ridiculous.
 		int mark = line.at();
 		TypeExprToken nt = TypeExprToken.from(errors, line);
 		if (nt == null) { // we have reached the end of the line
-			errors.logReduction("simple-type-name", tt, tt);
+			if (!reduced)
+				errors.logReduction("simple-type-name", tt, tt);
 			pt.provide(curr);
 			return;
-		} else if (nt.type == TypeExprToken.CSB) {
-			errors.logReduction("simple-type-name", tt, tt);
+		} else if (nt.type == TypeExprToken.CSB || nt.type == TypeExprToken.CRB || nt.type == TypeExprToken.COMMA) {
+			if (!reduced)
+				errors.logReduction("simple-type-name", tt, tt);
 			line.reset(mark);
 			pt.provide(curr);
 			return;
@@ -84,6 +92,8 @@ public class TypeExprParser {
 		
 		// now try a function
 		if (nt.type == TypeExprToken.ARROW) {
+			if (!reduced)
+				errors.logReduction("simple-type-name", tt, tt);
 			List<TypeReference> trs = new ArrayList<>();
 			tryParsing(line, x -> trs.add(x));
 			if (trs.isEmpty()) {
@@ -100,6 +110,7 @@ public class TypeExprParser {
 				}
 				args.add(0, curr);
 				curr = new FunctionTypeReference(curr.location(), args);
+				errors.logReduction("function-type-reference", tt, restr);
 			}
 		} else {
 			line.reset(mark);
@@ -110,6 +121,7 @@ public class TypeExprParser {
 
 	private void parseInsideRB(InputPosition orbLoc, Tokenizable line, TDAProvideType pt) {
 		List<TypeReference> trs = new ArrayList<>();
+		TypeExprToken comma = null;
 		while (true) {
 			tryParsing(line, x -> trs.add(x));
 			if (trs.isEmpty()) {
@@ -117,14 +129,22 @@ public class TypeExprParser {
 			}
 			TypeExprToken tt = TypeExprToken.from(errors, line);
 			if (tt.type == TypeExprToken.CRB) {
-				if (trs.size() == 1) // the parenthesis case
+				if (comma != null) {
+					errors.logReduction("comma-type-reference", comma, trs.get(trs.size()-1));
+				}
+				if (trs.size() == 1) {// the parenthesis case
 					pt.provide(trs.get(0));
-				else { // the tuple case
+					errors.logReduction("paren-type-reference", orbLoc, tt.location);
+				} else { // the tuple case
 					pt.provide(new TupleTypeReference(orbLoc, trs));
+					errors.logReduction("tuple-type-reference", orbLoc, tt.location);
 				}
 				return;
 			} else if (tt.type == TypeExprToken.COMMA) {
-				; // loop for next type
+				if (comma != null) {
+					errors.logReduction("comma-type-reference", comma, trs.get(trs.size()-1));
+				}
+				comma = tt; // loop for next type
 			} else {
 				// probably a real error
 				throw new NotImplementedException();

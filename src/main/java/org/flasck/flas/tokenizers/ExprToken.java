@@ -46,8 +46,15 @@ public class ExprToken implements LoggableToken {
 			return "var-name";
 		case 2:
 			return "NUMBER";
-		case 3:
-			return "PUNC";
+		case 3: {
+			switch (text) {
+			case "(": return "ORB";
+			case ")": return "CRB";
+			case ",": return "COMMA";
+			default:
+				return "PUNC";
+			}
+		}
 		case 4:
 			return "symbol";
 		case 5:
