@@ -24,7 +24,7 @@
   <lex token='ASSERT' pattern='assert'>
   	<p>The <tt>assert</tt> keyword introduces an assert step in a unit test.</p>
   </lex>
-  <lex token='BINOP' pattern='[-+*/.&lt;&gt;]|==|&lt;=|&gt;=|\+\+|&amp;&amp;|\|\|'>
+  <lex token='BINOP' pattern='[-+*/%&lt;&gt;]|==|&lt;=|&gt;=|\+\+|&amp;&amp;|\|\|'>
   	<p>One of the standard binary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
   </lex>
