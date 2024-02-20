@@ -24,4 +24,8 @@ public class IndentAs implements TrackProduction {
 		return this.rule;
 	}
 
+	@Override
+	public String toString() {
+		return "IndentAs[" + reducesAs + ":" + rule + "]";
+	}
 }

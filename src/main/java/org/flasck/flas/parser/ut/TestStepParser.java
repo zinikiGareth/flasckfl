@@ -537,6 +537,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		
+		tellParent(kw.location);
 		TargetZone targetZoneTmp = new TargetZone(toks.realinfo(), new ArrayList<>());
 		boolean containsTmp = false;
 		boolean failsTmp = false;
@@ -573,15 +574,8 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 		final boolean fails = failsTmp;
 		errors.logReduction("unittest-match-command" + withZone + withType, kw.location, lastLoc);
 		// TODO: should we return an expression parser for scroll matching?
-		return new FreeTextParser(kw, errors, (lastPos, text) -> {
-			if (text != null) {
-				errors.logParsingToken(text);
-				errors.logReduction("unit-match-free-text", text.location(), lastPos);
-				errors.logReduction("unit-test-match", kw.location, text.location());
-			} else {
-				errors.logReduction("unit-test-match", kw.location, kw.location);
-			}
-			tellParent(kw.location);
+		return new FreeTextParser(kw, errors, this, (lastPos, text) -> {
+			reduce(kw.location, "unit-test-match");
 			builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, fails, text);
 		});
 	}

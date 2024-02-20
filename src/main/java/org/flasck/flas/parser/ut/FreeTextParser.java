@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.LocatableConsumer;
+import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.FreeTextToken;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -23,23 +24,26 @@ public class FreeTextParser implements TDAParsing {
 	private final LocatableConsumer<FreeTextToken> handler;
 	private final FreeTextParser parent;
 	private final List<FreeTextToken> buffers;
+	private final LocationTracker locTracker;
 	private InputPosition firstLoc;
 	private InputPosition lastLoc;
 	
-	public FreeTextParser(KeywordToken kw, ErrorReporter errors, LocatableConsumer<FreeTextToken> freeTextHandler) {
+	public FreeTextParser(KeywordToken kw, ErrorReporter errors, LocationTracker locTracker, LocatableConsumer<FreeTextToken> freeTextHandler) {
 		this.kw = kw;
 		this.errors = errors;
 		this.handler = freeTextHandler;
+		this.locTracker = locTracker;
 		this.parent = null;
 		this.buffers = new ArrayList<>();
 		this.lastLoc = kw.location();
 	}
 
-	public FreeTextParser(KeywordToken kw, FreeTextParser parent) {
+	public FreeTextParser(KeywordToken kw, FreeTextParser parent, LocationTracker locTracker) {
 		this.kw = kw;
 		this.errors = parent.errors;
 		this.handler = null;
 		this.parent = parent;
+		this.locTracker = locTracker;
 		this.buffers = parent.buffers;
 	}
 
@@ -51,8 +55,12 @@ public class FreeTextParser implements TDAParsing {
 		lastLoc = pos;
 		String tok = toks.remainder();
 		FreeTextToken ret = new FreeTextToken(pos, tok);
+		ret.location().endAt(tok.length());
+		errors.logParsingToken(ret);
+		errors.logReduction("unit-match-free-text", ret.location(), ret.location().locAtEnd());
+		locTracker.updateLoc(ret.location());
 		this.buffers.add(ret);
-		return new FreeTextParser(kw, this);
+		return new FreeTextParser(kw, this, locTracker);
 	}
 
 	private void seenTextAt(InputPosition later) {
