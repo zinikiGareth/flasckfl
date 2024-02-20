@@ -1261,7 +1261,7 @@
   <production name='object-ctor-definition'>
     <section title='Object'/>
     <tested by='test.parsing.TDAObjectElementParsingTests' />
-    <seq>
+    <seq borrow-final-indent='true'>
 	  <reduces-as rule='object-ctor-decl' />
       <token type='CTOR' />
       <will-name amended='_ctor_${final}' pattern='ObjectCtor\[ctor ${name}\]' /> <!-- this will bind to the use-name in the method-definition -->
@@ -1663,7 +1663,7 @@
     <section title='Template Customization' />
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
-	  <reduces-as rule='template-conditional-styling' />
+	  <reduces-as rule='template-conditional-styling-with-or' />
       <token type='GUARD'/>
       <ref production='expression'/>
       <token type='SENDTO' />

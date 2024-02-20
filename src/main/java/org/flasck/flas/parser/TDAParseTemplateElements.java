@@ -163,8 +163,11 @@ public class TDAParseTemplateElements {
 		List<Expr> orelse = null;
 		List<Expr> addTo = styles;
 		InputPosition lastLoc = barPos;
-		if (expr != null)
+		String opt = "";
+		if (expr != null) {
 			lastLoc = expr.location();
+			opt = "-with-guard";
+		}
 		while (toks.hasMoreContent(errors)) {
 			int mark = toks.at();
 			ExprToken et = ExprToken.from(errors, toks);
@@ -172,12 +175,14 @@ public class TDAParseTemplateElements {
 				lastLoc = et.location;
 				if (et.type == ExprToken.IDENTIFIER) {
 					addTo.add(new UnresolvedVar(et.location, et.text));
+					errors.logReduction("function-call", et.location, et.location.locAtEnd());
 					continue;
 				} else if (et.type == ExprToken.STRING) {
 					addTo.add(new StringLiteral(et.location, et.text));
 					continue;
 				} else if (et.type == ExprToken.SYMBOL) {
 					if (et.text.equals("||")) {
+						opt = "-with-or";
 						if (expr == null) {
 							errors.message(et.location, "cannot use || without a condition");
 							return null;
@@ -217,7 +222,7 @@ public class TDAParseTemplateElements {
 			errors.message(toks, "valid style expected");
 			return null;
 		}
-		errors.logReduction("template-conditional-styling" + (expr != null ? "-with-guard": ""), barPos, lastLoc);
+		errors.logReduction("template-conditional-styling" + opt, barPos, lastLoc);
 		if (locTracker != null)
 			locTracker.updateLoc(barPos);
 		return new TemplateStylingOption(barPos, expr, styles, orelse);
