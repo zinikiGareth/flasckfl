@@ -251,13 +251,16 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 		SolidName sn = namer.solidName(tn.text);
 		SimpleVarNamer svn = new SimpleVarNamer(sn);
 		List<PolyType> polys = new ArrayList<>();
+		InputPosition lastLoc = tn.location;
 		while (toks.hasMoreContent(errors)) {
 			PolyTypeToken ta = PolyTypeToken.from(errors, toks);
 			if (ta == null) {
 				errors.message(toks, "invalid type argument");
 				return new IgnoreNestedParser(errors);
-			} else
+			} else {
 				polys.add(ta.asType(svn));
+				lastLoc = ta.location;
+			}
 		}
 		// todo: need to reduce a poly-type name
 		if (toks.hasMoreContent(errors)) {
@@ -267,7 +270,7 @@ public class TDAIntroParser extends BlockLocationTracker implements TDAParsing {
 		final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
 		final StructDefn sd = new StructDefn(kw.location, tn.location, ty, sn, true, polys);
 		consumer.newStruct(errors, sd);
-		errors.logReduction("fields-defn", kw.location, tn.location);
+		errors.logReduction("fields-defn", kw.location, lastLoc);
 		return new TDAParsingWithAction(
 			new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true, locTracker),
 			locTracker.reduction(kw.location, ty == FieldsType.STRUCT ? "struct-declaration" : "entity-declaration")

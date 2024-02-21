@@ -51,6 +51,7 @@ public class ExprToken implements LoggableToken {
 			case "(": return "ORB";
 			case ")": return "CRB";
 			case ",": return "COMMA";
+			case ".": return "APPLY";
 			default:
 				return "PUNC";
 			}

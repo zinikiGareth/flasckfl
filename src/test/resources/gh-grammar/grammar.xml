@@ -166,6 +166,9 @@
   	<p>The ajax system test keyword <tt>query</tt>.</p>
   </lex>
    -->
+  <lex token='RENDER' pattern='render'>
+  	<p>The <tt>render</tt> keyword is used to force cards to render in tests.</p>
+  </lex>
   <lex token='REQUIRES' pattern='requires'>
   	<p>The <tt>requires</tt> keyword identifies a variable which is bound to a service of the specified contract.</p>
   </lex>
@@ -1346,31 +1349,19 @@
     </section>
     <tested by='test.parsing.TDAServiceParsingTests' />
     <seq>
-    	  <token type='SERVICE' />
-    	  <token type='type-name' names='Service\[${name}\]' />
-    	  <indent-one>
-    	    <ref production='service-contents'/>
-    	  </indent-one>
+      <reduces-as rule='service-declaration-intro' />
+      <token type='SERVICE' />
+      <token type='type-name' names='Service\[${name}\]' />
+      <indent>
+    	<ref production='service-scope-unit'/>
+      </indent>
     </seq>
-  </production>
-  <production name='service-contents'>
-    <section title='Service'/>
-    <tested by='test.parsing.TDAServiceParsingTests' />
-    <seq>
-      <ref production='service-scope'/>
-    </seq>
-  </production>
-  <production name='service-scope'>
-    <section title='Service'/>
-    <tested by='test.parsing.TDAServiceParsingTests' />
-    <many>
-      <ref production='service-scope-unit'/>
-    </many>
   </production>
   <production name='service-scope-unit'>
     <section title='Service'/>
     <tested by='test.parsing.TDAServiceParsingTests' />
     <or>
+      <ref production='requires-contract'/>
       <ref production='provides-contract'/>
       <ref production='function-scope-unit'/>
     </or>
@@ -1856,6 +1847,7 @@ match style ...
       <ref production='unit-test-expect' />
       <ref production='unit-test-match' />
       <ref production='internal-test-newdiv' />
+      <ref production='internal-test-render' />
     </or>
   </production>
   <production name='unit-event-action'>
@@ -2073,6 +2065,16 @@ match style ...
 		<reduces-as rule='-cnt' />
 		<token type='NUMBER' />
 	  </optional>
+	</seq>
+  </production>
+  <production name='internal-test-render'>
+	<section title='Internal Tests' />
+	<seq>
+	  <reduces-as rule='test-render' />
+	  <token type='RENDER' />
+	  <token type='var-name' />
+	  <token type='SENDTO' />
+	  <token type='template-name' />
 	</seq>
   </production>
   <production name='unit-data-declaration'>
