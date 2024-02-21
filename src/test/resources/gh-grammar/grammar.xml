@@ -31,6 +31,9 @@
   <lex token='CARD' pattern='card'>
   	<p>The <tt>card</tt> keyword introduces a card definition.</p>
   </lex>
+  <lex token='CAST' pattern='cast'>
+  	<p>The <tt>cast</tt> function states that the expression should be given a specific compile-time type which will be checked at runtime.</p>
+  </lex>
   <lex token='CCB' pattern='\}'>
   	<p>A closing curly bracket delimits the end of a constructor pattern or object creation.</p>
   </lex>
@@ -926,9 +929,16 @@
       <token type='type-name'/>
       <ref production='member-expr' />
       <seq>
+		<reduces-as rule='paren-expression' />
         <token type='ORB'/>
         <ref production='value-expression'/>
         <token type='CRB'/>
+	  </seq>
+      <seq>
+		<reduces-as rule='cast-expr' />
+        <token type='CAST'/>
+        <ref production='type-reference' />
+        <ref production='value-expression'/>
 	  </seq>
     </or>
   </production>
