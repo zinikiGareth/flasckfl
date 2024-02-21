@@ -1274,6 +1274,9 @@
       <token type='OBJECT' />
       <token type='type-name' names='ObjectDefinition\[${name}\]' />
       <dict var='template-posn' val='2' /> 
+      <many>
+        <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
+      </many>
       <indent>
         <ref production='object-scope-unit'/>
       </indent>
