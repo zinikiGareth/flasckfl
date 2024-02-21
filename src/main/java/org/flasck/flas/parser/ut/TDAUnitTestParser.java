@@ -70,7 +70,7 @@ public class TDAUnitTestParser extends BlockLocationTracker implements TDAParsin
 			// Do what it says on the can ... ignore this line and all nested lines
 			return new TDAParsingWithAction(
 				new IgnoreNestedParser(errors, this),
-				reduction(tok.location, "ut-ignore-test-with-steps")
+				reduction(tok.location, "unit-test-ignore")
 			);
 		}
 		default: {

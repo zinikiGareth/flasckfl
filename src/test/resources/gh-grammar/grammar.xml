@@ -106,6 +106,9 @@
   <lex token='IDENTICAL' pattern='identical'>
   	<p>The <tt>identical</tt> keyword introduces an assertion that two expressions refer to the same node.</p>
   </lex>
+  <lex token='IGNORE' pattern='ignore'>
+  	<p>The <tt>ignore</tt> keyword causes a unit test to be ignored.</p>
+  </lex>
   <lex token='IMAGE' pattern='image'>
   	<p><tt>image</tt> is a keyword used with the <tt>match</tt> unit test command to match image URIs.</p>
   </lex>
@@ -1767,6 +1770,7 @@
     <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <or>
       <ref production='unit-test-declaration'/>
+      <ref production='unit-test-ignore'/>
       <ref production='unit-data-declaration'/>
     </or>
   </production>
@@ -1817,6 +1821,19 @@ match style ...
     <seq>
 	  <reduces-as rule='ut-test-intro' />
       <token type='TEST' />
+      <token type='TESTDESCRIPTION' />
+      <push-part prefix='ut' />
+      <indent>
+      	<ref production='unit-test-step'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='unit-test-ignore'>
+    <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
+    <seq>
+	  <reduces-as rule='ut-ignore-test-intro' />
+      <token type='IGNORE' />
       <token type='TESTDESCRIPTION' />
       <push-part prefix='ut' />
       <indent>
