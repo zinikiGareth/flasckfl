@@ -36,6 +36,7 @@ public class TDAExprParser implements TDAParsing {
 	}
 
 	public TDAParsing tryParsing(Tokenizable line) {
+		boolean wantFullTypeReduction = false;
 		while (true) {
 			int mark = line.at();
 			ExprToken tok = ExprToken.from(errors, line);
@@ -53,19 +54,22 @@ public class TDAExprParser implements TDAParsing {
 			case ExprToken.IDENTIFIER: {
 				Expr term;
 				if (Character.isAlphabetic(tok.text.charAt(0))) {
-					if (Character.isLowerCase(tok.text.charAt(0)))
+					if (Character.isLowerCase(tok.text.charAt(0))) {
 						term = new UnresolvedVar(tok.location, tok.text);
-					else {
+						if ("cast".equals(tok.text))
+							wantFullTypeReduction = true;
+					} else {
 						line.reset(mark);
 						List<TypeReference> ltr = new ArrayList<>();
 						Consumer<TypeReference> captureTR = tr -> ltr.add(tr);
-						new TDATypeReferenceParser(errors, (VarNamer)namer, false, captureTR, (FunctionScopeUnitConsumer)consumer).tryParsing(line);
+						new TDATypeReferenceParser(errors, (VarNamer)namer, wantFullTypeReduction, captureTR, (FunctionScopeUnitConsumer)consumer).tryParsing(line);
 						if (!ltr.isEmpty())
 							term = ltr.get(0);
 						else {
 							errors.cancelReduction();
 							return new IgnoreNestedParser(origErrors);
 						}
+						wantFullTypeReduction = false;
 					}
 				} else if (tok.text.equals("_"))
 					term = new AnonymousVar(tok.location);

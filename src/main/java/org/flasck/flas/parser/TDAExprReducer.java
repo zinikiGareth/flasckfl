@@ -235,9 +235,6 @@ public class TDAExprReducer implements ExprTermConsumer {
 		TypeReference tr;
 		if (type instanceof TypeReference) {
 			tr = (TypeReference) type;
-			// It seems to me this should have been done earlier, but we don't properly distinguish between
-			// the cases based on context, so we need to do it now ...
-			errors.logReduction("simple-type-name", tr, tr);
 		} else if (type instanceof MemberExpr) {
 			MemberExpr me = (MemberExpr) type;
 			tr = resolveMemberExprToTypeReference(me);

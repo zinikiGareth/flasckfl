@@ -841,7 +841,7 @@
       </description>
     </section>
     <tested by='test.parsing.ExprReductionTests' />
-    <producer shares='50 3 5 10 1 5 1 5 10 2'/>
+    <producer shares='50 3 5 10 1 5 1 5 10 2 3'/>
     <or>
       <ref production='literal'/>
       <ref production='paren-expression' />
@@ -866,6 +866,12 @@
         <token type='COLON'/>
         <ref production='expression'/>
       </seq>
+      <seq>
+		<reduces-as rule='cast-expr' />
+        <token type='CAST'/>
+        <ref production='type-reference' />
+        <ref production='expression'/>
+	  </seq>
     </or>
   </production>
   <production name='member-expr'>
@@ -2121,6 +2127,7 @@ match style ...
       </description>
     </section>
     <seq>
+	  <reduces-as rule='system-test-stage-configure'/>
       <token type='CONFIGURE' />
       <indent>
       	<ref production='system-configure-step'/>
@@ -2222,6 +2229,17 @@ match style ...
   </production>
   <production name='system-test-finally'>
     <section title='System Tests'/>
+    <seq>
+    <reduces-as rule='system-test-stage-finally'/>
+    <token type='FINALLY' />
+    <indent>
+      <ref production='system-finally-step'/>
+    </indent>
+    </seq>
+  </production>
+  <production name='system-finally-step'>
+    <section title='System Tests'/>
+    <!-- this is not right, but I'm not sure what is -->
     <token type='FINALLY' />
   </production>
 </grammar>

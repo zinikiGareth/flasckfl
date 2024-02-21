@@ -73,7 +73,7 @@ public class TDATypeReferenceParser implements TDAParsing {
 				}
 			}
 		} else if (reduceSimple) {
-			errors.logReduction("simple-type-name", qn.location, qn.location.locAtEnd());
+			errors.logReduction("simple-type-name", qn, qn);
 		}
 		consumer.accept(new TypeReference(qn.location, qn.text, andTypeParameters));
 		return new NoNestingParser(errors);
