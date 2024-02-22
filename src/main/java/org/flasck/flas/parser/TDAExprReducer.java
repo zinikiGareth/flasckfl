@@ -231,7 +231,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 			return null;
 		}
 		Expr type = terms.get(from+1);
-		Expr val = terms.get(from+2);
+		Expr val = reduceSingletonToExpression(terms.get(from+2));
 		TypeReference tr;
 		if (type instanceof TypeReference) {
 			tr = (TypeReference) type;

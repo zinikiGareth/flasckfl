@@ -28,6 +28,9 @@
   	<p>One of the standard binary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
   </lex>
+  <lex token='CANCEL' pattern='&lt;~'>
+  	<p>The <tt>CANCEL</tt> operator is used to specify expectations that a subscription will be cancelled.</p>
+  </lex>
   <lex token='CARD' pattern='card'>
   	<p>The <tt>card</tt> keyword introduces a card definition.</p>
   </lex>
@@ -36,6 +39,9 @@
   </lex>
   <lex token='CCB' pattern='\}'>
   	<p>A closing curly bracket delimits the end of a constructor pattern or object creation.</p>
+  </lex>
+  <lex token='CLOSE' pattern='close'>
+  	<p>The <tt>CLOSE</tt> command is used in unit tests to close a card.</p>
   </lex>
   <lex token='COLON' pattern=':'>
   	<p>Can be an operator or can be used to define object literals.</p>
@@ -943,14 +949,8 @@
       <seq>
 		<reduces-as rule='paren-expression' />
         <token type='ORB'/>
-        <ref production='value-expression'/>
+        <ref production='expression'/>
         <token type='CRB'/>
-	  </seq>
-      <seq>
-		<reduces-as rule='cast-expr' />
-        <token type='CAST'/>
-        <ref production='type-reference' />
-        <ref production='value-expression'/>
 	  </seq>
     </or>
   </production>
@@ -1845,6 +1845,8 @@ match style ...
       <ref production='unit-test-shove' />
       <ref production='unit-test-input' />
       <ref production='unit-test-expect' />
+      <ref production='unit-test-cancel' />
+      <ref production='unit-test-close-card' />
       <ref production='unit-test-match' />
       <ref production='internal-test-newdiv' />
       <ref production='internal-test-render' />
@@ -1969,6 +1971,23 @@ match style ...
       	<reduces-as rule="-introduce-handler" />
         <ref production='unit-expect-introduce-handler' />
       </optional>
+    </seq>
+  </production>
+  <production name='unit-test-cancel'>
+    <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
+    <seq>
+      <token type='EXPECT' />
+      <token type='CANCEL' />
+      <token type='var-name' />
+    </seq>
+  </production>
+  <production name='unit-test-close-card'>
+    <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
+    <seq>
+      <token type='CLOSE' />
+      <token type='var-name' />
     </seq>
   </production>
   <production name='unit-expect-introduce-handler'>

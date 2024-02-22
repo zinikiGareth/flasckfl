@@ -268,7 +268,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			return new IgnoreNestedParser(errors);
 		}
 		builder.closeCard(new UnresolvedVar(tok.location, tok.text));
-		errors.logReduction("ut-close-card", kw.location, tok.location);
+		errors.logReduction("unit-test-close-card", kw.location, tok.location);
 		tellParent(kw.location);
 		return new NoNestingParser(errors);
 	}
@@ -496,7 +496,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser(errors);
 		}
-		errors.logReduction("ut-expect-cancel", kw.location, handler.location);
+		errors.logReduction("unit-test-cancel", kw.location, handler.location);
 		builder.expectCancel(new UnresolvedVar(handler.location, handler.text));
 		return new NoNestingParser(errors);
 	}
