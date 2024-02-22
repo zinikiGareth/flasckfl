@@ -72,7 +72,10 @@ public class ApplicationElementParser extends BlockLocationTracker implements TD
 			consumer.routes(routing);
 			errors.logReduction("fa-appl-routes", kw.location, kw.location);
 			super.tellParent(kw.location);
-			return new TDAParsingWithAction(new TDARoutingParser(errors, routing, this), reduction(kw.location, "fa-appl-routes-block"));
+			return new TDAParsingWithAction(
+				new TDARoutingParser(errors, routing, this), 
+				reduction(kw.location, "assembly-routes")
+			);
 		}
 		default: {
 			errors.message(toks, "expected 'title', 'baseuri' or 'routes'");

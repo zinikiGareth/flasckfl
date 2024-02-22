@@ -15,6 +15,9 @@
   <lex token='AJAX' pattern='ajax'>
   	<p>The <tt>ajax</tt> keyword creates or access an AJAX server in a system test.</p>
   </lex>
+  <lex token='APPLICATION' pattern='application'>
+  	<p>The <tt>application</tt> keyword introduces an application in an assembly file.</p>
+  </lex>
   <lex token='APPLY' pattern='\.'>
   	<p>The apply operator.</p>
   </lex>
@@ -23,6 +26,9 @@
   </lex>
   <lex token='ASSERT' pattern='assert'>
   	<p>The <tt>assert</tt> keyword introduces an assert step in a unit test.</p>
+  </lex>
+  <lex token='BASEURI' pattern='baseuri'>
+  	<p>The <tt>baseuri</tt> keyword is used in an assembly file to identify the base URI of the application.</p>
   </lex>
   <lex token='BINOP' pattern='[-+*/%&lt;&gt;]|==|&lt;=|&gt;=|\+\+|&amp;&amp;|\|\|'>
   	<p>One of the standard binary operators.  They have precedence, but this is not apparent from the grammar.</p>
@@ -181,6 +187,9 @@
   <lex token='RESPONSES' pattern='responses'>
   	<p>The ajax system test keyword <tt>create</tt>.</p>
   </lex>
+  <lex token='ROUTES' pattern='routes'>
+  	<p>The <tt>routes</tt> keyword introduces a routing table in an assembly file.</p>
+  </lex>
   <lex token='SCROLL' pattern='scroll'>
   	<p><tt>scroll</tt> is a keyword used with the <tt>match</tt> unit test command to check on where the window has scrolled to.</p>
   </lex>
@@ -225,6 +234,7 @@
   </lex>
   <lex token='TITLE' pattern='title'>
   	<p><tt>title</tt> is a keyword used with the <tt>match</tt> unit test command to test the current window title.</p>
+  	<p>It is also used in the assembly file to provide the title for an application.</p>
   </lex>
   <lex token='TRUE' pattern='True'>
   	<p>The boolean literal <tt>True</tt>.</p>
@@ -1742,13 +1752,71 @@
 			<p>Applications and libraries in FLAS are assembled into components using an assembly file.</p>
 		</description>
     </section>
-    	<ref production="top-level-definition" /> <!-- WRONG!!!! -->
+      <or>
+    	<ref production="assembly-application" />
+    	<ref production="assembly-application" />
+	  </or>
     <!--
     <or>
       <ref production='top-level-definition'/>
       <ref production='function-scope-unit'/>
     </or>
     -->
+  </production>
+  <production name='assembly-application'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-application-intro' />
+  	  <token type='APPLICATION' />
+  	  <indent>
+    	<ref production="assembly-application-scope" />
+	  </indent>
+	</seq>
+  </production>
+  <production name='assembly-application-scope'>
+	<section title='Assembly Files' />
+	<or>
+	  <ref production='assembly-title' />
+	  <ref production='assembly-baseuri' />
+	  <ref production='assembly-routes' />
+	</or>
+  </production>
+  <production name='assembly-title'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-appl-title' />
+  	  <token type='APPLICATION' />
+  	  <indent>
+    	<ref production="assembly-application-scope" />
+	  </indent>
+	</seq>
+  </production>
+  <production name='assembly-baseuri'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-appl-baseuri' />
+  	  <token type='BASEURI' />
+  	  <token type='STRING' />
+	</seq>
+  </production>
+  <production name='assembly-routes'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-appl-routes' />
+  	  <token type='ROUTES' />
+  	  <indent>
+    	<ref production="assembly-routing-table" />
+	  </indent>
+	</seq>
+  </production>
+  <production name='assembly-routing-table'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-route-action' />
+  	  <token type='var-name' />
+  	  <token type='SEND' />
+  	  <token type='type-name' />
+	</seq>
   </production>
   <production name='unit-test-unit'>
     <section title='Unit Test Files'>

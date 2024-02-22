@@ -39,7 +39,10 @@ public class TDAAssemblyUnitParser extends BlockLocationTracker implements TDAPa
 			adc.assembly(consumer);
 			errors.logReduction("fa-application-intro", kw.location, kw.location);
 			super.tellParent(kw.location);
-			return new TDAParsingWithAction(new ApplicationElementParser(errors, kw.location, namer, consumer, this), reduction(kw.location, "fa-application"));
+			return new TDAParsingWithAction(
+				new ApplicationElementParser(errors, kw.location, namer, consumer, this),
+				reduction(kw.location, "assembly-application")
+			);
 		}
 		case "card": {
 			throw new NotImplementedException();
