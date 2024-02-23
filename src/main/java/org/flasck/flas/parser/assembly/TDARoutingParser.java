@@ -46,7 +46,7 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 			consumer.enter(enter);
 			errors.logReduction("fa-route-enter", kw.location, kw.location);
 			super.tellParent(kw.location);
-			return new TDAParsingWithAction(new TDAEnterExitParser(errors, enter, this), reduction(kw.location, "fa-route-enter-block"));
+			return new TDAParsingWithAction(new TDAEnterExitParser(errors, enter, this), reduction(kw.location, "assembly-route-enter"));
 		}
 		case "at": {
 			if (toks.hasMoreContent(errors)) {
@@ -57,7 +57,7 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 			consumer.at(at);
 			errors.logReduction("fa-route-at", kw.location, kw.location);
 			super.tellParent(kw.location);
-			return new TDAParsingWithAction(new TDAEnterExitParser(errors, at, this), reduction(kw.location, "fa-route-at-block"));
+			return new TDAParsingWithAction(new TDAEnterExitParser(errors, at, this), reduction(kw.location, "assembly-route-at"));
 		}
 		case "exit": {
 			if (toks.hasMoreContent(errors)) {
@@ -68,7 +68,7 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 			consumer.exit(exit);
 			errors.logReduction("fa-route-exit", kw.location, kw.location);
 			super.tellParent(kw.location);
-			return new TDAParsingWithAction(new TDAEnterExitParser(errors, exit, this), reduction(kw.location, "fa-route-exit-block"));
+			return new TDAParsingWithAction(new TDAEnterExitParser(errors, exit, this), reduction(kw.location, "assembly-route-exit"));
 		}
 		case "secure": {
 			if (toks.hasMoreContent(errors)) {
@@ -76,7 +76,7 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 				return new IgnoreNestedParser(errors);
 			}
 			consumer.isSecure();
-			errors.logReduction("fa-route-secure", kw.location, kw.location);
+			errors.logReduction("assembly-route-secure", kw.location, kw.location);
 			super.tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}
@@ -113,7 +113,7 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 				return new IgnoreNestedParser(errors);
 			}
 			consumer.title(pos, s);
-			errors.logReduction("fa-route-title", kw.location, pos);
+			errors.logReduction("assembly-title", kw.location, pos);
 			super.tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}

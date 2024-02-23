@@ -78,7 +78,7 @@ public class TDAEnterExitParser extends BlockLocationTracker implements TDAParsi
 			} else
 				throw new NotImplementedException();
 			consumer.method(card, ctr, uv.var, exprs);
-			errors.logReduction("fa-route-action", card.location, have.location());
+			errors.logReduction("fa-invoke", card.location, have.location());
 			super.tellParent(card.location);
 			break;
 		}

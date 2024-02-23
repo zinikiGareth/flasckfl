@@ -27,6 +27,9 @@
   <lex token='ASSERT' pattern='assert'>
   	<p>The <tt>assert</tt> keyword introduces an assert step in a unit test.</p>
   </lex>
+  <lex token='AT' pattern='at'>
+  	<p>The <tt>at</tt> keyword is used in assembly files to indicate actions carried out at a particular route.</p>
+  </lex>
   <lex token='BASEURI' pattern='baseuri'>
   	<p>The <tt>baseuri</tt> keyword is used in an assembly file to identify the base URI of the application.</p>
   </lex>
@@ -77,6 +80,9 @@
   <lex token='DATA' pattern='data'>
   	<p>The <tt>data</tt> keyword introduces a data declaration in a unit test.</p>
   </lex>
+  <lex token='ENTER' pattern='enter'>
+  	<p>The <tt>enter</tt> keyword is used in assembly files to indicate actions carried out when first entering particular route.</p>
+  </lex>
   <lex token='ENTITY' pattern='entity'>
   	<p>The <tt>entity</tt> keyword introduces an entity definition.</p>
   </lex>
@@ -85,6 +91,9 @@
   </lex>
   <lex token='EVENT' pattern='event'>
   	<p>The <tt>event</tt> keyword introduces an event handler.</p>
+  </lex>
+  <lex token='EXIT' pattern='exit'>
+  	<p>The <tt>exit</tt> keyword is used in assembly files to indicate actions carried out when leaving a particular route.</p>
   </lex>
   <lex token='EXPECT' pattern='expect'>
   	<p>The <tt>expect</tt> keyword introduces a mock expectation.</p>
@@ -191,6 +200,9 @@
   	<p>The <tt>routes</tt> keyword introduces a routing table in an assembly file.</p>
   </lex>
   <lex token='SCROLL' pattern='scroll'>
+  	<p><tt>scroll</tt> is a keyword used with the <tt>match</tt> unit test command to check on where the window has scrolled to.</p>
+  </lex>
+  <lex token='SECURE' pattern='secure'>
   	<p><tt>scroll</tt> is a keyword used with the <tt>match</tt> unit test command to check on where the window has scrolled to.</p>
   </lex>
   <lex token='SEND' pattern='&lt;-'>
@@ -1784,11 +1796,8 @@
   <production name='assembly-title'>
 	<section title='Assembly Files' />
 	<seq>
-	  <reduces-as rule='fa-appl-title' />
-  	  <token type='APPLICATION' />
-  	  <indent>
-    	<ref production="assembly-application-scope" />
-	  </indent>
+  	  <token type='TITLE' />
+  	  <token type='STRING' />
 	</seq>
   </production>
   <production name='assembly-baseuri'>
@@ -1811,11 +1820,60 @@
   </production>
   <production name='assembly-routing-table'>
 	<section title='Assembly Files' />
+	<or>
+	  <ref production='assembly-title' />
 	<seq>
 	  <reduces-as rule='fa-route-action' />
   	  <token type='var-name' />
   	  <token type='SEND' />
   	  <token type='type-name' />
+	</seq>
+	<seq>
+	  <reduces-as rule='assembly-route-secure' />
+  	  <token type='SECURE' />
+	</seq>
+	  <ref production='assembly-route-enter' />
+	  <ref production='assembly-route-at' />
+	  <ref production='assembly-route-exit' />
+	</or>
+  </production>
+  <production name='assembly-route-enter'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-route-enter' />
+  	  <token type='ENTER' />
+  	  <indent>
+    	<ref production="assembly-route-actions" />
+	  </indent>
+	</seq>
+  </production>
+  <production name='assembly-route-at'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-route-at' />
+  	  <token type='AT' />
+  	  <indent>
+    	<ref production="assembly-route-actions" />
+	  </indent>
+	</seq>
+  </production>
+  <production name='assembly-route-exit'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-route-exit' />
+  	  <token type='EXIT' />
+  	  <indent>
+    	<ref production="assembly-route-actions" />
+	  </indent>
+	</seq>
+  </production>
+  <production name='assembly-route-actions'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-invoke' />
+  	  <token type='var-name' />
+  	  <token type='APPLY' />
+  	  <ref production='function-call' />
 	</seq>
   </production>
   <production name='unit-test-unit'>

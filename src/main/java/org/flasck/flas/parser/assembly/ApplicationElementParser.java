@@ -45,7 +45,7 @@ public class ApplicationElementParser extends BlockLocationTracker implements TD
 			String s = StringToken.from(errors, toks);
 			errors.logParsingToken(new ExprToken(pos, ExprToken.STRING, s).original(toks.fromMark(mark)));
 			consumer.title(s);
-			errors.logReduction("fa-appl-title", kw.location, pos);
+			errors.logReduction("assembly-title", kw.location, pos);
 			super.tellParent(kw.location);
 			return new NoNestingParser(errors);
 		}
