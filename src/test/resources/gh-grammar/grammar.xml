@@ -196,6 +196,9 @@
   <lex token='RESPONSES' pattern='responses'>
   	<p>The ajax system test keyword <tt>create</tt>.</p>
   </lex>
+  <lex token='ROUTE' pattern='route'>
+  	<p>The <tt>route</tt> keyword introduces a nested route in a routing table in an assembly file.</p>
+  </lex>
   <lex token='ROUTES' pattern='routes'>
   	<p>The <tt>routes</tt> keyword introduces a routing table in an assembly file.</p>
   </lex>
@@ -1835,6 +1838,7 @@
 	  <ref production='assembly-route-enter' />
 	  <ref production='assembly-route-at' />
 	  <ref production='assembly-route-exit' />
+	  <ref production='assembly-route-nested' />
 	</or>
   </production>
   <production name='assembly-route-enter'>
@@ -1872,8 +1876,30 @@
 	<seq>
 	  <reduces-as rule='fa-invoke' />
   	  <token type='var-name' />
+  	  <optional>
+		<reduces-as rule='-with-contract' />
+		<ref production='assembly-route-with-contract' />
+	  </optional>
   	  <token type='APPLY' />
   	  <ref production='function-call' />
+	</seq>
+  </production>
+  <production name='assembly-route-with-contract'>
+	  <section title='Assembly Files' />
+	  <seq>
+        <token type='APPLY' />
+		<token type='type-name' />
+	  </seq>
+  </production>
+  <production name='assembly-route-nested'>
+	<section title='Assembly Files' />
+	<seq>
+	  <reduces-as rule='fa-route-nested' />
+  	  <token type='ROUTE' />
+  	  <token type='STRING' />
+  	  <indent>
+    	<ref production="assembly-routing-table" />
+	  </indent>
 	</seq>
   </production>
   <production name='unit-test-unit'>

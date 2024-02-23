@@ -97,7 +97,7 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 			consumer.route(group);
 			errors.logReduction("fa-route-nested", kw.location, pos);
 			super.tellParent(kw.location);
-			return new TDAParsingWithAction(new TDARoutingParser(errors, group, this), reduction(kw.location, "fa-route-nested-block"));
+			return new TDAParsingWithAction(new TDARoutingParser(errors, group, this), reduction(kw.location, "assembly-route-nested"));
 		}
 		case "title": {
 			int mark = toks.at();

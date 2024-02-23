@@ -44,18 +44,21 @@ public class TDAEnterExitParser extends BlockLocationTracker implements TDAParsi
 			return new NoNestingParser(errors);
 		}
 		
+		String opt = "";
 		switch (tok.text) {
 		case ".": {
+			ExprToken apply = tok;
 			TypeReference ctr;
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
 			if (tn != null) {
-				System.out.println(tn.text);
 				tok = ExprToken.from(errors, toks);
 				if (tok == null || !".".equals(tok.text)) {
 					errors.message(toks, "expected .");
 					return new NoNestingParser(errors);
 				}
 				ctr = new TypeReference(tn.location, tn.text, new ArrayList<>());
+				opt="-with-contract";
+				errors.logReduction("assembly-route-with-contract", apply, ctr);
 			} else {
 				ctr = new TypeReference(card.location(), "Lifecycle", new ArrayList<>());
 			}
@@ -78,7 +81,7 @@ public class TDAEnterExitParser extends BlockLocationTracker implements TDAParsi
 			} else
 				throw new NotImplementedException();
 			consumer.method(card, ctr, uv.var, exprs);
-			errors.logReduction("fa-invoke", card.location, have.location());
+			errors.logReduction("fa-invoke"+opt, card.location, have.location());
 			super.tellParent(card.location);
 			break;
 		}
