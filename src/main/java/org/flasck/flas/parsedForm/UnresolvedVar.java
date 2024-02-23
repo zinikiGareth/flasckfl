@@ -8,7 +8,6 @@ public class UnresolvedVar implements Expr {
 	public final InputPosition location;
 	public final String var;
 	private RepositoryEntry definition;
-	private boolean reducedToFC;
 
 	public UnresolvedVar(InputPosition location, String var) {
 		this.location = location;

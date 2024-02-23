@@ -96,9 +96,10 @@ public class TDAExprParser implements TDAParsing {
 				builder.term(new UnresolvedOperator(tok.location, tok.text));
 				break;
 			case ExprToken.PUNC:
-				if (tok.text.equals("."))
+				if (tok.text.equals(".")) {
 					builder.term(new DotOperator(tok.location));
-				else if (tok.text.equals(")") && builder.isTop()) {
+					wantFullTypeReduction = false;
+				} else if (tok.text.equals(")") && builder.isTop()) {
 					line.reset(mark);
 					errors.cancel(tok);
 					builder.done();

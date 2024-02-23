@@ -848,6 +848,7 @@
 		  <ref production='type-reference' />
 		  <token type='CRB' />
 	  </seq>
+	  <ref production='type-member' />
     </or>
   </production>
   <production name='poly-type-list'>
@@ -921,13 +922,17 @@
 	    <token type='APPLY' />
 	    <token type='var-name' />
       </seq>
+      <ref production='type-member' />
+	</or>
+  </production>
+  <production name='type-member'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprTokenizationTests' />
       <seq>
-		<reduces-as rule="type-member" />
 	    <ref production='value-expression' />
 	    <token type='APPLY' />
 	    <token type='type-name' />
     </seq>
-	</or>
   </production>
   <production name='function-call'>
     <section title='Expressions' />
