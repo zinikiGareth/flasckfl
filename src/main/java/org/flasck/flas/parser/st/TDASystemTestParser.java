@@ -15,7 +15,6 @@ import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LocationTracker;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
-import org.flasck.flas.parser.st.TDASystemTestParser.OptionsRecorder;
 import org.flasck.flas.parser.ut.TestStepNamer;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TestDescriptionToken;

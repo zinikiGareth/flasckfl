@@ -235,6 +235,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			File testDirCSS = new File(testDir + "/css");
 			FileUtils.assertDirectory(new File(testDirJS));
 			html = new File(testDir, testName + ".html");
+			if (html != null)
+				return;
 			PrintWriter pw = new PrintWriter(html);
 			pw.println("<!DOCTYPE html>");
 			pw.println("<html>");

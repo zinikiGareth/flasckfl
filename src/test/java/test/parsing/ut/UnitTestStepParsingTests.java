@@ -14,7 +14,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.parsedForm.AnonymousVar;
-import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.MatchedItem;

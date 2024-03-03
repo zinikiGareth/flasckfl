@@ -17,7 +17,6 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.grammar.tracking.LoggableToken;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.CommentToken;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;

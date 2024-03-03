@@ -17,13 +17,33 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class SingleJSTest {
-    static final Logger logger = LoggerFactory.getLogger("SingleJSTest");
+    public static final class BindModule {
+		private CountDownLatch cdl;
+
+		public BindModule(CountDownLatch cdl) {
+			this.cdl = cdl;
+		}
+
+		public void bind(String name, JSObject obj) {
+			System.out.println(name + ": " + obj);
+			if (cdl != null)
+				cdl.countDown();
+		}
+		
+		public void fail(String name, String msg) {
+			System.out.println(name + ": failed - " + msg);
+			if (cdl != null)
+				cdl.countDown();
+		}
+	}
+
+	static final Logger logger = LoggerFactory.getLogger("SingleJSTest");
 	private final Page page;
 	private final List<String> errors;
 	private final TestResultWriter pw;
 	final JSTestState state;
 	private final String clz;
-	private boolean error;
+	private boolean error = true;
 	private JSObject cxt;
 	private JSObject testObj;
 
@@ -36,12 +56,22 @@ public class SingleJSTest {
 	}
 
 	public void create(String desc) {
-		uiThread(desc, cdl -> {
-			cxt = (JSObject) page.executeScript("window.runner = new window.UTRunner(makeBridge(window.callJava, window.JavaLogger)); window.testcxt = window.runner.newContext();");
-			testObj = (JSObject) page.executeScript("new " + clz + "(window.runner, window.testcxt)");
-			page.executeScript("window.runner.clear();");
-			cdl.countDown();
+		uiThread(desc, 2, cdl -> {
+			JSObject w = (JSObject) page.executeScript("window");
+			w.setMember("callMe", new BindModule(cdl));
+//			page.executeScript("window.callMe.accept('hello');");
+			page.executeScript("import('./js/test.golden._ut_different.js').then(function(mod) { window.callMe.bind('ut', mod.ut); }, function(reason) { window.callMe.fail('ut', 'rejected: ' + reason); });");
+//			page.executeScript("import('./js/flasjs.js').then(function(mod) { window.callMe.bind('flas', mod); }, function(reason) { window.callMe.fail('flas', 'rejected: ' + reason); });");
+			page.executeScript("import('./js/flastest.js').then(function(mod) { window.callMe.bind('test', mod.tests); }, function(reason) { window.callMe.fail('test', 'rejected: ' + reason); });");
+//			cxt = (JSObject) page.executeScript("window.runner = new window.UTRunner(makeBridge(window.callJava, window.JavaLogger)); window.testcxt = window.runner.newContext();");
+//			testObj = (JSObject) page.executeScript("new " + clz + "(window.runner, window.testcxt)");
+//			page.executeScript("window.runner.clear();");
+//			cdl.countDown();
 		});
+//		uiThread(desc, cdl -> {
+//			Object cc = page.executeScript("window.bar");
+//			System.out.println(cc);
+//		});
 	}
 
 	public List<String> getSteps(String desc, String name) {
@@ -93,7 +123,11 @@ public class SingleJSTest {
 	}
 
 	private void uiThread(String desc, Consumer<CountDownLatch> doit) {
-		CountDownLatch cdl = new CountDownLatch(1);
+		uiThread(desc, 1, doit);
+	}
+	
+	private void uiThread(String desc, int cnt, Consumer<CountDownLatch> doit) {
+		CountDownLatch cdl = new CountDownLatch(cnt);
 		if (Platform.isFxApplicationThread()) {
 			try {
 				doit.accept(cdl);

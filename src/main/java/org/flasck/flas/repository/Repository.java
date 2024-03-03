@@ -73,8 +73,6 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
-import io.webfolder.ui4j.api.dom.Input;
-
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	private static final Logger logger = LoggerFactory.getLogger("Repository");
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
