@@ -163,16 +163,19 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		buildHTML(templates);
 		startServer();
 		startDriver();
-		visitUri(htmlUri);
-		while (runAvailableTests()) {
-			while (runNextStep()) {
+		try {
+			visitUri(htmlUri);
+			while (runAvailableTests()) {
+				while (runNextStep()) {
+				}
 			}
+			if (!headless) {
+				System.out.println("done ... waiting to allow browser to be examined");
+				Thread.sleep(50000);
+			}
+		} finally {
+			shutdown();
 		}
-		if (!headless) {
-			System.out.println("done ... waiting to allow browser to be examined");
-			Thread.sleep(50000);
-		}
-		shutdown();
 		
 		/*
 		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
@@ -247,6 +250,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 //			map.put("flasck", flasckPath);
 			map.put("server", server);
 			map.put("secure", false);
+			map.put("unitTests", jse.unitTests());
 			
 			tree.add("/gen/*", new DehydratedHandler<>(new Instantiator("gen", map), items));
 		}

@@ -53,6 +53,7 @@ public class JSEnvironment implements JSStorage {
 	private final JSUploader uploader;
 	private final Map<String, ContentObject> gencos = new TreeMap<>();
 	private final List<File> localOnly = new ArrayList<>();
+	private final List<UnitTestCase> unitTests = new ArrayList<>();
 	private final List<SystemTest> systemTests = new ArrayList<>();
 
 	public JSEnvironment(File root, DirectedAcyclicGraph<String> pkgs, JSUploader uploader) {
@@ -103,6 +104,7 @@ public class JSEnvironment implements JSStorage {
 	
 	@Override
 	public JSClassCreator newUnitTest(UnitTestCase ut) {
+		unitTests.add(ut);
 		JSFile inpkg = getPackage(ut.name.container().uniqueName());
 		JSClass ret = new JSClass(this, ut.name);
 		inpkg.addClass(ret);
@@ -121,6 +123,11 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public Iterable<SystemTest> systemTests() {
 		return systemTests;
+	}
+
+	@Override
+	public Iterable<UnitTestCase> unitTests() {
+		return unitTests;
 	}
 
 	@Override
