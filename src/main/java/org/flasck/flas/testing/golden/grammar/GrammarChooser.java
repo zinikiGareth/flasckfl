@@ -96,7 +96,6 @@ public class GrammarChooser {
 
 	public void addReduction(String reduction, SeqReduction reducer) {
 		if (reductions.containsKey(reduction)) {
-			System.out.println("duplicated reducer for " + reduction);
 			return;
 		}
 		reductions.put(reduction, new SeqProduction(this, orig, reduction, reducer));

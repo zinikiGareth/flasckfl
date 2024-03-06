@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
@@ -76,6 +77,14 @@ public class JSFile {
 
 	public void writeTo(IndentWriter iw) {
 		declarePackages(iw);
+		String pp = pkg;
+		if (pkg.contains("._ut")) {
+			pp = pp.substring(0, pp.indexOf("._ut"));
+			PackageName pn = new PackageName(pp);
+			iw.println("import { " + pn.jsName() +" } from \"/js/" + pp + ".js\";");
+		} else {
+			iw.println("import { ContractStore, FLCard } from \"/js/flasjs.js\";");
+		}
 		ListMap<String, JSClass> deferred = new ListMap<>();
 		for (JSClass c : classes) {
 			// Handlers can be nested inside functions, so defer them ...
@@ -102,6 +111,8 @@ public class JSFile {
 			m.write(iw);
 		for (ApplRoutingTable r : routes)
 			r.write(iw);
+		
+		exportPackages(iw);
 	}
 
 	public void generate(ByteCodeEnvironment bce) {
@@ -136,21 +147,27 @@ public class JSFile {
 	private void declarePackages(IndentWriter iw) {
 		if (pkg == null)
 			return;
-		String[] pkgs = pkg.split("\\.");
-		String enclosing = "";
-		for (String s : pkgs) {
-			String full = enclosing + s;
-			declarePackage(iw, full);
-			enclosing = enclosing + s + ".";
-		}
+		declarePackage(iw, pkg);
+		iw.println("");
 	}
 
 	private void declarePackage(IndentWriter iw, String full) {
-		iw.print("if (typeof(");
-		iw.print(full);
-		iw.print(") === 'undefined') ");
-		iw.print(full);
+		iw.print("var ");
+		iw.print(full.replace(".", "__"));
 		iw.println(" = {};");
+	}
+
+	private void exportPackages(IndentWriter iw) {
+		if (pkg == null)
+			return;
+		iw.println("");
+		iw.print("export { ");
+		exportPackage(iw, pkg);
+		iw.println(" };");
+	}
+
+	private void exportPackage(IndentWriter iw, String full) {
+		iw.print(full.replace(".", "__"));
 	}
 
 	public List<JSClass> classes() {

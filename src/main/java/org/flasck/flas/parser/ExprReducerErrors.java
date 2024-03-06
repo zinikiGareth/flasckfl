@@ -77,12 +77,7 @@ public class ExprReducerErrors implements ErrorReporter {
 			errors.logParsingToken(token);
 			return token;
 		}
-
 		
-//		errors.logParsingToken(token); // DELETE ME!
-		
-		
-		System.out.println("token " + token.location() + ": " + token);
 		linear.put(token.location(), new Composite(token));
 		return token;
 	}
@@ -93,11 +88,6 @@ public class ExprReducerErrors implements ErrorReporter {
 	}
 
 	public void logReduction(String ruleId, Locatable first, Locatable last) {
-//		errors.logReduction(ruleId, first, last); // DELETE ME
-
-		
-		System.out.println("reduce " + ruleId + " " + first.location() + " - " + last.location() + " " + first + " -- " + last);
-		System.out.println("before: " + linear.size() + ": " + linear);
 		Iterator<Entry<InputPosition, Composite>> it = linear.entrySet().iterator();
 		List<Composite> collect = new ArrayList<>();
 		boolean collecting = false;
@@ -134,7 +124,6 @@ public class ExprReducerErrors implements ErrorReporter {
 			throw new CantHappenException("nothing matched");
 		}
 		linear.put(first.location(), new Composite(ruleId, first, last, collect));
-		System.out.println("after: " + linear.size() + ": " + linear);
 	}
 
 	public void logReduction(String ruleId, InputPosition from, InputPosition to) {
@@ -147,12 +136,9 @@ public class ExprReducerErrors implements ErrorReporter {
 	}
 
 	public void cancelReduction() {
-		System.out.println("cancelled");
 	}
 
 	public void doneReducing() {
-		System.out.println("done reducing");
-		System.out.println(linear);
 		if (reduceToOne && linear.size() > 1) {
 			for (Entry<InputPosition, Composite> e : linear.entrySet())
 				System.out.println(e.getKey() + " ====> " + e.getValue());

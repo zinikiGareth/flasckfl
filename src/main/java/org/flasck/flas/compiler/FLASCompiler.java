@@ -721,9 +721,14 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		if (config.generateJS && config.unitjs) {
-			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, this.getClass().getClassLoader());
-			jsRunner.runAllUnitTests(writers);
-			jsRunner.reportErrors(errors);
+			try {
+				ClassLoader cl = this.getClass().getClassLoader();
+				JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
+				jsRunner.runAllUnitTests(writers);
+				jsRunner.reportErrors(errors);
+			} catch (Exception ex) {
+				errors.reportException(ex);
+			}
 		}
 
 		return errors.hasErrors();
@@ -757,10 +762,14 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		if (config.generateJS && config.systemjs) {
-			ClassLoader cl = bcl != null ? bcl : this.getClass().getClassLoader();
-			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
-			jsRunner.runAllSystemTests(writers);
-			jsRunner.reportErrors(errors);
+			try {
+				ClassLoader cl = bcl != null ? bcl : this.getClass().getClassLoader();
+				JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
+				jsRunner.runAllSystemTests(writers);
+				jsRunner.reportErrors(errors);
+			} catch (Exception ex) {
+				errors.reportException(ex);
+			}
 		}
 
 		return errors.hasErrors();

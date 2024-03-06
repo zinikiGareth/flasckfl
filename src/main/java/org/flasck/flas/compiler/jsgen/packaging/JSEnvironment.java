@@ -103,7 +103,7 @@ public class JSEnvironment implements JSStorage {
 	
 	@Override
 	public JSClassCreator newUnitTest(UnitTestCase ut) {
-		JSFile inpkg = getPackage(ut.name.container().jsName());
+		JSFile inpkg = getPackage(ut.name.container().uniqueName());
 		JSClass ret = new JSClass(this, ut.name);
 		inpkg.addClass(ret);
 		return ret;
@@ -187,7 +187,8 @@ public class JSEnvironment implements JSStorage {
 			String pkg = p.getKey();
 			if (pkg.contains("._ut_") || pkg.contains("_st_"))
 				continue;
-			JSMethod ifn = new JSMethod(this, null, new PackageName(pkg), false, "_init");
+			PackageName pp = new PackageName(pkg);
+			JSMethod ifn = new JSMethod(this, null, pp, false, "_init");
 			ifn.noJVM();
 			ifn.argument("_cxt");
 			for (ContractDecl cd : contracts)
@@ -198,7 +199,7 @@ public class JSEnvironment implements JSStorage {
 				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().jsName()));
 			for (StructDefn hi : structs)
 				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().jsName()));
-			ifn.ifTrue(new JSLiteral(pkg + "._builtin_init")).trueCase().callMethod("void", null, pkg + "._builtin_init");
+			ifn.ifTrue(new JSLiteral(pp.jsName() + "._builtin_init")).trueCase().callMethod("void", null, pp.jsName() + "._builtin_init");
 			p.getValue().addFunction(ifn);
 		}
 	}

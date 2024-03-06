@@ -24,6 +24,7 @@ import org.flasck.jvm.ziniki.FileContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.slf4j.impl.StaticLoggerBinder;
 import org.zinutils.streamedlogger.api.Level;
 
@@ -143,6 +144,8 @@ public class Main {
 		if (arg != null) {
 			level = Level.valueOf(arg.toUpperCase());
 		}
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
 		StaticLoggerBinder.defaultLevel("Compiler", level);
 		StaticLoggerBinder.defaultLevel("Traverser", level);
 		StaticLoggerBinder.defaultLevel("Resolver", level);
@@ -153,15 +156,20 @@ public class Main {
 		StaticLoggerBinder.defaultLevel("TCUnification", level);
 		StaticLoggerBinder.defaultLevel("HSI", level);
 		StaticLoggerBinder.defaultLevel("Generator", level);
-		StaticLoggerBinder.defaultLevel("io.webfolder.ui4j", level);
 		StaticLoggerBinder.defaultLevel("IdemHandler", level);
 		StaticLoggerBinder.defaultLevel("assembler", level);
 		StaticLoggerBinder.defaultLevel("awstxstore", level);
 		StaticLoggerBinder.defaultLevel("org.ziniki.awstxstore", level);
+		StaticLoggerBinder.defaultLevel("GrammarChecker", level);
 
 		StaticLoggerBinder.defaultLevel("TestStages", level);
 		StaticLoggerBinder.defaultLevel("CallTracker", level);
-		
+		StaticLoggerBinder.defaultLevel("tdaserver", level);
+		StaticLoggerBinder.defaultLevel("org.glassfish.grizzly", level);
+		StaticLoggerBinder.defaultLevel("org.glassfish.grizzly.nio.GracefulShutdownRunner", Level.ERROR);
+		StaticLoggerBinder.defaultLevel("DI", level);
+		StaticLoggerBinder.defaultLevel("ziwshtext", level);
+
 		StaticLoggerBinder.defaultLevel("TestRunner", level);
 		StaticLoggerBinder.defaultLevel("ZiWSH", level);
 		StaticLoggerBinder.defaultLevel("FlasckLib", level);

@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -20,9 +21,11 @@ public class InitContext implements IVForm {
 //			r = "this._runner";
 //		w.println("const _cxt = " + r + ".newContext();");
 		if (!field) {
-			for (String e : env.packages())
+			for (String e : env.packages()) {
+				PackageName pp = new PackageName(e);
 				if (!e.contains("_ut_") && !e.contains("_st_"))
-					w.println("if (" + e + "._init) " + e + "._init(_cxt);");
+					w.println("if (" + pp.jsName() + "._init) " + pp.jsName() + "._init(_cxt);");
+			}
 			w.println("runner.makeReady();");
 		}
 	}

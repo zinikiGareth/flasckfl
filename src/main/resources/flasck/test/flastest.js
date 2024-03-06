@@ -230,6 +230,7 @@ DispatcherTraverser.prototype.dispatch = function() {
     }
     var rets = this.svc[this.method].apply(this.svc, this.ret);
   } catch (e) {
+    console.log(e);
     cx.log("caught exception and reporting failure", e.toString());
     if (ih instanceof NamedIdempotentHandler2) {
       ih = ih._handler;
@@ -681,15 +682,15 @@ NoSuchContract.forContract = function(ctr) {
   };
   return nsc;
 };
-var ZiwshWebClient = function(logger, factory, uri) {
+var ZiwshWebClient = function(logger, factory, uri, connMonitor) {
   this.logger = logger;
   this.factory = factory;
   if (uri) {
-    this.connectTo(uri);
+    this.connectTo(uri, connMonitor);
   }
   logger.log("created ZWC with uri", uri);
 };
-ZiwshWebClient.prototype.connectTo = function(uri) {
+ZiwshWebClient.prototype.connectTo = function(uri, connMonitor) {
   const zwc = this;
   this.logger.log("connecting to URI " + uri);
   this.conn = new WebSocket(uri);
@@ -706,6 +707,8 @@ ZiwshWebClient.prototype.connectTo = function(uri) {
       zwc.conn.send(json);
     }
     zwc.logger.log("cleared backlog");
+    if (connMonitor)
+      connMonitor("open");
   });
   this.conn.addEventListener("message", (ev) => {
     const cx = zwc.factory.newContext();
@@ -743,8 +746,8 @@ var SimpleBroker = function(logger, factory, contracts) {
     /*, new Error().stack */
   );
 };
-SimpleBroker.prototype.connectToServer = function(uri) {
-  const zwc = new zwc_default(this.logger, this.factory, uri);
+SimpleBroker.prototype.connectToServer = function(uri, connMonitor) {
+  const zwc = new zwc_default(this.logger, this.factory, uri, connMonitor);
   const bh = new JsonBeachhead(this.factory, uri, this, zwc);
   this.server = bh;
   zwc.attachBeachhead(bh);

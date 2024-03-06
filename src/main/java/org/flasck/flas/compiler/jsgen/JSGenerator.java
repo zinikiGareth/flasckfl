@@ -647,7 +647,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	
 	@Override
 	public void visitCardDefn(CardDefinition cd) {
-		String pkg = cd.name().container().jsName();
+		String pkg = cd.name().container().uniqueName();
 		jse.ensurePackageExists(pkg, pkg);
 		agentCreator = jse.newClass(pkg, cd.name());
 		templateCreator = agentCreator;

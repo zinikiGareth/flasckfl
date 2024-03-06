@@ -1,13 +1,11 @@
 package test.flas.testrunner;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
-import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.testrunner.CommonTestRunner;
 import org.flasck.flas.testrunner.JSRunner;
@@ -46,7 +44,7 @@ public class JSRunnerTests extends BaseRunnerTests {
 
 	@Override
 	protected CommonTestRunner<?> prepareRunner(Configuration config, Repository repository)
-			throws IOException, ErrorResultException {
+			throws Exception {
 		return new JSRunner(config, repository, jse, new HashMap<>(), this.getClass().getClassLoader());
 	}
 
