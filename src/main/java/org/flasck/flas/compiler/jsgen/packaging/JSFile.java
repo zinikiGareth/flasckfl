@@ -78,12 +78,11 @@ public class JSFile {
 	public void writeTo(IndentWriter iw) {
 		declarePackages(iw);
 		String pp = pkg;
+		iw.println("import { ContractStore, FLCard, Nil, Cons } from \"/js/flasjs.js\";");
 		if (pkg.contains("._ut")) {
 			pp = pp.substring(0, pp.indexOf("._ut"));
 			PackageName pn = new PackageName(pp);
 			iw.println("import { " + pn.jsName() +" } from \"/js/" + pp + ".js\";");
-		} else {
-			iw.println("import { ContractStore, FLCard } from \"/js/flasjs.js\";");
 		}
 		ListMap<String, JSClass> deferred = new ListMap<>();
 		for (JSClass c : classes) {

@@ -23,15 +23,16 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
 	protected static Logger debugLogger = LoggerFactory.getLogger("DebugLog");
 	protected final List<String> errors = new ArrayList<>();
-	final Map<Class<?>, Object> modules = new HashMap<>();
-	final LockingCounter counter = new LockingCounter();
+//	private final Map<Class<?>, Object> modules = new HashMap<>();
+	private final LockingCounter counter;
 	private Map<String, Object> conns = new TreeMap<>();
 	private int next = 1;
 	private JSRunner controller;
 	private WSResponder responder;
 
-	BrowserJSJavaBridge(JSRunner controller) {
+	BrowserJSJavaBridge(JSRunner controller, LockingCounter counter) {
 		this.controller = controller;
+		this.counter = counter;
 	}
 
 	@Override
@@ -62,13 +63,8 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 				return;
 			}
 			switch (action) {
-			case "unit": {
-				JSONArray arr = jo.getJSONArray("names");
-				List<String> names = new ArrayList<>();
-				for (int i=0;i<arr.length();i++) {
-					names.add(arr.getString(i));
-				}
-				controller.testsToRun(names);
+			case "ready": {
+				controller.ready();
 				break;
 			}
 			case "steps": {
@@ -80,12 +76,16 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 				controller.stepsForTest(steps);
 				break;
 			}
-			case "step": {
-				Thread.sleep(100); // we aren't properly synced, so wait to see if anything happens ...
-				counter.waitForZero(2500);
-				responder.send(new JSONObject().put("action", "stepdone").toString());
+			case "error": {
+				controller.error(jo.getString("error"));
 				break;
 			}
+//			case "step": {
+//				Thread.sleep(100); // we aren't properly synced, so wait to see if anything happens ...
+//				counter.waitForZero(2500);
+//				responder.send(new JSONObject().put("action", "stepdone").toString());
+//				break;
+//			}
 			case "lock": {
 				lock();
 				break;
@@ -116,6 +116,10 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 
 	public void runStep(String step) throws JSONException {
 		responder.send(new JSONObject().put("action", "runStep").put("step", step).toString());
+	}
+
+	public void checkContextSatisfied() throws JSONException {
+		responder.send(new JSONObject().put("action", "assertSatisfied").toString());
 	}
 
 	@Override

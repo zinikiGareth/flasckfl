@@ -718,6 +718,7 @@ public class FLASCompiler implements CompileUnit {
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
 			jvmRunner.runAllUnitTests(writers);
 			jvmRunner.reportErrors(errors);
+//			jvmRunner.shutdown();
 		}
 
 		if (config.generateJS && config.unitjs) {
@@ -726,6 +727,7 @@ public class FLASCompiler implements CompileUnit {
 				JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
 				jsRunner.runAllUnitTests(writers);
 				jsRunner.reportErrors(errors);
+				jsRunner.shutdown();
 			} catch (Exception ex) {
 				errors.reportException(ex);
 			}

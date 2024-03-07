@@ -33,7 +33,7 @@ public class BridgeGenHandler implements RequestProcessor {
 		sb.append("\n");
 		for (UnitTestCase c : tests) {
 			sb.append("var bridge = new WSBridge('localhost', " + server.getPort() + ", " + c.name.container().jsName() + ");\n"); // and secure ...
-			sb.append("bridge.send({ action: 'unit', names: Object.keys(" + c.name.container().jsName() + ")});\n");
+			sb.append("bridge.send({ action: 'ready' });\n");
 			break;
 		}
 //		sb.append("\n");

@@ -10,16 +10,13 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import org.codehaus.jettison.json.JSONException;
 import org.flasck.flas.Configuration;
+import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
-import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
-import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.flasck.jvm.ziniki.FileContentObject;
@@ -118,7 +115,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	private final JSStorage jse;
 	private BrowserJSJavaBridge bridge = null;
 	private WebDriver wd = null;
-	private List<String> testsToRun;
 	private Navigation nav;
 	private List<String> testSteps;
 	private CountDownLatch cdl;
@@ -161,10 +157,18 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 		flasckPath = new File(new File(System.getProperty("user.dir")), "src/main/resources");
 		buildHTML(templates);
-		startServer();
-		startDriver();
-		try {
+	}
+	
+	public void launch() throws Exception {
+		if (server == null) {
+			startServer();
+			startDriver();
 			visitUri(htmlUri);
+		}
+	}
+	
+	/*
+		try {
 			while (runAvailableTests()) {
 				while (runNextStep()) {
 				}
@@ -176,7 +180,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		} finally {
 			shutdown();
 		}
-		
+	*/	
 		/*
 		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
 		buildHTML(templates);
@@ -189,56 +193,12 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		if (!await)
 			throw new RuntimeException("Whole test failed to initialize");
 		 */
-	}
-
-	public void testsToRun(List<String> names) {
-		this.testsToRun = names;
-		cdl.countDown();
-	}
 
 	public void stepsForTest(List<String> steps) {
 		this.testSteps = steps;
 		cdl.countDown();
 	}
 	
-	private boolean runAvailableTests() throws InterruptedException, JSONException {
-		boolean isReady = cdl.await(25, TimeUnit.SECONDS);
-		if (!isReady)
-			throw new CantHappenException("the tests were not made available");
-		if (!testsToRun.isEmpty()) {
-			// run the first test
-			this.testSteps = null;
-			String test = testsToRun.remove(0);
-			logger.info("Run test: " + test);
-			bridge.prepareTest(test);
-			cdl = new CountDownLatch(1);
-			return true;
-		} else {
-			logger.info("done all tests");
-			return false;
-		}
-	}
-
-	private boolean runNextStep() throws InterruptedException, JSONException, TimeoutException {
-		if (this.testSteps == null) {
-			// wait for the client to tell us the steps
-			boolean isReady = cdl.await(25, TimeUnit.SECONDS);
-			if (!isReady)
-				throw new CantHappenException("the test steps were not made available");
-		}
-		if (!testSteps.isEmpty()) {
-			bridge.counter.start();
-			String step = testSteps.remove(0);
-			logger.info("running step " + step);
-			bridge.runStep(step);
-			bridge.counter.waitForZero(5, TimeUnit.SECONDS);
-			return true;
-		} else {
-			logger.info("all steps run");
-			return false;
-		}
-	}
-
 	private void startServer() throws Exception {
 		server = new GrizzlyTDAServer(14040);
 		PathTree<RequestProcessor> tree = new SimplePathTree<>();
@@ -246,8 +206,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		{
 			Map<String, Object> map = new TreeMap<>();
 			map.put("class", BridgeGenHandler.class.getName());
-//			map.put("path", basePath);
-//			map.put("flasck", flasckPath);
 			map.put("server", server);
 			map.put("secure", false);
 			map.put("unitTests", jse.unitTests());
@@ -267,7 +225,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		wstree.add("/bridge", new MakeAHandler<WSProcessor>() {
 			@Override
 			public WSProcessor instantiate(TDAConfiguration config) throws Exception {
-				BrowserJSJavaBridge bridge = new BrowserJSJavaBridge(JSRunner.this);
+				BrowserJSJavaBridge bridge = new BrowserJSJavaBridge(JSRunner.this, counter);
 				JSRunner.this.bridge = bridge;
 				return bridge;
 			}
@@ -292,95 +250,74 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		nav = wd.navigate();
 	}
 
-	private void visitUri(String uri) {
+	private void visitUri(String uri) throws InterruptedException {
 		cdl = new CountDownLatch(1);
 		nav.to("http://localhost:14040/" + uri);
-
-	}
-	private void shutdown() {
-		if (server != null) {
-			server.stop(1, TimeUnit.SECONDS);
-		}
-		if (wd != null) {
-			wd.close();
-			wd.quit();
-		}
+		boolean isReady = cdl.await(25, TimeUnit.SECONDS);
+		if (!isReady)
+			throw new CantHappenException("the test server did not become available");
 	}
 
-
-	/*
-	boolean uiThread(Consumer<CountDownLatch> doit) {
-		CountDownLatch cdl = new CountDownLatch(1);
-		Platform.runLater(() -> {
-			try {
-				doit.accept(cdl);
-			} catch (Throwable t) {
-				t.printStackTrace(System.out);
-			}
-		});
-		boolean await = false;
-		try {
-			await = cdl.await(1, TimeUnit.SECONDS);
-		} catch (Throwable t) {
-		}
-		return await;
+	public void ready() {
+		cdl.countDown();
 	}
-	*/
 
 	@Override
 	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
 		String clz = utc.name.jsName();
 		String desc = utc.description;
-		
-		if (!haveflascklib) {
-			pw.fail("JS", desc + ": cannot run tests without flascklib");
-			return;
+		try {
+			launch();
+			
+			if (!haveflascklib) {
+				pw.fail("JS", desc + ": cannot run tests without flascklib");
+				return;
+			}
+			SingleJSTest t1 = new SingleJSTest(bridge, counter, errors, pw, utc.name);
+			cdl = new CountDownLatch(1);
+			t1.create(cdl);
+
+			String name = "dotest";
+			runSteps(pw, desc, t1, name);
+		} catch (Exception ex) {
+			pw.error("JS", desc + ": " + ex.getMessage(), ex);
 		}
-		/*
-		SingleJSTest t1 = new SingleJSTest(page, errors, pw, clz, desc);
-		t1.create(desc);
-		String name = "dotest";
-		runSteps(pw, desc, t1, name);
-		 */
-		String name = "dotest";
-		runSteps(pw, desc, null, name);
 	}
 
 	private void runSteps(TestResultWriter pw, String desc, SingleJSTest t1, String name) {
-//		List<String> steps = t1.getSteps(desc, name);
+		List<String> steps = this.testSteps;
 		if (desc != null)
 			pw.begin("JS", desc);
-//		for (String s : steps) {
-//			if (t1.state != null && t1.state.failed > 0)
-//				break;
-//			if (desc != null)
-//				pw.begin("JS", desc + ": " + s);
-//			counter.start();
-//			t1.step(desc, s);
-//			counter.end(s);
-//			try {
-//				counter.waitForZero(15000);
-//			} catch (Throwable t) {
-//				logger.warn("Error waiting for test to end", t);
-//				pw.error("JS", desc, t);
-//				errors.add("JS ERROR " + (desc == null ? "configure":desc));
-//				break;
-//			}
-//		}
-//		t1.checkContextSatisfied(desc);
-//		if (desc != null && t1.ok())
-		if (desc != null/* && t1.ok() */)
+		for (String s : steps) {
+			if (t1.state != null && t1.state.failed > 0)
+				break;
+			if (desc != null)
+				pw.begin("JS", desc + ": " + s);
+			t1.step(desc, s);
+		}
+		t1.checkContextSatisfied(desc);
+		if (desc != null && t1.ok())
 			pw.pass("JS", desc);
-//		else if (!t1.ok() && errors.isEmpty())
-//			errors.add("JS ERROR " + (desc == null ? "configure" : desc));
+		else if (!t1.ok() && errors.isEmpty())
+			errors.add("JS ERROR " + (desc == null ? "configure" : desc));
 	}
 
+	public void error(String err) {
+		System.out.println("error = " + err);
+		counter.raise(new JSCaughtException(err));
+	}
+	
 	@Override
 	protected JSTestState createSystemTest(TestResultWriter pw, SystemTest st) {
 		String clz = st.name().jsName();
 		pw.systemTest("JS", st);
-		SingleJSTest t1 = new SingleJSTest(/*page, errors, pw, clz, null*/);
-		t1.create(null);
+		SingleJSTest t1 = new SingleJSTest(bridge, counter, errors, pw, (UnitTestName) st.name());
+		try {
+			CountDownLatch cdl = new CountDownLatch(1);
+			t1.create(cdl);
+		} catch (Exception ex) {
+			pw.error("JS", "desc" + ": " + ex.getMessage(), ex);
+		}
 		return t1.state;
 	}
 	
@@ -544,15 +481,14 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			path += "?cachebuster=" + System.currentTimeMillis();
 		pw.println("<script src='" + path + "' type='module'></script>");
 	}
-/*
-	protected JSObject getVar(String var) {
-		return (JSObject)page.executeScript(var);
-	}
 
-	protected void execute(String instr) {
-		JSObject err = (JSObject)page.executeScript("_tmp_error = null; try { " + instr + " } catch (err) { _tmp_error = err; }; _tmp_error;");
-		if (err != null)
-			throw new UtilException("Error processing javascript: " + err);
+	public void shutdown() {
+		if (server != null) {
+			server.stop(1, TimeUnit.SECONDS);
+		}
+		if (wd != null) {
+			wd.close();
+			wd.quit();
+		}
 	}
-	*/
 }
