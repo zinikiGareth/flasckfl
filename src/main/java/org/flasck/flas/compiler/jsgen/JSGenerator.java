@@ -273,11 +273,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		areYouA.argument(J.STRING, "ty");
 		areYouA.returnsType("boolean");
 		JSExpr aya = areYouA.arg(1);
-		JSIfCreator ifblk = areYouA.ifTrue(new JSCompare(aya, areYouA.string(obj.name().jsName())));
+		JSIfCreator ifblk = areYouA.ifTrue(new JSCompare(aya, areYouA.string(obj.name().uniqueName())));
 		ifblk.trueCase().returnObject(ifblk.trueCase().literal("true"));
 		JSBlockCreator fc = ifblk.falseCase();
 		for (UnionTypeDefn u : repository.unionsContaining(obj)) {
-			JSIfCreator ifu = fc.ifTrue(new JSCompare(aya, areYouA.string(u.name().jsName())));
+			JSIfCreator ifu = fc.ifTrue(new JSCompare(aya, areYouA.string(u.name().uniqueName())));
 			ifu.trueCase().returnObject(ifblk.trueCase().literal("true"));
 			fc = ifu.falseCase();
 		}
@@ -561,8 +561,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
-		String pkg = ((SolidName)cd.name()).packageName().jsName();
-		jse.ensurePackageExists(pkg, cd.name().container().jsName());
+		String pkg = ((SolidName)cd.name()).packageName().uniqueName();
+		jse.ensurePackageExists(pkg, cd.name().container().uniqueName());
 		currentContract = jse.newClass(pkg, cd.name());
 		currentContract.justAnInterface();
 		JSMethodCreator ctor = currentContract.constructor();
@@ -714,7 +714,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		CSName csn = (CSName)ic.name();
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.recordContract(ic.actualType().name(), csn);
-		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn);
+		JSClassCreator svc = jse.newClass(csn.packageName().uniqueName(), csn);
 		JSMethodCreator svcCtor = svc.constructor();
 		svcCtor.argument(J.FLEVALCONTEXT, "_cxt");
 		svc.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
