@@ -26,7 +26,7 @@ public class JSRequireContract implements JSExpr {
 		w.print("this._contracts.require(_cxt, '");
 		w.print(var);
 		w.print("', '");
-		w.print(ctr.jsName());
+		w.print(ctr.uniqueName());
 		w.println("');");
 	}
 

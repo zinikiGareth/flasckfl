@@ -41,7 +41,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		sv.push(this);
 		
 		HandlerName name = (HandlerName)hi.name();
-		this.hdlr = jse.newClass(name.packageName().jsName(), name);
+		this.hdlr = jse.newClass(name.packageName().uniqueName(), name);
 		this.hdlr.inheritsFrom(hi.actualType().name(), J.HANDLERBASE);
 		this.hdlr.implementsJava(hi.actualType().name().javaName());
 		if (hasParent)

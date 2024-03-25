@@ -610,7 +610,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void visitAgentDefn(AgentDefinition ad) {
-		String pkg = ad.name().container().jsName();
+		String pkg = ad.name().container().uniqueName();
 		jse.ensurePackageExists(pkg, pkg);
 		agentCreator = jse.newClass(pkg, ad.name());
 		agentCreator.inheritsFrom(null, J.FLAGENT);
@@ -731,7 +731,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		CSName csn = (CSName)p.name();
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.recordContract(p.actualType().name(), csn);
-		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn);
+		JSClassCreator svc = jse.newClass(csn.packageName().uniqueName(), csn);
 		if (!agentCreator.wantJS())
 			svc.notJS();
 		JSMethodCreator svcCtor = svc.constructor();
@@ -751,8 +751,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	
 	@Override
 	public void visitHandlerImplements(HandlerImplements hi) {
-		String pkg = hi.name().packageName().jsName();
-		jse.ensurePackageExists(pkg, hi.name().container().jsName());
+		String pkg = hi.name().packageName().uniqueName();
+		jse.ensurePackageExists(pkg, hi.name().container().uniqueName());
 		new HIGeneratorJS(sv, jse, methodMap, hi);
 	}
 

@@ -78,7 +78,14 @@ public class JSFile {
 	public void writeTo(IndentWriter iw, List<String> imports) {
 		declarePackages(iw);
 		iw.println(
-				"import { Assign, ResponseWithMessages, ContractStore, FLBuiltin, False, True, MakeHash, HashPair, Tuple, TypeOf, FLCard, FLObject, FLError, Nil, Cons } from \"/js/flasjs.js\";");
+			"import { IdempotentHandler } from \"/js/ziwsh.js\";"
+		);
+		iw.println(
+			"import { Assign, Debug, ResponseWithMessages, Send, ContractStore, FLBuiltin, False, True, MakeHash, HashPair, Tuple, TypeOf, FLCard, FLObject, FLError, Nil, Cons } from \"/js/flasjs.js\";"
+		);
+		iw.println(
+			"import { BoundVar } from \"/js/flastest.js\";"
+		);
 		for (String s : imports) {
 			if (s.equals(pkg))
 				continue;

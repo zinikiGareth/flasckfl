@@ -108,19 +108,78 @@ var NamedIdempotentHandler = function(handler, name) {
   this._name = name;
 };
 
+// src/main/javascript/proxy.js
+var proxy = function(cx, intf, handler) {
+  var keys = intf._methods();
+  if (!Array.isArray(keys)) {
+    keys = Object.keys(keys);
+  }
+  if (intf instanceof IdempotentHandler) {
+    keys.push("success");
+    keys.push("failure");
+  }
+  const proxied = { _owner: handler };
+  const methods = {};
+  for (var i = 0; i < keys.length; i++) {
+    const meth = keys[i];
+    methods[meth] = proxied[meth] = proxyMeth(meth, handler);
+  }
+  proxied._methods = function() {
+    return methods;
+  };
+  if (intf._clz) {
+    var clz = intf._clz();
+    proxied._clz = function() {
+      return clz;
+    };
+  }
+  if (intf._card) {
+    proxied._card = intf._card;
+  }
+  return proxied;
+};
+var proxyMeth = function(meth, handler) {
+  return function(...args) {
+    const ret = handler["invoke"].call(handler, meth, args);
+    return ret;
+  };
+};
+var proxy1 = function(cx, underlying, methods, handler) {
+  const myhandler = {
+    get: function(target, ps, receiver) {
+      const prop = String(ps);
+      if (methods.includes(prop)) {
+        const fn = function(...args) {
+          const ret = handler["invoke"].call(handler, prop, args);
+          return ret;
+        };
+        return fn;
+      } else if (target[prop]) {
+        return target[prop];
+      } else {
+        return function() {
+          return "-no-such-method-";
+        };
+      }
+    }
+  };
+  var proxied = new Proxy(underlying, myhandler);
+  return proxied;
+};
+
 // src/main/javascript/unmarshaller.js
 var Unmarshaller = function() {
 };
-var UnmarshallerDispatcher2 = function(ctr, svc) {
+var UnmarshallerDispatcher = function(ctr, svc) {
   this.svc = svc;
   Unmarshaller.call(this);
 };
-UnmarshallerDispatcher2.prototype = new Unmarshaller();
-UnmarshallerDispatcher2.prototype.constructor = UnmarshallerDispatcher2;
-UnmarshallerDispatcher2.prototype.begin = function(cx, method) {
+UnmarshallerDispatcher.prototype = new Unmarshaller();
+UnmarshallerDispatcher.prototype.constructor = UnmarshallerDispatcher;
+UnmarshallerDispatcher.prototype.begin = function(cx, method) {
   return new DispatcherTraverser(this.svc, method, cx, new CollectingState(cx));
 };
-UnmarshallerDispatcher2.prototype.toString = function() {
+UnmarshallerDispatcher.prototype.toString = function() {
   return "ProxyFor[UnmarshallerDispatcher]";
 };
 var CollectingTraverser = function(cx, collector) {
@@ -343,7 +402,7 @@ JsonBeachhead.prototype.idem = function(uow, jo, replyTo) {
     uow.log("failed to find idem service for", jo.idem, new Error().stack);
     throw new Error("did not find idem " + jo.idem);
   }
-  const um = new UnmarshallerDispatcher2(null, ih);
+  const um = new UnmarshallerDispatcher(null, ih);
   const dispatcher = um.begin(uow, jo.method);
   var cnt = jo.args.length;
   var wantHandler = false;
@@ -473,43 +532,6 @@ var OMWrapper = function(bh, cx, ux) {
 };
 OMWrapper.prototype.marshal = function(trav, o) {
   this.bh.handleArg(trav, this.cx, o);
-};
-
-// src/main/javascript/proxy.js
-var proxy = function(cx, intf, handler) {
-  var keys = intf._methods();
-  if (!Array.isArray(keys)) {
-    keys = Object.keys(keys);
-  }
-  if (intf instanceof IdempotentHandler) {
-    keys.push("success");
-    keys.push("failure");
-  }
-  const proxied = { _owner: handler };
-  const methods = {};
-  for (var i = 0; i < keys.length; i++) {
-    const meth = keys[i];
-    methods[meth] = proxied[meth] = proxyMeth(meth, handler);
-  }
-  proxied._methods = function() {
-    return methods;
-  };
-  if (intf._clz) {
-    var clz = intf._clz();
-    proxied._clz = function() {
-      return clz;
-    };
-  }
-  if (intf._card) {
-    proxied._card = intf._card;
-  }
-  return proxied;
-};
-var proxyMeth = function(meth, handler) {
-  return function(...args) {
-    const ret = handler["invoke"].call(handler, meth, args);
-    return ret;
-  };
 };
 
 // src/main/javascript/marshaller.js
@@ -777,7 +799,7 @@ SimpleBroker.prototype.beachhead = function(bh) {
   this.server = bh;
 };
 SimpleBroker.prototype.register = function(clz, svc) {
-  this.services[clz] = new UnmarshallerDispatcher2(clz, svc);
+  this.services[clz] = new UnmarshallerDispatcher(clz, svc);
 };
 SimpleBroker.prototype.require = function(clz) {
   const ctr = this.contracts[clz];
@@ -789,7 +811,7 @@ SimpleBroker.prototype.require = function(clz) {
     if (this.server != null)
       svc = this.server.unmarshalContract(clz);
     else
-      svc = new UnmarshallerDispatcher2(clz, NoSuchContract.forContract(ctr));
+      svc = new UnmarshallerDispatcher(clz, NoSuchContract.forContract(ctr));
   }
   return new MarshallerProxy(this.logger, ctr, svc).proxy;
 };
@@ -843,5 +865,7 @@ export {
   LoggingIdempotentHandler,
   NamedIdempotentHandler,
   broker_default as SimpleBroker,
-  zwc_default as ZiwshWebClient
+  zwc_default as ZiwshWebClient,
+  proxy,
+  proxy1
 };
