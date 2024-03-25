@@ -221,7 +221,7 @@ public class ClassGeneration {
 	@Test
 	public void aPackageDefinesItsNesting() {
 		JSFile f = new JSFile("test.repo.pkg", null);
-		f.writeTo(w);
+		f.writeTo(w, new ArrayList<>());
 		assertEquals("if (typeof(test) === 'undefined') test = {};\nif (typeof(test.repo) === 'undefined') test.repo = {};\nif (typeof(test.repo.pkg) === 'undefined') test.repo.pkg = {};\n", sw.toString());
 	}
 	
@@ -229,7 +229,7 @@ public class ClassGeneration {
 	public void aPackageIncludesItsClasses() {
 		JSFile f = new JSFile("test", null);
 		f.addClass(new JSClass(jse, new SolidName(new PackageName("test"), "Clazz")));
-		f.writeTo(w);
+		f.writeTo(w, new ArrayList<>());
 		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.Clazz = function() {\n}\n", sw.toString());
 	}
 	
@@ -239,7 +239,7 @@ public class ClassGeneration {
 		JSMethod meth = new JSMethod(jse, null, new PackageName("test"), false, "f");
 		meth.argument("_cxt");
 		f.addFunction(meth);
-		f.writeTo(w);
+		f.writeTo(w, new ArrayList<>());
 		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.f = function(_cxt) {\n}\n\ntest.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	

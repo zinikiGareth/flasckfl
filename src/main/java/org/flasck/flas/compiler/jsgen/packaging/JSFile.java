@@ -44,7 +44,7 @@ public class JSFile {
 	public void ensurePackage(String nested) {
 		packages.add(nested);
 	}
-	
+
 	public void addClass(JSClass ret) {
 		classes.add(ret);
 	}
@@ -66,23 +66,24 @@ public class JSFile {
 	}
 
 	// untested
-	public File write(File jsDir) throws FileNotFoundException {
+	public File write(File jsDir, List<String> imports) throws FileNotFoundException {
 		File f = new File(jsDir, file.getName());
 		PrintWriter pw = new PrintWriter(f);
 		IndentWriter iw = new IndentWriter(pw);
-		writeTo(iw);
+		writeTo(iw, imports);
 		pw.close();
 		return f;
 	}
 
-	public void writeTo(IndentWriter iw) {
+	public void writeTo(IndentWriter iw, List<String> imports) {
 		declarePackages(iw);
-		String pp = pkg;
-		iw.println("import { ContractStore, FLCard, Nil, Cons } from \"/js/flasjs.js\";");
-		if (pkg.contains("._ut")) {
-			pp = pp.substring(0, pp.indexOf("._ut"));
-			PackageName pn = new PackageName(pp);
-			iw.println("import { " + pn.jsName() +" } from \"/js/" + pp + ".js\";");
+		iw.println(
+				"import { Assign, ResponseWithMessages, ContractStore, FLBuiltin, False, True, MakeHash, HashPair, Tuple, TypeOf, FLCard, FLObject, FLError, Nil, Cons } from \"/js/flasjs.js\";");
+		for (String s : imports) {
+			if (s.equals(pkg))
+				continue;
+			PackageName pn = new PackageName(s);
+			iw.println("import { " + pn.jsName() + " } from \"/js/" + s + ".js\";");
 		}
 		ListMap<String, JSClass> deferred = new ListMap<>();
 		for (JSClass c : classes) {
@@ -110,7 +111,7 @@ public class JSFile {
 			m.write(iw);
 		for (ApplRoutingTable r : routes)
 			r.write(iw);
-		
+
 		exportPackages(iw);
 	}
 
@@ -130,7 +131,7 @@ public class JSFile {
 	}
 
 	private void declareContainingPackage(IndentWriter iw, JSMethod f) {
-		String full = f.getPackage()+"."+f.getName();
+		String full = f.getPackage() + "." + f.getName();
 		int li = full.lastIndexOf('.');
 		full = full.substring(0, li);
 		for (JSClass clz : classes) {

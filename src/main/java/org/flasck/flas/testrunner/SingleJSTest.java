@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.codehaus.jettison.json.JSONException;
+import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.jvm.fl.FlasTestException;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class SingleJSTest {
 	}
 
 	public void create(CountDownLatch cdl) throws JSONException, InterruptedException {
-		bridge.prepareTest(utn.baseName());
+		bridge.prepareTest((UnitTestFileName)utn.container(), utn.baseName());
 		boolean isReady = cdl.await(25, TimeUnit.SECONDS);
 		if (!isReady)
 			throw new CantHappenException("the test steps were not made available");

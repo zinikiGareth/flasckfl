@@ -252,8 +252,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	public void visitStructDefn(StructDefn obj) {
 		if (!obj.generate)
 			return;
-		String pkg = ((SolidName)obj.name()).packageName().jsName();
-		jse.ensurePackageExists(pkg, obj.name().container().jsName());
+		String pkg = ((SolidName)obj.name()).packageName().uniqueName();
+		jse.ensurePackageExists(pkg, obj.name().container().uniqueName());
 		jse.struct(obj);
 		JSClassCreator ctr = jse.newClass(pkg, obj.name());
 		ctr.inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
@@ -303,8 +303,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	public void visitObjectDefn(ObjectDefn obj) {
 		if (!obj.generate)
 			return;
-		String pkg = ((SolidName)obj.name()).packageName().jsName();
-		jse.ensurePackageExists(pkg, obj.name().container().jsName());
+		String pkg = ((SolidName)obj.name()).packageName().uniqueName();
+		jse.ensurePackageExists(pkg, obj.name().container().uniqueName());
 		jse.object(obj);
 		templateCreator = jse.newClass(pkg, obj.name());
 		templateCreator.inheritsFrom(new PackageName("FLObject"), J.FLOBJECT);
@@ -351,7 +351,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	public void visitStructFieldAccessor(StructField sf) {
 		if (!sf.generate)
 			return;
-		String pkg = sf.name().packageName().jsName();
+		String pkg = sf.name().packageName().uniqueName();
 		NameOfThing cxName = sf.name().container();
 		JSMethodCreator meth = jse.newFunction(null, pkg, cxName, true, "_field_" + sf.name);
 		meth.argument("_cxt");
@@ -379,8 +379,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 			this.meth = null;
 			return;
 		}
-		String pkg = om.name().packageName().jsName();
-		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
+		String pkg = om.name().packageName().uniqueName();
+		jse.ensurePackageExists(pkg, om.name().inContext.uniqueName());
 		this.meth = jse.newFunction(om.name(), pkg, om.name().container(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent() || om.hasState(), om.name().name);
 		if (om.hasImplements()) {
 			if (om.getImplements().getParent() instanceof ServiceDefinition) {
@@ -409,8 +409,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		if (!oc.generate)
 			return;
 		switchVars.clear();
-		String pkg = oc.name().packageName().jsName();
-		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());
+		String pkg = oc.name().packageName().uniqueName();
+		jse.ensurePackageExists(pkg, oc.name().inContext.uniqueName());
 		this.meth = jse.newFunction(null, pkg, oc.name().container(), false, oc.name().name);
 		this.meth.argumentList();
 		this.meth.argument(J.FLEVALCONTEXT, "_cxt");

@@ -19,7 +19,7 @@ public class JSCallStatic implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		w.print("_cxt.makeStatic(");
-		w.print(new JSString(meth.container().jsName()).asVar());
+		w.print(new JSString(meth.container().uniqueName()).asVar());
 		w.print(",");
 		w.print(new JSString(meth.baseName()).asVar());
 		w.print(")");

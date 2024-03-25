@@ -1,7 +1,6 @@
 package org.flasck.flas.testrunner;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -9,6 +8,7 @@ import java.util.TreeMap;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.server.tda.WSReceiver;
@@ -110,8 +110,8 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 		}
 	}
 
-	public void prepareTest(String test) throws JSONException {
-		responder.send(new JSONObject().put("action", "prepareTest").put("testname", test).toString());
+	public void prepareTest(UnitTestFileName unitTestFileName, String test) throws JSONException {
+		responder.send(new JSONObject().put("action", "prepareTest").put("wrapper", unitTestFileName.uniqueName()).put("testname", test).toString());
 	}
 
 	public void runStep(String step) throws JSONException {

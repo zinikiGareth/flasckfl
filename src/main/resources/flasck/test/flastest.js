@@ -3,6 +3,8 @@ import { CommonEnv } from "/js/flasjs.js";
 
 // src/main/javascript/unittest/utcxt.js
 import { FLContext } from "/js/flasjs.js";
+import { FLObject } from "/js/flasjs.js";
+import { ResponseWithMessages } from "/js/flasjs.js";
 
 // src/main/resources/ziwsh.js
 var FieldsContainer = function(cx) {

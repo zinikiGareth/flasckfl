@@ -207,7 +207,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			Map<String, Object> map = new TreeMap<>();
 			map.put("class", BridgeGenHandler.class.getName());
 			map.put("server", server);
-			map.put("secure", false);
 			map.put("unitTests", jse.unitTests());
 			
 			tree.add("/gen/*", new DehydratedHandler<>(new Instantiator("gen", map), items));

@@ -1565,6 +1565,449 @@ ScrollTo.prototype._field_source.nfargs = function() {
   return 0;
 };
 
+// src/main/javascript/runtime/builtin.js
+var True = function() {
+};
+True.eval = function(_cxt) {
+  return true;
+};
+var False = function() {
+};
+False.eval = function(_cxt) {
+  return false;
+};
+var Tuple = function() {
+};
+Tuple.eval = function(_cxt, args) {
+  const ret2 = new Tuple();
+  ret2.args = args;
+  return ret2;
+};
+var TypeOf = function(ty) {
+  this.ty = ty;
+};
+TypeOf.eval = function(_cxt, expr) {
+  expr = _cxt.full(expr);
+  if (typeof expr == "object")
+    return new TypeOf(expr.constructor.name);
+  else
+    return new TypeOf(typeof expr);
+};
+TypeOf.prototype._compare = function(_cxt, other) {
+  if (other instanceof TypeOf) {
+    return this.ty == other.ty;
+  } else
+    return false;
+};
+TypeOf.prototype.toString = function() {
+  if (this.ty._typename) {
+    return this.ty._typename;
+  }
+  switch (this.ty) {
+    case "number":
+      return "Number";
+    case "string":
+      return "String";
+    case "TypeOf":
+      return "Type";
+    default:
+      return this.ty;
+  }
+};
+TypeOf.prototype._towire = function(wf) {
+  wf.type = this.toString();
+  wf._wireable = "org.flasck.jvm.builtin.TypeOf";
+};
+var FLBuiltin = function() {
+};
+FLBuiltin.arr_length = function(_cxt, arr) {
+  arr = _cxt.head(arr);
+  if (!Array.isArray(arr))
+    return _cxt.error("not an array");
+  return arr.length;
+};
+FLBuiltin.arr_length.nfargs = function() {
+  return 1;
+};
+FLBuiltin.plus = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a + b;
+};
+FLBuiltin.plus.nfargs = function() {
+  return 2;
+};
+FLBuiltin.minus = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a - b;
+};
+FLBuiltin.minus.nfargs = function() {
+  return 2;
+};
+FLBuiltin.unaryMinus = function(_cxt, a) {
+  a = _cxt.full(a);
+  return -a;
+};
+FLBuiltin.unaryMinus.nfargs = function() {
+  return 1;
+};
+FLBuiltin.mul = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a * b;
+};
+FLBuiltin.mul.nfargs = function() {
+  return 2;
+};
+FLBuiltin.div = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a / b;
+};
+FLBuiltin.div.nfargs = function() {
+  return 2;
+};
+FLBuiltin.mod = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a % b;
+};
+FLBuiltin.mod.nfargs = function() {
+  return 2;
+};
+FLBuiltin.not = function(_cxt, a) {
+  a = _cxt.full(a);
+  return !a;
+};
+FLBuiltin.not.nfargs = function() {
+  return 1;
+};
+FLBuiltin.boolAnd = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return _cxt.isTruthy(a) && _cxt.isTruthy(b);
+};
+FLBuiltin.boolAnd.nfargs = function() {
+  return 2;
+};
+FLBuiltin.boolOr = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return _cxt.isTruthy(a) || _cxt.isTruthy(b);
+};
+FLBuiltin.boolOr.nfargs = function() {
+  return 2;
+};
+FLBuiltin.concat = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  if (!a)
+    a = "";
+  b = _cxt.full(b);
+  if (!b)
+    b = "";
+  return a + b;
+};
+FLBuiltin.concat.nfargs = function() {
+  return 2;
+};
+FLBuiltin.nth = function(_cxt, n, list) {
+  n = _cxt.full(n);
+  if (typeof n != "number")
+    return new FLError2("no matching case");
+  list = _cxt.spine(list);
+  if (!Array.isArray(list))
+    return new FLError2("no matching case");
+  if (n < 0 || n >= list.length)
+    return new FLError2("out of bounds");
+  return list[n];
+};
+FLBuiltin.nth.nfargs = function() {
+  return 2;
+};
+FLBuiltin.item = function(_cxt, n, list) {
+  n = _cxt.full(n);
+  if (typeof n != "number")
+    return new FLError2("no matching case");
+  list = _cxt.spine(list);
+  if (!Array.isArray(list))
+    return new FLError2("no matching case");
+  if (n < 0 || n >= list.length)
+    return new FLError2("out of bounds");
+  return new AssignItem(list, n);
+};
+FLBuiltin.item.nfargs = function() {
+  return 2;
+};
+FLBuiltin.append = function(_cxt, list, elt) {
+  list = _cxt.spine(list);
+  if (!Array.isArray(list))
+    return new FLError2("no matching case");
+  var cp = list.slice(0);
+  cp.push(elt);
+  return cp;
+};
+FLBuiltin.append.nfargs = function() {
+  return 2;
+};
+FLBuiltin.replace = function(_cxt, list, n, elt) {
+  n = _cxt.full(n);
+  if (typeof n != "number")
+    return new FLError2("no matching case");
+  list = _cxt.spine(list);
+  if (!Array.isArray(list))
+    return new FLError2("no matching case");
+  if (n < 0 || n >= list.length)
+    return new FLError2("out of bounds");
+  var cp = list.slice(0);
+  cp[n] = elt;
+  return cp;
+};
+FLBuiltin.replace.nfargs = function() {
+  return 3;
+};
+FLBuiltin.concatLists = function(_cxt, list) {
+  list = _cxt.spine(list);
+  var ret2 = [];
+  for (var i = 0; i < list.length; i++) {
+    var li = _cxt.spine(list[i]);
+    for (var j = 0; j < li.length; j++) {
+      ret2.push(li[j]);
+    }
+  }
+  return ret2;
+};
+FLBuiltin.concatLists.nfargs = function() {
+  return 1;
+};
+FLBuiltin.take = function(_cxt, quant, list) {
+  list = _cxt.spine(list);
+  if (list instanceof FLError2)
+    return list;
+  else if (!list)
+    return [];
+  quant = _cxt.full(quant);
+  if (quant instanceof FLError2)
+    return quant;
+  if (typeof quant !== "number")
+    return new FLError2("no matching case");
+  if (list.length <= quant)
+    return list;
+  return list.slice(0, quant);
+};
+FLBuiltin.take.nfargs = function() {
+  return 2;
+};
+FLBuiltin.drop = function(_cxt, quant, list) {
+  list = _cxt.spine(list);
+  if (list instanceof FLError2)
+    return list;
+  else if (!list)
+    return [];
+  quant = _cxt.full(quant);
+  if (quant instanceof FLError2)
+    return quant;
+  if (typeof quant !== "number")
+    return new FLError2("no matching case");
+  return list.slice(quant);
+};
+FLBuiltin.drop.nfargs = function() {
+  return 2;
+};
+FLBuiltin.concatMany = function(_cxt, rest) {
+  var ret2 = "";
+  for (var i = 0; i < rest.length; i++) {
+    var tmp = _cxt.full(rest[i]);
+    if (!tmp)
+      continue;
+    if (ret2.length > 0)
+      ret2 += " ";
+    ret2 += tmp;
+  }
+  return ret2;
+};
+FLBuiltin.concatMany.nfargs = function() {
+  return 1;
+};
+FLBuiltin.strlen = function(_cxt, str) {
+  str = _cxt.head(str);
+  if (typeof str != "string")
+    return _cxt.error("not a string");
+  return str.length;
+};
+FLBuiltin.strlen.nfargs = function() {
+  return 1;
+};
+FLBuiltin.isNull = function(_cxt, a) {
+  a = _cxt.full(a);
+  return a == null || a == void 0;
+};
+FLBuiltin.isNull.nfargs = function() {
+  return 1;
+};
+FLBuiltin.isEqual = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return _cxt.compare(a, b);
+};
+FLBuiltin.isEqual.nfargs = function() {
+  return 2;
+};
+FLBuiltin.isNotEqual = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a != b;
+};
+FLBuiltin.isNotEqual.nfargs = function() {
+  return 2;
+};
+FLBuiltin.greaterEqual = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a >= b;
+};
+FLBuiltin.greaterEqual.nfargs = function() {
+  return 2;
+};
+FLBuiltin.greaterThan = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a > b;
+};
+FLBuiltin.greaterThan.nfargs = function() {
+  return 2;
+};
+FLBuiltin.lessEqual = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a <= b;
+};
+FLBuiltin.lessEqual.nfargs = function() {
+  return 2;
+};
+FLBuiltin.lessThan = function(_cxt, a, b) {
+  a = _cxt.full(a);
+  b = _cxt.full(b);
+  return a < b;
+};
+FLBuiltin.lessThan.nfargs = function() {
+  return 2;
+};
+FLBuiltin._probe_state = function(_cxt, mock, v) {
+  var sh = _cxt.full(mock);
+  if (sh instanceof FLError2)
+    return sh;
+  else if (sh.routes) {
+    if (sh.routes[v] === void 0)
+      return new FLError2("there is no card bound to route var '" + v + "'");
+    return sh.routes[v];
+  } else if (sh.card) {
+    sh = sh.card;
+    sh._updateFromInputs();
+  } else if (sh.agent)
+    sh = sh.agent;
+  if (sh.state.dict[v] === void 0)
+    return new FLError2("No field '" + v + "' in probe_state");
+  return sh.state.dict[v];
+};
+FLBuiltin._probe_state.nfargs = function() {
+  return 2;
+};
+FLBuiltin._underlying = function(_cxt, mock) {
+  return mock._underlying(_cxt);
+};
+FLBuiltin._underlying.nfargs = function() {
+  return 1;
+};
+FLBuiltin.dispatch = function(_cxt, msgs2) {
+  msgs2 = _cxt.full(msgs2);
+  if (msgs2 instanceof FLError2)
+    return msgs2;
+  var ret2 = [];
+  var te = _cxt.env;
+  te.queueMessages = function(cx2, m) {
+    ret2.push(m);
+  };
+  _cxt.env.handleMessages(_cxt, msgs2);
+  return ret2;
+};
+FLBuiltin.dispatch.nfargs = function() {
+  return 1;
+};
+FLBuiltin.show = function(_cxt, val) {
+  val = _cxt.full(val);
+  return _cxt.show(val);
+};
+FLBuiltin.show.nfargs = function() {
+  return 1;
+};
+FLBuiltin.expr = function(_cxt, val) {
+  return _cxt.show(val);
+};
+FLBuiltin.expr.nfargs = function() {
+  return 1;
+};
+var MakeHash = function() {
+};
+MakeHash.eval = function(_cxt, args) {
+  throw Error("should not be called - optimize away");
+};
+var HashPair = function() {
+};
+HashPair.eval = function(_cxt, args) {
+  var ret2 = new HashPair();
+  ret2.m = args[0];
+  ret2.o = args[1];
+  return ret2;
+};
+FLBuiltin.hashPair = function(_cxt, key, value) {
+  return HashPair.eval(_cxt, [key, value]);
+};
+FLBuiltin.hashPair.nfargs = function() {
+  return 2;
+};
+FLBuiltin.assoc = function(_cxt, hash, member) {
+  hash = _cxt.spine(hash);
+  member = _cxt.full(member);
+  if (hash[member])
+    return hash[member];
+  else
+    return new FLError2("no member " + member);
+};
+FLBuiltin.assoc.nfargs = function() {
+  return 2;
+};
+function FLURI2(s) {
+  this.uri = s;
+}
+FLURI2.prototype.resolve = function(base) {
+  return new URL(this.uri, base);
+};
+FLURI2.prototype._towire = function(into) {
+  into.uri = this.uri;
+};
+FLBuiltin.parseUri = function(_cxt, s) {
+  s = _cxt.full(s);
+  if (s instanceof FLError2)
+    return s;
+  else if (typeof s !== "string")
+    return new FLError2("not a string");
+  else
+    return new FLURI2(s);
+};
+FLBuiltin.parseUri.nfargs = function() {
+  return 1;
+};
+FLBuiltin.parseJson = function(_cxt, s) {
+  s = _cxt.full(s);
+  if (s instanceof FLError2)
+    return s;
+  return JSON.parse(s);
+};
+FLBuiltin.parseJson.nfargs = function() {
+  return 1;
+};
+
 // src/main/javascript/runtime/flcxt.js
 var FLContext = function(env2, broker) {
   ecxt_default.call(this, env2, broker);
@@ -1975,449 +2418,6 @@ FLContext.prototype.unsubscribeAll = function(card) {
   this.env.unsubscribeAll(this, card);
 };
 
-// src/main/javascript/runtime/builtin.js
-var True = function() {
-};
-True.eval = function(_cxt) {
-  return true;
-};
-var False = function() {
-};
-False.eval = function(_cxt) {
-  return false;
-};
-var Tuple2 = function() {
-};
-Tuple2.eval = function(_cxt, args) {
-  const ret2 = new Tuple2();
-  ret2.args = args;
-  return ret2;
-};
-var TypeOf = function(ty) {
-  this.ty = ty;
-};
-TypeOf.eval = function(_cxt, expr) {
-  expr = _cxt.full(expr);
-  if (typeof expr == "object")
-    return new TypeOf(expr.constructor.name);
-  else
-    return new TypeOf(typeof expr);
-};
-TypeOf.prototype._compare = function(_cxt, other) {
-  if (other instanceof TypeOf) {
-    return this.ty == other.ty;
-  } else
-    return false;
-};
-TypeOf.prototype.toString = function() {
-  if (this.ty._typename) {
-    return this.ty._typename;
-  }
-  switch (this.ty) {
-    case "number":
-      return "Number";
-    case "string":
-      return "String";
-    case "TypeOf":
-      return "Type";
-    default:
-      return this.ty;
-  }
-};
-TypeOf.prototype._towire = function(wf) {
-  wf.type = this.toString();
-  wf._wireable = "org.flasck.jvm.builtin.TypeOf";
-};
-var FLBuiltin = function() {
-};
-FLBuiltin.arr_length = function(_cxt, arr) {
-  arr = _cxt.head(arr);
-  if (!Array.isArray(arr))
-    return _cxt.error("not an array");
-  return arr.length;
-};
-FLBuiltin.arr_length.nfargs = function() {
-  return 1;
-};
-FLBuiltin.plus = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a + b;
-};
-FLBuiltin.plus.nfargs = function() {
-  return 2;
-};
-FLBuiltin.minus = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a - b;
-};
-FLBuiltin.minus.nfargs = function() {
-  return 2;
-};
-FLBuiltin.unaryMinus = function(_cxt, a) {
-  a = _cxt.full(a);
-  return -a;
-};
-FLBuiltin.unaryMinus.nfargs = function() {
-  return 1;
-};
-FLBuiltin.mul = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a * b;
-};
-FLBuiltin.mul.nfargs = function() {
-  return 2;
-};
-FLBuiltin.div = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a / b;
-};
-FLBuiltin.div.nfargs = function() {
-  return 2;
-};
-FLBuiltin.mod = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a % b;
-};
-FLBuiltin.mod.nfargs = function() {
-  return 2;
-};
-FLBuiltin.not = function(_cxt, a) {
-  a = _cxt.full(a);
-  return !a;
-};
-FLBuiltin.not.nfargs = function() {
-  return 1;
-};
-FLBuiltin.boolAnd = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return _cxt.isTruthy(a) && _cxt.isTruthy(b);
-};
-FLBuiltin.boolAnd.nfargs = function() {
-  return 2;
-};
-FLBuiltin.boolOr = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return _cxt.isTruthy(a) || _cxt.isTruthy(b);
-};
-FLBuiltin.boolOr.nfargs = function() {
-  return 2;
-};
-FLBuiltin.concat = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  if (!a)
-    a = "";
-  b = _cxt.full(b);
-  if (!b)
-    b = "";
-  return a + b;
-};
-FLBuiltin.concat.nfargs = function() {
-  return 2;
-};
-FLBuiltin.nth = function(_cxt, n, list) {
-  n = _cxt.full(n);
-  if (typeof n != "number")
-    return new FLError2("no matching case");
-  list = _cxt.spine(list);
-  if (!Array.isArray(list))
-    return new FLError2("no matching case");
-  if (n < 0 || n >= list.length)
-    return new FLError2("out of bounds");
-  return list[n];
-};
-FLBuiltin.nth.nfargs = function() {
-  return 2;
-};
-FLBuiltin.item = function(_cxt, n, list) {
-  n = _cxt.full(n);
-  if (typeof n != "number")
-    return new FLError2("no matching case");
-  list = _cxt.spine(list);
-  if (!Array.isArray(list))
-    return new FLError2("no matching case");
-  if (n < 0 || n >= list.length)
-    return new FLError2("out of bounds");
-  return new AssignItem(list, n);
-};
-FLBuiltin.item.nfargs = function() {
-  return 2;
-};
-FLBuiltin.append = function(_cxt, list, elt) {
-  list = _cxt.spine(list);
-  if (!Array.isArray(list))
-    return new FLError2("no matching case");
-  var cp = list.slice(0);
-  cp.push(elt);
-  return cp;
-};
-FLBuiltin.append.nfargs = function() {
-  return 2;
-};
-FLBuiltin.replace = function(_cxt, list, n, elt) {
-  n = _cxt.full(n);
-  if (typeof n != "number")
-    return new FLError2("no matching case");
-  list = _cxt.spine(list);
-  if (!Array.isArray(list))
-    return new FLError2("no matching case");
-  if (n < 0 || n >= list.length)
-    return new FLError2("out of bounds");
-  var cp = list.slice(0);
-  cp[n] = elt;
-  return cp;
-};
-FLBuiltin.replace.nfargs = function() {
-  return 3;
-};
-FLBuiltin.concatLists = function(_cxt, list) {
-  list = _cxt.spine(list);
-  var ret2 = [];
-  for (var i = 0; i < list.length; i++) {
-    var li = _cxt.spine(list[i]);
-    for (var j = 0; j < li.length; j++) {
-      ret2.push(li[j]);
-    }
-  }
-  return ret2;
-};
-FLBuiltin.concatLists.nfargs = function() {
-  return 1;
-};
-FLBuiltin.take = function(_cxt, quant, list) {
-  list = _cxt.spine(list);
-  if (list instanceof FLError2)
-    return list;
-  else if (!list)
-    return [];
-  quant = _cxt.full(quant);
-  if (quant instanceof FLError2)
-    return quant;
-  if (typeof quant !== "number")
-    return new FLError2("no matching case");
-  if (list.length <= quant)
-    return list;
-  return list.slice(0, quant);
-};
-FLBuiltin.take.nfargs = function() {
-  return 2;
-};
-FLBuiltin.drop = function(_cxt, quant, list) {
-  list = _cxt.spine(list);
-  if (list instanceof FLError2)
-    return list;
-  else if (!list)
-    return [];
-  quant = _cxt.full(quant);
-  if (quant instanceof FLError2)
-    return quant;
-  if (typeof quant !== "number")
-    return new FLError2("no matching case");
-  return list.slice(quant);
-};
-FLBuiltin.drop.nfargs = function() {
-  return 2;
-};
-FLBuiltin.concatMany = function(_cxt, rest) {
-  var ret2 = "";
-  for (var i = 0; i < rest.length; i++) {
-    var tmp = _cxt.full(rest[i]);
-    if (!tmp)
-      continue;
-    if (ret2.length > 0)
-      ret2 += " ";
-    ret2 += tmp;
-  }
-  return ret2;
-};
-FLBuiltin.concatMany.nfargs = function() {
-  return 1;
-};
-FLBuiltin.strlen = function(_cxt, str) {
-  str = _cxt.head(str);
-  if (typeof str != "string")
-    return _cxt.error("not a string");
-  return str.length;
-};
-FLBuiltin.strlen.nfargs = function() {
-  return 1;
-};
-FLBuiltin.isNull = function(_cxt, a) {
-  a = _cxt.full(a);
-  return a == null || a == void 0;
-};
-FLBuiltin.isNull.nfargs = function() {
-  return 1;
-};
-FLBuiltin.isEqual = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return _cxt.compare(a, b);
-};
-FLBuiltin.isEqual.nfargs = function() {
-  return 2;
-};
-FLBuiltin.isNotEqual = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a != b;
-};
-FLBuiltin.isNotEqual.nfargs = function() {
-  return 2;
-};
-FLBuiltin.greaterEqual = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a >= b;
-};
-FLBuiltin.greaterEqual.nfargs = function() {
-  return 2;
-};
-FLBuiltin.greaterThan = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a > b;
-};
-FLBuiltin.greaterThan.nfargs = function() {
-  return 2;
-};
-FLBuiltin.lessEqual = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a <= b;
-};
-FLBuiltin.lessEqual.nfargs = function() {
-  return 2;
-};
-FLBuiltin.lessThan = function(_cxt, a, b) {
-  a = _cxt.full(a);
-  b = _cxt.full(b);
-  return a < b;
-};
-FLBuiltin.lessThan.nfargs = function() {
-  return 2;
-};
-FLBuiltin._probe_state = function(_cxt, mock, v) {
-  var sh = _cxt.full(mock);
-  if (sh instanceof FLError2)
-    return sh;
-  else if (sh.routes) {
-    if (sh.routes[v] === void 0)
-      return new FLError2("there is no card bound to route var '" + v + "'");
-    return sh.routes[v];
-  } else if (sh.card) {
-    sh = sh.card;
-    sh._updateFromInputs();
-  } else if (sh.agent)
-    sh = sh.agent;
-  if (sh.state.dict[v] === void 0)
-    return new FLError2("No field '" + v + "' in probe_state");
-  return sh.state.dict[v];
-};
-FLBuiltin._probe_state.nfargs = function() {
-  return 2;
-};
-FLBuiltin._underlying = function(_cxt, mock) {
-  return mock._underlying(_cxt);
-};
-FLBuiltin._underlying.nfargs = function() {
-  return 1;
-};
-FLBuiltin.dispatch = function(_cxt, msgs2) {
-  msgs2 = _cxt.full(msgs2);
-  if (msgs2 instanceof FLError2)
-    return msgs2;
-  var ret2 = [];
-  var te = _cxt.env;
-  te.queueMessages = function(cx2, m) {
-    ret2.push(m);
-  };
-  _cxt.env.handleMessages(_cxt, msgs2);
-  return ret2;
-};
-FLBuiltin.dispatch.nfargs = function() {
-  return 1;
-};
-FLBuiltin.show = function(_cxt, val) {
-  val = _cxt.full(val);
-  return _cxt.show(val);
-};
-FLBuiltin.show.nfargs = function() {
-  return 1;
-};
-FLBuiltin.expr = function(_cxt, val) {
-  return _cxt.show(val);
-};
-FLBuiltin.expr.nfargs = function() {
-  return 1;
-};
-var MakeHash = function() {
-};
-MakeHash.eval = function(_cxt, args) {
-  throw Error("should not be called - optimize away");
-};
-var HashPair2 = function() {
-};
-HashPair2.eval = function(_cxt, args) {
-  var ret2 = new HashPair2();
-  ret2.m = args[0];
-  ret2.o = args[1];
-  return ret2;
-};
-FLBuiltin.hashPair = function(_cxt, key, value) {
-  return HashPair2.eval(_cxt, [key, value]);
-};
-FLBuiltin.hashPair.nfargs = function() {
-  return 2;
-};
-FLBuiltin.assoc = function(_cxt, hash, member) {
-  hash = _cxt.spine(hash);
-  member = _cxt.full(member);
-  if (hash[member])
-    return hash[member];
-  else
-    return new FLError2("no member " + member);
-};
-FLBuiltin.assoc.nfargs = function() {
-  return 2;
-};
-function FLURI2(s) {
-  this.uri = s;
-}
-FLURI2.prototype.resolve = function(base) {
-  return new URL(this.uri, base);
-};
-FLURI2.prototype._towire = function(into) {
-  into.uri = this.uri;
-};
-FLBuiltin.parseUri = function(_cxt, s) {
-  s = _cxt.full(s);
-  if (s instanceof FLError2)
-    return s;
-  else if (typeof s !== "string")
-    return new FLError2("not a string");
-  else
-    return new FLURI2(s);
-};
-FLBuiltin.parseUri.nfargs = function() {
-  return 1;
-};
-FLBuiltin.parseJson = function(_cxt, s) {
-  s = _cxt.full(s);
-  if (s instanceof FLError2)
-    return s;
-  return JSON.parse(s);
-};
-FLBuiltin.parseJson.nfargs = function() {
-  return 1;
-};
-
 // src/main/javascript/runtime/repeater.js
 var ContainerRepeater = function() {
 };
@@ -2427,7 +2427,7 @@ ContainerRepeater.prototype.callMe = function(cx2, callback) {
 
 // src/main/javascript/runtime/html.js
 var Html = function(_cxt, _html) {
-  object_default.call(this, _cxt);
+  FLObject.call(this, _cxt);
   this.state = _cxt.fields();
   this.state.set("html", _html);
 };
@@ -3210,7 +3210,6 @@ FLObject.prototype._updateLink = FLCard.prototype._updateLink;
 FLObject.prototype._diffLists = FLCard.prototype._diffLists;
 FLObject.prototype._attachHandlers = FLCard.prototype._attachHandlers;
 FLObject.prototype._resizeDisplayElements = FLCard.prototype._resizeDisplayElements;
-var object_default = FLObject;
 
 // src/main/javascript/runtime/random.js
 function xoshiro128(a, b, c, d) {
@@ -3230,7 +3229,7 @@ function xoshiro128(a, b, c, d) {
   };
 }
 var Random = function(_cxt, _card) {
-  object_default.call(this, _cxt);
+  FLObject.call(this, _cxt);
   this._card = _card;
   this.state = _cxt.fields();
   this.buffer = [];
@@ -3342,7 +3341,7 @@ CroEntry.fromWire = function(cx2, om2, fields2) {
   return new CroEntry(fields2["key"], lt.ret[0]);
 };
 var Crobag2 = function(_cxt, _card) {
-  object_default.call(this, _cxt);
+  FLObject.call(this, _cxt);
   this._card = _card;
   this.state = { dict: {} };
   this._entries = [];
@@ -3550,7 +3549,7 @@ _ActualSlideHandler.prototype._card.nfargs = function() {
 
 // src/main/javascript/runtime/image.js
 var Image2 = function(_cxt, _uri) {
-  object_default.call(this, _cxt);
+  FLObject.call(this, _cxt);
   this.state = _cxt.fields();
   this.state.set("uri", _uri);
 };
@@ -3806,7 +3805,7 @@ FLBuiltin.unixdate.nfargs = function() {
   return 1;
 };
 var Calendar = function(_cxt, _card) {
-  object_default.call(this, _cxt);
+  FLObject.call(this, _cxt);
   this._card = _card;
   this.state = _cxt.fields();
 };
@@ -4098,11 +4097,19 @@ export {
   Cons,
   ContractStore,
   Debug,
+  FLBuiltin,
   FLCard,
   FLContext,
   FLError2 as FLError,
+  FLObject,
+  False,
+  HashPair,
+  MakeHash,
   Nil,
   ResponseWithMessages,
   Send2 as Send,
+  True,
+  Tuple,
+  TypeOf,
   UpdateDisplay2 as UpdateDisplay
 };

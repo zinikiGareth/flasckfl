@@ -1,7 +1,7 @@
 package org.flasck.flas.testrunner;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 
 import org.ziniki.servlet.basic.InputStreamResponder;
 import org.ziniki.servlet.tda.ParameterSource;
@@ -49,7 +49,7 @@ public class RunTestHandler extends InputStreamResponder implements RequestProce
 			r.write("cannot find content type for " + test, null);
 			r.done();
 		} else {
-			sendText(r, new FileReader(f), contentType, f.length());
+			sendBinary(r, new FileInputStream(f), contentType, f.length());
 		}
 	}
 

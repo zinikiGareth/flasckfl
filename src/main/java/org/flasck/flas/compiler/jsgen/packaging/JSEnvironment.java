@@ -31,6 +31,7 @@ import org.flasck.jvm.ziniki.ContentObject;
 import org.flasck.jvm.ziniki.FileContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.NodeWalker;
@@ -159,6 +160,8 @@ public class JSEnvironment implements JSStorage {
 	public JSFile getPackage(String pkg) {
 		if (pkg == null)
 			pkg = "root.package";
+		if (pkg.contains("__"))
+			throw new CantHappenException("there should not be a __ in the package name: " + pkg);
 		JSFile inpkg = files.get(pkg);
 		if (inpkg == null) {
 			File f = new File(root, pkg + ".js");
@@ -201,7 +204,7 @@ public class JSEnvironment implements JSStorage {
 			for (ContractDecl cd : contracts)
 				ifn.cxtMethod("registerContract", new JSString(cd.name().uniqueName()), ifn.newOf(cd.name()));
 			for (ObjectDefn od : objects)
-				ifn.cxtMethod("registerObject", new JSString(od.name().uniqueName()), ifn.literal(od.name().uniqueName()));
+				ifn.cxtMethod("registerObject", new JSString(od.name().uniqueName()), ifn.literal(od.name().jsName()));
 			for (HandlerImplements hi : handlers)
 				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().jsName()));
 			for (StructDefn hi : structs)
@@ -222,8 +225,9 @@ public class JSEnvironment implements JSStorage {
 	// untested
 	public void writeAllTo(File jsDir) throws FileNotFoundException {
 		FileUtils.assertDirectory(jsDir);
+		List<String> imports = fileImports();
 		for (JSFile jsf : files.values()) {
-			File tof = jsf.write(jsDir);
+			File tof = jsf.write(jsDir, imports);
 			if (uploader != null) {
 				ContentObject co = uploader.uploadJs(tof);
 				if (co != null)
@@ -232,6 +236,16 @@ public class JSEnvironment implements JSStorage {
 					localOnly.add(tof);
 			}
 		}
+	}
+
+	private List<String> fileImports() {
+		List<String> ret = new ArrayList<>();
+		for (String s : files.keySet()) {
+			if (s.contains("_ut") || s.contains("_st"))
+				continue;
+			ret.add(s);
+		}
+		return ret;
 	}
 
 	public void generate(ByteCodeEnvironment bce) {
