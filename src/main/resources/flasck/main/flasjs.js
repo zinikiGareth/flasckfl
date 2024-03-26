@@ -3134,6 +3134,7 @@ CommonEnv.prototype.makeReady = function() {
 };
 CommonEnv.prototype.clear = function() {
   document.body.innerHTML = "";
+  this.cards = [];
 };
 CommonEnv.prototype.queueMessages = function(_cxt, msg) {
   this.locker.lock();
@@ -3284,6 +3285,7 @@ DispatcherInvoker.prototype.invoke = function(meth, args) {
 export {
   Application,
   Assign,
+  ClickEvent,
   CommonEnv,
   Cons,
   ContractStore,
