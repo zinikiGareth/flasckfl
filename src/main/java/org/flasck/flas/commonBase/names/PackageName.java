@@ -33,6 +33,8 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	
 	@Override
 	public String jsName() {
+		if (name == null)
+			return null;
 		return name.replace(".", "__");
 	}
 

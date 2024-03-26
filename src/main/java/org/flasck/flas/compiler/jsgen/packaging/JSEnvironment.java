@@ -365,9 +365,12 @@ public class JSEnvironment implements JSStorage {
 	private void includeFile(List<ContentObject> ret, String testDir, File f) {
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
-		ret.add(new FileContentObject(f));
 		if (testDir != null && f.isFile()) {
-			FileUtils.copy(f, new File(testDir, f.getName()));
+			File copyTo = new File(testDir, f.getName());
+			FileUtils.copy(f, copyTo);
+			ret.add(new FileContentObject(copyTo));
+		} else {
+			ret.add(new FileContentObject(f));
 		}
 	}
 	

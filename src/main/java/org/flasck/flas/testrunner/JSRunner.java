@@ -255,8 +255,11 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		cdl = new CountDownLatch(1);
 		nav.to("http://localhost:14040/" + uri);
 		boolean isReady = cdl.await(25, TimeUnit.SECONDS);
-		if (!isReady)
+		if (!isReady) {
+			this.server.stop();
+			this.server = null;
 			throw new CantHappenException("the test server did not become available");
+		}
 	}
 
 	public void ready() {
@@ -356,7 +359,9 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			FileUtils.assertDirectory(new File(testDirJS));
 			File html = new File(testDir, testName + ".html");
 			basePath = config.root;
-			if (!basePath.isAbsolute())
+			if (basePath == null)
+				basePath = new File(System.getProperty("user.dir"));
+			else if (!basePath.isAbsolute())
 				basePath = FileUtils.combine(new File(System.getProperty("user.dir")), basePath);
 			htmlUri = "test/html/" + testName + ".html";
 			PrintWriter pw = new PrintWriter(html);
@@ -452,35 +457,33 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		if (prev) {
 			pw.println(",");
 		}
-		String path = co.url();
-		if (co instanceof FileContentObject) {
-			path = path.replace("file://", "");
-			if (path.startsWith(flasckPath.toString()))
-				path = path.replace(flasckPath.toString() + "/", "");
-			else if (path.startsWith(basePath.toString()))
-				path = path.replace(basePath.toString() + "/jsout", "js");
-			else
-				throw new CantHappenException("what is this path? " + path);
-		}
-		if (useCachebuster)
-			path += "?cachebuster=" + System.currentTimeMillis();
+		String path = fcoFileName(co);
 		pw.print("\t\t\"/js/" + new File(path).getName() + "\": \"/test/html/" + path + "\"");
 	}
 
 	private void includeAsScript(PrintWriter pw, ContentObject co) {
+		String path = fcoFileName(co);
+		pw.println("<script src='" + path + "' type='module'></script>");
+	}
+
+	private String fcoFileName(ContentObject co) {
 		String path = co.url();
 		if (co instanceof FileContentObject) {
 			path = path.replace("file://", "");
 			if (path.startsWith(flasckPath.toString()))
 				path = path.replace(flasckPath.toString() + "/", "");
-			else if (path.startsWith(basePath.toString()))
-				path = path.replace(basePath.toString() + "/jsout", "js");
-			else
+			else if (path.startsWith(basePath.toString())) {
+				path = path.replace(basePath.toString(), "");
+				if (path.startsWith("/html/"))
+					path = path.replace("/html/", "");
+				if (path.startsWith(config.writeJS.getPath()))
+					path = path.replace(config.writeJS.getPath(), "js");
+			} else
 				throw new CantHappenException("what is this path? " + path);
 		}
 		if (useCachebuster)
 			path += "?cachebuster=" + System.currentTimeMillis();
-		pw.println("<script src='" + path + "' type='module'></script>");
+		return path;
 	}
 
 	public void shutdown() {
