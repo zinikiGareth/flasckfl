@@ -1,12 +1,31 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.InvalidUsageException;
+
 public class PackageName implements NameOfThing, Comparable<PackageName> {
 	private final String name;
+	private final Boolean builtin;
+
+	// For the global namespace, things can either be "built in" or "stdlib"; either way name is null, but we can tell these apart as they are handled differently in a few places
+	// (specifically, builtins don't have code generated for them)
+	public PackageName(boolean isBuiltin) {
+		this.name = null;
+		this.builtin = isBuiltin;
+	}
 
 	public PackageName(String s) {
+		if (s == null) {
+			try {
+				throw new InvalidUsageException("Must use PackageName(isBuiltin)");
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				throw ex;
+			}
+		}
 		this.name = s;
+		this.builtin = null;
 	}
-	
+
 	@Override
 	public NameOfThing container() {
 		return null;
@@ -107,5 +126,9 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	@Override
 	public String toString() {
 		return "Pkg[" + name + "]";
+	}
+
+	public boolean isBuiltin() {
+		return builtin != null && builtin;
 	}
 }

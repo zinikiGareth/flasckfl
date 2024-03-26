@@ -151,15 +151,23 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		stmts.add(new JSCopyContract(copyInto, fld, arg));
 	}
 	
-	public void write(IndentWriter w, Set<NameOfThing> names) {
+	public void write(IndentWriter w, Set<NameOfThing> names, Set<String> exports) {
 		if (!genJS)
 			return;
 		w.println("");
 		if (fnName != null && fnName instanceof FunctionName) {
 			FunctionName fn = (FunctionName)fnName;
 			ensureContainingNames(w, fn.container(), names);
+			if (fn.packageName().uniqueName() == null) {
+				w.print("var ");
+				exports.add(fn.jsPName());
+			}
 			w.print(fn.jsPName());
 		} else {
+			if (name == null && clzName.packageName().uniqueName() == null) { // the special case of a root package constructor
+				w.print("var ");
+				exports.add(clzName.jsName());
+			}
 			w.print(clzName.jsName());
 			if (name != null) {
 				w.print(".");

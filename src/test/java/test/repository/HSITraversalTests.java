@@ -92,7 +92,7 @@ public class HSITraversalTests {
 			oneOf(v).visitFunction(fn);
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).switchOn(with(SlotMatcher.from(slots, 0)));
-			oneOf(v).withConstructor(new SolidName(null, "Nil"));
+			oneOf(v).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 			oneOf(v).startInline(fi);
 			oneOf(v).visitCase(fcd);
 			oneOf(v).leaveCase(fcd);
@@ -129,7 +129,7 @@ public class HSITraversalTests {
 			oneOf(v).visitFunction(fn);
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).switchOn(with(SlotMatcher.from(slots, 0)));
-			oneOf(v).withConstructor(new SolidName(null, "Number"));
+			oneOf(v).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Number"));
 			oneOf(v).bind(with(SlotMatcher.from(slots, 0)), with("x"));
 			oneOf(v).startInline(fi);
 			oneOf(v).visitCase(fcd);

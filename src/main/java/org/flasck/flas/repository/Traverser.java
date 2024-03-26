@@ -225,8 +225,8 @@ public class Traverser implements RepositoryVisitor {
 		return this;
 	}
 
-	public Traverser forPackage(String pkg) {
-		this.onlyPackage = new PackageName(pkg);
+	public Traverser forPackage(PackageName pkg) {
+		this.onlyPackage = pkg;
 		return this;
 	}
 

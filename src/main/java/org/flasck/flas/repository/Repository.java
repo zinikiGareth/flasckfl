@@ -599,4 +599,17 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		for (RepositoryEntry e : dict.values())
 			System.out.println(e.name().uniqueName() + " => " + e);
 	}
+
+	public List<NameOfThing> rootPackageNames() {
+		List<NameOfThing> rpns = new ArrayList<>();
+		for (RepositoryEntry e : dict.values()) {
+			NameOfThing name = e.name();
+			if (name.container() instanceof PackageName) {
+				PackageName pn = (PackageName) name.container();
+				if (pn.baseName() == null && !pn.isBuiltin())
+					rpns.add(name);
+			}
+		}
+		return rpns;
+	}
 }

@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.JavaMethodNameProvider;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
@@ -277,7 +278,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	@Override
 	public String figureName(NameOfThing fn) {
 		String push = null;
-		if (fn.container() == null) {
+		if (fn.container() instanceof PackageName && ((PackageName)fn.container()).isBuiltin()) {
 			push = resolveOpName(fn.baseName());
 			if (push == null) {
 				if (fn instanceof FunctionName)

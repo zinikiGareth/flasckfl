@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -41,7 +42,7 @@ public class TDAMethodNestingParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private ObjectElementsConsumer builder = context.mock(SHBuilder.class);
-	private SolidName name = new SolidName(null, "MyObject");
+	private SolidName name = new SolidName(new PackageName("hello"), "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(name);
 	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
 	private LocationTracker locTracker = null;

@@ -59,7 +59,7 @@ public class GuardGenerationJS {
 		JSExpr r1 = context.mock(JSExpr.class, "r1");
 
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));
+			oneOf(meth).structConst(new SolidName(LoadBuiltins.builtinPkg, "True")); will(returnValue(ge));
 			oneOf(meth).ifTrue(ge); will(returnValue(guard));
 			oneOf(yesGuard).literal("42"); will(returnValue(r1));
 			oneOf(state).shouldCacheResult(); will(returnValue(false));
@@ -106,7 +106,7 @@ public class GuardGenerationJS {
 		JSExpr r2 = new JSString("hello");
 
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));
+			oneOf(meth).structConst(new SolidName(LoadBuiltins.builtinPkg, "True")); will(returnValue(ge));
 			oneOf(meth).ifTrue(ge); will(returnValue(guard));
 			oneOf(yesGuard).literal("42"); will(returnValue(r1));
 			oneOf(state).shouldCacheResult(); will(returnValue(false));
@@ -160,7 +160,7 @@ public class GuardGenerationJS {
 		JSExpr r1 = context.mock(JSExpr.class, "r1");
 
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));
+			oneOf(meth).structConst(new SolidName(LoadBuiltins.builtinPkg, "True")); will(returnValue(ge));
 			oneOf(meth).ifTrue(ge); will(returnValue(guard));
 			oneOf(yesGuard).literal("42"); will(returnValue(r1));
 			oneOf(state).shouldCacheResult(); will(returnValue(false));
@@ -185,7 +185,7 @@ public class GuardGenerationJS {
 		JSExpr r2 = context.mock(JSExpr.class, "r2");
 
 		context.checking(new Expectations() {{
-			oneOf(noGuard).structConst(new SolidName(null, "False")); will(returnValue(ge2));
+			oneOf(noGuard).structConst(new SolidName(LoadBuiltins.builtinPkg, "False")); will(returnValue(ge2));
 			oneOf(noGuard).ifTrue(ge2); will(returnValue(guard2));
 			oneOf(yesGuard2).literal("42"); will(returnValue(r2));
 			oneOf(state).shouldCacheResult(); will(returnValue(false));

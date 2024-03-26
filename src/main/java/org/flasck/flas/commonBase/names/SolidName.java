@@ -1,12 +1,15 @@
 package org.flasck.flas.commonBase.names;
 
 import org.flasck.jvm.J;
+import org.zinutils.exceptions.InvalidUsageException;
 
 public class SolidName implements NameOfThing, Comparable<NameOfThing> {
 	protected final NameOfThing container;
 	protected final String name;
 
 	public SolidName(NameOfThing container, String name) {
+		if (container == null)
+			throw new InvalidUsageException("container must be at least a null package");
 		this.container = container;
 		this.name = name;
 	}

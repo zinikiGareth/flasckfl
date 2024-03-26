@@ -671,7 +671,7 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public boolean generateCode(Configuration config, DirectedAcyclicGraph<String> pkgs) {
-		jse = new JSEnvironment(config.jsDir(), pkgs, uploader);
+		jse = new JSEnvironment(repository, config.jsDir(), pkgs, uploader);
 		bce = new ByteCodeEnvironment();
 		populateBCE(bce);
 

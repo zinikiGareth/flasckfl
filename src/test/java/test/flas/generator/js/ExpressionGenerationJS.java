@@ -103,7 +103,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.x", nameX, 2); will(returnValue(r));
+			oneOf(meth).pushFunction("test__repo.x", nameX, 2); will(returnValue(r));
 			oneOf(nv).result(r);
 		}});
 		expr.bind(new FunctionDefinition(nameX, 0, null));
@@ -215,7 +215,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.x", nameX, 0); will(returnValue(x));
+			oneOf(meth).pushFunction("test__repo.x", nameX, 0); will(returnValue(x));
 			oneOf(meth).closure(false, x); will(returnValue(clos));
 			oneOf(nv).result(clos);
 		}});
@@ -234,7 +234,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.x", nameX, 2); will(returnValue(x));
+			oneOf(meth).pushFunction("test__repo.x", nameX, 2); will(returnValue(x));
 			oneOf(meth).curry(false, 2, x); will(returnValue(clos));
 			oneOf(nv).result(clos);
 		}});
@@ -250,11 +250,11 @@ public class ExpressionGenerationJS {
 	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
 		JSExpr x = context.mock(JSExpr.class, "f");
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst(new SolidName(null, "test.repo.Ctor")); will(returnValue(x));
+			oneOf(meth).structConst(new SolidName(LoadBuiltins.builtinPkg, "test__repo.Ctor")); will(returnValue(x));
 			oneOf(nv).result(x);
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
-		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
+		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test__repo", "Ctor", true));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		new ExprGeneratorJS(state, stackv, meth, false);
@@ -267,7 +267,7 @@ public class ExpressionGenerationJS {
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		JSExpr curry = context.mock(JSExpr.class, "curry");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushConstructor(new SolidName(null, "Cons"), "Cons"); will(returnValue(cons));
+			oneOf(meth).pushConstructor(new SolidName(LoadBuiltins.builtinPkg, "Cons"), "Cons"); will(returnValue(cons));
 			oneOf(meth).curry(false, 2, cons); will(returnValue(curry));
 			oneOf(nv).result(curry);
 		}});
@@ -284,7 +284,7 @@ public class ExpressionGenerationJS {
 	public void aStructConstructorWithOneArgExpectingTwoArgsIsPushedByExprGenerator() {
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushConstructor(new SolidName(null, "Cons"), "Cons"); will(returnValue(cons));
+			oneOf(meth).pushConstructor(new SolidName(LoadBuiltins.builtinPkg, "Cons"), "Cons"); will(returnValue(cons));
 			oneOf(nv).result(cons);
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "Cons");
@@ -308,7 +308,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).argumentList();
 			oneOf(meth).checkCached();
 			oneOf(meth).cacheResult(with(any(JSExpr.class)));
-			oneOf(meth).structConst(new SolidName(null, "test.repo.Ctor")); will(returnValue(nret));
+			oneOf(meth).structConst(new SolidName(LoadBuiltins.builtinPkg, "test.repo.Ctor")); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
 		StackVisitor sv = new StackVisitor();
@@ -336,7 +336,7 @@ public class ExpressionGenerationJS {
 			oneOf(jss).newFunction(fnName, "test.repo", new PackageName("test.repo"), false, "f"); will(returnValue(meth));
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_cxt");
-			oneOf(meth).structConst(new SolidName(null, "test.repo.Ctor")); will(returnValue(nret));
+			oneOf(meth).structConst(new SolidName(LoadBuiltins.builtinPkg, "test.repo.Ctor")); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
 		StackVisitor sv = new StackVisitor();
@@ -385,7 +385,7 @@ public class ExpressionGenerationJS {
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.f", fnName, 2); will(returnValue(f));
+			oneOf(meth).pushFunction("test__repo.f", fnName, 2); will(returnValue(f));
 			oneOf(meth).literal("42"); will(returnValue(iv));
 			oneOf(meth).string("hello"); will(returnValue(sv));
 			oneOf(meth).closure(false, f, iv, sv); will(returnValue(res));
@@ -409,7 +409,7 @@ public class ExpressionGenerationJS {
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.f", fnName, 2); will(returnValue(f));
+			oneOf(meth).pushFunction("test__repo.f", fnName, 2); will(returnValue(f));
 			oneOf(meth).literal("42"); will(returnValue(iv));
 			oneOf(meth).string("hello"); will(returnValue(sv));
 			oneOf(meth).closure(false, f, iv, sv); will(returnValue(res));
@@ -435,9 +435,9 @@ public class ExpressionGenerationJS {
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.x", varName, 0); will(returnValue(x));
+			oneOf(meth).pushFunction("test__repo.x", varName, 0); will(returnValue(x));
 			oneOf(meth).closure(false, x); will(returnValue(v1));
-			oneOf(meth).pushFunction("test.repo.f", fnName, 1); will(returnValue(f));
+			oneOf(meth).pushFunction("test__repo.f", fnName, 1); will(returnValue(f));
 			oneOf(meth).closure(false, f, v1); will(returnValue(res));
 			oneOf(nv).result(res);
 		}});
@@ -450,8 +450,8 @@ public class ExpressionGenerationJS {
 	public void aConstructorApplicationWithArgs() {
 		UnresolvedVar nilOp = new UnresolvedVar(pos, "Nil");
 		UnresolvedVar fn = new UnresolvedVar(pos, "Cons");
-		StructDefn nilT = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
-		StructDefn consT = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false);
+		StructDefn nilT = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(LoadBuiltins.builtinPkg, "Nil"), false, new ArrayList<>());
+		StructDefn consT = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(LoadBuiltins.builtinPkg, "Cons"), false, new ArrayList<>());
 		consT.addField(new StructField(pos, consT, false, true, new TypeReference(pos, "A"), "head"));
 		consT.addField(new StructField(pos, consT, false, true, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
 		fn.bind(consT);
@@ -462,8 +462,8 @@ public class ExpressionGenerationJS {
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		context.checking(new Expectations() {{
 			oneOf(meth).string("hello"); will(returnValue(s));
-			oneOf(meth).structConst(new SolidName(null, "Nil")); will(returnValue(nil));
-			oneOf(meth).structArgs(new SolidName(null, "Cons"), s, nil); will(returnValue(cons));
+			oneOf(meth).structConst(new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(nil));
+			oneOf(meth).structArgs(new SolidName(LoadBuiltins.builtinPkg, "Cons"), s, nil); will(returnValue(cons));
 			oneOf(nv).result(cons);
 		}});
 		StackVisitor stackv = new StackVisitor();
@@ -482,7 +482,7 @@ public class ExpressionGenerationJS {
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		JSExpr curry = context.mock(JSExpr.class, "curry");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushConstructor(new SolidName(null, "Cons"), "Cons"); will(returnValue(cons));
+			oneOf(meth).pushConstructor(new SolidName(LoadBuiltins.builtinPkg, "Cons"), "Cons"); will(returnValue(cons));
 			oneOf(meth).string("hello"); will(returnValue(s));
 			oneOf(meth).curry(false, 2, cons, s); will(returnValue(curry));
 			oneOf(nv).result(curry);
@@ -505,7 +505,7 @@ public class ExpressionGenerationJS {
 		JSExpr f = context.mock(JSExpr.class, "f");
 		JSString sv = new JSString("s");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.f", fnName, 2); will(returnValue(f));
+			oneOf(meth).pushFunction("test__repo.f", fnName, 2); will(returnValue(f));
 			oneOf(meth).string("hello"); will(returnValue(sv));
 			oneOf(meth).xcurry(with(false), with(2), (List<XCArg>) with(Matchers.contains(Matchers.equalTo(new XCArg(0, f)), Matchers.equalTo(new XCArg(2, sv))))); will(returnValue(res));
 			oneOf(nv).result(res);
@@ -521,7 +521,7 @@ public class ExpressionGenerationJS {
 	public void errorsWantToBeCreatedThroughTheContext() {
 		StringLiteral lit = new StringLiteral(pos, "error message");
 		UnresolvedVar err = new UnresolvedVar(pos, "Error");
-		StructDefn errT = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
+		StructDefn errT = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(LoadBuiltins.builtinPkg, "Error"), false, new ArrayList<>());
 		errT.addField(new StructField(pos, errT, false, true, LoadBuiltins.stringTR, "msg"));
 		err.bind(errT);
 		ApplyExpr ae = new ApplyExpr(pos, err, lit);
@@ -529,7 +529,7 @@ public class ExpressionGenerationJS {
 		JSExpr errjs = context.mock(JSExpr.class, "errjs");
 		context.checking(new Expectations() {{
 			oneOf(meth).string("error message"); will(returnValue(s));
-			oneOf(meth).structArgs(new SolidName(null, "FLError"), s); will(returnValue(errjs));
+			oneOf(meth).structArgs(new SolidName(LoadBuiltins.builtinPkg, "FLError"), s); will(returnValue(errjs));
 			oneOf(nv).result(errjs);
 		}});
 		StackVisitor stackv = new StackVisitor();
@@ -560,7 +560,7 @@ public class ExpressionGenerationJS {
 		ApplyExpr expr = new ApplyExpr(pos, op);
 		JSExpr nil = context.mock(JSExpr.class, "nil");
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst(new SolidName(null, "Nil")); will(returnValue(nil));
+			oneOf(meth).structConst(new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(nil));
 			oneOf(nv).result(nil);
 		}});
 		StackVisitor stackv = new StackVisitor();

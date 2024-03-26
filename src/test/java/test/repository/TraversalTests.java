@@ -75,6 +75,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class TraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private static PackageName poly = new PackageName(true);
 	private final PackageName pkg = new PackageName("test.repo");
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
 	final NumericLiteral number = new NumericLiteral(pos, "42", 2);
@@ -153,7 +154,7 @@ public class TraversalTests {
 
 	@Test
 	public void traverserDoesNotVisitPolyTypes() {
-		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
+		PolyType pa = new PolyType(pos, new SolidName(poly, "A"));
 		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "MyStruct"), true, Arrays.asList(pa));
 		r.newStruct(errors, s);
 		context.checking(new Expectations() {{

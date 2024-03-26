@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.flasck.jvm.ziniki.FileContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
@@ -43,6 +44,7 @@ import org.zinutils.utils.FileUtils;
  * @author gareth
  */
 public class JSEnvironment implements JSStorage {
+	private final Repository repository;
 	// The idea is that there is one file per package
 	private final Map<String, JSFile> files = new TreeMap<String, JSFile>();
 	private final File root;
@@ -57,7 +59,8 @@ public class JSEnvironment implements JSStorage {
 	private final List<UnitTestCase> unitTests = new ArrayList<>();
 	private final List<SystemTest> systemTests = new ArrayList<>();
 
-	public JSEnvironment(File root, DirectedAcyclicGraph<String> pkgs, JSUploader uploader) {
+	public JSEnvironment(Repository repository, File root, DirectedAcyclicGraph<String> pkgs, JSUploader uploader) {
+		this.repository = repository;
 		this.root = root;
 		this.pkgdag = pkgs;
 		this.uploader = uploader;
@@ -165,7 +168,7 @@ public class JSEnvironment implements JSStorage {
 		JSFile inpkg = files.get(pkg);
 		if (inpkg == null) {
 			File f = new File(root, pkg + ".js");
-			inpkg = new JSFile(pkg, f);
+			inpkg = new JSFile(repository, pkg, f);
 			files.put(pkg, inpkg);
 		}
 		return inpkg;

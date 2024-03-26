@@ -34,47 +34,47 @@ public class NameTests {
 	@Test
 	public void aSimpleFunctionName() {
 		assertEquals("demo.ziniki.f", f.javaName());
-		assertEquals("demo.ziniki.f", f.jsName());
+		assertEquals("demo__ziniki.f", f.jsName());
 	}
 
 	@Test
 	public void aNestedFunctionName() {
 		assertEquals("demo.ziniki.f__1_g", fg.javaName());
-		assertEquals("demo.ziniki.f._1.g", fg.jsName());
+		assertEquals("demo__ziniki.f._1.g", fg.jsName());
 	}
 
 	@Test
 	public void aSolidName() {
 		assertEquals("demo.ziniki.Account", account.javaName());
-		assertEquals("demo.ziniki.Account", account.jsName());
+		assertEquals("demo__ziniki.Account", account.jsName());
 	}
 
 	@Test
 	public void aFunctionInAnObject() {
 		FunctionName fn = FunctionName.function(pos, account, "f");
 		assertEquals("demo.ziniki.Account.f", fn.javaName());
-		assertEquals("demo.ziniki.Account.f", fn.jsName());
+		assertEquals("demo__ziniki.Account.f", fn.jsName());
 	}
 
 	@Test
 	public void anObjectMethod() {
 		assertEquals("demo.ziniki.Account.m", acctM.javaName());
-		assertEquals("demo.ziniki.Account.m", acctM.jsName());
-		assertEquals("demo.ziniki.Account.prototype.m", acctM.jsPName());
+		assertEquals("demo__ziniki.Account.m", acctM.jsName());
+		assertEquals("demo__ziniki.Account.prototype.m", acctM.jsPName());
 	}
 
 	@Test
 	public void aFunctionInAnObjectMethod() {
 		FunctionName fn = FunctionName.function(pos, acctM, "f");
 		assertEquals("demo.ziniki.Account.m_f", fn.javaName());
-		assertEquals("demo.ziniki.Account.prototype.m.f", fn.jsName());
-		assertEquals("demo.ziniki.Account.prototype.m.f", fn.jsPName());
+		assertEquals("demo__ziniki.Account.prototype.m.f", fn.jsName());
+		assertEquals("demo__ziniki.Account.prototype.m.f", fn.jsPName());
 	}
 
 	@Test
 	public void aHandlerMethod() {
 		assertEquals("demo.ziniki.BaseHandler.q", hdlr1.javaName());
-		assertEquals("demo.ziniki.BaseHandler.q", hdlr1.jsName());
+		assertEquals("demo__ziniki.BaseHandler.q", hdlr1.jsName());
 	}
 
 	@Test
@@ -83,14 +83,14 @@ public class NameTests {
 		FunctionName fc = FunctionName.caseName(fn, 1);
 		HandlerName hn = new HandlerName(fc, "Nested");
 		assertEquals("demo.ziniki.Account.m_f__1.Nested", hn.javaName());
-		assertEquals("demo.ziniki.Account.prototype.m.f._1.Nested", hn.jsName());
+		assertEquals("demo__ziniki.Account.prototype.m.f._1.Nested", hn.jsName());
 	}
 
 	@Test
 	public void aFunctionInAHandlerMethod() {
 		FunctionName fn = FunctionName.function(pos, hdlr1, "f");
 		assertEquals("demo.ziniki.BaseHandler.q_f", fn.javaName());
-		assertEquals("demo.ziniki.BaseHandler.prototype.q.f", fn.jsName());
+		assertEquals("demo__ziniki.BaseHandler.prototype.q.f", fn.jsName());
 	}
 
 	@Test
@@ -98,26 +98,26 @@ public class NameTests {
 		FunctionName fn = FunctionName.function(pos, hdlr1, "f");
 		FunctionName fg = FunctionName.function(pos, FunctionName.caseName(fn, 3), "g");
 		assertEquals("demo.ziniki.BaseHandler.q_f__3_g", fg.javaName());
-		assertEquals("demo.ziniki.BaseHandler.prototype.q.f._3.g", fg.jsName());
+		assertEquals("demo__ziniki.BaseHandler.prototype.q.f._3.g", fg.jsName());
 	}
 
 	@Test
 	public void aHandlerInAFunction() {
 		assertEquals("demo.ziniki.f.NestedHandler", fh.javaName());
-		assertEquals("demo.ziniki.f.NestedHandler", fh.jsName());
+		assertEquals("demo__ziniki.f.NestedHandler", fh.jsName());
 	}
 
 	@Test
 	public void aNestedHandlerMethod() {
 		assertEquals("demo.ziniki.f.NestedHandler.s", fh1.javaName());
-		assertEquals("demo.ziniki.f.NestedHandler.s", fh1.jsName());
+		assertEquals("demo__ziniki.f.NestedHandler.s", fh1.jsName());
 	}
 
 	@Test
 	public void aFunctionInANestedHandlerMethod() {
 		FunctionName fn = FunctionName.function(pos, fh1, "k");
 		assertEquals("demo.ziniki.f.NestedHandler.s_k", fn.javaName());
-		assertEquals("demo.ziniki.f.NestedHandler.prototype.s.k", fn.jsName());
+		assertEquals("demo__ziniki.f.NestedHandler.prototype.s.k", fn.jsName());
 	}
 
 	@Test
@@ -125,7 +125,7 @@ public class NameTests {
 		FunctionName fn = FunctionName.function(pos, fh1, "k");
 		FunctionName fg = FunctionName.function(pos, FunctionName.caseName(fn, 7), "m");
 		assertEquals("demo.ziniki.f.NestedHandler.s_k__7_m", fg.javaName());
-		assertEquals("demo.ziniki.f.NestedHandler.prototype.s.k._7.m", fg.jsName());
+		assertEquals("demo__ziniki.f.NestedHandler.prototype.s.k._7.m", fg.jsName());
 	}
 
 	@Test
@@ -134,6 +134,6 @@ public class NameTests {
 		FunctionName ev = FunctionName.eventMethod(pos, cn, "event");
 		FunctionName fn = FunctionName.function(pos, ev, "k");
 		assertEquals("demo.ziniki.Card.event_k", fn.javaName());
-		assertEquals("demo.ziniki.Card.prototype.event.k", fn.jsName());
+		assertEquals("demo__ziniki.Card.prototype.event.k", fn.jsName());
 	}
 }

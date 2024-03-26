@@ -39,8 +39,14 @@ public class Main {
 		boolean failed;
 		try {
 			failed = standardCompiler(null, args);
+		} catch (ErrorResultException ex) {
+			try {
+				((ErrorResult) ex.errors).showTo(new PrintWriter(System.out), 0);
+			} catch (IOException ee) {
+				// can't really do much here
+			}
+			failed = true;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			Logger logger = LoggerFactory.getLogger("Compiler");
 			logger.error("exception thrown", e);
 			failed = true;

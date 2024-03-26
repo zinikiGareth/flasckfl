@@ -291,7 +291,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	private String handleBuiltinName(RepositoryEntry defn) {
 		NameOfThing name = defn.name();
-		if (name instanceof FunctionName && ((FunctionName)name).inContext == null) {
+		if (name instanceof FunctionName && ((FunctionName)name).inContext instanceof PackageName && ((PackageName)((FunctionName)name).inContext).isBuiltin()) {
 			String un = name.uniqueName();
 			if (un.equals("length"))
 				un = "arr_length";

@@ -134,7 +134,7 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 			// do the creation immediately
 			NameOfThing fn = defn.name();
 			if (fn.uniqueName().equals("Error"))
-				fn = new SolidName(null, "FLError");
+				fn = new SolidName(new PackageName(true), "FLError");
 			if (stack.size() == expArgs + 2) { // it has a hash on the end
 				stack.remove(0);
 				JSExpr hash = stack.remove(stack.size()-1);

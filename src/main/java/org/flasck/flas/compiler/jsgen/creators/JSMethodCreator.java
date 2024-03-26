@@ -22,7 +22,7 @@ public interface JSMethodCreator extends JSBlockCreator {
 	void cacheResult(JSExpr r);
 	void initContext(boolean field);
 	void copyContract(JSExpr copyInto, String fld, String arg);
-	void write(IndentWriter w, Set<NameOfThing> names);
+	void write(IndentWriter w, Set<NameOfThing> names, Set<String> exports);
 	void helper(JSExpr runner);
 	void makeOptional();
 }

@@ -7,6 +7,7 @@ import java.util.ServiceLoader;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.ObjectName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.modules.ProvideBuiltins;
@@ -39,7 +40,8 @@ import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
 	public static final InputPosition pos = new InputPosition("BuiltIn", 1, 0, null, "<<builtin>>");
-
+	public static final PackageName builtinPkg = new PackageName(true);
+	
 	/* "Primitive" types */
 
 	//   -> string
@@ -50,7 +52,7 @@ public class LoadBuiltins {
 	}
 
 	//   -> error
-	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
+	public static final StructDefn error = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "Error"), false, new ArrayList<>());
 	static {
 		error.addField(new StructField(pos, error, true, true, stringTR, "message"));
 	}
@@ -140,11 +142,11 @@ public class LoadBuiltins {
 	/* Booleans */
 
 	//   -> Bool (the union)
-	public static final UnionTypeDefn bool = new UnionTypeDefn(pos, false, new SolidName(null, "Boolean"));
+	public static final UnionTypeDefn bool = new UnionTypeDefn(pos, false, new SolidName(builtinPkg, "Boolean"));
 
 	//   -> False
 	public static final TypeReference falseTR = new TypeReference(pos, "False");
-	public static final StructDefn falseT = new StructDefn(pos, FieldsType.STRUCT, null, "False", false);
+	public static final StructDefn falseT = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "False"), false, new ArrayList<>());
 	static {
 		falseTR.bind(falseT);
 		bool.addCase(falseTR);
@@ -152,7 +154,7 @@ public class LoadBuiltins {
 
 	//   -> True
 	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
-	public static final StructDefn trueT = new StructDefn(pos, FieldsType.STRUCT, null, "True", false);
+	public static final StructDefn trueT = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "True"), false, new ArrayList<>());
 	static {
 		trueTR.bind(trueT);
 		bool.addCase(trueTR);
@@ -162,7 +164,7 @@ public class LoadBuiltins {
 	
 	//   -> List (the union)
 	private static TypeReference listATR_A = new TypeReference(pos, "A");
-	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new ArrayList<>());
+	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(builtinPkg, "List"), new ArrayList<>());
 	private static PolyType listA_A = new PolyType(pos, new SolidName(list.name(), "A"));
 	static {
 		listATR_A.bind(listA_A);
@@ -170,7 +172,7 @@ public class LoadBuiltins {
 	}
 
 	//   -> Nil
-	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
+	public static final StructDefn nil = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "Nil"), false, new ArrayList<>());
 	public static final TypeReference nilTR = new TypeReference(pos, "Nil");
 	static {
 		nilTR.bind(nil);
@@ -179,7 +181,7 @@ public class LoadBuiltins {
 	
 	//   -> Cons
 	private static TypeReference consATR_A = new TypeReference(pos, "A");
-	public static final StructDefn cons = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Cons"), false, new ArrayList<>());
+	public static final StructDefn cons = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "Cons"), false, new ArrayList<>());
 	public static final TypeReference consATR = new TypeReference(pos, "Cons", consATR_A);
 	static {
 		consATR.bind(cons);
@@ -214,7 +216,7 @@ public class LoadBuiltins {
 	}
 
 	//   -> AssignItem (is similar to Cons but can be used in assignments in methods)
-	public static final StructDefn assignItem = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "AssignItem"), false, new ArrayList<>());
+	public static final StructDefn assignItem = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "AssignItem"), false, new ArrayList<>());
 	static {
 		TypeReference aitr = new TypeReference(pos, "A");
 		PolyType aip = new PolyType(pos, new SolidName(assignItem.name(), "A"));
@@ -229,20 +231,20 @@ public class LoadBuiltins {
 
 	//   -> Hash
 	public static final TypeReference hashTR = new TypeReference(pos, "Hash");
-	public static final StructDefn hash = new StructDefn(pos, FieldsType.STRUCT, null, "Hash", false);
+	public static final StructDefn hash = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "Hash"), false, new ArrayList<>());
 	static {
 		hashTR.bind(hash);
 	}
 	
 	//   -> HashPair (each element of a hash is a hash pair, but this is internal, the result of the : operator)
-	public static final StructDefn hashPairType = new StructDefn(pos, FieldsType.STRUCT, null, "_HashPair", false);
+	public static final StructDefn hashPairType = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "_HashPair"), false, new ArrayList<>());
 
 
 	/*  Messages */
 	
 	//   -> Message (the union)
 	public static final TypeReference messageTR = new TypeReference(pos, "Message");
-	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
+	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(builtinPkg, "Message"));
 	//   -> List[Message]
 	public static final TypeReference consMessagesTR = new TypeReference(pos, "Cons", messageTR);
 	public static final NamedType consMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.message));
@@ -259,7 +261,7 @@ public class LoadBuiltins {
 
 	//   -> Debug
 	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
-	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);
+	public static final StructDefn debug = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "Debug"), false, new ArrayList<>());
 	static {
 		debugTR.bind(debug);
 		debug.addField(new StructField(pos, debug, true, true, stringTR, "message"));
@@ -268,7 +270,7 @@ public class LoadBuiltins {
 	
 	//   -> Send
 	public static final TypeReference sendTR = new TypeReference(pos, "Send");
-	public static final StructDefn send = new StructDefn(pos, FieldsType.STRUCT, null, "Send", false);
+	public static final StructDefn send = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "Send"), false, new ArrayList<>());
 	static {
 		sendTR.bind(send);
 		send.addField(new StructField(pos, send, false, true, contractTR, "sendto"));
@@ -279,7 +281,7 @@ public class LoadBuiltins {
 	
 	//   -> Assign
 	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
-	public static final StructDefn assign = new StructDefn(pos, FieldsType.STRUCT, null, "Assign", false);
+	public static final StructDefn assign = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "Assign"), false, new ArrayList<>());
 	static {
 		assignTR.bind(assign);
 		assign.addField(new StructField(pos, assign, false, true, anyTR, "on"));
@@ -289,7 +291,7 @@ public class LoadBuiltins {
 	}
 	
 	//   -> AssignCons (this and assignitem seem somewhat duplicative)
-	public static final StructDefn assignCons = new StructDefn(pos, FieldsType.STRUCT, null, "AssignCons", false);
+	public static final StructDefn assignCons = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "AssignCons"), false, new ArrayList<>());
 	static {
 		assignCons.addField(new StructField(pos, assignCons, false, true, anyTR, "on"));
 		assignCons.addField(new StructField(pos, assignCons, false, true, anyTR, "value"));
@@ -298,7 +300,7 @@ public class LoadBuiltins {
 	
 	//   -> UpdateDisplay
 	public static final TypeReference updateDisplayTR = new TypeReference(pos, "UpdateDisplay");
-	public static final StructDefn updateDisplay = new StructDefn(pos, FieldsType.STRUCT, null, "UpdateDisplay", false);
+	public static final StructDefn updateDisplay = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "UpdateDisplay"), false, new ArrayList<>());
 	static {
 		updateDisplayTR.bind(updateDisplay);
 		message.addCase(updateDisplayTR);
@@ -315,11 +317,11 @@ public class LoadBuiltins {
 	/* Events */
 
 	//   -> Event (the union)
-	public static final UnionTypeDefn event = new UnionTypeDefn(pos, false, new SolidName(null, "Event"));
+	public static final UnionTypeDefn event = new UnionTypeDefn(pos, false, new SolidName(builtinPkg, "Event"));
 	
 	//   -> ClickEvent
 	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
-	public static final StructDefn clickEvent = new StructDefn(pos, FieldsType.STRUCT, null, "ClickEvent", false);
+	public static final StructDefn clickEvent = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "ClickEvent"), false, new ArrayList<>());
 	static {
 		clickEventTR.bind(clickEvent);
 		final StructField source = new StructField(pos, pos, clickEvent, true, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
@@ -330,7 +332,7 @@ public class LoadBuiltins {
 
 	//   -> ScrollTo
 	public static final TypeReference scrollToTR = new TypeReference(pos, "ScrollTo");
-	public static final StructDefn scrollTo = new StructDefn(pos, FieldsType.STRUCT, null, "ScrollTo", false);
+	public static final StructDefn scrollTo = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "ScrollTo"), false, new ArrayList<>());
 	static {
 		scrollToTR.bind(scrollTo);
 		{
@@ -348,7 +350,7 @@ public class LoadBuiltins {
 
 	//   -> Link
 	public static final TypeReference linkTR = new TypeReference(pos, "Link");
-	public static final StructDefn link = new StructDefn(pos, FieldsType.STRUCT, null, "Link", false);
+	public static final StructDefn link = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "Link"), false, new ArrayList<>());
 	static {
 		linkTR.bind(link);
 		
@@ -363,7 +365,7 @@ public class LoadBuiltins {
 
 	//   -> hlml
 	public static final TypeReference hlmlTR = new TypeReference(pos, "hlml");
-	public static final StructDefn hlml = new StructDefn(pos, FieldsType.STRUCT, null, "hlml", false);
+	public static final StructDefn hlml = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "hlml"), false, new ArrayList<>());
 	static {
 		hlmlTR.bind(hlml);
 		
@@ -382,7 +384,7 @@ public class LoadBuiltins {
 	// Random
 
 	public static final TypeReference randomTR = new TypeReference(pos, "Random");
-	public static final ObjectDefn random = new ObjectDefn(pos, pos, new ObjectName(null, "Random"), false, new ArrayList<>());
+	public static final ObjectDefn random = new ObjectDefn(pos, pos, new ObjectName(builtinPkg, "Random"), false, new ArrayList<>());
 	static {
 		randomTR.bind(random);
 	}
@@ -431,7 +433,7 @@ public class LoadBuiltins {
 	// Image
 
 	public static final TypeReference imageTR = new TypeReference(pos, "Image");
-	public static final ObjectDefn image = new ObjectDefn(pos, pos, new ObjectName(null, "Image"), false, new ArrayList<>());
+	public static final ObjectDefn image = new ObjectDefn(pos, pos, new ObjectName(builtinPkg, "Image"), false, new ArrayList<>());
 	static {
 		imageTR.bind(image);
 	}
@@ -468,7 +470,7 @@ public class LoadBuiltins {
 
 	// HTML
 	public static final TypeReference htmlTR = new TypeReference(pos, "Html");
-	public static final ObjectDefn html = new ObjectDefn(pos, pos, new ObjectName(null, "Html"), false, new ArrayList<>());
+	public static final ObjectDefn html = new ObjectDefn(pos, pos, new ObjectName(builtinPkg, "Html"), false, new ArrayList<>());
 	static {
 		htmlTR.bind(html);
 	}
@@ -487,12 +489,12 @@ public class LoadBuiltins {
 	}
 
 	// SlideWindow (how we know to move forwards & backwards
-	public static final ContractDecl crobagSlideWindow = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "SlideWindow"), false);
+	public static final ContractDecl crobagSlideWindow = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(builtinPkg, "SlideWindow"), false);
 	// TODO: previous
 	// TODO: next
 	
 	// CrobagWindow  (the handler for the window method)
-	public static final ContractDecl crobagWindowHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "CrobagWindow"), false);
+	public static final ContractDecl crobagWindowHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(builtinPkg, "CrobagWindow"), false);
 
     //   -> handler method 'next'	
 	static {
@@ -511,7 +513,7 @@ public class LoadBuiltins {
 	
 	// Crobag[A]
 	public static final TypeReference crobagTR = new TypeReference(pos, "Crobag");
-	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new ObjectName(null, "Crobag"), false, new ArrayList<>());
+	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new ObjectName(builtinPkg, "Crobag"), false, new ArrayList<>());
 	static {
 		PolyType cp = new PolyType(pos, new SolidName(crobag.name(), "A"));
 		crobagTR.bind(crobag);
@@ -583,7 +585,7 @@ public class LoadBuiltins {
 	
 	// Calendar
 	public static final TypeReference calendarTR = new TypeReference(pos, "Calendar");
-	public static final ObjectDefn calendar = new ObjectDefn(pos, pos, new ObjectName(null, "Calendar"), false, new ArrayList<>());
+	public static final ObjectDefn calendar = new ObjectDefn(pos, pos, new ObjectName(builtinPkg, "Calendar"), false, new ArrayList<>());
 	static {
 		calendarTR.bind(calendar);
 	}
@@ -641,10 +643,10 @@ public class LoadBuiltins {
 		calendar.addAccessor(calendarParseIsoDateTime);
 	}
 	
-	public static final FunctionDefinition getYear = new FunctionDefinition(FunctionName.function(pos, null, "getYear"), 1, null).dontGenerate();
-	public static final FunctionDefinition parseIsoDate = new FunctionDefinition(FunctionName.function(pos, null, "parseIsoDate"), 1, null).dontGenerate();
-	public static final FunctionDefinition isoDate = new FunctionDefinition(FunctionName.function(pos, null, "isoDate"), 1, null).dontGenerate();
-	public static final FunctionDefinition dateIsAfter = new FunctionDefinition(FunctionName.function(pos, null, "dateIsAfter"), 2, null).dontGenerate();
+	public static final FunctionDefinition getYear = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "getYear"), 1, null).dontGenerate();
+	public static final FunctionDefinition parseIsoDate = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "parseIsoDate"), 1, null).dontGenerate();
+	public static final FunctionDefinition isoDate = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "isoDate"), 1, null).dontGenerate();
+	public static final FunctionDefinition dateIsAfter = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "dateIsAfter"), 2, null).dontGenerate();
 	static {
 		getYear.bindType(new Apply(date, number));
 		dateIsAfter.bindType(new Apply(date, date, bool));
@@ -654,7 +656,7 @@ public class LoadBuiltins {
 
 	// Types
 	public static final TypeReference typeTR = new TypeReference(pos, "Type");
-	public static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
+	public static StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(builtinPkg, "Type"), false, new ArrayList<>());
 
 	static {
 		typeTR.bind(type);
@@ -667,16 +669,16 @@ public class LoadBuiltins {
 	// Builtin operators
 
 	// test for null/undefined
-	public static final FunctionDefinition isNull = new FunctionDefinition(FunctionName.function(pos, null, "isNull"), 1, null).dontGenerate();
+	public static final FunctionDefinition isNull = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "isNull"), 1, null).dontGenerate();
 	// TODO: test for the more nebulous concept of Falsy?
 
 	//   -> comparisons
-	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, null).dontGenerate();
-	public static final FunctionDefinition isNotEqual = new FunctionDefinition(FunctionName.function(pos, null, "<>"), 2, null).dontGenerate();
-	public static final FunctionDefinition isGE = new FunctionDefinition(FunctionName.function(pos, null, ">="), 2, null).dontGenerate();
-	public static final FunctionDefinition isGT = new FunctionDefinition(FunctionName.function(pos, null, ">"), 2, null).dontGenerate();
-	public static final FunctionDefinition isLE = new FunctionDefinition(FunctionName.function(pos, null, "<="), 2, null).dontGenerate();
-	public static final FunctionDefinition isLT = new FunctionDefinition(FunctionName.function(pos, null, "<"), 2, null).dontGenerate();
+	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "=="), 2, null).dontGenerate();
+	public static final FunctionDefinition isNotEqual = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "<>"), 2, null).dontGenerate();
+	public static final FunctionDefinition isGE = new FunctionDefinition(FunctionName.function(pos, builtinPkg, ">="), 2, null).dontGenerate();
+	public static final FunctionDefinition isGT = new FunctionDefinition(FunctionName.function(pos, builtinPkg, ">"), 2, null).dontGenerate();
+	public static final FunctionDefinition isLE = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "<="), 2, null).dontGenerate();
+	public static final FunctionDefinition isLT = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "<"), 2, null).dontGenerate();
 	static {
 		isNull.bindType(new Apply(any, bool));
 		{
@@ -691,13 +693,13 @@ public class LoadBuiltins {
 	}
 
 	//   -> arithmetic
-	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null).dontGenerate();
-	public static final FunctionDefinition unaryMinus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 1, null).dontGenerate();
-	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, null).dontGenerate();
-	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, null).dontGenerate();
-	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, null).dontGenerate();
-	public static final FunctionDefinition mod = new FunctionDefinition(FunctionName.function(pos, null, "%"), 2, null).dontGenerate();
-	public static final FunctionDefinition round = new FunctionDefinition(FunctionName.function(pos, null, "round"), 1, null).dontGenerate();
+	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "+"), 2, null).dontGenerate();
+	public static final FunctionDefinition unaryMinus = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "-"), 1, null).dontGenerate();
+	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "-"), 2, null).dontGenerate();
+	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "*"), 2, null).dontGenerate();
+	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "/"), 2, null).dontGenerate();
+	public static final FunctionDefinition mod = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "%"), 2, null).dontGenerate();
+	public static final FunctionDefinition round = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "round"), 1, null).dontGenerate();
 	static {
 		plus.bindType(new Apply(number, number, number));
 		unaryMinus.bindType(new Apply(number, number));
@@ -709,9 +711,9 @@ public class LoadBuiltins {
 	}	
 	
 	//   -> boolean
-	public static final FunctionDefinition not = new FunctionDefinition(FunctionName.function(pos, null, "!"), 1, null).dontGenerate();
-	public static final FunctionDefinition and = new FunctionDefinition(FunctionName.function(pos, null, "&&"), 2, null).dontGenerate();
-	public static final FunctionDefinition or = new FunctionDefinition(FunctionName.function(pos, null, "||"), 2, null).dontGenerate();
+	public static final FunctionDefinition not = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "!"), 1, null).dontGenerate();
+	public static final FunctionDefinition and = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "&&"), 2, null).dontGenerate();
+	public static final FunctionDefinition or = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "||"), 2, null).dontGenerate();
 	static {
 		not.bindType(new Apply(bool, bool));
 		and.bindType(new Apply(bool, bool, bool));
@@ -719,31 +721,31 @@ public class LoadBuiltins {
 	}	
 	
 	//   -> string concat
-	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null).dontGenerate();
+	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "++"), 2, null).dontGenerate();
 	static {
 		concat.bindType(new Apply(string, string, string));
 	}	
 
 	//   -> string to number
-	public static final FunctionDefinition numberFromString = new FunctionDefinition(FunctionName.function(pos, null, "numberFromString"), 1, null).dontGenerate();
+	public static final FunctionDefinition numberFromString = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "numberFromString"), 1, null).dontGenerate();
 	static {
 		numberFromString.bindType(new Apply(string, number));
 	}	
 
 	//   -> syntax support
-	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null).dontGenerate();
-	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null).dontGenerate();
+	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "()"), -1, null).dontGenerate();
+	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "->"), 2, null).dontGenerate();
 	static {
 		// makeTuple is just a placeholder and should be handled explicitly everywhere
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
 	}	
 
 	//   -> internal functions
-	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, null).dontGenerate();
-	public static final FunctionDefinition dispatch = new FunctionDefinition(FunctionName.function(pos, null, "dispatch"), 1, null).dontGenerate();
-	public static final FunctionDefinition show = new FunctionDefinition(FunctionName.function(pos, null, "show"), 1, null).dontGenerate();
-	public static final FunctionDefinition formatShow = new FunctionDefinition(FunctionName.function(pos, null, "formatShow"), 2, null).dontGenerate();
-	public static final FunctionDefinition expr = new FunctionDefinition(FunctionName.function(pos, null, "expr"), 1, null).dontGenerate();
+	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "istype"), 2, null).dontGenerate();
+	public static final FunctionDefinition dispatch = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "dispatch"), 1, null).dontGenerate();
+	public static final FunctionDefinition show = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "show"), 1, null).dontGenerate();
+	public static final FunctionDefinition formatShow = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "formatShow"), 2, null).dontGenerate();
+	public static final FunctionDefinition expr = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "expr"), 1, null).dontGenerate();
 	static {
 		isType.bindType(new Apply(type, any, bool));
 		dispatch.bindType(new Apply(listMessages, listMessages));
@@ -754,14 +756,14 @@ public class LoadBuiltins {
 	}	
 	
 	//   -> list functions
-	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1, null).dontGenerate();
-	public static final FunctionDefinition replace = new FunctionDefinition(FunctionName.function(pos, null, "replace"), 3, null).dontGenerate();
-	public static final FunctionDefinition nth = new FunctionDefinition(FunctionName.function(pos, null, "nth"), 2, null).dontGenerate();
-	public static final FunctionDefinition item = new FunctionDefinition(FunctionName.function(pos, null, "item"), 2, null).dontGenerate();
-	public static final FunctionDefinition take = new FunctionDefinition(FunctionName.function(pos, null, "take"), 2, null).dontGenerate();
-	public static final FunctionDefinition drop = new FunctionDefinition(FunctionName.function(pos, null, "drop"), 2, null).dontGenerate();
-	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, null).dontGenerate();
-	public static final FunctionDefinition concatLists = new FunctionDefinition(FunctionName.function(pos, null, "concatLists"), 1, null).dontGenerate();
+	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "length"), 1, null).dontGenerate();
+	public static final FunctionDefinition replace = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "replace"), 3, null).dontGenerate();
+	public static final FunctionDefinition nth = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "nth"), 2, null).dontGenerate();
+	public static final FunctionDefinition item = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "item"), 2, null).dontGenerate();
+	public static final FunctionDefinition take = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "take"), 2, null).dontGenerate();
+	public static final FunctionDefinition drop = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "drop"), 2, null).dontGenerate();
+	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "append"), 2, null).dontGenerate();
+	public static final FunctionDefinition concatLists = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "concatLists"), 1, null).dontGenerate();
 	static {
 		length.bindType(new Apply(list, number));
 		replace.bindType(new Apply(list, number, listA_A, list));
@@ -775,8 +777,8 @@ public class LoadBuiltins {
 	
 	
 	//   -> hash functions
-	public static final FunctionDefinition assoc = new FunctionDefinition(FunctionName.function(pos, null, "assoc"), 2, null).dontGenerate();
-	public static final FunctionDefinition hashPair = new FunctionDefinition(FunctionName.function(pos, null, ":"), 2, null).dontGenerate();
+	public static final FunctionDefinition assoc = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "assoc"), 2, null).dontGenerate();
+	public static final FunctionDefinition hashPair = new FunctionDefinition(FunctionName.function(pos, builtinPkg, ":"), 2, null).dontGenerate();
 	static {
 		assoc.bindType(new Apply(hash, string, any));
 		hashPair.bindType(new Apply(string, any, hashPairType));
@@ -784,17 +786,17 @@ public class LoadBuiltins {
 
 	
 	//   -> string functions
-	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, null).dontGenerate();
+	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "strlen"), 1, null).dontGenerate();
 	static {
 		strlen.bindType(new Apply(string, number));
 	}
 
 	
 	//   -> date & time functions
-	public static final FunctionDefinition seconds = new FunctionDefinition(FunctionName.function(pos, null, "seconds"), 1, null).dontGenerate();
-	public static final FunctionDefinition milliseconds = new FunctionDefinition(FunctionName.function(pos, null, "milliseconds"), 1, null).dontGenerate();
-	public static final FunctionDefinition unixdate = new FunctionDefinition(FunctionName.function(pos, null, "unixdate"), 1, null).dontGenerate();
-	public static final FunctionDefinition fromunixdate = new FunctionDefinition(FunctionName.function(pos, null, "fromunixdate"), 1, null).dontGenerate();
+	public static final FunctionDefinition seconds = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "seconds"), 1, null).dontGenerate();
+	public static final FunctionDefinition milliseconds = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "milliseconds"), 1, null).dontGenerate();
+	public static final FunctionDefinition unixdate = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "unixdate"), 1, null).dontGenerate();
+	public static final FunctionDefinition fromunixdate = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "fromunixdate"), 1, null).dontGenerate();
 	static {
 		seconds.bindType(new Apply(number, interval));
 		milliseconds.bindType(new Apply(number, interval));
@@ -804,8 +806,8 @@ public class LoadBuiltins {
 	
 	
 	//   -> URI & JSON functions
-	public static final FunctionDefinition parseUri = new FunctionDefinition(FunctionName.function(pos, null, "parseUri"), 1, null).dontGenerate();
-	public static final FunctionDefinition parseJson = new FunctionDefinition(FunctionName.function(pos, null, "parseJson"), 1, null).dontGenerate();
+	public static final FunctionDefinition parseUri = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "parseUri"), 1, null).dontGenerate();
+	public static final FunctionDefinition parseJson = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "parseJson"), 1, null).dontGenerate();
 	static {
 		parseUri.bindType(new Apply(string, uri));
 		parseJson.bindType(new Apply(string, hash));
@@ -816,13 +818,13 @@ public class LoadBuiltins {
 	public static final UnresolvedVar probeState = new UnresolvedVar(pos, "_probe_state");
 	public static final UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
 	static {
-		probeState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_probe_state"), 2, null));
-		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, null));
+		probeState.bind(new FunctionDefinition(FunctionName.function(pos, builtinPkg, "_probe_state"), 2, null));
+		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, builtinPkg, "_underlying"), 1, null));
 	}
 
 	public static void applyTo(ErrorReporter errors, Repository repository) {
 		repository.addEntry(errors, any.name(), any);
-		repository.addEntry(errors, new SolidName(null, "Entity"), entity);
+		repository.addEntry(errors, new SolidName(builtinPkg, "Entity"), entity);
 		repository.addEntry(errors, contract.name(), contract);
 		repository.newStruct(errors, error);
 		repository.addEntry(errors, co.name(), co);
@@ -838,13 +840,13 @@ public class LoadBuiltins {
 		repository.addEntry(errors, trueT.name(), trueT);
 		repository.addEntry(errors, bool.name(), bool);
 		
-		repository.addEntry(errors, new SolidName(null, "[]"), nil);
+		repository.addEntry(errors, new SolidName(builtinPkg, "[]"), nil);
 		repository.newStruct(errors, nil);
 		repository.newStruct(errors, cons);
 		repository.newUnion(errors, list);
 		
 		repository.newStruct(errors, hash);
-		repository.addEntry(errors, new SolidName(null, "{}"), hash);
+		repository.addEntry(errors, new SolidName(builtinPkg, "{}"), hash);
 		
 		repository.addEntry(errors, id.name(), id);	
 

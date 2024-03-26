@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -174,7 +175,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public PolyType nextPoly(InputPosition pos) {
 		if (polyCount >= 26)
 			throw new NotImplementedException("Cannot handle more than 26 poly types at once");
-		return new PolyType(pos, new SolidName(null, new String(new char[] { (char)('A' + polyCount++) })));
+		return new PolyType(pos, new SolidName(new PackageName(true), new String(new char[] { (char)('A' + polyCount++) })));
 	}
 	
 	@Override

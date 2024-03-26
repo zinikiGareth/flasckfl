@@ -17,12 +17,14 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.repository.Repository;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.CantHappenException;
 
 public class JSFile {
+	private final Repository repository;
 	private final String pkg;
 	private final File file;
 	private final Set<String> packages = new TreeSet<>();
@@ -31,8 +33,10 @@ public class JSFile {
 	private final List<MethodList> methodLists = new ArrayList<>();
 	private final List<EventMap> eventMaps = new ArrayList<>();
 	private final List<ApplRoutingTable> routes = new ArrayList<>();
+	private final Set<String> exports = new TreeSet<>();
 
-	public JSFile(String pkg, File file) {
+	public JSFile(Repository repository, String pkg, File file) {
+		this.repository = repository;
 		this.pkg = pkg;
 		this.file = file;
 	}
@@ -90,7 +94,11 @@ public class JSFile {
 			if (s.equals(pkg))
 				continue;
 			PackageName pn = new PackageName(s);
-			iw.println("import { " + pn.jsName() + " } from \"/js/" + s + ".js\";");
+			if (s.equals("root.package"))
+				importRootPackage(iw, s, pn);
+			else {				
+				iw.println("import { " + pn.jsName() + " } from \"/js/" + s + ".js\";");
+			}
 		}
 		ListMap<String, JSClass> deferred = new ListMap<>();
 		for (JSClass c : classes) {
@@ -101,15 +109,15 @@ public class JSFile {
 					throw new CantHappenException("was expecting a function case name");
 				deferred.add(fn.container().jsName(), c);
 			} else
-				c.writeTo(iw);
+				c.writeTo(exports, iw);
 		}
 		Set<NameOfThing> names = new HashSet<>();
 		for (JSMethod f : functions) {
 			declareContainingPackage(iw, f);
-			f.write(iw, names);
+			f.write(iw, names, exports);
 			if (deferred.contains(f.jsName())) {
 				for (JSClass c : deferred.get(f.jsName()))
-					c.writeTo(iw);
+					c.writeTo(exports, iw);
 			}
 		}
 		for (MethodList m : methodLists)
@@ -120,6 +128,15 @@ public class JSFile {
 			r.write(iw);
 
 		exportPackages(iw);
+	}
+
+	private void importRootPackage(IndentWriter iw, String s, PackageName pn) {
+		iw.print("import { " + pn.jsName());
+		for (NameOfThing n : repository.rootPackageNames()) {
+			iw.print(", ");
+			iw.print(n.jsName());
+		}
+		iw.println(" } from \"/js/" + s + ".js\";");
 	}
 
 	public void generate(ByteCodeEnvironment bce) {
@@ -160,21 +177,24 @@ public class JSFile {
 
 	private void declarePackage(IndentWriter iw, String full) {
 		iw.print("var ");
-		iw.print(full.replace(".", "__"));
+		String exp = full.replace(".", "__");
+		exports.add(exp);
+		iw.print(exp);
 		iw.println(" = {};");
 	}
 
 	private void exportPackages(IndentWriter iw) {
-		if (pkg == null)
+		if (exports.isEmpty())
 			return;
 		iw.println("");
 		iw.print("export { ");
-		exportPackage(iw, pkg);
+		String sep = "";
+		for (String s : exports) {
+			iw.print(sep);
+			iw.print(s);
+			sep = ", ";
+		}
 		iw.println(" };");
-	}
-
-	private void exportPackage(IndentWriter iw, String full) {
-		iw.print(full.replace(".", "__"));
 	}
 
 	public List<JSClass> classes() {

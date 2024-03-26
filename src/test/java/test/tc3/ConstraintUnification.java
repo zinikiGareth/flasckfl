@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
@@ -28,6 +29,7 @@ import org.junit.Test;
 
 public class ConstraintUnification {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private static PackageName poly = new PackageName(true);
 	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private CurrentTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
@@ -71,7 +73,7 @@ public class ConstraintUnification {
 	public void ifYouAskSomethingToBeAConsWithHeadNotConstrainedYouStillGetAny() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
-		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
+		PolyType pt = new PolyType(pos, new SolidName(poly, "A"));
 		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertThat(ut.resolvedTo(), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(pt)));
@@ -98,7 +100,7 @@ public class ConstraintUnification {
 
 		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		
-		PolyType polyA = new PolyType(pos, new SolidName(null, "A"));
+		PolyType polyA = new PolyType(pos, new SolidName(poly, "A"));
 		assertThat(f.resolvedTo(), Matchers.is(polyA));
 		assertThat(ut.resolvedTo(), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(polyA)));
 	}

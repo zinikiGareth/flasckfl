@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.Set;
 
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.packaging.JSUploader;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
@@ -41,9 +42,11 @@ public class FlimWriter {
 			File file = new File(flimdir, pkg + ".flim");
 			PrintWriter pw = new PrintWriter(file);
 			IndentWriter iw = new IndentWriter(pw, "\t").indent();
-			String pkgName = null;
-			if (!"root.package".equals(pkg))
-				pkgName = pkg;
+			PackageName pkgName;
+			if ("root.package".equals(pkg))
+				pkgName = new PackageName(false);
+			else
+				pkgName = new PackageName(pkg);
 			FlimVisitor vizier = new FlimVisitor(pkgName, iw);
 			new Traverser(vizier).forPackage(pkgName).withObjectMethods().doTraversal(repository);
 			for (String s : vizier.referencedPackages())
