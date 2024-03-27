@@ -319,7 +319,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		areYouA.argument(J.EVALCONTEXT, "_cxt");
 		areYouA.argument(J.STRING, "ty");
 		areYouA.returnsType("boolean");
-		areYouA.returnCompare(areYouA.arg(1), areYouA.string(obj.name().jsName()));
+		areYouA.returnCompare(areYouA.arg(1), areYouA.string(obj.name().uniqueName()));
 		JSMethodCreator ud = templateCreator.createMethod("_updateDisplay", true);
 		ud.argument("_cxt");
 		ud.returnsType("void");

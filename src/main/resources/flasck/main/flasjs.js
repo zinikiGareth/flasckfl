@@ -285,9 +285,6 @@ MoveUpEvent.prototype.toString = function() {
   return "MUE[" + this.cmn + "]";
 };
 
-// src/main/javascript/runtime/messages.js
-import { IdempotentHandler, NamedIdempotentHandler } from "/js/ziwsh.js";
-
 // src/main/javascript/runtime/error.js
 var FLError2 = class _FLError extends Error {
   constructor(msg) {
@@ -308,6 +305,9 @@ var FLError2 = class _FLError extends Error {
 FLError2.eval = function(_cxt, msg) {
   return new FLError2(msg);
 };
+
+// src/main/javascript/runtime/messages.js
+import { IdempotentHandler, NamedIdempotentHandler } from "/js/ziwsh.js";
 
 // src/main/javascript/runtime/lists.js
 var Nil = function() {
@@ -341,17 +341,17 @@ Cons.eval = function(_cxt, hd, tl) {
   cp.splice(0, 0, hd);
   return cp;
 };
-var AssignItem2 = function(list, n) {
+var AssignItem = function(list, n) {
   this.list = list;
   this.n = n;
 };
-AssignItem2.prototype._field_head = function(_cxt) {
+AssignItem.prototype._field_head = function(_cxt) {
   return this.list[this.n];
 };
-AssignItem2.prototype._field_head.nfargs = function() {
+AssignItem.prototype._field_head.nfargs = function() {
   return 0;
 };
-AssignItem2.prototype.set = function(obj) {
+AssignItem.prototype.set = function(obj) {
   this.list[this.n] = obj;
 };
 
@@ -502,11 +502,11 @@ AssignCons.prototype.dispatch = function(cx2) {
     var rwm = this.obj.dispatch(cx2);
     target = rwm;
   }
-  if (target instanceof FLError) {
+  if (target instanceof FLError2) {
     cx2.log(target);
     return;
   }
-  if (!(target instanceof AssignItem2)) {
+  if (!(target instanceof AssignItem)) {
     throw Error("No, it needs to be an Item");
   }
   if (this.expr instanceof ResponseWithMessages) {
@@ -3285,6 +3285,8 @@ DispatcherInvoker.prototype.invoke = function(meth, args) {
 export {
   Application,
   Assign,
+  AssignCons,
+  AssignItem,
   ClickEvent,
   CommonEnv,
   Cons,
