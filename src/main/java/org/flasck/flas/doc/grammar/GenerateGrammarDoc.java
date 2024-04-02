@@ -28,6 +28,9 @@ public class GenerateGrammarDoc {
 		for (File f : FileUtils.findFilesMatching(GrammarSupport.srcDir(), "*.css")) {
 			FileUtils.copy(f, out);
 		}
+		for (File f : FileUtils.findFilesMatching(GrammarSupport.srcDir(), "*.js")) {
+			FileUtils.copy(f, out);
+		}
 		Grammar grammar = GrammarSupport.loadGrammar();
 		Generator gen = new Generator(out);
 		gen.generateGrammarHTML(grammar);

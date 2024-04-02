@@ -3,7 +3,6 @@ package org.flasck.flas.grammar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,9 +20,9 @@ public class Grammar {
 	public final String title;
 	private final LinkedHashMap<String, Section> sections;
 	private final LinkedHashMap<String, Production> productions;
-	private final HashMap<String, String> burbles = new HashMap<>();
 	private final Set<Lexer> lexers = new TreeSet<>();
-	private List<String> cssFiles = new ArrayList<>();
+	private List<CSSFile> cssFiles = new ArrayList<>();
+	private List<String> jsFiles = new ArrayList<>();
 	private static final String[] mergeableRules = new String[] { "top-level-definition" };
 
 	private Grammar(String title) {
@@ -38,7 +37,7 @@ public class Grammar {
 		final Grammar ret = new Grammar(xe.required("title"));
 		xe.attributesDone();
 		ret.readCSSFiles(xe);
-		ret.readBurbles(xe);
+		ret.readJSFiles(xe);
 		ret.parseLexers(xe);
 		ret.parseProductions(xe);
 		return ret;
@@ -50,7 +49,7 @@ public class Grammar {
 		xe.required("title");
 		xe.attributesDone();
 		readCSSFiles(xe);
-		readBurbles(xe);
+		readJSFiles(xe);
 		parseLexers(xe);
 		parseProductions(xe);
 	}
@@ -58,17 +57,16 @@ public class Grammar {
 	private void readCSSFiles(XMLElement xe) {
 		List<XMLElement> css = xe.elementChildren("css");
 		for (XMLElement ce : css) {
-			cssFiles.add(ce.required("href"));
+			cssFiles.add(new CSSFile(ce.required("href"), ce.optional("media")));
 			ce.attributesDone();
 		}
 	}
-
-	private void readBurbles(XMLElement xe) {
-		List<XMLElement> burbles = xe.elementChildren("burble");
-		for (XMLElement b : burbles) {
-			StringBuilder sb = new StringBuilder();
-			b.serializeChildrenTo(sb);
-			this.burbles.put(b.get("name"), sb.toString());
+	
+	private void readJSFiles(XMLElement xe) {
+		List<XMLElement> js = xe.elementChildren("js");
+		for (XMLElement je : js) {
+			jsFiles.add(je.required("href"));
+			je.attributesDone();
 		}
 	}
 
@@ -123,14 +121,15 @@ public class Grammar {
 			XMLElement rule = rules.get(0);
 			// At the top level, it's either a "single" or an "or".  "Single" is boring, so is omitted and the definition immediately follows
 			Production theProd;
+			String desc = getDescription(p);
 			if (rule.hasTag("or")) {
-				OrProduction orProd = handleOr(ruleNumber++, ruleName, rule);
+				OrProduction orProd = handleOr(ruleNumber++, ruleName, rule, desc);
 				theProd = orProd;
 				if (probs != null)
 					orProd.probs(probs);
 			} else {
 				Definition defn = parseDefn(ruleName, rule);
-				theProd = new Production(ruleNumber++, ruleName, defn);
+				theProd = new Production(ruleNumber++, ruleName, defn, desc);
 			}
 			if (this.productions.containsKey(theProd.name)) {
 				if (Arrays.binarySearch(mergeableRules, theProd.name) >= 0) {
@@ -143,6 +142,16 @@ public class Grammar {
 				theProd.needsMoreTesting();
 			s.add(theProd);
 		}
+	}
+
+	private String getDescription(XMLElement rule) {
+		if (!rule.elementChildren("description").isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			rule.uniqueElement("description").serializeChildrenTo(sb);
+			return sb.toString();
+		}
+		else
+			return null;
 	}
 
 	private void mergeInProductions(Production original, Production toMerge) {
@@ -178,7 +187,7 @@ public class Grammar {
 		return ret;
 	}
 
-	private OrProduction handleOr(int ruleNumber, String ruleName, XMLElement rule) {
+	private OrProduction handleOr(int ruleNumber, String ruleName, XMLElement rule, String desc) {
 		boolean repeatVarName = rule.optionalBoolean("quietly-repeat-var-name", false);
 		rule.attributesDone();
 		List<XMLElement> options = rule.elementChildren();
@@ -188,7 +197,7 @@ public class Grammar {
 		for (XMLElement xe : options) {
 			defns.add(parseDefn(ruleName, xe));
 		}
-		return new OrProduction(ruleNumber, ruleName, defns, repeatVarName);
+		return new OrProduction(ruleNumber, ruleName, defns, repeatVarName, desc);
 	}
 	
 	private Definition parseDefn(String ruleName, XMLElement rule) {
@@ -467,14 +476,12 @@ public class Grammar {
 		throw new RuntimeException("There is no token " + token);
 	}
 
-	public List<String> cssFiles() {
+	public List<CSSFile> cssFiles() {
 		return cssFiles ;
 	}
 
-	public String getBurble(String which) {
-		if (!burbles.containsKey(which))
-			throw new RuntimeException("There is no burble for " + which);
-		return burbles.get(which);
+	public List<String> jsFiles() {
+		return jsFiles ;
 	}
 
 	public String substituteRuleVars(String desc) {

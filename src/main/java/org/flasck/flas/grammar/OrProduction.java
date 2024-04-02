@@ -12,8 +12,8 @@ public class OrProduction extends Production {
 	private int maxProb;
 	private List<Integer> probs = new ArrayList<>();
 	
-	public OrProduction(int ruleNumber, String ruleName, List<Definition> defns, boolean repeatVarName) {
-		super(ruleNumber, ruleName, defns.get(0));
+	public OrProduction(int ruleNumber, String ruleName, List<Definition> defns, boolean repeatVarName, String desc) {
+		super(ruleNumber, ruleName, defns.get(0), desc);
 		this.choices = defns;
 		this.repeatVarName = repeatVarName;
 		this.otherDefns.addAll(defns);
@@ -38,14 +38,21 @@ public class OrProduction extends Production {
 	}
 	
 	@Override
-	public void show(PrintWriter str) {
-		super.show(str);
+	public void show(PrintWriter str, boolean includeDesc) {
+		str.println("<div class='production-rule'>");
+		super.show(str, false);
 		for (Definition d : this.otherDefns) {
 			str.println("<div class='production-or-block'>");
 			str.println("  <div class='production-or'>|</div>");
 			d.showGrammarFor(str);
 			str.println("</div>");
 		}
+		if (includeDesc && description != null) {
+			str.println("  <div class='production-desc'>");
+			str.println(description);
+			str.println("  </div>");
+		}
+		str.println("</div>");
 		str.flush();
 	}
 
