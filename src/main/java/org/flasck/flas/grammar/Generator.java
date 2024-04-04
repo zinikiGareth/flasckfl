@@ -33,6 +33,7 @@ public class Generator {
 		str.println("<!DOCTYPE html>");
 		str.println("<html>");
 		str.println("<head>");
+		str.println("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
 		str.println("<title>" + StringEscapeUtils.escapeHtml4(grammar.title) + "</title>");
 		for (CSSFile css : grammar.cssFiles()) {
 			String mtype = "";
