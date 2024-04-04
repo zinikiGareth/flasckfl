@@ -1,7 +1,7 @@
 <grammar title='FLAS Grammar'>
   <css href='grammar.css' />
   <css href='narrowlayout.css' media='(min-resolution: 120dpi) or (max-width: 800px)' />
-  <css href='tabletlayout.css' media='(resolution: 96dpi) and (min-width: 800px)' />
+  <css href='tabletlayout.css' media='(resolution: 96dpi) and (min-width: 800px) and (max-width: 1199px)' />
   <css href='widelayout.css' media='(resolution: 96dpi) and (min-width: 1200px)'/>
   <js href='grammar.js' />
   <lex token='ACOR' pattern='acor'>
