@@ -843,7 +843,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		UnitTestName clzName = e.name;
 		if (currentOA != null)
 			throw new NotImplementedException("I don't think you can nest a unit test in an accessor");
-		PackageName pkg = (PackageName) clzName.container();
+		NameOfThing pkg = clzName.container();
 		jse.ensurePackageExists(pkg, e.name.container().jsName());
 		this.utclz = jse.newUnitTest(e);
 		utclz.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");

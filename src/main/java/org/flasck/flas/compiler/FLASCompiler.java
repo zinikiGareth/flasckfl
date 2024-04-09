@@ -269,7 +269,7 @@ public class FLASCompiler implements CompileUnit {
 				continue;
 			errors.track(fi);
 			String file = FileUtils.dropExtension(fi.getName());
-			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
+			PackageName stfn = new PackageName(new PackageName(inPkg), "_st_" + file);
 			SystemTest st = new SystemTest(stfn);
 			repository.systemTest(errors, st);
 			ParsingPhase parser = new ParsingPhase(errors, stfn, st, (TopLevelDefinitionConsumer) repository, modules);
@@ -769,6 +769,7 @@ public class FLASCompiler implements CompileUnit {
 				JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
 				jsRunner.runAllSystemTests(writers);
 				jsRunner.reportErrors(errors);
+				jsRunner.shutdown();
 			} catch (Exception ex) {
 				errors.reportException(ex);
 			}

@@ -7,8 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.commonBase.names.UnitTestFileName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -24,12 +23,12 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class SystemTest implements SystemTestDefinitionConsumer, RepositoryEntry {
-	private final UnitTestFileName stfn;
+	private final PackageName stfn;
 	public SystemTestConfiguration configure;
 	public final List<SystemTestStage> stages = new ArrayList<>();
 	public SystemTestCleanup cleanup;
 
-	public SystemTest(UnitTestFileName stfn) {
+	public SystemTest(PackageName stfn) {
 		this.stfn = stfn;
 	}
 
@@ -48,7 +47,7 @@ public class SystemTest implements SystemTestDefinitionConsumer, RepositoryEntry
 		this.cleanup = utc;
 	}
 
-	public NameOfThing name() {
+	public PackageName name() {
 		return stfn;
 	}
 

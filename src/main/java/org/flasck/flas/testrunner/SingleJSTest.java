@@ -7,7 +7,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.codehaus.jettison.json.JSONException;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
+import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.jvm.fl.FlasTestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +22,11 @@ public class SingleJSTest {
 	private final LockingCounter counter;
 	private final List<String> errors;
 	private final TestResultWriter pw;
-	private final UnitTestName utn;
+	private final NameOfThing utn;
 	final JSTestState state;
 	private boolean error = false;
 
-	public SingleJSTest(BrowserJSJavaBridge bridge, LockingCounter counter, List<String> errors, TestResultWriter pw, UnitTestName name) {
+	public SingleJSTest(BrowserJSJavaBridge bridge, LockingCounter counter, List<String> errors, TestResultWriter pw, NameOfThing name) {
 		this.bridge = bridge;
 		this.counter = counter;
 		this.errors = errors;
@@ -34,7 +36,17 @@ public class SingleJSTest {
 	}
 
 	public void create(CountDownLatch cdl) throws JSONException, InterruptedException {
-		bridge.prepareTest(utn.container(), utn.baseName());
+		if (utn instanceof UnitTestName)
+			bridge.prepareUnitTest(utn.container(), utn.baseName());
+		else
+			bridge.prepareSystemTest(utn);
+		boolean isReady = cdl.await(25, TimeUnit.SECONDS);
+		if (!isReady)
+			throw new CantHappenException("the test steps were not made available");
+	}
+
+	public void prepareStage(CountDownLatch cdl, SystemTestStage e) throws JSONException, InterruptedException {
+		bridge.prepareStage(e.name.baseName());
 		boolean isReady = cdl.await(25, TimeUnit.SECONDS);
 		if (!isReady)
 			throw new CantHappenException("the test steps were not made available");

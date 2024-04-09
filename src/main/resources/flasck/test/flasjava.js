@@ -2,7 +2,8 @@
 import { UTRunner } from "/js/flastest.js";
 function WSBridge(host2, port2) {
   var self = this;
-  this.tests = {};
+  this.unittests = {};
+  this.systemtests = {};
   this.runner = new UTRunner(this);
   this.currentTest = null;
   this.ws = new WebSocket("ws://" + host2 + ":" + port2 + "/bridge");
@@ -39,9 +40,13 @@ function WSBridge(host2, port2) {
   });
 }
 WSBridge.handlers = {};
-WSBridge.prototype.addtest = function(name, test) {
-  console.log("adding test", name, test);
-  this.tests[name] = test;
+WSBridge.prototype.addUnitTest = function(name, test) {
+  console.log("adding unit test", name, test);
+  this.unittests[name] = test;
+};
+WSBridge.prototype.addSystemTest = function(name, test) {
+  console.log("adding system test", name, test);
+  this.systemtests[name] = test;
 };
 WSBridge.prototype.log = function(...args) {
   console.log.apply(console.log, args);
@@ -76,15 +81,30 @@ WSBridge.handlers["haveModule"] = function(msg) {
   this.runner.bindModule(name, new clz(this, conn));
   this.unlock("haveModule");
 };
-WSBridge.handlers["prepareTest"] = function(msg) {
+WSBridge.handlers["prepareUnitTest"] = function(msg) {
   console.log("run unit test", msg);
   var cxt = this.runner.newContext();
-  console.log("test", this.tests[msg.wrapper]);
-  var utf = this.tests[msg.wrapper][msg.testname];
-  console.log("what is", utf);
+  var utf = this.unittests[msg.wrapper][msg.testname];
   this.currentTest = new utf(this.runner, cxt);
   this.runner.clear();
   var steps = this.currentTest.dotest.call(this.currentTest, cxt);
+  this.send({ action: "steps", steps });
+};
+WSBridge.handlers["prepareSystemTest"] = function(msg) {
+  console.log("run system test", msg);
+  var cxt = this.runner.newContext();
+  console.log("test", this.systemtests[msg.testclz]);
+  var stc = this.systemtests[msg.testclz];
+  console.log("what is", stc);
+  this.currentTest = new stc(this.runner, cxt);
+  this.runner.clear();
+  this.send({ action: "systemTestPrepared" });
+};
+WSBridge.handlers["prepareStage"] = function(msg) {
+  console.log("prepare stage", msg);
+  var cxt = this.runner.newContext();
+  var stage = this.currentTest[msg.stage];
+  var steps = stage(cxt);
   this.send({ action: "steps", steps });
 };
 WSBridge.handlers["runStep"] = function(msg) {

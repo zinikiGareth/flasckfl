@@ -1,11 +1,9 @@
 package org.flasck.flas.testrunner;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.ziniki.server.grizzly.GrizzlyTDAServer;
@@ -37,16 +35,14 @@ public class BridgeGenHandler implements RequestProcessor {
 		}
 		sb.append("\n");
 
-		LinkedHashSet<NameOfThing> testNames = new LinkedHashSet<>();
+		sb.append("var bridge = new WSBridge('localhost', " + server.getPort()  + ");\n");
 		for (UnitTestCase c : unittests) {
-			testNames.add(c.name.container());
+			NameOfThing n = c.name.container();
+			sb.append("bridge.addUnitTest('" + n.uniqueName() + "', " + n.jsName() + ");\n");
 		}
 		for (SystemTest c : systests) {
-			testNames.add(c.name());
-		}
-		sb.append("var bridge = new WSBridge('localhost', " + server.getPort()  + ");\n");
-		for (NameOfThing n : testNames) {
-			sb.append("bridge.addtest('" + n.uniqueName() + "', " + n.jsName() + ");\n");
+			NameOfThing n = c.name();
+			sb.append("bridge.addSystemTest('" + n.uniqueName() + "', " + n.jsName() + ");\n");
 		}
 		sb.append("bridge.send({ action: 'ready' });\n");
 

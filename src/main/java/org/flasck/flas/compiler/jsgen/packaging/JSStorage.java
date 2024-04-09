@@ -25,7 +25,7 @@ public interface JSStorage {
 	JSClassCreator newUnitTest(UnitTestCase ut);
 	JSClassCreator newSystemTest(SystemTest st);
 
-	void ensurePackageExists(PackageName filePkg, String pkg);
+	void ensurePackageExists(NameOfThing filePkg, String pkg);
 
 	JSMethodCreator newFunction(NameOfThing fnName, PackageName pkg, NameOfThing cxt, boolean inPrototype, String name);
 	void methodList(NameOfThing name, List<FunctionName> methods);

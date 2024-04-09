@@ -76,6 +76,10 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 				controller.stepsForTest(steps);
 				break;
 			}
+			case "systemTestPrepared": {
+				controller.systemTestPrepared();
+				break;
+			}
 			case "error": {
 				controller.error(jo.getString("error"));
 				break;
@@ -109,8 +113,16 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 		}
 	}
 
-	public void prepareTest(NameOfThing pkg, String test) throws JSONException {
-		responder.send(new JSONObject().put("action", "prepareTest").put("wrapper", pkg.uniqueName()).put("testname", test).toString());
+	public void prepareUnitTest(NameOfThing pkg, String test) throws JSONException {
+		responder.send(new JSONObject().put("action", "prepareUnitTest").put("wrapper", pkg.uniqueName()).put("testname", test).toString());
+	}
+
+	public void prepareSystemTest(NameOfThing pkg) throws JSONException {
+		responder.send(new JSONObject().put("action", "prepareSystemTest").put("testclz", pkg.uniqueName()).toString());
+	}
+
+	public void prepareStage(String baseName) throws JSONException {
+		responder.send(new JSONObject().put("action", "prepareStage").put("stage", baseName).toString());
 	}
 
 	public void runStep(String step) throws JSONException {

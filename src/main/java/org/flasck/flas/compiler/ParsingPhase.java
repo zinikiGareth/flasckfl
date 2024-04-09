@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.blocker.TDANester;
 import org.flasck.flas.blocker.TDAParsingWithAction;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.compiler.modules.ParserModule;
 import org.flasck.flas.errors.ErrorReporter;
@@ -62,7 +63,7 @@ public class ParsingPhase implements ParserScanner {
 		this.blocker = new Blocker(errors, story);
 	}
 
-	public ParsingPhase(ErrorReporter errors, UnitTestFileName fn, SystemTestDefinitionConsumer stdc, TopLevelDefinitionConsumer tldc, Iterable<ParserModule> modules) {
+	public ParsingPhase(ErrorReporter errors, PackageName fn, SystemTestDefinitionConsumer stdc, TopLevelDefinitionConsumer tldc, Iterable<ParserModule> modules) {
 		this.errors = errors;
 		TDANester story = new TDANester(errors, systemTestUnit(errors, new SystemTestPackageNamer(fn), stdc, tldc, modules, null));
 		this.blocker = new Blocker(errors, story);

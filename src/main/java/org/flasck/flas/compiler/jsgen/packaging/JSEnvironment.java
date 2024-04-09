@@ -86,7 +86,7 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
-	public void ensurePackageExists(PackageName filePkg, String pkg) {
+	public void ensurePackageExists(NameOfThing filePkg, String pkg) {
 		if (filePkg == null)
 			filePkg = new PackageName("root.package");
 		if (pkg == null)
@@ -109,7 +109,7 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public JSClassCreator newUnitTest(UnitTestCase ut) {
 		unitTests.add(ut);
-		JSFile inpkg = getPackage((PackageName) ut.name.container());
+		JSFile inpkg = getPackage(ut.name.container());
 		JSClass ret = new JSClass(this, ut.name);
 		inpkg.addClass(ret);
 		return ret;
@@ -118,7 +118,7 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public JSClassCreator newSystemTest(SystemTest st) {
 		systemTests.add(st);
-		JSFile inpkg = getPackage((PackageName) st.name().container());
+		JSFile inpkg = getPackage(st.name());
 		JSClass ret = new JSClass(this, st.name());
 		inpkg.addClass(ret);
 		return ret;
@@ -160,7 +160,7 @@ public class JSEnvironment implements JSStorage {
 		inpkg.applRouting(clz, name, routes);
 	}
 
-	public JSFile getPackage(PackageName pkg) {
+	public JSFile getPackage(NameOfThing pkg) {
 		if (pkg == null)
 			pkg = new PackageName("root.package");
 		else if (pkg.uniqueName().contains("__"))

@@ -86,7 +86,7 @@ public abstract class CommonTestRunner<T extends CommonState> {
 			
 			@Override
 			public void visitSystemTest(SystemTest e) {
-				String nn = e.name().baseName().replace("_st_", "");
+				String nn = e.name().baseName().replaceFirst(".*_st_", "");
 				File f = new File(nn);
 				this.pw = writers.get(f);
 				if (pw == null) {

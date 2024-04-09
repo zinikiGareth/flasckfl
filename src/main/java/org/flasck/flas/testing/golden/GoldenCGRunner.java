@@ -56,7 +56,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	private static String wantOrderedOption = System.getProperty("wantOrdered");
 	private static boolean wantOrdered = wantOrderedOption == null || wantOrderedOption.equals("ordered");
 	private static String checkGrammarOption = System.getProperty("checkGrammar");
-	private static boolean checkGrammar = true; // checkGrammarOption != null && checkGrammarOption.equals("check");
+	private static boolean checkGrammar = checkGrammarOption == null || checkGrammarOption.equals("check");
 	
 	public static final File jvmdir;
 	static {

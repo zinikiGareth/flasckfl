@@ -12,7 +12,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.flasck.flas.Configuration;
-import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
@@ -199,6 +198,10 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		cdl.countDown();
 	}
 	
+	public void systemTestPrepared() {
+		cdl.countDown();
+	}
+	
 	private void startServer() throws Exception {
 		server = new GrizzlyTDAServer(14040);
 		PathTree<RequestProcessor> tree = new SimplePathTree<>();
@@ -317,8 +320,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		pw.systemTest("JS", st);
 		try {
 			launch();
-			SingleJSTest t1 = new SingleJSTest(bridge, counter, errors, pw, new UnitTestName(st.name().container(), st.name().baseName()));
-			CountDownLatch cdl = new CountDownLatch(1);
+			SingleJSTest t1 = new SingleJSTest(bridge, counter, errors, pw, st.name());
+			cdl = new CountDownLatch(1);
 			t1.create(cdl);
 			return t1.state;
 		} catch (Exception ex) {
@@ -329,7 +332,13 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	
 	@Override
 	protected void runSystemTestStage(TestResultWriter pw, JSTestState state, SystemTest st, SystemTestStage e) {
-		runSteps(pw, e.desc, state.test, e.name.baseName());
+		try {
+			cdl = new CountDownLatch(1);
+			state.test.prepareStage(cdl, e);
+			runSteps(pw, e.desc, state.test, e.name.baseName());
+		} catch (Exception ex) {
+			pw.error("JS", "desc" + ": " + ex.getMessage(), ex);
+		}
 		if (!state.test.ok())
 			state.failed++;
 	}

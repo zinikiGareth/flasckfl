@@ -25,7 +25,7 @@ import org.zinutils.exceptions.CantHappenException;
 
 public class JSFile {
 	private final Repository repository;
-	private final PackageName pkg;
+	private final NameOfThing pkg;
 	private final File file;
 	private final Set<String> packages = new TreeSet<>();
 	private final List<JSClass> classes = new ArrayList<>();
@@ -35,7 +35,7 @@ public class JSFile {
 	private final List<ApplRoutingTable> routes = new ArrayList<>();
 	private final Set<String> exports = new TreeSet<>();
 
-	public JSFile(Repository repository, PackageName pkg, File file) {
+	public JSFile(Repository repository, NameOfThing pkg, File file) {
 		this.repository = repository;
 		this.pkg = pkg;
 		this.file = file;
