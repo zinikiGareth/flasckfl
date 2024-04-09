@@ -273,6 +273,10 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 	@Override
 	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
+		if (!utc.shouldRunJS()) {
+			logger.warn("not running " + utc.description + " in JS because it contains services");
+			return;
+		}
 		String desc = utc.description;
 		try {
 			launch();

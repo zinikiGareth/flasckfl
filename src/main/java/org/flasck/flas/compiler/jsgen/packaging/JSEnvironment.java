@@ -87,13 +87,13 @@ public class JSEnvironment implements JSStorage {
 
 	@Override
 	public void ensurePackageExists(NameOfThing filePkg, String pkg) {
-		if (filePkg == null)
+		if (filePkg == null || filePkg.uniqueName() == null)
 			filePkg = new PackageName("root.package");
 		if (pkg == null)
 			pkg = "root.package";
 		if (filePkg.jsName().equals(pkg))
 			return;
-		if (!pkg.startsWith(filePkg.uniqueName()))
+		if (!pkg.startsWith(filePkg.uniqueName()) && !pkg.startsWith(filePkg.jsName()))
 			throw new RuntimeException(pkg + " is not in " + filePkg);
 		getPackage(filePkg).ensurePackage(pkg);
 	}
@@ -161,7 +161,7 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	public JSFile getPackage(NameOfThing pkg) {
-		if (pkg == null)
+		if (pkg == null || pkg.uniqueName() == null)
 			pkg = new PackageName("root.package");
 		else if (pkg.uniqueName().contains("__"))
 			throw new CantHappenException("there should not be a __ in the package name: " + pkg);

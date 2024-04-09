@@ -861,6 +861,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		this.testServices = true;
 		this.testName = clzName;
 		if (involvesServices(e)) {
+			e.dontRunJS();
+			ctor.noJS();
 			this.meth.noJS();
 			this.testServices = false;
 		}

@@ -1,6 +1,7 @@
 // src/main/javascript/unittest/mocks.js
 import { IdempotentHandler, NamedIdempotentHandler as NamedIdempotentHandler2 } from "/js/ziwsh.js";
 import { FLError } from "/js/flasjs.js";
+import { FLURI } from "/js/flasjs.js";
 var BoundVar = function(name) {
   this.name = name;
 };
@@ -731,12 +732,13 @@ UTRunner.prototype.checkAtEnd = function() {
     throw this.errors[0];
 };
 UTRunner.prototype.newdiv = function(cnt) {
+  var ds = this.divSince;
+  this.divSince = this.nextDivId;
   if (cnt != null) {
-    if (cnt != this.nextDivId - this.divSince) {
-      throw Error("NEWDIV\n  expected: " + cnt + "\n  actual:   " + (this.nextDivId - this.divSince));
+    if (cnt != this.nextDivId - ds) {
+      throw Error("NEWDIV\n  expected: " + cnt + "\n  actual:   " + (this.nextDivId - ds));
     }
   }
-  this.divSince = this.nextDivId;
 };
 UTRunner.prototype.expectCancel = function(handler) {
   var hn;

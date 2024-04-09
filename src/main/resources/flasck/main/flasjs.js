@@ -1,3 +1,280 @@
+// src/main/javascript/runtime/error.js
+var FLError = class _FLError extends Error {
+  constructor(msg) {
+    super(msg);
+    this.name = "FLError";
+  }
+  _compare(cx2, other) {
+    if (!(other instanceof _FLError))
+      return false;
+    if (other.message != this.message)
+      return false;
+    return true;
+  }
+  _throw() {
+    return true;
+  }
+};
+FLError.eval = function(_cxt, msg) {
+  return new FLError(msg);
+};
+
+// src/main/javascript/runtime/messages.js
+import { IdempotentHandler, NamedIdempotentHandler } from "/js/ziwsh.js";
+
+// src/main/javascript/runtime/lists.js
+var Nil = function() {
+};
+Nil.eval = function(_cxt) {
+  return [];
+};
+var Cons = function() {
+};
+Array.prototype._field_head = function(x) {
+  return this[0];
+};
+Array.prototype._field_head.nfargs = function() {
+  return 0;
+};
+Cons.prototype._field_head = Array.prototype._field_head;
+Array.prototype._field_tail = function() {
+  return this.slice(1);
+};
+Array.prototype._field_tail.nfargs = function() {
+  return 0;
+};
+Cons.prototype._field_tail = Array.prototype._field_tail;
+Cons.eval = function(_cxt, hd, tl) {
+  var cp = _cxt.spine(tl);
+  if (cp instanceof FLError)
+    return cp;
+  else if (!cp)
+    return [hd];
+  cp = cp.slice(0);
+  cp.splice(0, 0, hd);
+  return cp;
+};
+var AssignItem = function(list, n) {
+  this.list = list;
+  this.n = n;
+};
+AssignItem.prototype._field_head = function(_cxt) {
+  return this.list[this.n];
+};
+AssignItem.prototype._field_head.nfargs = function() {
+  return 0;
+};
+AssignItem.prototype.set = function(obj) {
+  this.list[this.n] = obj;
+};
+
+// src/main/javascript/runtime/messages.js
+var Debug = function() {
+};
+Debug.eval = function(_cxt, msg) {
+  const d = new Debug();
+  d.msg = msg;
+  return d;
+};
+Debug.prototype._compare = function(cx2, other) {
+  if (other instanceof Debug) {
+    return other.msg == this.msg;
+  } else
+    return false;
+};
+Debug.prototype.dispatch = function(cx2) {
+  this.msg = cx2.full(this.msg);
+  cx2.debugmsg(this.msg);
+  return null;
+};
+Debug.prototype.toString = function() {
+  return "Debug[" + this.msg + "]";
+};
+var Send = function() {
+};
+Send.eval = function(_cxt, obj, meth, args, handle, subscriptionName) {
+  const s = new Send();
+  s.subcontext = _cxt.subcontext;
+  if (obj instanceof NamedIdempotentHandler) {
+    s.obj = obj._handler;
+  } else {
+    s.obj = obj;
+  }
+  s.meth = meth;
+  s.args = args;
+  s.handle = handle;
+  s.subscriptionName = subscriptionName;
+  return s;
+};
+Send.prototype._full = function(cx2) {
+  this.obj = cx2.full(this.obj);
+  this.meth = cx2.full(this.meth);
+  this.args = cx2.full(this.args);
+  this.handle = cx2.full(this.handle);
+  this.subscriptionName = cx2.full(this.subscriptionName);
+};
+Send.prototype._compare = function(cx2, other) {
+  if (other instanceof Send) {
+    return cx2.compare(this.obj, other.obj) && cx2.compare(this.meth, other.meth) && cx2.compare(this.args, other.args);
+  } else
+    return false;
+};
+Send.prototype.dispatch = function(cx2) {
+  this._full(cx2);
+  if (this.obj instanceof ResponseWithMessages) {
+    const ret3 = ResponseWithMessages.messages(cx2, this.obj);
+    ret3.push(Send.eval(cx2, ResponseWithMessages.response(cx2, this.obj), this.meth, this.args, this.handle));
+    return ret3;
+  }
+  var args = this.args.slice();
+  if (this.subcontext) {
+    cx2 = cx2.bindTo(this.subcontext);
+  } else if (!cx2.subcontext) {
+    cx2 = cx2.bindTo(this.obj);
+  }
+  args.splice(0, 0, cx2);
+  var hdlr;
+  if (this.handle) {
+    hdlr = new NamedIdempotentHandler(this.handle, this.subscriptionName);
+  } else {
+    hdlr = new IdempotentHandler();
+  }
+  args.splice(args.length, 0, hdlr);
+  var meth = this.obj._methods()[this.meth];
+  if (!meth)
+    return;
+  var ret2 = meth.apply(this.obj, args);
+  return ret2;
+};
+Send.prototype.toString = function() {
+  return "Send[" + this.obj + ":" + this.meth + "]";
+};
+var Assign = function() {
+};
+Assign.eval = function(_cxt, obj, slot, expr) {
+  const s = new Assign();
+  s.obj = obj;
+  s.slot = slot;
+  s.expr = expr;
+  return s;
+};
+Assign.prototype._full = function(cx2) {
+  this.obj = cx2.full(this.obj);
+  this.slot = cx2.full(this.slot);
+  this.expr = cx2.full(this.expr);
+};
+Assign.prototype._compare = function(cx2, other) {
+  if (other instanceof Assign) {
+    return cx2.compare(this.obj, other.obj) && cx2.compare(this.slot, other.slot) && cx2.compare(this.expr, other.expr);
+  } else
+    return false;
+};
+Assign.prototype.dispatch = function(cx2) {
+  var msgs2 = [];
+  var target = this.obj;
+  if (target.dispatch) {
+    var rwm = this.obj.dispatch(cx2);
+    target = rwm;
+  }
+  if (this.expr instanceof ResponseWithMessages) {
+    msgs2.unshift(ResponseWithMessages.messages(cx2, this.expr));
+    this.expr = ResponseWithMessages.response(cx2, this.expr);
+  }
+  target.state.set(this.slot, this.expr);
+  if (this.obj._updateDisplay)
+    cx2.env.queueMessages(cx2, new UpdateDisplay(cx2, this.obj));
+  else if (this.obj._card && this.obj._card._updateDisplay)
+    cx2.env.queueMessages(cx2, new UpdateDisplay(cx2, this.obj._card));
+  return msgs2;
+};
+Assign.prototype.toString = function() {
+  return "Assign[]";
+};
+var AssignCons = function() {
+};
+AssignCons.eval = function(_cxt, obj, expr) {
+  const s = new AssignCons();
+  s.obj = obj;
+  s.expr = expr;
+  return s;
+};
+AssignCons.prototype._full = function(cx2) {
+  this.obj = cx2.full(this.obj);
+  this.expr = cx2.full(this.expr);
+};
+AssignCons.prototype._compare = function(cx2, other) {
+  if (other instanceof AssignCons) {
+    return cx2.compare(this.obj, other.obj) && cx2.compare(this.expr, other.expr);
+  } else
+    return false;
+};
+AssignCons.prototype.dispatch = function(cx2) {
+  var msgs2 = [];
+  var target = this.obj;
+  if (target.dispatch) {
+    var rwm = this.obj.dispatch(cx2);
+    target = rwm;
+  }
+  if (target instanceof FLError) {
+    cx2.log(target);
+    return;
+  }
+  if (!(target instanceof AssignItem)) {
+    throw Error("No, it needs to be an Item");
+  }
+  if (this.expr instanceof ResponseWithMessages) {
+    msgs2.unshift(ResponseWithMessages.messages(cx2, this.expr));
+    this.expr = ResponseWithMessages.response(cx2, this.expr);
+  }
+  target.set(this.expr);
+  return msgs2;
+};
+AssignCons.prototype.toString = function() {
+  return "AssignCons[]";
+};
+var ResponseWithMessages = function(cx2, obj, msgs2) {
+  this.obj = obj;
+  this.msgs = msgs2;
+};
+ResponseWithMessages.prototype._full = function(cx2) {
+  this.obj = cx2.full(this.obj);
+  this.msgs = cx2.full(this.msgs);
+};
+ResponseWithMessages.response = function(cx2, rwm) {
+  if (rwm instanceof ResponseWithMessages)
+    return rwm.obj;
+  else
+    return rwm;
+};
+ResponseWithMessages.messages = function(cx2, rwm) {
+  if (rwm instanceof ResponseWithMessages)
+    return rwm.msgs;
+  else
+    return null;
+};
+ResponseWithMessages.prototype.toString = function() {
+  return "ResponseWithMessages (" + this.obj + ")";
+};
+var UpdateDisplay = function(cx2, card) {
+  this.card = card;
+};
+UpdateDisplay.prototype._compare = function(cx2, other) {
+  if (other instanceof UpdateDisplay) {
+    return this.card == other.card || this.card == null || other.card == null;
+  } else
+    return false;
+};
+UpdateDisplay.eval = function(cx2) {
+  return new UpdateDisplay(cx2, null);
+};
+UpdateDisplay.prototype.dispatch = function(cx2) {
+  if (this.card._updateDisplay)
+    cx2.needsUpdate(this.card);
+};
+UpdateDisplay.prototype.toString = function() {
+  return "UpdateDisplay";
+};
+
 // src/main/javascript/runtime/appl.js
 var Application = function(_cxt, topdiv) {
   if (typeof topdiv == "string")
@@ -283,283 +560,6 @@ MoveUpEvent.prototype.dispatch = function(_cxt) {
 };
 MoveUpEvent.prototype.toString = function() {
   return "MUE[" + this.cmn + "]";
-};
-
-// src/main/javascript/runtime/error.js
-var FLError = class _FLError extends Error {
-  constructor(msg) {
-    super(msg);
-    this.name = "FLError";
-  }
-  _compare(cx2, other) {
-    if (!(other instanceof _FLError))
-      return false;
-    if (other.message != this.message)
-      return false;
-    return true;
-  }
-  _throw() {
-    return true;
-  }
-};
-FLError.eval = function(_cxt, msg) {
-  return new FLError(msg);
-};
-
-// src/main/javascript/runtime/messages.js
-import { IdempotentHandler, NamedIdempotentHandler } from "/js/ziwsh.js";
-
-// src/main/javascript/runtime/lists.js
-var Nil = function() {
-};
-Nil.eval = function(_cxt) {
-  return [];
-};
-var Cons = function() {
-};
-Array.prototype._field_head = function(x) {
-  return this[0];
-};
-Array.prototype._field_head.nfargs = function() {
-  return 0;
-};
-Cons.prototype._field_head = Array.prototype._field_head;
-Array.prototype._field_tail = function() {
-  return this.slice(1);
-};
-Array.prototype._field_tail.nfargs = function() {
-  return 0;
-};
-Cons.prototype._field_tail = Array.prototype._field_tail;
-Cons.eval = function(_cxt, hd, tl) {
-  var cp = _cxt.spine(tl);
-  if (cp instanceof FLError)
-    return cp;
-  else if (!cp)
-    return [hd];
-  cp = cp.slice(0);
-  cp.splice(0, 0, hd);
-  return cp;
-};
-var AssignItem = function(list, n) {
-  this.list = list;
-  this.n = n;
-};
-AssignItem.prototype._field_head = function(_cxt) {
-  return this.list[this.n];
-};
-AssignItem.prototype._field_head.nfargs = function() {
-  return 0;
-};
-AssignItem.prototype.set = function(obj) {
-  this.list[this.n] = obj;
-};
-
-// src/main/javascript/runtime/messages.js
-var Debug = function() {
-};
-Debug.eval = function(_cxt, msg) {
-  const d = new Debug();
-  d.msg = msg;
-  return d;
-};
-Debug.prototype._compare = function(cx2, other) {
-  if (other instanceof Debug) {
-    return other.msg == this.msg;
-  } else
-    return false;
-};
-Debug.prototype.dispatch = function(cx2) {
-  this.msg = cx2.full(this.msg);
-  cx2.debugmsg(this.msg);
-  return null;
-};
-Debug.prototype.toString = function() {
-  return "Debug[" + this.msg + "]";
-};
-var Send = function() {
-};
-Send.eval = function(_cxt, obj, meth, args, handle, subscriptionName) {
-  const s = new Send();
-  s.subcontext = _cxt.subcontext;
-  if (obj instanceof NamedIdempotentHandler) {
-    s.obj = obj._handler;
-  } else {
-    s.obj = obj;
-  }
-  s.meth = meth;
-  s.args = args;
-  s.handle = handle;
-  s.subscriptionName = subscriptionName;
-  return s;
-};
-Send.prototype._full = function(cx2) {
-  this.obj = cx2.full(this.obj);
-  this.meth = cx2.full(this.meth);
-  this.args = cx2.full(this.args);
-  this.handle = cx2.full(this.handle);
-  this.subscriptionName = cx2.full(this.subscriptionName);
-};
-Send.prototype._compare = function(cx2, other) {
-  if (other instanceof Send) {
-    return cx2.compare(this.obj, other.obj) && cx2.compare(this.meth, other.meth) && cx2.compare(this.args, other.args);
-  } else
-    return false;
-};
-Send.prototype.dispatch = function(cx2) {
-  this._full(cx2);
-  if (this.obj instanceof ResponseWithMessages) {
-    const ret3 = ResponseWithMessages.messages(cx2, this.obj);
-    ret3.push(Send.eval(cx2, ResponseWithMessages.response(cx2, this.obj), this.meth, this.args, this.handle));
-    return ret3;
-  }
-  var args = this.args.slice();
-  if (this.subcontext) {
-    cx2 = cx2.bindTo(this.subcontext);
-  } else if (!cx2.subcontext) {
-    cx2 = cx2.bindTo(this.obj);
-  }
-  args.splice(0, 0, cx2);
-  var hdlr;
-  if (this.handle) {
-    hdlr = new NamedIdempotentHandler(this.handle, this.subscriptionName);
-  } else {
-    hdlr = new IdempotentHandler();
-  }
-  args.splice(args.length, 0, hdlr);
-  var meth = this.obj._methods()[this.meth];
-  if (!meth)
-    return;
-  var ret2 = meth.apply(this.obj, args);
-  return ret2;
-};
-Send.prototype.toString = function() {
-  return "Send[" + this.obj + ":" + this.meth + "]";
-};
-var Assign = function() {
-};
-Assign.eval = function(_cxt, obj, slot, expr) {
-  const s = new Assign();
-  s.obj = obj;
-  s.slot = slot;
-  s.expr = expr;
-  return s;
-};
-Assign.prototype._full = function(cx2) {
-  this.obj = cx2.full(this.obj);
-  this.slot = cx2.full(this.slot);
-  this.expr = cx2.full(this.expr);
-};
-Assign.prototype._compare = function(cx2, other) {
-  if (other instanceof Assign) {
-    return cx2.compare(this.obj, other.obj) && cx2.compare(this.slot, other.slot) && cx2.compare(this.expr, other.expr);
-  } else
-    return false;
-};
-Assign.prototype.dispatch = function(cx2) {
-  var msgs2 = [];
-  var target = this.obj;
-  if (target.dispatch) {
-    var rwm = this.obj.dispatch(cx2);
-    target = rwm;
-  }
-  if (this.expr instanceof ResponseWithMessages) {
-    msgs2.unshift(ResponseWithMessages.messages(cx2, this.expr));
-    this.expr = ResponseWithMessages.response(cx2, this.expr);
-  }
-  target.state.set(this.slot, this.expr);
-  if (this.obj._updateDisplay)
-    cx2.env.queueMessages(cx2, new UpdateDisplay2(cx2, this.obj));
-  else if (this.obj._card && this.obj._card._updateDisplay)
-    cx2.env.queueMessages(cx2, new UpdateDisplay2(cx2, this.obj._card));
-  return msgs2;
-};
-Assign.prototype.toString = function() {
-  return "Assign[]";
-};
-var AssignCons = function() {
-};
-AssignCons.eval = function(_cxt, obj, expr) {
-  const s = new AssignCons();
-  s.obj = obj;
-  s.expr = expr;
-  return s;
-};
-AssignCons.prototype._full = function(cx2) {
-  this.obj = cx2.full(this.obj);
-  this.expr = cx2.full(this.expr);
-};
-AssignCons.prototype._compare = function(cx2, other) {
-  if (other instanceof AssignCons) {
-    return cx2.compare(this.obj, other.obj) && cx2.compare(this.expr, other.expr);
-  } else
-    return false;
-};
-AssignCons.prototype.dispatch = function(cx2) {
-  var msgs2 = [];
-  var target = this.obj;
-  if (target.dispatch) {
-    var rwm = this.obj.dispatch(cx2);
-    target = rwm;
-  }
-  if (target instanceof FLError) {
-    cx2.log(target);
-    return;
-  }
-  if (!(target instanceof AssignItem)) {
-    throw Error("No, it needs to be an Item");
-  }
-  if (this.expr instanceof ResponseWithMessages) {
-    msgs2.unshift(ResponseWithMessages.messages(cx2, this.expr));
-    this.expr = ResponseWithMessages.response(cx2, this.expr);
-  }
-  target.set(this.expr);
-  return msgs2;
-};
-AssignCons.prototype.toString = function() {
-  return "AssignCons[]";
-};
-var ResponseWithMessages = function(cx2, obj, msgs2) {
-  this.obj = obj;
-  this.msgs = msgs2;
-};
-ResponseWithMessages.prototype._full = function(cx2) {
-  this.obj = cx2.full(this.obj);
-  this.msgs = cx2.full(this.msgs);
-};
-ResponseWithMessages.response = function(cx2, rwm) {
-  if (rwm instanceof ResponseWithMessages)
-    return rwm.obj;
-  else
-    return rwm;
-};
-ResponseWithMessages.messages = function(cx2, rwm) {
-  if (rwm instanceof ResponseWithMessages)
-    return rwm.msgs;
-  else
-    return null;
-};
-ResponseWithMessages.prototype.toString = function() {
-  return "ResponseWithMessages (" + this.obj + ")";
-};
-var UpdateDisplay2 = function(cx2, card) {
-  this.card = card;
-};
-UpdateDisplay2.prototype._compare = function(cx2, other) {
-  if (other instanceof UpdateDisplay2) {
-    return this.card == other.card || this.card == null || other.card == null;
-  } else
-    return false;
-};
-UpdateDisplay2.eval = function(cx2) {
-  return new UpdateDisplay2(cx2, null);
-};
-UpdateDisplay2.prototype.dispatch = function(cx2) {
-  if (this.card._updateDisplay)
-    cx2.needsUpdate(this.card);
-};
-UpdateDisplay2.prototype.toString = function() {
-  return "UpdateDisplay";
 };
 
 // src/main/javascript/runtime/closure.js
@@ -1164,13 +1164,13 @@ FLBuiltin.assoc = function(_cxt, hash, member) {
 FLBuiltin.assoc.nfargs = function() {
   return 2;
 };
-function FLURI2(s) {
+function FLURI(s) {
   this.uri = s;
 }
-FLURI2.prototype.resolve = function(base) {
+FLURI.prototype.resolve = function(base) {
   return new URL(this.uri, base);
 };
-FLURI2.prototype._towire = function(into) {
+FLURI.prototype._towire = function(into) {
   into.uri = this.uri;
 };
 FLBuiltin.parseUri = function(_cxt, s) {
@@ -1180,7 +1180,7 @@ FLBuiltin.parseUri = function(_cxt, s) {
   else if (typeof s !== "string")
     return new FLError("not a string");
   else
-    return new FLURI2(s);
+    return new FLURI(s);
 };
 FLBuiltin.parseUri.nfargs = function() {
   return 1;
@@ -1484,7 +1484,7 @@ FLContext.prototype.handleEvent = function(card, handler, event) {
     this.log(reply.message);
     return;
   }
-  reply.push(new UpdateDisplay2(this, card));
+  reply.push(new UpdateDisplay(this, card));
   this.env.queueMessages(this, reply);
 };
 FLContext.prototype.localCard = function(cardClz, eltName) {
@@ -1905,6 +1905,41 @@ _ActualSlideHandler.prototype._card = function() {
 };
 _ActualSlideHandler.prototype._card.nfargs = function() {
   return -1;
+};
+
+// src/main/javascript/runtime/image.js
+var Image = function(_cxt, _uri) {
+  FLObject.call(this, _cxt);
+  this.state = _cxt.fields();
+  this.state.set("uri", _uri);
+};
+Image._ctor_asset = function(_cxt, _card, _uri) {
+  const ret2 = new Image(_cxt, _uri);
+  return new ResponseWithMessages(_cxt, ret2, []);
+};
+Image._ctor_asset.nfargs = function() {
+  return 2;
+};
+Image._ctor_uri = function(_cxt, _card, _uri) {
+  const ret2 = new Image(_cxt, _uri);
+  return new ResponseWithMessages(_cxt, ret2, []);
+};
+Image._ctor_uri.nfargs = function() {
+  return 2;
+};
+Image.prototype.getUri = function() {
+  var uri = this.state.get("uri");
+  if (uri instanceof FLURI)
+    uri = uri.resolve(window.location);
+  return uri;
+};
+Image.prototype._compare = function(_cxt, other) {
+  if (!(other instanceof Image))
+    return false;
+  return this.state.get("uri").toString() == other.state.get("uri").toString();
+};
+Image.prototype.toString = function() {
+  return "Image " + this.state.get("uri");
 };
 
 // src/main/javascript/runtime/card.js
@@ -2735,41 +2770,6 @@ Random.prototype._methods = function() {
   };
 };
 
-// src/main/javascript/runtime/image.js
-var Image2 = function(_cxt, _uri) {
-  FLObject.call(this, _cxt);
-  this.state = _cxt.fields();
-  this.state.set("uri", _uri);
-};
-Image2._ctor_asset = function(_cxt, _card, _uri) {
-  const ret2 = new Image2(_cxt, _uri);
-  return new ResponseWithMessages(_cxt, ret2, []);
-};
-Image2._ctor_asset.nfargs = function() {
-  return 2;
-};
-Image2._ctor_uri = function(_cxt, _card, _uri) {
-  const ret2 = new Image2(_cxt, _uri);
-  return new ResponseWithMessages(_cxt, ret2, []);
-};
-Image2._ctor_uri.nfargs = function() {
-  return 2;
-};
-Image2.prototype.getUri = function() {
-  var uri = this.state.get("uri");
-  if (uri instanceof FLURI)
-    uri = uri.resolve(window.location);
-  return uri;
-};
-Image2.prototype._compare = function(_cxt, other) {
-  if (!(other instanceof Image2))
-    return false;
-  return this.state.get("uri").toString() == other.state.get("uri").toString();
-};
-Image2.prototype.toString = function() {
-  return "Image " + this.state.get("uri");
-};
-
 // src/main/javascript/runtime/link.js
 var Link2 = function(_cxt) {
   this.state = _cxt.fields();
@@ -3103,7 +3103,7 @@ var CommonEnv = function(bridge, broker) {
   this.objects["Crobag"] = Crobag;
   this.objects["CroEntry"] = CroEntry;
   this.objects["Html"] = Html;
-  this.objects["Image"] = Image2;
+  this.objects["Image"] = Image;
   this.objects["org.ziniki.common.ZiIdURI"] = ZiIdURI;
   this.objects["org.flasck.jvm.builtin.Crobag"] = Crobag;
   this.objects["org.flasck.jvm.builtin.CroEntry"] = CroEntry;
@@ -3132,6 +3132,8 @@ CommonEnv.prototype.makeReady = function() {
 CommonEnv.prototype.clear = function() {
   document.body.innerHTML = "";
   this.cards = [];
+  this.nextDivId = 1;
+  this.divSince = this.nextDivId;
 };
 CommonEnv.prototype.queueMessages = function(_cxt, msg) {
   this.locker.lock();
@@ -3299,15 +3301,18 @@ export {
   FLContext,
   FLError,
   FLObject,
+  FLURI,
   False,
   HashPair,
+  Image,
   MakeHash,
   Nil,
+  Random,
   ResponseWithMessages,
   Send,
   SlideWindow,
   True,
   Tuple,
   TypeOf,
-  UpdateDisplay2 as UpdateDisplay
+  UpdateDisplay
 };

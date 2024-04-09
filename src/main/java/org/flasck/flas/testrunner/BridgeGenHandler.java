@@ -1,6 +1,8 @@
 package org.flasck.flas.testrunner;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -36,12 +38,18 @@ public class BridgeGenHandler implements RequestProcessor {
 		sb.append("\n");
 
 		sb.append("var bridge = new WSBridge('localhost', " + server.getPort()  + ");\n");
+		Set<NameOfThing> uns = new HashSet<>();
 		for (UnitTestCase c : unittests) {
-			NameOfThing n = c.name.container();
+			uns.add(c.name.container());
+		}
+		for (NameOfThing n : uns) {
 			sb.append("bridge.addUnitTest('" + n.uniqueName() + "', " + n.jsName() + ");\n");
 		}
+		Set<NameOfThing> sns = new HashSet<>();
 		for (SystemTest c : systests) {
-			NameOfThing n = c.name();
+			sns.add(c.name());
+		}
+		for (NameOfThing n : sns) {
 			sb.append("bridge.addSystemTest('" + n.uniqueName() + "', " + n.jsName() + ");\n");
 		}
 		sb.append("bridge.send({ action: 'ready' });\n");

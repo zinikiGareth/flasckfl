@@ -272,13 +272,15 @@ public class FlimVisitor extends LeafAdapter implements ModuleExtensible {
 		if (container == null || !(container instanceof PackageName))
 			return null;
 		PackageName pn = (PackageName) container;
+		if (pn.isBuiltin())
+			return null;
 		if (pn.uniqueName() == null && pkg.uniqueName() != null)
 			return null;
 		else if (pn.uniqueName() != null && pkg.uniqueName() == null)
 			return null;
 		else if (pkg.uniqueName() != null && !pkg.uniqueName().equals(pn.uniqueName()))
 			return null;
-		if (pkg == null)
+		if (pkg.uniqueName() == null)
 			return "null";
 		else
 			return pn.uniqueName();

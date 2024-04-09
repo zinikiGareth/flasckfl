@@ -20,6 +20,7 @@ JSEnv.prototype.addHistory = function(state, title, url) {
 };
 
 // src/main/javascript/live/services.js
+import { FLURI } from "/js/flasjs.js";
 var groundUri = function(uri) {
   try {
     if (uri instanceof FLURI) {
