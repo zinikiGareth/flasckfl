@@ -302,8 +302,8 @@ public class ExpressionGenerationJS {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+			oneOf(jss).newFunction(name, new PackageName("test.repo"), new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).argumentList();
 			oneOf(meth).checkCached();
@@ -332,8 +332,8 @@ public class ExpressionGenerationJS {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(fnName, "test.repo", new PackageName("test.repo"), false, "f"); will(returnValue(meth));
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+			oneOf(jss).newFunction(fnName, new PackageName("test.repo"), new PackageName("test.repo"), false, "f"); will(returnValue(meth));
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).structConst(new SolidName(LoadBuiltins.builtinPkg, "test.repo.Ctor")); will(returnValue(nret));

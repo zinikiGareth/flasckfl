@@ -21,7 +21,7 @@ public class InitContext implements IVForm {
 //			r = "this._runner";
 //		w.println("const _cxt = " + r + ".newContext();");
 		if (!field) {
-			for (String e : env.packages()) {
+			for (String e : env.packageStrings()) {
 				PackageName pp = new PackageName(e);
 				if (!e.contains("_ut_") && !e.contains("_st_"))
 					w.println("if (" + pp.jsName() + "._init) " + pp.jsName() + "._init(_cxt);");

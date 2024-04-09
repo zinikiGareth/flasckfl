@@ -38,8 +38,8 @@ public class ContractGenerationJS {
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+			oneOf(jss).newClass(new PackageName("test.repo"), new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
 			oneOf(clz).justAnInterface();
 			exactly(2).of(clz).constructor();
 			oneOf(jss).contract(cd);
@@ -64,8 +64,8 @@ public class ContractGenerationJS {
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+			oneOf(jss).newClass(new PackageName("test.repo"), new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
 			oneOf(clz).justAnInterface();
 			exactly(2).of(clz).constructor();
 			oneOf(jss).contract(cd);

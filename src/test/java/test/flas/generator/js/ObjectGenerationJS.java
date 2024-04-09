@@ -42,9 +42,9 @@ public class ObjectGenerationJS {
 		JSVar cx = new JSVar("_cxt");
 		JSVar v = new JSVar("_card");
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
 			oneOf(jss).object(od);
-			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Obj")); will(returnValue(clz));
+			oneOf(jss).newClass(new PackageName("test.repo"), new SolidName(new PackageName("test.repo"), "Obj")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(with(any(PackageName.class)), with(J.FLOBJECT));
 			oneOf(clz).implementsJava(J.AREYOUA);
 			oneOf(clz).inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
@@ -77,9 +77,9 @@ public class ObjectGenerationJS {
 		JSVar cx = new JSVar("_cxt");
 		JSVar v = new JSVar("_card");
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
 			oneOf(jss).object(od);
-			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Obj")); will(returnValue(clz));
+			oneOf(jss).newClass(new PackageName("test.repo"), new SolidName(new PackageName("test.repo"), "Obj")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(with(any(PackageName.class)), with(J.FLOBJECT));
 			oneOf(clz).implementsJava(J.AREYOUA);
 			oneOf(clz).inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");

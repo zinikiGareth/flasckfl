@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -611,5 +612,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			}
 		}
 		return rpns;
+	}
+
+	public Collection<String> flimPackages() {
+		return flimDefines.keySet();
 	}
 }

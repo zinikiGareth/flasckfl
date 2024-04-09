@@ -56,7 +56,7 @@ public class SystemTestGenerator extends LeafAdapter {
 
 	private void createClass(SystemTest st) {
 		NameOfThing name = st.name();
-		String pkg = name.packageName().jsName();
+		PackageName pkg = name.packageName();
 		jse.ensurePackageExists(pkg, name.container().jsName());
 		clz = jse.newSystemTest(st);
 		clz.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");

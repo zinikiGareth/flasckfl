@@ -1,24 +1,3 @@
-// src/main/javascript/forjava/javalogger.js
-var JavaLogger = {};
-JavaLogger.log = function() {
-  var ret = "";
-  var sep = "";
-  for (var i = 0; i < arguments.length; i++) {
-    ret += sep + arguments[i];
-    sep = " ";
-  }
-  callJava.log(ret);
-};
-JavaLogger.debugmsg = function() {
-  var ret = "";
-  var sep = "";
-  for (var i = 0; i < arguments.length; i++) {
-    ret += sep + arguments[i];
-    sep = " ";
-  }
-  callJava.debugmsg(ret);
-};
-
 // src/main/javascript/forjava/wsbridge.js
 import { UTRunner } from "/js/flastest.js";
 function WSBridge(host2, port2) {
@@ -61,13 +40,27 @@ function WSBridge(host2, port2) {
 }
 WSBridge.handlers = {};
 WSBridge.prototype.addtest = function(name, test) {
+  console.log("adding test", name, test);
   this.tests[name] = test;
 };
 WSBridge.prototype.log = function(...args) {
   console.log.apply(console.log, args);
+  if (this.ws) {
+    this.send({ action: "log", message: merge(args) });
+  }
 };
 WSBridge.prototype.debugmsg = function(...args) {
   console.log.apply(console.log, args);
+  this.send({ action: "debugmsg", message: merge(args) });
+};
+var merge = function(...args) {
+  var ret = "";
+  var sep = "";
+  for (var i = 0; i < arguments.length; i++) {
+    ret += sep + arguments[i];
+    sep = " ";
+  }
+  return ret;
 };
 WSBridge.prototype.module = function(runner2, moduleName) {
   this.runner = runner2;
@@ -86,7 +79,9 @@ WSBridge.handlers["haveModule"] = function(msg) {
 WSBridge.handlers["prepareTest"] = function(msg) {
   console.log("run unit test", msg);
   var cxt = this.runner.newContext();
+  console.log("test", this.tests[msg.wrapper]);
   var utf = this.tests[msg.wrapper][msg.testname];
+  console.log("what is", utf);
   this.currentTest = new utf(this.runner, cxt);
   this.runner.clear();
   var steps = this.currentTest.dotest.call(this.currentTest, cxt);
@@ -142,6 +137,5 @@ WSBridge.prototype.unlock = function(msg) {
   this.send({ action: "unlock" });
 };
 export {
-  JavaLogger,
   WSBridge
 };

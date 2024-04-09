@@ -164,7 +164,9 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 			}
 			w.print(fn.jsPName());
 		} else {
-			if (name == null && clzName.packageName().uniqueName() == null) { // the special case of a root package constructor
+			if (name == null &&
+				(clzName.packageName().uniqueName() == null || // the special case of a root package constructor
+				clzName.baseName().startsWith("_st"))) { // the special case of a system test constructor
 				w.print("var ");
 				exports.add(clzName.jsName());
 			}

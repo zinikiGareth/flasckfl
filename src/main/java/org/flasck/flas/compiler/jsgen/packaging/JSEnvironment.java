@@ -68,7 +68,7 @@ public class JSEnvironment implements JSStorage {
 	
 	public Iterable<File> files() {
 		List<File> ret = new ArrayList<>();
-		Iterable<String> pkgs = packages();
+		Iterable<String> pkgs = packageStrings();
 		for (String s : pkgs) {
 			JSFile f = files.get(s);
 			if (f != null)
@@ -86,20 +86,20 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
-	public void ensurePackageExists(String filePkg, String pkg) {
+	public void ensurePackageExists(PackageName filePkg, String pkg) {
 		if (filePkg == null)
-			filePkg = "root.package";
+			filePkg = new PackageName("root.package");
 		if (pkg == null)
 			pkg = "root.package";
-		if (filePkg.equals(pkg))
+		if (filePkg.jsName().equals(pkg))
 			return;
-		if (!pkg.startsWith(filePkg))
+		if (!pkg.startsWith(filePkg.uniqueName()))
 			throw new RuntimeException(pkg + " is not in " + filePkg);
 		getPackage(filePkg).ensurePackage(pkg);
 	}
 
 	@Override
-	public JSClassCreator newClass(String pkg, NameOfThing clz) {
+	public JSClassCreator newClass(PackageName pkg, NameOfThing clz) {
 		JSFile inpkg = getPackage(pkg);
 		JSClass ret = new JSClass(this, clz);
 		inpkg.addClass(ret);
@@ -109,7 +109,7 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public JSClassCreator newUnitTest(UnitTestCase ut) {
 		unitTests.add(ut);
-		JSFile inpkg = getPackage(ut.name.container().uniqueName());
+		JSFile inpkg = getPackage((PackageName) ut.name.container());
 		JSClass ret = new JSClass(this, ut.name);
 		inpkg.addClass(ret);
 		return ret;
@@ -118,7 +118,7 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public JSClassCreator newSystemTest(SystemTest st) {
 		systemTests.add(st);
-		JSFile inpkg = getPackage(st.name().packageName().jsName() + "._st");
+		JSFile inpkg = getPackage((PackageName) st.name().container());
 		JSClass ret = new JSClass(this, st.name());
 		inpkg.addClass(ret);
 		return ret;
@@ -135,7 +135,7 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
-	public JSMethodCreator newFunction(NameOfThing fnName, String pkg, NameOfThing cxt, boolean isPrototype, String name) {
+	public JSMethodCreator newFunction(NameOfThing fnName, PackageName pkg, NameOfThing cxt, boolean isPrototype, String name) {
 		JSFile inpkg = getPackage(pkg);
 		JSMethod ret = new JSMethod(this, fnName, cxt, isPrototype, name);
 		inpkg.addFunction(ret);
@@ -144,32 +144,32 @@ public class JSEnvironment implements JSStorage {
 
 	@Override
 	public void methodList(NameOfThing name, List<FunctionName> methods) {
-		JSFile inpkg = getPackage(name.packageName().uniqueName());
+		JSFile inpkg = getPackage(name.packageName());
 		inpkg.methodList(name, methods);
 	}
 
 	@Override
 	public void eventMap(NameOfThing name, EventTargetZones eventMethods) {
-		JSFile inpkg = getPackage(name.packageName().uniqueName());
+		JSFile inpkg = getPackage(name.packageName());
 		inpkg.eventMap(name, eventMethods);
 	}
 
 	@Override
 	public void applRouting(JSClassCreator clz, NameOfThing name, ApplicationRouting routes) {
-		JSFile inpkg = getPackage(name.packageName().uniqueName());
+		JSFile inpkg = getPackage(name.packageName());
 		inpkg.applRouting(clz, name, routes);
 	}
 
-	public JSFile getPackage(String pkg) {
+	public JSFile getPackage(PackageName pkg) {
 		if (pkg == null)
-			pkg = "root.package";
-		if (pkg.contains("__"))
+			pkg = new PackageName("root.package");
+		else if (pkg.uniqueName().contains("__"))
 			throw new CantHappenException("there should not be a __ in the package name: " + pkg);
-		JSFile inpkg = files.get(pkg);
+		JSFile inpkg = files.get(pkg.uniqueName());
 		if (inpkg == null) {
-			File f = new File(root, pkg + ".js");
+			File f = new File(root, pkg.uniqueName() + ".js");
 			inpkg = new JSFile(repository, pkg, f);
-			files.put(pkg, inpkg);
+			files.put(pkg.uniqueName(), inpkg);
 		}
 		return inpkg;
 	}
@@ -248,6 +248,7 @@ public class JSEnvironment implements JSStorage {
 				continue;
 			ret.add(s);
 		}
+		ret.addAll(repository.flimPackages());
 		return ret;
 	}
 
@@ -257,7 +258,23 @@ public class JSEnvironment implements JSStorage {
 		}
 	}
 
-	public Iterable<String> packages() {
+	public Iterable<PackageName> packageNames() {
+		LinkedHashSet<PackageName> ret = new LinkedHashSet<>();
+		if (pkgdag.hasNode("root.package"))
+			ret.add(new PackageName("root.package"));
+		for (String s : files.keySet()) {
+			pkgdag.ensure(s);
+			pkgdag.postOrderFrom(new NodeWalker<String>() {
+				@Override
+				public void present(Node<String> node) {
+					ret.add(new PackageName(node.getEntry()));
+				}
+			}, s);
+		}
+		return ret;
+	}
+
+	public Iterable<String> packageStrings() {
 		LinkedHashSet<String> ret = new LinkedHashSet<>();
 		if (pkgdag.hasNode("root.package"))
 			ret.add("root.package");
@@ -292,7 +309,7 @@ public class JSEnvironment implements JSStorage {
 			addFrom(ret, testDirJS, inlib, mld);
 		}
 
-		for (String s : packages()) {
+		for (String s : packageStrings()) {
 			File f = fileFor(s);
 			if (f != null) {
 				includeFile(ret, testDirJS, f);

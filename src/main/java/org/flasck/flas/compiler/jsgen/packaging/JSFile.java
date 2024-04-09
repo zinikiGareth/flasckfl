@@ -25,7 +25,7 @@ import org.zinutils.exceptions.CantHappenException;
 
 public class JSFile {
 	private final Repository repository;
-	private final String pkg;
+	private final PackageName pkg;
 	private final File file;
 	private final Set<String> packages = new TreeSet<>();
 	private final List<JSClass> classes = new ArrayList<>();
@@ -35,7 +35,7 @@ public class JSFile {
 	private final List<ApplRoutingTable> routes = new ArrayList<>();
 	private final Set<String> exports = new TreeSet<>();
 
-	public JSFile(Repository repository, String pkg, File file) {
+	public JSFile(Repository repository, PackageName pkg, File file) {
 		this.repository = repository;
 		this.pkg = pkg;
 		this.file = file;
@@ -85,13 +85,13 @@ public class JSFile {
 			"import { IdempotentHandler } from \"/js/ziwsh.js\";"
 		);
 		iw.println(
-			"import { Assign, AssignCons, AssignItem, Debug, ResponseWithMessages, Send, UpdateDisplay, ClickEvent, ContractStore, FLBuiltin, False, True, MakeHash, HashPair, Tuple, TypeOf, FLCard, FLObject, FLError, Nil, Cons } from \"/js/flasjs.js\";"
+			"import { Assign, AssignCons, AssignItem, Debug, ResponseWithMessages, Send, UpdateDisplay, ClickEvent, ContractStore, FLBuiltin, False, True, MakeHash, HashPair, Tuple, TypeOf, FLCard, FLObject, FLError, Nil, Cons, Crobag, CroEntry, SlideWindow, CrobagWindow, CrobagChangeEvent, CrobagWindowEvent } from \"/js/flasjs.js\";"
 		);
 		iw.println(
 			"import { BoundVar } from \"/js/flastest.js\";"
 		);
 		for (String s : imports) {
-			if (s.equals(pkg))
+			if (s.equals(pkg.uniqueName()))
 				continue;
 			PackageName pn = new PackageName(s);
 			if (s.equals("root.package"))
@@ -169,9 +169,9 @@ public class JSFile {
 	}
 
 	private void declarePackages(IndentWriter iw) {
-		if (pkg == null)
+		if (pkg == null || pkg.uniqueName().endsWith("_st"))
 			return;
-		declarePackage(iw, pkg);
+		declarePackage(iw, pkg.uniqueName());
 		iw.println("");
 	}
 

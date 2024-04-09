@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.flasck.flas.commonBase.names.UnitTestFileName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.server.tda.WSReceiver;
@@ -80,12 +80,11 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 				controller.error(jo.getString("error"));
 				break;
 			}
-//			case "step": {
-//				Thread.sleep(100); // we aren't properly synced, so wait to see if anything happens ...
-//				counter.waitForZero(2500);
-//				responder.send(new JSONObject().put("action", "stepdone").toString());
-//				break;
-//			}
+			case "log": 
+			case "debugmsg": {
+				logger.warn(jo.getString("message"));
+				break;
+			}
 			case "lock": {
 				lock();
 				break;
@@ -110,8 +109,8 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 		}
 	}
 
-	public void prepareTest(UnitTestFileName unitTestFileName, String test) throws JSONException {
-		responder.send(new JSONObject().put("action", "prepareTest").put("wrapper", unitTestFileName.uniqueName()).put("testname", test).toString());
+	public void prepareTest(NameOfThing pkg, String test) throws JSONException {
+		responder.send(new JSONObject().put("action", "prepareTest").put("wrapper", pkg.uniqueName()).put("testname", test).toString());
 	}
 
 	public void runStep(String step) throws JSONException {

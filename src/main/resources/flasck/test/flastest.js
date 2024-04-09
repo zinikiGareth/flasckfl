@@ -1,5 +1,6 @@
 // src/main/javascript/unittest/mocks.js
 import { IdempotentHandler, NamedIdempotentHandler as NamedIdempotentHandler2 } from "/js/ziwsh.js";
+import { FLError } from "/js/flasjs.js";
 var BoundVar = function(name) {
   this.name = name;
 };

@@ -89,7 +89,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 			for (ContentObject co : jse.jsIncludes(config, null)) {
 				includePackageFile(co);
 			}
-			for (String s : jse.packages()) {
+			for (String s : jse.packageStrings()) {
 				if (s.contains("_ut_") || s.contains("_st_") || s.endsWith("_ut") || s.endsWith("_st"))
 					continue;
 				logger.info("have package " + s);

@@ -42,7 +42,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void creatingAClassEnsuresThereIsOnePackageFile() {
-		jse.newClass("test.repo", new SolidName(new PackageName("test"), "Clazz"));
+		jse.newClass(new PackageName("test.repo"), new SolidName(new PackageName("test"), "Clazz"));
 		List<File> acc = new ArrayList<>();
 		jse.files().forEach(x -> acc.add(x));
 		assertEquals(1, acc.size());
@@ -51,18 +51,18 @@ public class ClassGeneration {
 
 	@Test
 	public void creatingAClassReturnsAClassObject() {
-		JSClassCreator jcc = jse.newClass("test.repo", new SolidName(new PackageName("test"), "Clazz"));
+		JSClassCreator jcc = jse.newClass(new PackageName("test.repo"), new SolidName(new PackageName("test"), "Clazz"));
 		assertNotNull(jcc);
-		JSFile f = jse.getPackage("test.repo");
+		JSFile f = jse.getPackage(new PackageName("test.repo"));
 		assertNotNull(f);
 		assertEquals(1, f.classes().size());
 	}
 
 	@Test
 	public void creatingAFunctionIsPossible() {
-		JSMethodCreator meth = jse.newFunction(null, "test.repo", new PackageName("test.repo"), false, "f");
+		JSMethodCreator meth = jse.newFunction(null, new PackageName("test.repo"), new PackageName("test.repo"), false, "f");
 		assertNotNull(meth);
-		JSFile f = jse.getPackage("test.repo");
+		JSFile f = jse.getPackage(new PackageName("test.repo"));
 		assertNotNull(f);
 		assertEquals(1, f.functions().size());
 	}
@@ -227,7 +227,7 @@ public class ClassGeneration {
 	@Test
 	@Ignore
 	public void aPackageDefinesItsNesting() {
-		JSFile f = new JSFile(null, "test.repo.pkg", null);
+		JSFile f = new JSFile(null, new PackageName("test.repo.pkg"), null);
 		f.writeTo(w, new ArrayList<>());
 		assertEquals("if (typeof(test) === 'undefined') test = {};\nif (typeof(test.repo) === 'undefined') test.repo = {};\nif (typeof(test.repo.pkg) === 'undefined') test.repo.pkg = {};\n", sw.toString());
 	}
@@ -235,7 +235,7 @@ public class ClassGeneration {
 	@Test
 	@Ignore
 	public void aPackageIncludesItsClasses() {
-		JSFile f = new JSFile(null, "test", null);
+		JSFile f = new JSFile(null, new PackageName("test"), null);
 		f.addClass(new JSClass(jse, new SolidName(new PackageName("test"), "Clazz")));
 		f.writeTo(w, new ArrayList<>());
 		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.Clazz = function() {\n}\n", sw.toString());
@@ -244,7 +244,7 @@ public class ClassGeneration {
 	@Test
 	@Ignore
 	public void aPackageIncludesItsFunctions() {
-		JSFile f = new JSFile(null, "test", null);
+		JSFile f = new JSFile(null, new PackageName("test"), null);
 		JSMethod meth = new JSMethod(jse, null, new PackageName("test"), false, "f");
 		meth.argument("_cxt");
 		f.addFunction(meth);

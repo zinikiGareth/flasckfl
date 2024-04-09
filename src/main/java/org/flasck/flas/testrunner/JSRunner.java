@@ -207,7 +207,9 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			Map<String, Object> map = new TreeMap<>();
 			map.put("class", BridgeGenHandler.class.getName());
 			map.put("server", server);
+			map.put("sources", jse.packageNames());
 			map.put("unitTests", jse.unitTests());
+			map.put("systemTests", jse.systemTests());
 			
 			tree.add("/gen/*", new DehydratedHandler<>(new Instantiator("gen", map), items));
 		}
@@ -268,7 +270,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 	@Override
 	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
-		String clz = utc.name.jsName();
 		String desc = utc.description;
 		try {
 			launch();
@@ -313,16 +314,17 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	
 	@Override
 	protected JSTestState createSystemTest(TestResultWriter pw, SystemTest st) {
-		String clz = st.name().jsName();
 		pw.systemTest("JS", st);
-		SingleJSTest t1 = new SingleJSTest(bridge, counter, errors, pw, (UnitTestName) st.name());
 		try {
+			launch();
+			SingleJSTest t1 = new SingleJSTest(bridge, counter, errors, pw, new UnitTestName(st.name().container(), st.name().baseName()));
 			CountDownLatch cdl = new CountDownLatch(1);
 			t1.create(cdl);
+			return t1.state;
 		} catch (Exception ex) {
 			pw.error("JS", "desc" + ": " + ex.getMessage(), ex);
 		}
-		return t1.state;
+		return null;
 	}
 	
 	@Override

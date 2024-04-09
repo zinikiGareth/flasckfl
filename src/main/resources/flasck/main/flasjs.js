@@ -286,7 +286,7 @@ MoveUpEvent.prototype.toString = function() {
 };
 
 // src/main/javascript/runtime/error.js
-var FLError2 = class _FLError extends Error {
+var FLError = class _FLError extends Error {
   constructor(msg) {
     super(msg);
     this.name = "FLError";
@@ -302,8 +302,8 @@ var FLError2 = class _FLError extends Error {
     return true;
   }
 };
-FLError2.eval = function(_cxt, msg) {
-  return new FLError2(msg);
+FLError.eval = function(_cxt, msg) {
+  return new FLError(msg);
 };
 
 // src/main/javascript/runtime/messages.js
@@ -333,7 +333,7 @@ Array.prototype._field_tail.nfargs = function() {
 Cons.prototype._field_tail = Array.prototype._field_tail;
 Cons.eval = function(_cxt, hd, tl) {
   var cp = _cxt.spine(tl);
-  if (cp instanceof FLError2)
+  if (cp instanceof FLError)
     return cp;
   else if (!cp)
     return [hd];
@@ -502,7 +502,7 @@ AssignCons.prototype.dispatch = function(cx2) {
     var rwm = this.obj.dispatch(cx2);
     target = rwm;
   }
-  if (target instanceof FLError2) {
+  if (target instanceof FLError) {
     cx2.log(target);
     return;
   }
@@ -579,9 +579,9 @@ FLClosure.prototype.eval = function(_cxt) {
     return this.val;
   this.args[0] = _cxt;
   this.obj = _cxt.full(this.obj);
-  if (this.obj instanceof FLError2)
+  if (this.obj instanceof FLError)
     return this.obj;
-  if (this.fn instanceof FLError2)
+  if (this.fn instanceof FLError)
     return this.fn;
   var cnt = this.fn.nfargs();
   this.val = this.fn.apply(this.obj, this.args.slice(0, cnt + 1));
@@ -901,12 +901,12 @@ FLBuiltin.concat.nfargs = function() {
 FLBuiltin.nth = function(_cxt, n, list) {
   n = _cxt.full(n);
   if (typeof n != "number")
-    return new FLError2("no matching case");
+    return new FLError("no matching case");
   list = _cxt.spine(list);
   if (!Array.isArray(list))
-    return new FLError2("no matching case");
+    return new FLError("no matching case");
   if (n < 0 || n >= list.length)
-    return new FLError2("out of bounds");
+    return new FLError("out of bounds");
   return list[n];
 };
 FLBuiltin.nth.nfargs = function() {
@@ -915,12 +915,12 @@ FLBuiltin.nth.nfargs = function() {
 FLBuiltin.item = function(_cxt, n, list) {
   n = _cxt.full(n);
   if (typeof n != "number")
-    return new FLError2("no matching case");
+    return new FLError("no matching case");
   list = _cxt.spine(list);
   if (!Array.isArray(list))
-    return new FLError2("no matching case");
+    return new FLError("no matching case");
   if (n < 0 || n >= list.length)
-    return new FLError2("out of bounds");
+    return new FLError("out of bounds");
   return new AssignItem(list, n);
 };
 FLBuiltin.item.nfargs = function() {
@@ -929,7 +929,7 @@ FLBuiltin.item.nfargs = function() {
 FLBuiltin.append = function(_cxt, list, elt) {
   list = _cxt.spine(list);
   if (!Array.isArray(list))
-    return new FLError2("no matching case");
+    return new FLError("no matching case");
   var cp = list.slice(0);
   cp.push(elt);
   return cp;
@@ -940,12 +940,12 @@ FLBuiltin.append.nfargs = function() {
 FLBuiltin.replace = function(_cxt, list, n, elt) {
   n = _cxt.full(n);
   if (typeof n != "number")
-    return new FLError2("no matching case");
+    return new FLError("no matching case");
   list = _cxt.spine(list);
   if (!Array.isArray(list))
-    return new FLError2("no matching case");
+    return new FLError("no matching case");
   if (n < 0 || n >= list.length)
-    return new FLError2("out of bounds");
+    return new FLError("out of bounds");
   var cp = list.slice(0);
   cp[n] = elt;
   return cp;
@@ -969,15 +969,15 @@ FLBuiltin.concatLists.nfargs = function() {
 };
 FLBuiltin.take = function(_cxt, quant, list) {
   list = _cxt.spine(list);
-  if (list instanceof FLError2)
+  if (list instanceof FLError)
     return list;
   else if (!list)
     return [];
   quant = _cxt.full(quant);
-  if (quant instanceof FLError2)
+  if (quant instanceof FLError)
     return quant;
   if (typeof quant !== "number")
-    return new FLError2("no matching case");
+    return new FLError("no matching case");
   if (list.length <= quant)
     return list;
   return list.slice(0, quant);
@@ -987,15 +987,15 @@ FLBuiltin.take.nfargs = function() {
 };
 FLBuiltin.drop = function(_cxt, quant, list) {
   list = _cxt.spine(list);
-  if (list instanceof FLError2)
+  if (list instanceof FLError)
     return list;
   else if (!list)
     return [];
   quant = _cxt.full(quant);
-  if (quant instanceof FLError2)
+  if (quant instanceof FLError)
     return quant;
   if (typeof quant !== "number")
-    return new FLError2("no matching case");
+    return new FLError("no matching case");
   return list.slice(quant);
 };
 FLBuiltin.drop.nfargs = function() {
@@ -1082,11 +1082,11 @@ FLBuiltin.lessThan.nfargs = function() {
 };
 FLBuiltin._probe_state = function(_cxt, mock, v) {
   var sh = _cxt.full(mock);
-  if (sh instanceof FLError2)
+  if (sh instanceof FLError)
     return sh;
   else if (sh.routes) {
     if (sh.routes[v] === void 0)
-      return new FLError2("there is no card bound to route var '" + v + "'");
+      return new FLError("there is no card bound to route var '" + v + "'");
     return sh.routes[v];
   } else if (sh.card) {
     sh = sh.card;
@@ -1094,7 +1094,7 @@ FLBuiltin._probe_state = function(_cxt, mock, v) {
   } else if (sh.agent)
     sh = sh.agent;
   if (sh.state.dict[v] === void 0)
-    return new FLError2("No field '" + v + "' in probe_state");
+    return new FLError("No field '" + v + "' in probe_state");
   return sh.state.dict[v];
 };
 FLBuiltin._probe_state.nfargs = function() {
@@ -1108,7 +1108,7 @@ FLBuiltin._underlying.nfargs = function() {
 };
 FLBuiltin.dispatch = function(_cxt, msgs2) {
   msgs2 = _cxt.full(msgs2);
-  if (msgs2 instanceof FLError2)
+  if (msgs2 instanceof FLError)
     return msgs2;
   var ret2 = [];
   var te = _cxt.env;
@@ -1159,7 +1159,7 @@ FLBuiltin.assoc = function(_cxt, hash, member) {
   if (hash[member])
     return hash[member];
   else
-    return new FLError2("no member " + member);
+    return new FLError("no member " + member);
 };
 FLBuiltin.assoc.nfargs = function() {
   return 2;
@@ -1175,10 +1175,10 @@ FLURI2.prototype._towire = function(into) {
 };
 FLBuiltin.parseUri = function(_cxt, s) {
   s = _cxt.full(s);
-  if (s instanceof FLError2)
+  if (s instanceof FLError)
     return s;
   else if (typeof s !== "string")
-    return new FLError2("not a string");
+    return new FLError("not a string");
   else
     return new FLURI2(s);
 };
@@ -1187,7 +1187,7 @@ FLBuiltin.parseUri.nfargs = function() {
 };
 FLBuiltin.parseJson = function(_cxt, s) {
   s = _cxt.full(s);
-  if (s instanceof FLError2)
+  if (s instanceof FLError)
     return s;
   return JSON.parse(s);
 };
@@ -1257,7 +1257,7 @@ FLContext.prototype.hash = function(...args) {
   for (var i = 0; i < args.length; i++) {
     var hp = this.head(args[i]);
     if (!(hp instanceof HashPair))
-      return new FLError2("member was not a hashpair");
+      return new FLError("member was not a hashpair");
     var m = this.full(hp.m);
     ret2[m] = hp.o;
   }
@@ -1265,16 +1265,16 @@ FLContext.prototype.hash = function(...args) {
 };
 FLContext.prototype.applyhash = function(basic, hash) {
   basic = this.head(basic);
-  if (basic instanceof FLError2)
+  if (basic instanceof FLError)
     return basic;
   hash = this.spine(hash);
-  if (hash instanceof FLError2)
+  if (hash instanceof FLError)
     return hash;
   var okh = Object.keys(hash);
   for (var i = 0; i < okh.length; i++) {
     var p = okh[i];
     if (!basic.state.has(p))
-      return new FLError2("cannot override member: " + p);
+      return new FLError("cannot override member: " + p);
     basic.state.set(p, hash[p]);
   }
   return basic;
@@ -1286,7 +1286,7 @@ FLContext.prototype.tupleMember = function(tuple, which) {
   return tuple.args[which];
 };
 FLContext.prototype.error = function(msg) {
-  return FLError2.eval(this, msg);
+  return FLError.eval(this, msg);
 };
 FLContext.prototype.mksend = function(meth, obj, cnt, handler, subscriptionName) {
   if (cnt == 0)
@@ -1332,7 +1332,7 @@ FLContext.prototype.head = function(obj) {
 };
 FLContext.prototype.spine = function(obj) {
   obj = this.head(obj);
-  if (obj instanceof FLError2)
+  if (obj instanceof FLError)
     return obj;
   if (!obj)
     return [];
@@ -1415,7 +1415,7 @@ FLContext.prototype.compare = function(left, right) {
         return false;
     }
     return true;
-  } else if (left instanceof FLError2 && right instanceof FLError2) {
+  } else if (left instanceof FLError && right instanceof FLError) {
     return left.message === right.message;
   } else if (left._compare) {
     return left._compare(this, right);
@@ -1480,7 +1480,7 @@ FLContext.prototype.handleEvent = function(card, handler, event) {
   if (handler) {
     reply = handler.call(card, this, event);
   }
-  if (reply instanceof FLError2) {
+  if (reply instanceof FLError) {
     this.log(reply.message);
     return;
   }
@@ -1621,7 +1621,7 @@ var Html = function(_cxt, _html) {
 Html._ctor_from = function(_cxt, _card, _html) {
   var ret2;
   if (!(_html instanceof AjaxMessage)) {
-    ret2 = new FLError2("not an AjaxMessage");
+    ret2 = new FLError("not an AjaxMessage");
   } else {
     ret2 = new Html(_cxt, _html.state.get("body"));
   }
@@ -1637,6 +1637,274 @@ Html.prototype._compare = function(_cxt, other) {
 };
 Html.prototype.toString = function() {
   return "Html";
+};
+
+// src/main/javascript/runtime/crobag.js
+import { IdempotentHandler as IdempotentHandler2 } from "/js/ziwsh.js";
+var SlideWindow = function(_cxt) {
+  IdempotentHandler2.call(this, _cxt);
+  return;
+};
+SlideWindow.prototype = new IdempotentHandler2();
+SlideWindow.prototype.constructor = SlideWindow;
+SlideWindow.prototype.name = function() {
+  return "SlideWindow";
+};
+SlideWindow.prototype.name.nfargs = function() {
+  return -1;
+};
+SlideWindow.prototype._methods = function() {
+  const v1 = ["success", "failure"];
+  return v1;
+};
+SlideWindow.prototype._methods.nfargs = function() {
+  return -1;
+};
+var CrobagWindow = function(_cxt) {
+  IdempotentHandler2.call(this, _cxt);
+  return;
+};
+CrobagWindow.prototype = new IdempotentHandler2();
+CrobagWindow.prototype.constructor = CrobagWindow;
+CrobagWindow.prototype.name = function() {
+  return "CrobagWindow";
+};
+CrobagWindow.prototype.name.nfargs = function() {
+  return -1;
+};
+CrobagWindow.prototype._methods = function() {
+  const v1 = ["success", "failure", "next", "done"];
+  return v1;
+};
+CrobagWindow.prototype._methods.nfargs = function() {
+  return -1;
+};
+CrobagWindow.prototype.next = function(_cxt, _key, _value, _ih) {
+  return "interface method for CrobagWindow.next";
+};
+CrobagWindow.prototype.next.nfargs = function() {
+  return 2;
+};
+CrobagWindow.prototype.done = function(_cxt, _ih) {
+  return "interface method for CrobagWindow.done";
+};
+CrobagWindow.prototype.done.nfargs = function() {
+  return 0;
+};
+var CroEntry = function(key, val) {
+  this.key = key;
+  this.val = val;
+};
+CroEntry.fromWire = function(cx2, om2, fields2) {
+  var lt = new ListTraverser(cx2, om2.state);
+  om2.marshal(lt, fields2["value"]);
+  return new CroEntry(fields2["key"], lt.ret[0]);
+};
+var Crobag = function(_cxt, _card) {
+  FLObject.call(this, _cxt);
+  this._card = _card;
+  this.state = { dict: {} };
+  this._entries = [];
+};
+Crobag._ctor_new = function(_cxt, _card) {
+  const ret2 = new Crobag(_cxt, _card);
+  return new ResponseWithMessages(_cxt, ret2, []);
+};
+Crobag._ctor_new.nfargs = function() {
+  return 1;
+};
+Crobag.fromWire = function(cx2, om2, fields2) {
+  var ret2 = new Crobag(cx2, null);
+  var os = fields2["entries"];
+  if (os.length > 0) {
+    var lt = new ListTraverser(cx2, om2.state);
+    for (var i = 0; i < os.length; i++) {
+      om2.marshal(lt, os[i]);
+    }
+    ret2._entries = lt.ret;
+  }
+  return ret2;
+};
+Crobag.prototype._towire = function(wf) {
+  wf._wireable = "org.flasck.jvm.builtin.Crobag";
+  var os = fields["entries"];
+  if (os.length > 0) {
+    var lt = new ListTraverser(cx, om.state);
+    for (var i = 0; i < os.length; i++) {
+      om.marshal(lt, os[i]);
+    }
+    ret._entries = lt.ret;
+  }
+  return ret;
+};
+Crobag.prototype.insert = function(_cxt, key, val) {
+  return [CrobagChangeEvent.eval(_cxt, this, "insert", key, null, val)];
+};
+Crobag.prototype.insert.nfargs = function() {
+  return 1;
+};
+Crobag.prototype.put = function(_cxt, key, val) {
+  return [CrobagChangeEvent.eval(_cxt, this, "put", key, null, val)];
+};
+Crobag.prototype.put.nfargs = function() {
+  return 1;
+};
+Crobag.prototype.upsert = function(_cxt, key, val) {
+  return [CrobagChangeEvent.eval(_cxt, this, "upsert", key, null, val)];
+};
+Crobag.prototype.upsert.nfargs = function() {
+  return 1;
+};
+Crobag.prototype.window = function(_cxt, from, size, handler) {
+  return [CrobagWindowEvent.eval(_cxt, this, from, size, handler)];
+};
+Crobag.prototype.window.nfargs = function() {
+  return 3;
+};
+Crobag.prototype.size = function(_cxt) {
+  return this._entries.length;
+};
+Crobag.prototype.size.nfargs = function() {
+  return 0;
+};
+Crobag.prototype._change = function(cx2, op, newKey, remove, val) {
+  if (newKey != null) {
+    var e = new CroEntry(newKey, val);
+    var done = false;
+    for (var i = 0; i < this._entries.length; i++) {
+      if (this._entries[i].key > newKey) {
+        this._entries.splice(i, 0, e);
+        done = true;
+        break;
+      } else if (this._entries[i].key == newKey) {
+        if (op == "insert") {
+          continue;
+        } else if (op == "put") {
+          this._entries.splice(i, 1, e);
+        } else if (op == "upsert") {
+        }
+        done = true;
+        break;
+      }
+    }
+    if (!done)
+      this._entries.push(e);
+  }
+};
+Crobag.prototype._methods = function() {
+  return {
+    "insert": Crobag.prototype.insert,
+    "put": Crobag.prototype.put,
+    "size": Crobag.prototype.size,
+    "upsert": Crobag.prototype.upsert,
+    "window": Crobag.prototype.window
+  };
+};
+var CrobagChangeEvent = function() {
+};
+CrobagChangeEvent.eval = function(_cxt, bag, op, newKey, remove, val) {
+  const e = new CrobagChangeEvent();
+  e.bag = bag;
+  e.op = op;
+  e.newKey = newKey;
+  e.remove = remove;
+  e.val = val;
+  return e;
+};
+CrobagChangeEvent.prototype._compare = function(cx2, other) {
+  if (other instanceof CrobagChangeEvent) {
+    return other.msg == this.msg;
+  } else
+    return false;
+};
+CrobagChangeEvent.prototype.dispatch = function(cx2) {
+  this.bag = cx2.full(this.bag);
+  if (this.bag instanceof FLError)
+    return this.bag;
+  this.op = cx2.full(this.op);
+  if (this.op instanceof FLError)
+    return this.op;
+  this.newKey = cx2.full(this.newKey);
+  if (this.newKey instanceof FLError)
+    return this.newKey;
+  this.remove = cx2.full(this.remove);
+  if (this.remove instanceof FLError)
+    return this.remove;
+  this.val = cx2.full(this.val);
+  if (this.val instanceof FLError)
+    return this.val;
+  this.bag._change(cx2, this.op, this.newKey, this.remove, this.val);
+  return [];
+};
+CrobagChangeEvent.prototype.toString = function() {
+  return "CrobagChangeEvent[" + this.from + ":" + this.size + "]";
+};
+var CrobagWindowEvent = function() {
+};
+CrobagWindowEvent.eval = function(_cxt, bag, from, size, replyto) {
+  const e = new CrobagWindowEvent();
+  e.bag = bag;
+  e.from = from;
+  e.size = size;
+  e.replyto = replyto;
+  return e;
+};
+CrobagWindowEvent.prototype._compare = function(cx2, other) {
+  if (other instanceof CrobagWindowEvent) {
+    return other.msg == this.msg;
+  } else
+    return false;
+};
+CrobagWindowEvent.prototype.dispatch = function(cx2) {
+  this.bag = cx2.full(this.bag);
+  if (this.bag instanceof FLError)
+    return this.bag;
+  this.from = cx2.full(this.from);
+  if (this.from instanceof FLError)
+    return this.from;
+  this.size = cx2.full(this.size);
+  if (this.size instanceof FLError)
+    return this.size;
+  this.replyto = cx2.full(this.replyto);
+  if (this.replyto instanceof FLError)
+    return this.replyto;
+  var arr = [];
+  var k = 0;
+  for (var i = 0; i < this.bag._entries.length; i++) {
+    var e = this.bag._entries[i];
+    if (e.key < this.from)
+      continue;
+    if (k >= this.size)
+      break;
+    arr.push(Send.eval(cx2, this.replyto, "next", [e.key, e.val], null));
+  }
+  arr.push(Send.eval(cx2, this.replyto, "done", [], _ActualSlideHandler.eval(cx2, this.crobag)));
+  return arr;
+};
+CrobagWindowEvent.prototype.toString = function() {
+  return "CrobagWindowEvent[" + this.from + ":" + this.size + "]";
+};
+var _ActualSlideHandler = function(_cxt, crobag) {
+  SlideWindow.call(this, _cxt);
+  this.state = _cxt.fields();
+  this._card = crobag;
+  return;
+};
+_ActualSlideHandler.prototype = new SlideWindow();
+_ActualSlideHandler.prototype.constructor = _ActualSlideHandler;
+_ActualSlideHandler.eval = function(_cxt, crobag) {
+  const v1 = new _ActualSlideHandler(_cxt, crobag);
+  v1.state.set("_type", "_ActualSlideHandler");
+  return v1;
+};
+_ActualSlideHandler.eval.nfargs = function() {
+  return 1;
+};
+_ActualSlideHandler.prototype._card = function() {
+  return this._card;
+};
+_ActualSlideHandler.prototype._card.nfargs = function() {
+  return -1;
 };
 
 // src/main/javascript/runtime/card.js
@@ -2091,7 +2359,7 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
     _renderTree[field] = { _id: ncid, children: [] };
   }
   var crt = _renderTree[field];
-  if (value instanceof FLError2) {
+  if (value instanceof FLError) {
     _cxt.log("error cannot be rendered", value);
     value = null;
   }
@@ -2467,274 +2735,6 @@ Random.prototype._methods = function() {
   };
 };
 
-// src/main/javascript/runtime/crobag.js
-import { IdempotentHandler as IdempotentHandler2 } from "/js/ziwsh.js";
-var SlideWindow = function(_cxt) {
-  IdempotentHandler2.call(this, _cxt);
-  return;
-};
-SlideWindow.prototype = new IdempotentHandler2();
-SlideWindow.prototype.constructor = SlideWindow;
-SlideWindow.prototype.name = function() {
-  return "SlideWindow";
-};
-SlideWindow.prototype.name.nfargs = function() {
-  return -1;
-};
-SlideWindow.prototype._methods = function() {
-  const v1 = ["success", "failure"];
-  return v1;
-};
-SlideWindow.prototype._methods.nfargs = function() {
-  return -1;
-};
-var CrobagWindow = function(_cxt) {
-  IdempotentHandler2.call(this, _cxt);
-  return;
-};
-CrobagWindow.prototype = new IdempotentHandler2();
-CrobagWindow.prototype.constructor = CrobagWindow;
-CrobagWindow.prototype.name = function() {
-  return "CrobagWindow";
-};
-CrobagWindow.prototype.name.nfargs = function() {
-  return -1;
-};
-CrobagWindow.prototype._methods = function() {
-  const v1 = ["success", "failure", "next", "done"];
-  return v1;
-};
-CrobagWindow.prototype._methods.nfargs = function() {
-  return -1;
-};
-CrobagWindow.prototype.next = function(_cxt, _key, _value, _ih) {
-  return "interface method for CrobagWindow.next";
-};
-CrobagWindow.prototype.next.nfargs = function() {
-  return 2;
-};
-CrobagWindow.prototype.done = function(_cxt, _ih) {
-  return "interface method for CrobagWindow.done";
-};
-CrobagWindow.prototype.done.nfargs = function() {
-  return 0;
-};
-var CroEntry = function(key, val) {
-  this.key = key;
-  this.val = val;
-};
-CroEntry.fromWire = function(cx2, om2, fields2) {
-  var lt = new ListTraverser(cx2, om2.state);
-  om2.marshal(lt, fields2["value"]);
-  return new CroEntry(fields2["key"], lt.ret[0]);
-};
-var Crobag2 = function(_cxt, _card) {
-  FLObject.call(this, _cxt);
-  this._card = _card;
-  this.state = { dict: {} };
-  this._entries = [];
-};
-Crobag2._ctor_new = function(_cxt, _card) {
-  const ret2 = new Crobag2(_cxt, _card);
-  return new ResponseWithMessages(_cxt, ret2, []);
-};
-Crobag2._ctor_new.nfargs = function() {
-  return 1;
-};
-Crobag2.fromWire = function(cx2, om2, fields2) {
-  var ret2 = new Crobag2(cx2, null);
-  var os = fields2["entries"];
-  if (os.length > 0) {
-    var lt = new ListTraverser(cx2, om2.state);
-    for (var i = 0; i < os.length; i++) {
-      om2.marshal(lt, os[i]);
-    }
-    ret2._entries = lt.ret;
-  }
-  return ret2;
-};
-Crobag2.prototype._towire = function(wf) {
-  wf._wireable = "org.flasck.jvm.builtin.Crobag";
-  var os = fields["entries"];
-  if (os.length > 0) {
-    var lt = new ListTraverser(cx, om.state);
-    for (var i = 0; i < os.length; i++) {
-      om.marshal(lt, os[i]);
-    }
-    ret._entries = lt.ret;
-  }
-  return ret;
-};
-Crobag2.prototype.insert = function(_cxt, key, val) {
-  return [CrobagChangeEvent.eval(_cxt, this, "insert", key, null, val)];
-};
-Crobag2.prototype.insert.nfargs = function() {
-  return 1;
-};
-Crobag2.prototype.put = function(_cxt, key, val) {
-  return [CrobagChangeEvent.eval(_cxt, this, "put", key, null, val)];
-};
-Crobag2.prototype.put.nfargs = function() {
-  return 1;
-};
-Crobag2.prototype.upsert = function(_cxt, key, val) {
-  return [CrobagChangeEvent.eval(_cxt, this, "upsert", key, null, val)];
-};
-Crobag2.prototype.upsert.nfargs = function() {
-  return 1;
-};
-Crobag2.prototype.window = function(_cxt, from, size, handler) {
-  return [CrobagWindowEvent.eval(_cxt, this, from, size, handler)];
-};
-Crobag2.prototype.window.nfargs = function() {
-  return 3;
-};
-Crobag2.prototype.size = function(_cxt) {
-  return this._entries.length;
-};
-Crobag2.prototype.size.nfargs = function() {
-  return 0;
-};
-Crobag2.prototype._change = function(cx2, op, newKey, remove, val) {
-  if (newKey != null) {
-    var e = new CroEntry(newKey, val);
-    var done = false;
-    for (var i = 0; i < this._entries.length; i++) {
-      if (this._entries[i].key > newKey) {
-        this._entries.splice(i, 0, e);
-        done = true;
-        break;
-      } else if (this._entries[i].key == newKey) {
-        if (op == "insert") {
-          continue;
-        } else if (op == "put") {
-          this._entries.splice(i, 1, e);
-        } else if (op == "upsert") {
-        }
-        done = true;
-        break;
-      }
-    }
-    if (!done)
-      this._entries.push(e);
-  }
-};
-Crobag2.prototype._methods = function() {
-  return {
-    "insert": Crobag2.prototype.insert,
-    "put": Crobag2.prototype.put,
-    "size": Crobag2.prototype.size,
-    "upsert": Crobag2.prototype.upsert,
-    "window": Crobag2.prototype.window
-  };
-};
-var CrobagChangeEvent = function() {
-};
-CrobagChangeEvent.eval = function(_cxt, bag, op, newKey, remove, val) {
-  const e = new CrobagChangeEvent();
-  e.bag = bag;
-  e.op = op;
-  e.newKey = newKey;
-  e.remove = remove;
-  e.val = val;
-  return e;
-};
-CrobagChangeEvent.prototype._compare = function(cx2, other) {
-  if (other instanceof CrobagChangeEvent) {
-    return other.msg == this.msg;
-  } else
-    return false;
-};
-CrobagChangeEvent.prototype.dispatch = function(cx2) {
-  this.bag = cx2.full(this.bag);
-  if (this.bag instanceof FLError)
-    return this.bag;
-  this.op = cx2.full(this.op);
-  if (this.op instanceof FLError)
-    return this.op;
-  this.newKey = cx2.full(this.newKey);
-  if (this.newKey instanceof FLError)
-    return this.newKey;
-  this.remove = cx2.full(this.remove);
-  if (this.remove instanceof FLError)
-    return this.remove;
-  this.val = cx2.full(this.val);
-  if (this.val instanceof FLError)
-    return this.val;
-  this.bag._change(cx2, this.op, this.newKey, this.remove, this.val);
-  return [];
-};
-CrobagChangeEvent.prototype.toString = function() {
-  return "CrobagChangeEvent[" + this.from + ":" + this.size + "]";
-};
-var CrobagWindowEvent = function() {
-};
-CrobagWindowEvent.eval = function(_cxt, bag, from, size, replyto) {
-  const e = new CrobagWindowEvent();
-  e.bag = bag;
-  e.from = from;
-  e.size = size;
-  e.replyto = replyto;
-  return e;
-};
-CrobagWindowEvent.prototype._compare = function(cx2, other) {
-  if (other instanceof CrobagWindowEvent) {
-    return other.msg == this.msg;
-  } else
-    return false;
-};
-CrobagWindowEvent.prototype.dispatch = function(cx2) {
-  this.bag = cx2.full(this.bag);
-  if (this.bag instanceof FLError)
-    return this.bag;
-  this.from = cx2.full(this.from);
-  if (this.from instanceof FLError)
-    return this.from;
-  this.size = cx2.full(this.size);
-  if (this.size instanceof FLError)
-    return this.size;
-  this.replyto = cx2.full(this.replyto);
-  if (this.replyto instanceof FLError)
-    return this.replyto;
-  var arr = [];
-  var k = 0;
-  for (var i = 0; i < this.bag._entries.length; i++) {
-    var e = this.bag._entries[i];
-    if (e.key < this.from)
-      continue;
-    if (k >= this.size)
-      break;
-    arr.push(Send.eval(cx2, this.replyto, "next", [e.key, e.val], null));
-  }
-  arr.push(Send.eval(cx2, this.replyto, "done", [], _ActualSlideHandler.eval(cx2, this.crobag)));
-  return arr;
-};
-CrobagWindowEvent.prototype.toString = function() {
-  return "CrobagWindowEvent[" + this.from + ":" + this.size + "]";
-};
-var _ActualSlideHandler = function(_cxt, crobag) {
-  SlideWindow.call(this, _cxt);
-  this.state = _cxt.fields();
-  this._card = crobag;
-  return;
-};
-_ActualSlideHandler.prototype = new SlideWindow();
-_ActualSlideHandler.prototype.constructor = _ActualSlideHandler;
-_ActualSlideHandler.eval = function(_cxt, crobag) {
-  const v1 = new _ActualSlideHandler(_cxt, crobag);
-  v1.state.set("_type", "_ActualSlideHandler");
-  return v1;
-};
-_ActualSlideHandler.eval.nfargs = function() {
-  return 1;
-};
-_ActualSlideHandler.prototype._card = function() {
-  return this._card;
-};
-_ActualSlideHandler.prototype._card.nfargs = function() {
-  return -1;
-};
-
 // src/main/javascript/runtime/image.js
 var Image2 = function(_cxt, _uri) {
   FLObject.call(this, _cxt);
@@ -2806,9 +2806,6 @@ Link2.prototype._field_uri = function(_cxt) {
 Link2.prototype._field_uri.nfargs = function() {
   return 0;
 };
-
-// src/main/javascript/runtime/time.js
-import { IdempotentHandler as IdempotentHandler3 } from "/js/ziwsh.js";
 
 // src/main/javascript/runtime/date.format.js
 var dateFormat = /* @__PURE__ */ function() {
@@ -2951,10 +2948,10 @@ Instant.prototype._towire = function(wf) {
 };
 FLBuiltin.seconds = function(_cxt, n) {
   n = _cxt.full(n);
-  if (n instanceof FLError2)
+  if (n instanceof FLError)
     return n;
   else if (typeof n !== "number")
-    return new FLError2("not a number");
+    return new FLError("not a number");
   return new Interval(Math.floor(n / 86400), n % 86400 * 1e3 * 1e3 * 1e3);
 };
 FLBuiltin.seconds.nfargs = function() {
@@ -2962,10 +2959,10 @@ FLBuiltin.seconds.nfargs = function() {
 };
 FLBuiltin.milliseconds = function(_cxt, n) {
   n = _cxt.full(n);
-  if (n instanceof FLError2)
+  if (n instanceof FLError)
     return n;
   else if (typeof n !== "number")
-    return new FLError2("not a number");
+    return new FLError("not a number");
   return new Interval(Math.floor(n / 864e5), n % 864e5 * 1e3 * 1e3 * 1e3);
 };
 FLBuiltin.milliseconds.nfargs = function() {
@@ -2973,10 +2970,10 @@ FLBuiltin.milliseconds.nfargs = function() {
 };
 FLBuiltin.fromunixdate = function(_cxt, n) {
   n = _cxt.full(n);
-  if (n instanceof FLError2)
+  if (n instanceof FLError)
     return n;
   else if (typeof n !== "number")
-    return new FLError2("not a number");
+    return new FLError("not a number");
   return new Instant(Math.floor(n / 86400), n % 86400 * 1e3 * 1e3 * 1e3);
 };
 FLBuiltin.fromunixdate.nfargs = function() {
@@ -2984,10 +2981,10 @@ FLBuiltin.fromunixdate.nfargs = function() {
 };
 FLBuiltin.unixdate = function(_cxt, i) {
   i = _cxt.full(i);
-  if (i instanceof FLError2)
+  if (i instanceof FLError)
     return i;
   else if (!(i instanceof Instant))
-    return new FLError2("not an instant");
+    return new FLError("not an instant");
   var ds = i.days;
   var secs = i.ns / 1e3 / 1e3 / 1e3;
   return ds * 86400 + secs;
@@ -3009,10 +3006,10 @@ Calendar._ctor_gregorian.nfargs = function() {
 };
 Calendar.prototype.isoDateTime = function(_cxt, inst) {
   inst = _cxt.full(inst);
-  if (inst instanceof FLError2)
+  if (inst instanceof FLError)
     return inst;
   else if (!(inst instanceof Instant))
-    return new FLError2("not an instant");
+    return new FLError("not an instant");
   return dateFormat(new Date(inst.asJs()), dateFormat.masks.isoUtcDateTime);
 };
 Calendar.prototype.isoDateTime.nfargs = function() {
@@ -3044,10 +3041,10 @@ Calendar.prototype._parseIsoItem = function(cursor, nd, decimal) {
 };
 Calendar.prototype.parseIsoDateTime = function(_cxt, n) {
   n = _cxt.full(n);
-  if (n instanceof FLError2)
+  if (n instanceof FLError)
     return n;
   else if (typeof n !== "string")
-    return new FLError2("not a string");
+    return new FLError("not a string");
   var cursor = { str: n, pos: 0 };
   var year = this._parseIsoItem(cursor, 4);
   var month = this._parseIsoItem(cursor);
@@ -3103,12 +3100,12 @@ var CommonEnv = function(bridge, broker) {
   this.objects = {};
   this.objects["Random"] = Random;
   this.objects["FLBuiltin"] = FLBuiltin;
-  this.objects["Crobag"] = Crobag2;
+  this.objects["Crobag"] = Crobag;
   this.objects["CroEntry"] = CroEntry;
   this.objects["Html"] = Html;
   this.objects["Image"] = Image2;
   this.objects["org.ziniki.common.ZiIdURI"] = ZiIdURI;
-  this.objects["org.flasck.jvm.builtin.Crobag"] = Crobag2;
+  this.objects["org.flasck.jvm.builtin.Crobag"] = Crobag;
   this.objects["org.flasck.jvm.builtin.CroEntry"] = CroEntry;
   this.objects["Calendar"] = Calendar;
   this.logger = bridge;
@@ -3170,7 +3167,7 @@ CommonEnv.prototype.handleMessagesWith = function(_cxt, msg) {
   msg = _cxt.full(msg);
   if (!msg)
     ;
-  else if (msg instanceof FLError2 || typeof msg == "string") {
+  else if (msg instanceof FLError || typeof msg == "string") {
     _cxt.log(msg);
   } else if (msg instanceof Array) {
     for (var i = 0; i < msg.length; i++) {
@@ -3291,11 +3288,16 @@ export {
   CommonEnv,
   Cons,
   ContractStore,
+  CroEntry,
+  Crobag,
+  CrobagChangeEvent,
+  CrobagWindow,
+  CrobagWindowEvent,
   Debug,
   FLBuiltin,
   FLCard,
   FLContext,
-  FLError2 as FLError,
+  FLError,
   FLObject,
   False,
   HashPair,
@@ -3303,6 +3305,7 @@ export {
   Nil,
   ResponseWithMessages,
   Send,
+  SlideWindow,
   True,
   Tuple,
   TypeOf,

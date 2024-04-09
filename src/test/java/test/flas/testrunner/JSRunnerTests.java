@@ -36,7 +36,7 @@ public class JSRunnerTests extends BaseRunnerTests {
 		ArrayList<String> pkgList = new ArrayList<>();
 		pkgList.add("tests");
 		context.checking(new Expectations() {{
-			allowing(jse).packages(); will(returnValue(pkgList));
+			allowing(jse).packageStrings(); will(returnValue(pkgList));
 			allowing(jse).files(); will(returnValue(fileList));
 			allowing(jse).fileFor("tests"); will(returnValue(fileList.get(0)));
 		}});
