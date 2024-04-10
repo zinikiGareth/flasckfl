@@ -18,8 +18,8 @@ public class Configuration {
 	private final ServiceLoader<OptionModule> optionModules;
 	private final ServiceLoader<PreCompilationModule> precompilationModules;
 	public final ErrorReporter errors;
-	public boolean unitjvm = true, unitjs = true;
-	public boolean systemjvm = true, systemjs = true;
+	public boolean unitjvm = true, unitjs = false;
+	public boolean systemjvm = true, systemjs = false;
 	public boolean nowritejs = false, nowritejvm = false;
 	public boolean usesplitter = true;
 	public final List<File> readFlims = new ArrayList<>();
@@ -164,12 +164,12 @@ public class Configuration {
 						System.exit(1);
 					}
 					writeJS = new File(root, args[++i]);
-				} else if (arg.equals("--no-unit-js")) {
-					unitjs = false;
+				} else if (arg.equals("--unit-js")) {
+					unitjs = true;
 				} else if (arg.equals("--no-unit-jvm")) {
-					systemjs = false;
-				} else if (arg.equals("--no-system-js")) {
-					unitjs = false;
+					unitjvm = false;
+				} else if (arg.equals("--system-js")) {
+					systemjs = true;
 				} else if (arg.equals("--no-system-jvm")) {
 					systemjvm = false;
 				} else if (arg.equals("--jvmout")) {

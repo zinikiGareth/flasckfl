@@ -78,7 +78,6 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
         continue;
       }
       matched.invoked++;
-      _cxt.log("Have invocation of", meth, "with", args);
       if (matched.handler instanceof BoundVar) {
         var tih = ih;
         matched.handler.bindActual(tih);
@@ -222,16 +221,16 @@ MockHandler.prototype._areYouA = MockContract.prototype._areYouA;
 MockHandler.prototype.expect = MockContract.prototype.expect;
 MockHandler.prototype.serviceMethod = MockContract.prototype.serviceMethod;
 MockHandler.prototype.assertSatisfied = MockContract.prototype.assertSatisfied;
-var MockAjax2 = function(_cxt, baseUri) {
+var MockAjax = function(_cxt, baseUri) {
   this.baseUri = baseUri;
   this.expect = { subscribe: [] };
 };
-MockAjax2.prototype.expectSubscribe = function(_cxt, path) {
+MockAjax.prototype.expectSubscribe = function(_cxt, path) {
   var mas = new MockAjaxSubscriber(_cxt, path);
   this.expect.subscribe.push(mas);
   return mas;
 };
-MockAjax2.prototype.pump = function(_cxt) {
+MockAjax.prototype.pump = function(_cxt) {
   for (var i = 0; i < this.expect.subscribe.length; i++) {
     this.expect.subscribe[i].dispatch(_cxt, this.baseUri, _cxt.env.activeSubscribers);
   }

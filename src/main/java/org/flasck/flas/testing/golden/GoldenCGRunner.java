@@ -217,7 +217,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			}
 		}
 		List<String> args = new ArrayList<String>();
-		args.addAll(Arrays.asList("--flascklib", flascklib, "--root", s, "--jvmout", "jvmout", "--jsout", "jsout", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types"));
+		args.addAll(Arrays.asList("--flascklib", flascklib, "--root", s, "--unit-js", "--system-js", "--jvmout", "jvmout", "--jsout", "jsout", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types"));
 		for (File wf : new File(s).listFiles()) {
 			// TODO: this restricts us to directories, which are easier to work with, but we could add another case for ZIP files if we wanted ...
 			// We could also add a case that zipped up the directory to /tmp and did that ...

@@ -285,9 +285,6 @@ DispatcherTraverser.prototype.dispatch = function() {
   var ih = this.ret[this.ret.length - 1];
   this.ret[0] = cx = cx.env.newContext().bindTo(this.svc);
   try {
-    if (ih instanceof NamedIdempotentHandler) {
-      cx.log("have NIH in dispatch");
-    }
     var rets = this.svc[this.method].apply(this.svc, this.ret);
   } catch (e) {
     console.log(e);
@@ -472,7 +469,6 @@ JsonMarshaller.prototype.beginList = function(cls) {
 JsonMarshaller.prototype.handler = function(cx, h) {
   var clz, ihid;
   if (h instanceof NamedIdempotentHandler) {
-    cx.log("have NIH we want clz for", h);
     clz = h._handler._clz();
     ihid = h._ihid;
   } else {
@@ -590,11 +586,9 @@ ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
       var intf;
       if (o._clz && o._methods) {
         intf = o;
-        cx.log("identified _clz as", intf._clz());
       } else {
         intf = Object.getPrototypeOf(o);
         var sintf = Object.getPrototypeOf(intf);
-        cx.log("have IH with", intf, "and", sintf);
         if (typeof sintf._methods !== "undefined") {
           intf = sintf;
         }
@@ -603,19 +597,15 @@ ObjectMarshaller.prototype.recursiveMarshal = function(cx, ux, o) {
       h._ihid = ihid;
       ux.handler(cx, h);
     } else if (o instanceof NamedIdempotentHandler) {
-      cx.log("marshalling NIH with", o._ihid, "and", o._name, "and", o._handler.constructor);
       var ihid = cx.broker.uniqueHandler(o._handler);
-      cx.log("concluded that ihid should be", ihid);
       o._ihid = ihid;
       cx._bindNamedHandler(o);
       var intf;
       if (o._handler._clz && o._handler._methods) {
         intf = o._handler;
-        cx.log("identified NIH _clz as", intf._clz());
       } else {
         intf = Object.getPrototypeOf(o._handler);
         var sintf = Object.getPrototypeOf(intf);
-        cx.log("have NIH with", intf, "and", sintf);
         if (sintf && typeof sintf._methods !== "undefined") {
           intf = sintf;
         }
@@ -775,11 +765,6 @@ var SimpleBroker = function(logger, factory, contracts) {
   this.handlers = {};
   this.serviceHandlers = /* @__PURE__ */ new Map();
   this.name = "jsbroker_" + brokerId++;
-  logger.log(
-    "created ",
-    this.name
-    /*, new Error().stack */
-  );
 };
 SimpleBroker.prototype.connectToServer = function(uri, connMonitor) {
   const zwc = new zwc_default(this.logger, this.factory, uri, connMonitor);
@@ -827,7 +812,6 @@ SimpleBroker.prototype.unmarshalTo = function(clz) {
 SimpleBroker.prototype.uniqueHandler = function(h) {
   const name = "handler_" + this.nextHandle++;
   this.handlers[name] = h;
-  this.logger.log("registered handler name", name, "in", this.name, "have", JSON.stringify(Object.keys(this.handlers)));
   return name;
 };
 SimpleBroker.prototype.currentIdem = function(h) {

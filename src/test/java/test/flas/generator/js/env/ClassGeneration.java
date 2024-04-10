@@ -27,6 +27,7 @@ import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.packaging.JSFile;
+import org.flasck.flas.repository.Repository;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -35,7 +36,7 @@ import org.zinutils.graphs.DirectedAcyclicGraph;
 public class ClassGeneration {
 //	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
-	JSEnvironment jse = new JSEnvironment(null, new File("/tmp"), new DirectedAcyclicGraph<>(), null);
+	JSEnvironment jse = new JSEnvironment(new Repository(), new File("/tmp"), new DirectedAcyclicGraph<>(), null);
 	StringWriter sw = new StringWriter();
 	PrintWriter pw = new PrintWriter(sw);
 	IndentWriter w = new IndentWriter(pw);
