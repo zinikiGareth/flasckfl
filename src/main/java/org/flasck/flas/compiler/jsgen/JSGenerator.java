@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.ParenExpr;
+import org.flasck.flas.commonBase.names.AssemblyName;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -936,7 +937,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void visitAssembly(ApplicationAssembly e) {
-		appclz = jse.newClass((PackageName) e.name(), new SolidName(e.name(), "_Application"));
+		AssemblyName an = e.name();
+		appclz = jse.newClass(an.packageName(), new SolidName(e.name(), "_Application"));
 		appclz.inheritsFrom(new PackageName("Application"), J.FLAPPLICATION);
 		recnt = 0;
 		JSMethodCreator ctor = appclz.constructor();

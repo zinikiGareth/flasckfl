@@ -17,7 +17,7 @@ public class Assembly implements RepositoryEntry {
 	}
 
 	@Override
-	public NameOfThing name() {
+	public AssemblyName name() {
 		return assemblyName;
 	}
 

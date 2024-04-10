@@ -249,7 +249,11 @@ public class JSEnvironment implements JSStorage {
 				continue;
 			ret.add(s);
 		}
-		ret.addAll(repository.flimPackages());
+		for (String s : repository.flimPackages()) {
+			if (s.contains("_ut") || s.contains("_st"))
+				continue;
+			ret.add(s);
+		}
 		return ret;
 	}
 
@@ -392,7 +396,9 @@ public class JSEnvironment implements JSStorage {
 	private void includeFile(List<ContentObject> ret, String testDir, File f) {
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
-		if (testDir != null && f.isFile()) {
+		if (!f.isFile())
+			return;
+		if (testDir != null) {
 			File copyTo = new File(testDir, f.getName());
 			FileUtils.copy(f, copyTo);
 			ret.add(new FileContentObject(copyTo));
