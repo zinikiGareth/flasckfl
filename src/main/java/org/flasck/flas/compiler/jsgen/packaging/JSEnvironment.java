@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen.packaging;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -259,6 +260,7 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	public Iterable<PackageName> packageNames() {
+		Collection<String> flims = repository.flimPackages();
 		LinkedHashSet<PackageName> ret = new LinkedHashSet<>();
 		if (pkgdag.hasNode("root.package"))
 			ret.add(new PackageName("root.package"));
@@ -267,7 +269,9 @@ public class JSEnvironment implements JSStorage {
 			pkgdag.postOrderFrom(new NodeWalker<String>() {
 				@Override
 				public void present(Node<String> node) {
-					ret.add(new PackageName(node.getEntry()));
+					String pkg = node.getEntry();
+					if (files.containsKey(pkg) || flims.contains(pkg))
+						ret.add(new PackageName(pkg));
 				}
 			}, s);
 		}
@@ -275,6 +279,7 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	public Iterable<String> packageStrings() {
+		Collection<String> flims = repository.flimPackages();
 		LinkedHashSet<String> ret = new LinkedHashSet<>();
 		if (pkgdag.hasNode("root.package"))
 			ret.add("root.package");
@@ -283,7 +288,9 @@ public class JSEnvironment implements JSStorage {
 			pkgdag.postOrderFrom(new NodeWalker<String>() {
 				@Override
 				public void present(Node<String> node) {
-					ret.add(node.getEntry());
+					String pkg = node.getEntry();
+					if (files.containsKey(pkg) || flims.contains(pkg))
+						ret.add(pkg);
 				}
 			}, s);
 		}
