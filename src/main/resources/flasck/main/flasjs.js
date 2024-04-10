@@ -3134,6 +3134,9 @@ CommonEnv.prototype.clear = function() {
   this.cards = [];
   this.nextDivId = 1;
   this.divSince = this.nextDivId;
+  this.namedSubscriptions = /* @__PURE__ */ new Map();
+  this.unnamedSubscriptions = /* @__PURE__ */ new Map();
+  this.singletons = {};
 };
 CommonEnv.prototype.queueMessages = function(_cxt, msg) {
   this.locker.lock();

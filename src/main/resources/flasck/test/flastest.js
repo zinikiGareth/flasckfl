@@ -1,5 +1,5 @@
 // src/main/javascript/unittest/mocks.js
-import { IdempotentHandler, NamedIdempotentHandler as NamedIdempotentHandler2 } from "/js/ziwsh.js";
+import { IdempotentHandler, NamedIdempotentHandler } from "/js/ziwsh.js";
 import { FLError } from "/js/flasjs.js";
 import { FLURI } from "/js/flasjs.js";
 var BoundVar = function(name) {
@@ -359,22 +359,14 @@ UTContext.prototype.mockHandler = function(contract) {
 };
 
 // src/main/javascript/unittest/runner.js
-import { SimpleBroker, JsonBeachhead } from "/js/ziwsh.js";
+import { SimpleBroker, JsonBeachhead, IdempotentHandler as IdempotentHandler2, NamedIdempotentHandler as NamedIdempotentHandler2 } from "/js/ziwsh.js";
 import { FLError as FLError2 } from "/js/flasjs.js";
 import { Debug, Send as Send2, Assign, ResponseWithMessages as ResponseWithMessages2, UpdateDisplay } from "/js/flasjs.js";
 var UTRunner = function(bridge) {
   if (!bridge)
     bridge = console;
   CommonEnv.call(this, bridge, new SimpleBroker(bridge, this, {}));
-  this.errors = [];
-  this.mocks = {};
-  this.ajaxen = [];
-  this.appls = [];
-  this.activeSubscribers = [];
-  if (typeof window !== "undefined")
-    window.utrunner = this;
   this.moduleInstances = {};
-  this.toCancel = /* @__PURE__ */ new Map();
   for (var mn in UTRunner.modules) {
     if (UTRunner.modules.hasOwnProperty(mn)) {
       var jm;
@@ -386,9 +378,19 @@ var UTRunner = function(bridge) {
       this.moduleInstances[mn] = new UTRunner.modules[mn](this, jm);
     }
   }
+  this.clear();
 };
 UTRunner.prototype = new CommonEnv();
 UTRunner.prototype.constructor = UTRunner;
+UTRunner.prototype.clear = function() {
+  CommonEnv.prototype.clear.apply(this);
+  this.toCancel = /* @__PURE__ */ new Map();
+  this.errors = [];
+  this.mocks = {};
+  this.ajaxen = [];
+  this.appls = [];
+  this.activeSubscribers = [];
+};
 UTRunner.prototype.newContext = function() {
   return new UTContext(this, this.broker);
 };
@@ -742,7 +744,7 @@ UTRunner.prototype.newdiv = function(cnt) {
 };
 UTRunner.prototype.expectCancel = function(handler) {
   var hn;
-  if (handler instanceof NamedIdempotentHandler) {
+  if (handler instanceof NamedIdempotentHandler2) {
     hn = handler._ihid;
   } else {
     throw new Error("not handled");
