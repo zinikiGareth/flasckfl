@@ -1639,6 +1639,43 @@ Html.prototype.toString = function() {
   return "Html";
 };
 
+// src/main/javascript/runtime/link.js
+var Link = function(_cxt) {
+  this.state = _cxt.fields();
+  this.state.set("_type", "Link");
+};
+Link._typename = "Link";
+Link.prototype._areYouA = function(_cxt, ty) {
+  if (_cxt.isTruthy(ty == "Link")) {
+    return true;
+  } else
+    return false;
+};
+Link.prototype._areYouA.nfargs = function() {
+  return 1;
+};
+Link.eval = function(_cxt, _uri, _title) {
+  var v1 = new Link(_cxt);
+  v1.state.set("uri", _uri);
+  v1.state.set("title", _title);
+  return v1;
+};
+Link.eval.nfargs = function() {
+  return 2;
+};
+Link.prototype._field_title = function(_cxt) {
+  return this.state.get("title");
+};
+Link.prototype._field_title.nfargs = function() {
+  return 0;
+};
+Link.prototype._field_uri = function(_cxt) {
+  return this.state.get("uri");
+};
+Link.prototype._field_uri.nfargs = function() {
+  return 0;
+};
+
 // src/main/javascript/runtime/crobag.js
 import { IdempotentHandler as IdempotentHandler2 } from "/js/ziwsh.js";
 var SlideWindow = function(_cxt) {
@@ -2182,9 +2219,9 @@ FLCard.prototype._updateLink = function(_cxt, rt, templateName, field, option, s
     return;
   value = _cxt.full(value);
   var linkRef;
-  var linkText;
+  var linkTitle;
   if (typeof value === "undefined" || value == null || !(value instanceof Link))
-    linkRef = linkText = "";
+    linkRef = linkTitle = "";
   else {
     linkRef = value._field_uri(_cxt).uri;
     linkTitle = value._field_title(_cxt);
@@ -2770,43 +2807,6 @@ Random.prototype._methods = function() {
   };
 };
 
-// src/main/javascript/runtime/link.js
-var Link2 = function(_cxt) {
-  this.state = _cxt.fields();
-  this.state.set("_type", "Link");
-};
-Link2._typename = "Link";
-Link2.prototype._areYouA = function(_cxt, ty) {
-  if (_cxt.isTruthy(ty == "Link")) {
-    return true;
-  } else
-    return false;
-};
-Link2.prototype._areYouA.nfargs = function() {
-  return 1;
-};
-Link2.eval = function(_cxt, _uri, _title) {
-  var v1 = new Link2(_cxt);
-  v1.state.set("uri", _uri);
-  v1.state.set("title", _title);
-  return v1;
-};
-Link2.eval.nfargs = function() {
-  return 2;
-};
-Link2.prototype._field_title = function(_cxt) {
-  return this.state.get("title");
-};
-Link2.prototype._field_title.nfargs = function() {
-  return 0;
-};
-Link2.prototype._field_uri = function(_cxt) {
-  return this.state.get("uri");
-};
-Link2.prototype._field_uri.nfargs = function() {
-  return 0;
-};
-
 // src/main/javascript/runtime/date.format.js
 var dateFormat = /* @__PURE__ */ function() {
   var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g, timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g, timezoneClip = /[^-+\dA-Z]/g, pad = function(val, len) {
@@ -3096,7 +3096,7 @@ var CommonEnv = function(bridge, broker) {
     return;
   this.contracts = broker.contracts;
   this.structs = {};
-  this.structs["Link"] = Link2;
+  this.structs["Link"] = Link;
   this.objects = {};
   this.objects["Random"] = Random;
   this.objects["FLBuiltin"] = FLBuiltin;
@@ -3286,6 +3286,7 @@ export {
   Assign,
   AssignCons,
   AssignItem,
+  Calendar,
   ClickEvent,
   CommonEnv,
   Cons,
@@ -3305,10 +3306,14 @@ export {
   False,
   HashPair,
   Image,
+  Instant,
+  Interval,
+  Link,
   MakeHash,
   Nil,
   Random,
   ResponseWithMessages,
+  ScrollTo,
   Send,
   SlideWindow,
   True,

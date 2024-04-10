@@ -40,6 +40,8 @@ public class RunTestHandler extends InputStreamResponder implements RequestProce
 			contentType = "text/html";
 		else if (f.getName().endsWith(".js"))
 			contentType = "text/javascript";
+		else if (f.getName().endsWith(".css"))
+			contentType = "text/css";
 		if (test == null) {
 			r.setStatus(400);
 			r.write("cannot run test without a valid path", null);

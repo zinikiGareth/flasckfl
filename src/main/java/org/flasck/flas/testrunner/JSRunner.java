@@ -401,7 +401,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 				FileUtils.assertDirectory(testDirCSS);
 				for (File c : css) {
 					FileUtils.copy(c, testDirCSS);
-					pw.println("  <link rel='stylesheet' type='text/css' href='" + c.getPath() + "'>");
+					pw.println("  <link rel='stylesheet' type='text/css' href='/test/html/css/" + c.getName() + "'>");
 				}
 			}
 			for (Entry<String, String> e : templates.entrySet())
