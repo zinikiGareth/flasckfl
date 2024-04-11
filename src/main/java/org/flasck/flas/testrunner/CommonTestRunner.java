@@ -121,10 +121,10 @@ public abstract class CommonTestRunner<T extends CommonState> {
 
 	public void runSystemTest(TestResultWriter pw, SystemTest st) {
 		logger.info(this.getClass().getSimpleName() + " running system test " + st);
-		if (this.getClass().getSimpleName().equals("JVMRunner")) {
-			logger.error("Ha! Not!");
-			return;
-		}
+//		if (this.getClass().getSimpleName().equals("JVMRunner")) {
+//			logger.error("Ha! Not!");
+//			return;
+//		}
 		T state = createSystemTest(pw, st);
 		if (state == null)
 			return;
