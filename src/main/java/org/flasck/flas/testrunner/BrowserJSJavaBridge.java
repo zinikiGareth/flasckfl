@@ -1,6 +1,8 @@
 package org.flasck.flas.testrunner;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,23 +17,28 @@ import org.ziniki.server.tda.WSReceiver;
 import org.ziniki.ziwsh.intf.JsonSender;
 import org.ziniki.ziwsh.intf.WSResponder;
 import org.zinutils.exceptions.InvalidUsageException;
-import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 import org.zinutils.sync.LockingCounter;
 
 public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
 	protected static Logger debugLogger = LoggerFactory.getLogger("DebugLog");
-	protected final List<String> errors = new ArrayList<>();
-//	private final Map<Class<?>, Object> modules = new HashMap<>();
+	private final JSRunner controller;
+	private final ClassLoader classloader;
+	private final File root;
 	private final LockingCounter counter;
+	protected final List<String> errors = new ArrayList<>();
+	private final Map<Class<?>, Object> modules = new HashMap<>();
 	private Map<String, Object> conns = new TreeMap<>();
 	private int next = 1;
-	private JSRunner controller;
 	private WSResponder responder;
+	private boolean readyWhenZero = false;
 
-	BrowserJSJavaBridge(JSRunner controller, LockingCounter counter) {
+	BrowserJSJavaBridge(JSRunner controller, ClassLoader classloader, File root, LockingCounter counter) {
 		this.controller = controller;
+		this.classloader = classloader;
+		this.root = root;
 		this.counter = counter;
 	}
 
@@ -64,7 +71,11 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 			}
 			switch (action) {
 			case "ready": {
-				controller.ready();
+				if (counter.isZero()) {
+					controller.ready();
+				} else {
+					readyWhenZero  = true;
+				}
 				break;
 			}
 			case "steps": {
@@ -90,11 +101,11 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 				break;
 			}
 			case "lock": {
-				lock();
+				lock(jo.getString("msg"));
 				break;
 			}
 			case "unlock": {
-				unlock();
+				unlock(jo.getString("msg"));
 				break;
 			}
 			case "module": {
@@ -102,7 +113,7 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 				Object ret = module(null, name);
 				String conn = "conn" + (next++);
 				conns.put(conn, ret);
-				responder.send(new JSONObject().put("action", "haveModule").put("name", name).put("clz", "ZinTestModule").put("conn", conn).toString());
+				sendJson(new JSONObject().put("action", "haveModule").put("name", name).put("clz", "ZinTestModule").put("conn", conn).toString());
 				break;
 			}
 			default:
@@ -114,23 +125,23 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	}
 
 	public void prepareUnitTest(NameOfThing pkg, String test) throws JSONException {
-		responder.send(new JSONObject().put("action", "prepareUnitTest").put("wrapper", pkg.uniqueName()).put("testname", test).toString());
+		sendJson(new JSONObject().put("action", "prepareUnitTest").put("wrapper", pkg.uniqueName()).put("testname", test).toString());
 	}
 
 	public void prepareSystemTest(NameOfThing pkg) throws JSONException {
-		responder.send(new JSONObject().put("action", "prepareSystemTest").put("testclz", pkg.uniqueName()).toString());
+		sendJson(new JSONObject().put("action", "prepareSystemTest").put("testclz", pkg.uniqueName()).toString());
 	}
 
 	public void prepareStage(String baseName) throws JSONException {
-		responder.send(new JSONObject().put("action", "prepareStage").put("stage", baseName).toString());
+		sendJson(new JSONObject().put("action", "prepareStage").put("stage", baseName).toString());
 	}
 
 	public void runStep(String step) throws JSONException {
-		responder.send(new JSONObject().put("action", "runStep").put("step", step).toString());
+		sendJson(new JSONObject().put("action", "runStep").put("step", step).toString());
 	}
 
 	public void checkContextSatisfied() throws JSONException {
-		responder.send(new JSONObject().put("action", "assertSatisfied").toString());
+		sendJson(new JSONObject().put("action", "assertSatisfied").toString());
 	}
 
 	@Override
@@ -161,23 +172,15 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	
 	@Override
 	public Object module(Object runner, String s) {
-		/*
 		try {
 			Class<?> clz = Class.forName(s);
 			if (!modules.containsKey(clz)) {
-				ServerEnvironment env = new ServerEnvironment();
-				FLASBroker broker = new FLASBroker(env);
-				env.provideBroker(broker);
-				env.provideWebSocketFinder(new GrizzlyConnectionStore(broker));
-				modules.put(clz, Reflection.callStatic(clz, "createChrome", this, classloader, root, env));
+				modules.put(clz, Reflection.callStatic(clz, "createChrome", this, classloader, root));
 			}
 			return modules.get(clz);
 		} catch (IllegalArgumentException | ClassNotFoundException e) {
 			throw WrappedException.wrap(e);
 		}
-		*/
-		
-		return null;
 	}
 
 	@Override
@@ -191,15 +194,8 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 
 	@Override
 	public void sendJson(String json) {
-		throw new NotImplementedException();
-//		if (Platform.isFxApplicationThread()) {
-//			doSend(json);
-//		} else {
-//			uiThread(cdl -> {
-//				doSend(json);
-//				cdl.countDown();
-//			});
-//		}
+		logger.info("sending " + json);
+		responder.send(json);
 	}
 
 //	private void doSend(String json) {
@@ -211,12 +207,16 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 //		}
 //	}
 	
-	public void lock() {
-		counter.lock("lock");
+	public void lock(String msg) {
+		counter.lock("lock " + msg);
+		logger.info("lock " + msg + ": counter = " + counter.getCount());
 	}
 	
-	public void unlock() {
-		counter.release("unlock");
+	public void unlock(String msg) {
+		counter.release("unlock " + msg);
+		logger.info("unlock " + msg + ": counter = " + counter.getCount());
+		if (counter.isZero() && readyWhenZero)
+			controller.ready();
 	}
 
 	public LockingCounter getTestCounter() {

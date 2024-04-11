@@ -11,6 +11,7 @@ function WSBridge(host2, port2) {
   this.sending = [];
   this.lockedOut = [];
   this.responders = {};
+  this.moduleCreators = {};
   this.ws.addEventListener("open", (ev) => {
     console.log("connected", ev);
     while (this.sending.length > 0) {
@@ -67,18 +68,21 @@ var merge = function(...args) {
   }
   return ret;
 };
-WSBridge.prototype.module = function(runner2, moduleName) {
-  this.runner = runner2;
-  this.send({ action: "module", "name": moduleName });
+WSBridge.prototype.module = function(moduleName, callback) {
+  console.log("creating module", moduleName);
+  this.moduleCreators[moduleName] = callback;
   this.lock("bindModule");
+  this.send({ action: "module", "name": moduleName });
   return "must-wait";
 };
 WSBridge.handlers["haveModule"] = function(msg) {
+  console.log("have module", msg.name);
   var name = msg.name;
-  var clz = window[msg.clz];
-  var conn = msg.conn;
-  console.log("have connection for module", this, name, clz);
-  this.runner.bindModule(name, new clz(this, conn));
+  var cb = this.moduleCreators[name];
+  if (cb) {
+    cb(this.runner, msg.conn);
+  }
+  delete this.moduleCreators[name];
   this.unlock("haveModule");
 };
 WSBridge.handlers["prepareUnitTest"] = function(msg) {
@@ -113,7 +117,7 @@ WSBridge.handlers["runStep"] = function(msg) {
     var cxt = this.runner.newContext();
     var step = this.currentTest[msg.step];
     step.call(this.currentTest, cxt);
-    this.unlock();
+    this.unlock("runstep");
   } catch (e) {
     console.log(e);
     this.send({ action: "error", error: e.toString() });
@@ -124,7 +128,7 @@ WSBridge.handlers["assertSatisfied"] = function(msg) {
   try {
     this.runner.assertSatisfied();
     this.runner.checkAtEnd();
-    this.unlock();
+    this.unlock("assertSatisfied");
   } catch (e) {
     console.log(e);
     this.send({ action: "error", error: e.toString() });
@@ -151,11 +155,13 @@ WSBridge.prototype.nextRequestId = function(hdlr) {
   this.responders[this.requestId] = hdlr;
   return this.requestId++;
 };
-WSBridge.prototype.lock = function() {
-  this.send({ action: "lock" });
+WSBridge.prototype.lock = function(msg) {
+  console.log("lock", msg);
+  this.send({ action: "lock", msg });
 };
 WSBridge.prototype.unlock = function(msg) {
-  this.send({ action: "unlock" });
+  console.log("unlock", msg);
+  this.send({ action: "unlock", msg });
 };
 export {
   WSBridge

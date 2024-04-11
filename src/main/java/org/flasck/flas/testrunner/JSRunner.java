@@ -213,6 +213,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			map.put("sources", jse.packageNames());
 			map.put("unitTests", jse.unitTests());
 			map.put("systemTests", jse.systemTests());
+			map.put("modules", config.modules);
 			
 			tree.add("/gen/*", new DehydratedHandler<>(new Instantiator("gen", map), items));
 		}
@@ -228,8 +229,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		PathTree<WSProcessor> wstree = new SimplePathTree<>();
 		wstree.add("/bridge", new MakeAHandler<WSProcessor>() {
 			@Override
-			public WSProcessor instantiate(TDAConfiguration config) throws Exception {
-				BrowserJSJavaBridge bridge = new BrowserJSJavaBridge(JSRunner.this, counter);
+			public WSProcessor instantiate(TDAConfiguration c) throws Exception {
+				BrowserJSJavaBridge bridge = new BrowserJSJavaBridge(JSRunner.this, classloader, config.root, counter);
 				JSRunner.this.bridge = bridge;
 				return bridge;
 			}
@@ -369,6 +370,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			if (webdir.exists()) 
 				css = FileUtils.findFilesMatching(webdir, "*.css");
 			testDir = jstestdir + "/html";
+			FileUtils.cleanDirectory(new File(testDir));
 			String testDirJS = testDir + "/js";
 			File testDirCSS = new File(testDir + "/css");
 			FileUtils.assertDirectory(new File(testDirJS));

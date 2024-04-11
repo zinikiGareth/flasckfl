@@ -365,18 +365,8 @@ var UTRunner = function(bridge) {
   if (!bridge)
     bridge = console;
   CommonEnv.call(this, bridge, new SimpleBroker(bridge, this, {}));
+  this.modules = {};
   this.moduleInstances = {};
-  for (var mn in UTRunner.modules) {
-    if (UTRunner.modules.hasOwnProperty(mn)) {
-      var jm;
-      if (bridge.module) {
-        jm = bridge.module(this, mn);
-        if (jm == "must-wait")
-          continue;
-      }
-      this.moduleInstances[mn] = new UTRunner.modules[mn](this, jm);
-    }
-  }
   this.clear();
 };
 UTRunner.prototype = new CommonEnv();
@@ -393,9 +383,11 @@ UTRunner.prototype.clear = function() {
 UTRunner.prototype.newContext = function() {
   return new UTContext(this, this.broker);
 };
-UTRunner.modules = {};
+UTRunner.prototype.addModule = function(name, mod) {
+  this.modules[name] = mod;
+};
 UTRunner.prototype.bindModule = function(name, jm) {
-  this.moduleInstances[name] = new UTRunner.modules[name](this, jm);
+  this.moduleInstances[name] = new this.modules[name](this, jm);
 };
 UTRunner.prototype.makeReady = function() {
   CommonEnv.prototype.makeReady.call(this);

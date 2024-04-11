@@ -1,5 +1,6 @@
 package org.flasck.flas.testrunner;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,18 +13,21 @@ import org.ziniki.server.grizzly.GrizzlyTDAServer;
 import org.ziniki.servlet.tda.RequestProcessor;
 import org.ziniki.servlet.tda.Responder;
 import org.ziniki.ziwsh.intf.Param;
+import org.zinutils.utils.FileUtils;
 
 public class BridgeGenHandler implements RequestProcessor {
 	private final GrizzlyTDAServer server;
 	private final Iterable<PackageName> sources;
 	private final List<UnitTestCase> unittests;
 	private final List<SystemTest> systests;
+	private final List<File> moduleDirs;
 
-	public BridgeGenHandler(@Param("server") GrizzlyTDAServer server, @Param("sources") Iterable<PackageName> sources, @Param("unitTests") List<UnitTestCase> unittests, @Param("systemTests") List<SystemTest> systests) {
+	public BridgeGenHandler(@Param("server") GrizzlyTDAServer server, @Param("sources") Iterable<PackageName> sources, @Param("unitTests") List<UnitTestCase> unittests, @Param("systemTests") List<SystemTest> systests, @Param("modules") List<File> moduleDirs) {
 		this.server = server;
 		this.sources = sources;
 		this.unittests = unittests;
 		this.systests = systests;
+		this.moduleDirs = moduleDirs;
 	}
 	
 	@Override
@@ -34,6 +38,15 @@ public class BridgeGenHandler implements RequestProcessor {
 		sb.append("import { WSBridge } from '/js/flasjava.js';\n");
 		for (NameOfThing n : sources) {
 			sb.append("import { " + n.jsName() +" } from '/js/" + n.uniqueName() + ".js';\n");
+		}
+		int mk = 0, tk = 0;
+		for (File m : moduleDirs) {
+			for (File f : FileUtils.findFilesMatching(new File(m, "main"), "*.js")) {
+				sb.append("import { module_init as module_init_" + (mk++) +" } from '/js/" + f.getName() + "';\n");
+			}
+			for (File f : FileUtils.findFilesMatching(new File(m, "test"), "*.js")) {
+				sb.append("import { installer as installer_" + (tk++) + " } from '/js/" + f.getName() + "';\n");
+			}
 		}
 		sb.append("\n");
 
@@ -51,6 +64,12 @@ public class BridgeGenHandler implements RequestProcessor {
 		}
 		for (NameOfThing n : sns) {
 			sb.append("bridge.addSystemTest('" + n.uniqueName() + "', " + n.jsName() + ");\n");
+		}
+		for (int i=0;i<mk;i++) {
+			sb.append("module_init_" + i + "(bridge.runner);\n");
+		}
+		for (int i=0;i<tk;i++) {
+			sb.append("installer_" + i + "(bridge, bridge.runner);\n");
 		}
 		sb.append("bridge.send({ action: 'ready' });\n");
 
