@@ -14,7 +14,6 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.server.tda.WSReceiver;
-import org.ziniki.ziwsh.intf.JsonSender;
 import org.ziniki.ziwsh.intf.WSResponder;
 import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.exceptions.WrappedException;
@@ -66,7 +65,7 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 				if (resp == null || !(resp instanceof JSONObject))
 					resp = new JSONObject();
 				((JSONObject) resp).put("action", "response").put("respondingTo", reqId);
-				responder.send(resp.toString());
+				sendJson(resp.toString());
 				return;
 			}
 			switch (action) {
@@ -184,29 +183,16 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	}
 
 	@Override
-	public void transport(JsonSender toZiniki) {
-//		if (Platform.isFxApplicationThread()) {
-//			JSObject utrunner = (JSObject) page.executeScript("window.utrunner");
-//			utcall("transport", toZiniki);
-//		} else
-//			throw new RuntimeException("Could not pass transport to JS: not in FX thread");
-	}
-
-	@Override
 	public void sendJson(String json) {
 		logger.info("sending " + json);
+		try {
+			throw new InvalidUsageException("why me?");
+		} catch (Exception ex) {
+			ex.printStackTrace(System.out);
+		}
 		responder.send(json);
 	}
 
-//	private void doSend(String json) {
-//		JSObject utrunner = (JSObject) page.executeScript("window.utrunner");
-//		try {
-//			utcall("deliver", json);
-//		} catch (JSException ex) {
-//			JSlogger.error("JSException " + ex);
-//		}
-//	}
-	
 	public void lock(String msg) {
 		counter.lock("lock " + msg);
 		logger.info("lock " + msg + ": counter = " + counter.getCount());
@@ -215,8 +201,10 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	public void unlock(String msg) {
 		counter.release("unlock " + msg);
 		logger.info("unlock " + msg + ": counter = " + counter.getCount());
-		if (counter.isZero() && readyWhenZero)
+		if (counter.isZero() && readyWhenZero) {
 			controller.ready();
+			readyWhenZero = false;
+		}
 	}
 
 	public LockingCounter getTestCounter() {

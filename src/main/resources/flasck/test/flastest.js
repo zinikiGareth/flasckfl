@@ -794,42 +794,7 @@ UTRunner.prototype.module = function(mod) {
     throw new Error("There is no module " + mod);
   return m;
 };
-UTRunner.prototype.transport = function(tz) {
-  this.zinBch = new JsonBeachhead(this, "fred", this.broker, tz);
-  this.broker.beachhead(this.zinBch);
-};
-UTRunner.prototype.deliver = function(json) {
-  this.logger.log("have " + json + " ready for delivery");
-  var cx = this.newContext();
-  var msgs = this.zinBch.dispatch(cx, json, null);
-  this.logger.log("have messages", msgs);
-  this.queueMessages(cx, msgs);
-};
 UTRunner.prototype.addHistory = function(state, title, url) {
-};
-UTRunner.prototype.runRemote = function(testClz, spec) {
-  var cxt = this.newContext();
-  var st = new testClz(this, cxt);
-  var allSteps = [];
-  if (spec.configure) {
-    var steps = spec.configure.call(st, cxt);
-    for (var j = 0; j < steps.length; j++)
-      allSteps.push(steps[j]);
-  }
-  if (spec.stages) {
-    for (var i = 0; i < spec.stages.length; i++) {
-      var steps = spec.stages[i].call(st, cxt);
-      for (var j = 0; j < steps.length; j++)
-        allSteps.push(steps[j]);
-    }
-  }
-  if (spec.cleanup) {
-    var steps = spec.cleanup.call(st, cxt);
-    for (var j = 0; j < steps.length; j++)
-      allSteps.push(steps[j]);
-  }
-  var bridge = this.logger;
-  bridge.executeSync(this, st, cxt, allSteps);
 };
 
 // src/main/javascript/unittest/stsecurity.js

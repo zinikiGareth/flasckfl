@@ -1,26 +1,27 @@
 // src/main/javascript/forjava/wsbridge.js
 import { UTRunner } from "/js/flastest.js";
-function WSBridge(host2, port2) {
+function WSBridge(host, port) {
   var self = this;
   this.unittests = {};
   this.systemtests = {};
   this.runner = new UTRunner(this);
   this.currentTest = null;
-  this.ws = new WebSocket("ws://" + host2 + ":" + port2 + "/bridge");
+  this.ws = new WebSocket("ws://" + host + ":" + port + "/bridge");
   this.requestId = 1;
   this.sending = [];
   this.lockedOut = [];
   this.responders = {};
   this.moduleCreators = {};
   this.ws.addEventListener("open", (ev) => {
-    console.log("connected", ev);
+    console.log("wsbridge connected");
     while (this.sending.length > 0) {
       var v = this.sending.shift();
+      console.log("bridge =>", v);
       this.ws.send(v);
     }
   });
   this.ws.addEventListener("message", (ev) => {
-    console.log("message", ev.data);
+    console.log("bridge <=", ev.data);
     var msg = JSON.parse(ev.data);
     var action = msg.action;
     if (action == "response") {
@@ -42,12 +43,18 @@ function WSBridge(host2, port2) {
 }
 WSBridge.handlers = {};
 WSBridge.prototype.addUnitTest = function(name, test) {
-  console.log("adding unit test", name, test);
+  console.log("adding unit test", name);
   this.unittests[name] = test;
 };
 WSBridge.prototype.addSystemTest = function(name, test) {
-  console.log("adding system test", name, test);
+  console.log("adding system test", name);
   this.systemtests[name] = test;
+};
+WSBridge.prototype.error = function(...args) {
+  console.log.apply(console.log, args);
+  if (this.ws) {
+    this.send({ action: "error", error: merge(args) });
+  }
 };
 WSBridge.prototype.log = function(...args) {
   console.log.apply(console.log, args);
@@ -86,7 +93,7 @@ WSBridge.handlers["haveModule"] = function(msg) {
   this.unlock("haveModule");
 };
 WSBridge.handlers["prepareUnitTest"] = function(msg) {
-  console.log("run unit test", msg);
+  console.log("UNIT", msg.wrapper, msg.testname);
   var cxt = this.runner.newContext();
   var utf = this.unittests[msg.wrapper][msg.testname];
   this.currentTest = new utf(this.runner, cxt);
@@ -95,24 +102,22 @@ WSBridge.handlers["prepareUnitTest"] = function(msg) {
   this.send({ action: "steps", steps });
 };
 WSBridge.handlers["prepareSystemTest"] = function(msg) {
-  console.log("run system test", msg);
+  console.log("SYSTEST", msg.testclz);
   var cxt = this.runner.newContext();
-  console.log("test", this.systemtests[msg.testclz]);
   var stc = this.systemtests[msg.testclz];
-  console.log("what is", stc);
   this.currentTest = new stc(this.runner, cxt);
   this.runner.clear();
   this.send({ action: "systemTestPrepared" });
 };
 WSBridge.handlers["prepareStage"] = function(msg) {
-  console.log("prepare stage", msg);
+  console.log("PREPARE STAGE", msg.stage);
   var cxt = this.runner.newContext();
   var stage = this.currentTest[msg.stage];
   var steps = stage(cxt);
   this.send({ action: "steps", steps });
 };
 WSBridge.handlers["runStep"] = function(msg) {
-  console.log("run unit test step", msg);
+  console.log("RUN STEP", msg.step);
   try {
     var cxt = this.runner.newContext();
     var step = this.currentTest[msg.step];
@@ -120,7 +125,7 @@ WSBridge.handlers["runStep"] = function(msg) {
     this.unlock("runstep");
   } catch (e) {
     console.log(e);
-    this.send({ action: "error", error: e.toString() });
+    this.error(e.toString());
   }
 };
 WSBridge.handlers["assertSatisfied"] = function(msg) {
@@ -131,21 +136,21 @@ WSBridge.handlers["assertSatisfied"] = function(msg) {
     this.unlock("assertSatisfied");
   } catch (e) {
     console.log(e);
-    this.send({ action: "error", error: e.toString() });
+    this.error(e.toString());
   }
 };
 WSBridge.prototype.send = function(json) {
   var text = JSON.stringify(json);
-  if (this.ws.readyState == this.ws.OPEN)
+  if (this.ws.readyState == this.ws.OPEN) {
+    if (json.action != "log") {
+      console.log("bridge =>", text);
+    }
     this.ws.send(text);
-  else
+  } else
     this.sending.push(text);
 };
-WSBridge.prototype.connectToZiniki = function(wsapi, cb) {
-  runner.broker.connectToServer("ws://" + host + ":" + port);
-};
-WSBridge.prototype.executeSync = function(runner2, st, cxt, steps) {
-  this.runner = runner2;
+WSBridge.prototype.executeSync = function(runner, st, cxt, steps) {
+  this.runner = runner;
   this.st = st;
   this.runcxt = cxt;
   this.readysteps = steps;

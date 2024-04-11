@@ -46,8 +46,10 @@ public class SingleJSTest {
 	}
 
 	public void prepareStage(CountDownLatch cdl, SystemTestStage e) throws JSONException, InterruptedException {
+		logger.info("prepareStage: cdl = " + cdl.getCount());
 		bridge.prepareStage(e.name.baseName());
 		boolean isReady = cdl.await(25, TimeUnit.SECONDS);
+		logger.info("prepareStage: cdl = " + cdl.getCount() + " isr = " + isReady);
 		if (!isReady)
 			throw new CantHappenException("the test steps were not made available");
 	}

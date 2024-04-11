@@ -196,10 +196,12 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	public void stepsForTest(List<String> steps) {
 		this.testSteps = steps;
 		cdl.countDown();
+		System.out.println("Have steps: " + steps + cdl.getCount());
 	}
 	
 	public void systemTestPrepared() {
 		cdl.countDown();
+		System.out.println("stprep: " + cdl.getCount());
 	}
 	
 	private void startServer() throws Exception {
@@ -270,6 +272,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 	public void ready() {
 		cdl.countDown();
+		System.out.println("ready: " + cdl.getCount());
 	}
 
 	@Override
@@ -457,7 +460,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();
-			System.out.println("Loading " + html + " as " + htmlUri);
+//			System.out.println("Loading " + html + " as " + htmlUri);
 //			FileUtils.cat(html);
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);

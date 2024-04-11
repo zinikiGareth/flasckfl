@@ -78,7 +78,6 @@ EvalContext.prototype.fromWire = function(om, fields) {
 };
 EvalContext.prototype._bindNamedHandler = function(nh) {
 };
-var ecxt_default = EvalContext;
 
 // src/main/javascript/idempotent.js
 var IdempotentHandler = function() {
@@ -708,12 +707,13 @@ NoSuchContract.forContract = function(ctr) {
 var ZiwshWebClient = function(logger, factory, uri, connMonitor) {
   this.logger = logger;
   this.factory = factory;
+  this.connMonitor = connMonitor;
   if (uri) {
-    this.connectTo(uri, connMonitor);
+    this.connectTo(uri);
   }
   logger.log("created ZWC with uri", uri);
 };
-ZiwshWebClient.prototype.connectTo = function(uri, connMonitor) {
+ZiwshWebClient.prototype.connectTo = function(uri) {
   const zwc = this;
   this.logger.log("connecting to URI " + uri);
   this.conn = new WebSocket(uri);
@@ -726,14 +726,19 @@ ZiwshWebClient.prototype.connectTo = function(uri, connMonitor) {
     zwc.logger.log("opened with backlog", this.backlog.length);
     while (this.backlog.length > 0) {
       const json = zwc.backlog.pop();
+      if (this.connMonitor) {
+        this.connMonitor.sentMessage(json);
+      }
       zwc.logger.log("sending", json);
       zwc.conn.send(json);
     }
     zwc.logger.log("cleared backlog");
-    if (connMonitor)
-      connMonitor("open");
+    if (this.connMonitor)
+      this.connMonitor.status("open");
   });
   this.conn.addEventListener("message", (ev) => {
+    if (this.connMonitor)
+      this.connMonitor.recvMessage(ev.data);
     const cx = zwc.factory.newContext();
     var actions = this.bh.dispatch(cx, ev.data, this);
     if (zwc.factory.queueMessages) {
@@ -746,12 +751,17 @@ ZiwshWebClient.prototype.attachBeachhead = function(bh) {
 };
 ZiwshWebClient.prototype.send = function(json) {
   this.logger.log("want to send " + json + " to " + this.bh.name + (this.conn ? this.conn.readyState == 1 ? "" : "; not ready; state = " + this.conn.readyState : " not connected"));
-  if (this.conn && this.conn.readyState == 1)
+  if (this.conn && this.conn.readyState == 1) {
     this.conn.send(json);
-  else
+    if (this.connMonitor) {
+      this.connMonitor.sentMessage(json);
+    }
+  } else {
     this.backlog.push(json);
+    if (this.connMonitor)
+      this.connMonitor.status("backlog", this.backlog.length);
+  }
 };
-var zwc_default = ZiwshWebClient;
 
 // src/main/javascript/broker.js
 var brokerId = 1;
@@ -767,7 +777,7 @@ var SimpleBroker = function(logger, factory, contracts) {
   this.name = "jsbroker_" + brokerId++;
 };
 SimpleBroker.prototype.connectToServer = function(uri, connMonitor) {
-  const zwc = new zwc_default(this.logger, this.factory, uri, connMonitor);
+  const zwc = new ZiwshWebClient(this.logger, this.factory, uri, connMonitor);
   const bh = new JsonBeachhead(this.factory, uri, this, zwc);
   this.server = bh;
   zwc.attachBeachhead(bh);
@@ -840,18 +850,18 @@ SimpleBroker.prototype.cancel = function(cx, old) {
     this.serviceHandlers.delete(old);
   }
 };
-var broker_default = SimpleBroker;
 export {
   CollectingState,
-  ecxt_default as EvalContext,
+  EvalContext,
   FieldsContainer,
   IdempotentHandler,
   JsonBeachhead,
   ListTraverser,
   LoggingIdempotentHandler,
+  MarshallerProxy,
   NamedIdempotentHandler,
-  broker_default as SimpleBroker,
-  zwc_default as ZiwshWebClient,
+  SimpleBroker,
+  ZiwshWebClient,
   proxy,
   proxy1
 };

@@ -3139,12 +3139,12 @@ CommonEnv.prototype.clear = function() {
   this.singletons = {};
 };
 CommonEnv.prototype.queueMessages = function(_cxt, msg) {
-  this.locker.lock();
+  this.locker.lock("queue");
   this.queue.push(msg);
   var self = this;
   setTimeout(() => {
     self.dispatchMessages(_cxt);
-    this.locker.unlock();
+    this.locker.unlock("queue");
   }, 0);
 };
 CommonEnv.prototype.dispatchMessages = function(_cxt) {

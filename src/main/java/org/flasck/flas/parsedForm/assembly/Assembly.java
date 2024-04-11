@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.AssemblyName;
-import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.repository.RepositoryEntry;
 
 public class Assembly implements RepositoryEntry {
