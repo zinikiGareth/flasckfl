@@ -3284,6 +3284,16 @@ DispatcherInvoker.prototype.invoke = function(meth, args) {
   }
   this.env.queueMessages(cx2, Send.eval(cx2, this.call, meth, pass, hdlr, hdlrName));
 };
+
+// src/main/javascript/runtime/entity.js
+var Entity = function() {
+};
+Entity.prototype._field_id = function(cx2, args) {
+  return this.state.get("_id");
+};
+Entity.prototype._field_id.nfargs = function() {
+  return 0;
+};
 export {
   Application,
   Assign,
@@ -3300,6 +3310,7 @@ export {
   CrobagWindow,
   CrobagWindowEvent,
   Debug,
+  Entity,
   FLBuiltin,
   FLCard,
   FLContext,
