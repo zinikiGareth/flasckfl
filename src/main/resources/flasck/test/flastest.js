@@ -221,68 +221,6 @@ MockHandler.prototype._areYouA = MockContract.prototype._areYouA;
 MockHandler.prototype.expect = MockContract.prototype.expect;
 MockHandler.prototype.serviceMethod = MockContract.prototype.serviceMethod;
 MockHandler.prototype.assertSatisfied = MockContract.prototype.assertSatisfied;
-var MockAjax = function(_cxt, baseUri) {
-  this.baseUri = baseUri;
-  this.expect = { subscribe: [] };
-};
-MockAjax.prototype.expectSubscribe = function(_cxt, path) {
-  var mas = new MockAjaxSubscriber(_cxt, path);
-  this.expect.subscribe.push(mas);
-  return mas;
-};
-MockAjax.prototype.pump = function(_cxt) {
-  for (var i = 0; i < this.expect.subscribe.length; i++) {
-    this.expect.subscribe[i].dispatch(_cxt, this.baseUri, _cxt.env.activeSubscribers);
-  }
-};
-var MockAjaxSubscriber = function(_cxt, path) {
-  this.path = path;
-  this.responses = [];
-  this.nextResponse = 0;
-};
-MockAjaxSubscriber.prototype.response = function(_cxt, val) {
-  this.responses.push(val);
-};
-MockAjaxSubscriber.prototype.dispatch = function(_cxt, baseUri, subscribers) {
-  if (this.nextResponse >= this.responses.length)
-    return;
-  for (var i = 0; i < subscribers.length; i++) {
-    if (this.matchAndSend(_cxt, baseUri, subscribers[i]))
-      return;
-  }
-};
-MockAjaxSubscriber.prototype.matchAndSend = function(_cxt, baseUri, sub) {
-  if (sub.uri.toString() == new URL(this.path, baseUri).toString()) {
-    var resp = this.responses[this.nextResponse++];
-    resp = _cxt.full(resp);
-    if (resp instanceof FLError) {
-      _cxt.log(resp);
-      return true;
-    }
-    var msg;
-    if (resp instanceof AjaxMessage) {
-      msg = resp;
-    } else {
-      msg = new AjaxMessage(_cxt);
-      msg.state.set("headers", []);
-      if (typeof resp === "string")
-        msg.state.set("body", resp);
-      else
-        msg.state.set("body", JSON.stringify(resp));
-    }
-    _cxt.env.queueMessages(_cxt, Send.eval(_cxt, sub.handler, "message", [msg], null));
-    _cxt.env.dispatchMessages(_cxt);
-    return true;
-  } else
-    return false;
-};
-var MockAjaxService = function() {
-};
-MockAjaxService.prototype.subscribe = function(_cxt, uri, options, handler) {
-  if (uri instanceof FLURI)
-    uri = uri.uri;
-  _cxt.env.activeSubscribers.push({ uri, options, handler });
-};
 var MockAppl = function(_cxt, clz) {
   const newdiv = document.createElement("div");
   newdiv.setAttribute("id", _cxt.nextDocumentId());
@@ -360,7 +298,7 @@ UTContext.prototype.mockHandler = function(contract) {
 // src/main/javascript/unittest/runner.js
 import { SimpleBroker, JsonBeachhead, IdempotentHandler as IdempotentHandler2, NamedIdempotentHandler as NamedIdempotentHandler2 } from "/js/ziwsh.js";
 import { FLError as FLError2 } from "/js/flasjs.js";
-import { Debug, Send as Send2, Assign, ResponseWithMessages as ResponseWithMessages2, UpdateDisplay } from "/js/flasjs.js";
+import { Debug, Send, Assign, ResponseWithMessages as ResponseWithMessages2, UpdateDisplay } from "/js/flasjs.js";
 var UTRunner = function(bridge) {
   if (!bridge)
     bridge = console;
@@ -391,7 +329,6 @@ UTRunner.prototype.bindModule = function(name, jm) {
 };
 UTRunner.prototype.makeReady = function() {
   CommonEnv.prototype.makeReady.call(this);
-  this.broker.register("Ajax", new MockAjaxService());
 };
 UTRunner.prototype.error = function(err) {
   this.errors.push(err);
@@ -446,7 +383,7 @@ UTRunner.prototype.invoke = function(_cxt, inv) {
     inv = inv[0];
   }
   var tcx;
-  if (inv instanceof Send2)
+  if (inv instanceof Send)
     tcx = _cxt.bindTo(inv.obj);
   else
     tcx = _cxt.split();
@@ -761,11 +698,6 @@ UTRunner.prototype.mockCard = function(_cxt, name, card) {
   this.mocks[name] = ret;
   this.cards.push(ret);
   return ret;
-};
-UTRunner.prototype.newAjax = function(cxt, baseUri) {
-  var ma = new MockAjax(cxt, baseUri);
-  this.ajaxen.push(ma);
-  return ma;
 };
 UTRunner.prototype.newMockAppl = function(cxt, clz) {
   var ma = new MockAppl(cxt, clz);

@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -187,11 +185,6 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	@Override
 	public void sendJson(String json) {
 		logger.info("sending " + json);
-		try {
-			throw new InvalidUsageException("why me?");
-		} catch (Exception ex) {
-			ex.printStackTrace(System.out);
-		}
 		responder.send(json);
 	}
 
