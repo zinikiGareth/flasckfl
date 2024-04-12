@@ -514,5 +514,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			wd.close();
 			wd.quit();
 		}
+		if (bridge != null) {
+			bridge.waitForShutdown();
+		}
 	}
 }

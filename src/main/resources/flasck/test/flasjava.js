@@ -66,11 +66,11 @@ WSBridge.prototype.debugmsg = function(...args) {
   console.log.apply(console.log, args);
   this.send({ action: "debugmsg", message: merge(args) });
 };
-var merge = function(...args) {
+var merge = function(args) {
   var ret = "";
   var sep = "";
-  for (var i = 0; i < arguments.length; i++) {
-    ret += sep + arguments[i];
+  for (var i = 0; i < args.length; i++) {
+    ret += sep + args[i];
     sep = " ";
   }
   return ret;

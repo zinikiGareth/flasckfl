@@ -1,11 +1,16 @@
 package org.flasck.flas.testrunner;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -23,6 +28,8 @@ import org.zinutils.sync.LockingCounter;
 public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
 	protected static Logger debugLogger = LoggerFactory.getLogger("DebugLog");
+	static String patienceChild = System.getProperty("org.flasck.patience.child");
+	boolean wantTimeout = patienceChild == null || !patienceChild.equals("true");
 	private final JSRunner controller;
 	private final ClassLoader classloader;
 	private final File root;
@@ -33,6 +40,7 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	private int next = 1;
 	private WSResponder responder;
 	private boolean readyWhenZero = false;
+	private CountDownLatch shutdownCounter = new CountDownLatch(1);
 
 	BrowserJSJavaBridge(JSRunner controller, ClassLoader classloader, File root, LockingCounter counter) {
 		this.controller = controller;
@@ -44,7 +52,7 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	@Override
 	public void open(WSResponder responder) {
 		this.responder = responder;
-		logger.info("opened chrome ws");
+		logger.info("opened bridge " + this + " with " + responder);
 	}
 
 	@Override
@@ -149,12 +157,6 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	}
 
 	@Override
-	public void close(Object t) {
-		logger.info("closed chrome ws");
-		responder = null;
-	}
-
-	@Override
 	public void error(String s) {
 		errors.add(s);
 	}
@@ -209,5 +211,34 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 
 	public LockingCounter getTestCounter() {
 		return counter;
+	}
+
+	@Override
+	public void close(Object t) {
+		logger.info("closed bridge " + this + " with " + responder);
+		for (Object m : conns.values()) {
+			logger.info("need to clean up module " + m);
+			if (m instanceof Closeable) {
+				try {
+					((Closeable)m).close();
+				} catch (IOException ex) {
+					logger.error("error closing module " + m, ex);
+				}
+			}
+		}
+		responder = null;
+		shutdownCounter.countDown();
+	}
+
+	public void waitForShutdown() {
+		try {
+			if (wantTimeout) {
+				if (!shutdownCounter.await(15, TimeUnit.SECONDS))
+					logger.error("timed out waiting for bridge to be closed");
+			} else
+				shutdownCounter.await();
+		} catch (InterruptedException ex) {
+			logger.error("interrupted waiting for bridge to be closed");
+		}
 	}
 }
