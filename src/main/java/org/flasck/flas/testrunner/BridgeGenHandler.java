@@ -13,21 +13,24 @@ import org.ziniki.server.grizzly.GrizzlyTDAServer;
 import org.ziniki.servlet.tda.RequestProcessor;
 import org.ziniki.servlet.tda.Responder;
 import org.ziniki.ziwsh.intf.Param;
+import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.utils.FileUtils;
 
 public class BridgeGenHandler implements RequestProcessor {
 	private final GrizzlyTDAServer server;
+	private final File moduleDir;
 	private final Iterable<PackageName> sources;
 	private final List<UnitTestCase> unittests;
 	private final List<SystemTest> systests;
-	private final List<File> moduleDirs;
+	private final List<String> modules;
 
-	public BridgeGenHandler(@Param("server") GrizzlyTDAServer server, @Param("sources") Iterable<PackageName> sources, @Param("unitTests") List<UnitTestCase> unittests, @Param("systemTests") List<SystemTest> systests, @Param("modules") List<File> moduleDirs) {
+	public BridgeGenHandler(@Param("server") GrizzlyTDAServer server, @Param("moduleDir") File moduleDir, @Param("sources") Iterable<PackageName> sources, @Param("unitTests") List<UnitTestCase> unittests, @Param("systemTests") List<SystemTest> systests, @Param("modules") List<String> modules) {
 		this.server = server;
+		this.moduleDir = moduleDir;
 		this.sources = sources;
 		this.unittests = unittests;
 		this.systests = systests;
-		this.moduleDirs = moduleDirs;
+		this.modules = modules;
 	}
 	
 	@Override
@@ -40,12 +43,22 @@ public class BridgeGenHandler implements RequestProcessor {
 			sb.append("import { " + n.jsName() +" } from '/js/" + n.uniqueName() + ".js';\n");
 		}
 		int mk = 0, tk = 0;
-		for (File m : moduleDirs) {
-			for (File f : FileUtils.findFilesMatching(new File(m, "main"), "*.js")) {
-				sb.append("import { module_init as module_init_" + (mk++) +" } from '/js/" + f.getName() + "';\n");
+		for (String n : modules) {
+			File m = new File(moduleDir, n);
+			if (!m.isDirectory()) {
+				throw new InvalidUsageException("there is no module called " + n + " in " + moduleDir);
 			}
-			for (File f : FileUtils.findFilesMatching(new File(m, "test"), "*.js")) {
-				sb.append("import { installer as installer_" + (tk++) + " } from '/js/" + f.getName() + "';\n");
+			File core = new File(m, "core");
+			if (core.isDirectory()) {
+				for (File f : FileUtils.findFilesMatching(core, "*.js")) {
+					sb.append("import { module_init as module_init_" + (mk++) +" } from '/js/" + f.getName() + "';\n");
+				}
+			}
+			File mock = new File(m, "mock");
+			if (mock.isDirectory()) {
+				for (File f : FileUtils.findFilesMatching(mock, "*.js")) {
+					sb.append("import { installer as installer_" + (tk++) + " } from '/js/" + f.getName() + "';\n");
+				}
 			}
 		}
 		sb.append("\n");
@@ -69,7 +82,7 @@ public class BridgeGenHandler implements RequestProcessor {
 			sb.append("module_init_" + i + "(bridge.runner);\n");
 		}
 		for (int i=0;i<tk;i++) {
-			sb.append("installer_" + i + "(bridge, bridge.runner);\n");
+			sb.append("installer_" + i + "(bridge);\n");
 		}
 		sb.append("bridge.send({ action: 'ready' });\n");
 

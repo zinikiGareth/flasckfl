@@ -321,11 +321,8 @@ UTRunner.prototype.clear = function() {
 UTRunner.prototype.newContext = function() {
   return new UTContext(this, this.broker);
 };
-UTRunner.prototype.addModule = function(name, mod) {
-  this.modules[name] = mod;
-};
-UTRunner.prototype.bindModule = function(name, jm) {
-  this.moduleInstances[name] = new this.modules[name](this, jm);
+UTRunner.prototype.bindModule = function(name, jsm) {
+  this.moduleInstances[name] = jsm;
 };
 UTRunner.prototype.makeReady = function() {
   CommonEnv.prototype.makeReady.call(this);

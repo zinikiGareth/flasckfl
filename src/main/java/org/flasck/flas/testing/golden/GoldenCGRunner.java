@@ -34,6 +34,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
 import org.zinutils.cgharness.CGHarnessRunnerHelper;
 import org.zinutils.cgharness.TestMethodContentProvider;
+import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
@@ -57,6 +58,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	private static boolean wantOrdered = wantOrderedOption == null || wantOrderedOption.equals("ordered");
 	private static String checkGrammarOption = System.getProperty("checkGrammar");
 	private static boolean checkGrammar = checkGrammarOption == null || checkGrammarOption.equals("check");
+	private static String moduleDir = System.getProperty("org.flasck.module.dir");
 	
 	public static final File jvmdir;
 	static {
@@ -251,12 +253,14 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			}
 		}
 		if (modules.exists()) {
-			for (String fi : FileUtils.readFileAsLines(modules)) {
-				File f = new File(fi);
+			if (moduleDir == null) {
+				throw new InvalidUsageException("cannot use modules without specifying -Dorg.flasck.module.dir");
+			}
+			for (String m : FileUtils.readFileAsLines(modules)) {
 				args.add("--moduledir");
-				args.add(f.getParent());
+				args.add(moduleDir);
 				args.add("--module");
-				args.add(f.getName());
+				args.add(m);
 			}
 		}
 		if (interceptor != null)

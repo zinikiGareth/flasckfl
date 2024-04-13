@@ -534,9 +534,11 @@ public class FLASCompiler implements CompileUnit {
 				}
 				File libroot = new File(config.flascklibDir);
 				copyJSLib(reloc, userDir, pf, fldir, libroot);
-				for (File mld : config.modules) {
-					copyJSLib(reloc, userDir, pf, mdir, mld);
-				}
+				if (!config.modules.isEmpty())
+					System.out.println("do not handle modules properly here yet");
+//				for (String mls : config.modules) {
+//					copyJSLib(reloc, userDir, pf, mdir, mld);
+//				}
 				FLASAssembler asm = new FLASAssembler(fos);
 				File incdir = new File("includes/js");
 				File ct = new File(pf, incdir.getPath());

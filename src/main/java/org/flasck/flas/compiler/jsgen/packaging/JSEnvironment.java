@@ -34,6 +34,7 @@ import org.flasck.jvm.ziniki.FileContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.NodeWalker;
@@ -316,8 +317,8 @@ public class JSEnvironment implements JSStorage {
 		List<String> inlib = new ArrayList<>();
 		addFrom(ret, testDirJS, inlib, new File(config.flascklibDir, "main"));
 		addFrom(ret, testDirJS, inlib, new File(config.flascklibDir, "test"));
-		for (File mld : config.modules) {
-			addFrom(ret, testDirJS, inlib, mld);
+		for (String mld : config.modules) {
+			addModule(ret, config.moduleDir, testDirJS, inlib, mld);
 		}
 
 		for (String s : packageStrings()) {
@@ -347,7 +348,18 @@ public class JSEnvironment implements JSStorage {
 		}
 	}
 
+	private void addModule(List<ContentObject> ret, File moduleDir, String testDirJS, List<String> inlib, String m) {
+		File f = new File(moduleDir, m);
+		if (!f.isDirectory()) {
+			throw new InvalidUsageException("there is no module " + m + " defined in " + moduleDir);
+		}
+		addFrom(ret, testDirJS, inlib, new File(f, "core"));
+		addFrom(ret, testDirJS, inlib, new File(f, "mock"));
+	}
+	
 	private void addFrom(List<ContentObject> ret, String testDirJS, List<String> inlib, File from) {
+		if (!from.isDirectory())
+			return;
 		List<File> library = FileUtils.findFilesMatching(from, "*");
 		for (File f : library) {
 			includeFile(ret, testDirJS, f);

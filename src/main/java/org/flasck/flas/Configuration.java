@@ -41,12 +41,13 @@ public class Configuration {
 	public String jstestdir;
 	public String specifiedTestName;
 	public String flascklibDir;
+	public File moduleDir; // TODO: the equivalent thing for ContentStore
 	public PackageSources flascklibCPV;
 	public List<PackageSources> moduleCOs;
 	public List<PackageSources> dependencies;
 	public boolean openHTML;
 	public final List<File> includeFrom = new ArrayList<File>();
-	public final List<File> modules = new ArrayList<>();
+	public final List<String> modules = new ArrayList<>(); // just the "names" of the modules - we will use the "moduleDir" and known rules to find the actual items we want
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.optionModules = ServiceLoader.load(OptionModule.class);
@@ -67,7 +68,6 @@ public class Configuration {
 				}
 			}
 		}
-		File moduledir = new File(".");
 		for (int i=0;i<args.length;i++) {
 			String arg = args[i];
 			if (arg == null || arg.length() == 0)
@@ -92,9 +92,9 @@ public class Configuration {
 						System.out.println("--moduledir <dir>");
 						System.exit(1);
 					}
-					moduledir = new File(args[++i]); // definitely NOT under root
+					moduleDir = new File(args[++i]); // definitely NOT under root
 				} else if (arg.equals("--module")) {
-					this.modules.add(new File(moduledir, args[++i])); 
+					this.modules.add(args[++i]); 
 				} else if (arg.equals("--phase"))
 					upto = PhaseTo.valueOf(args[++i]);
 				else if (arg.equals("--dumprepo"))
@@ -201,6 +201,9 @@ public class Configuration {
 			} else {
 				inputs.add(new File(root, arg));
 			}
+		}
+		if (moduleDir == null && !modules.isEmpty()) {
+			errors.message((InputPosition)null, "cannot specify --module without --moduledir");
 		}
 		if (html != null && flascklibDir == null) {
 			errors.message((InputPosition)null, "Use of --html requires --flascklib");

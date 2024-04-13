@@ -212,6 +212,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			Map<String, Object> map = new TreeMap<>();
 			map.put("class", BridgeGenHandler.class.getName());
 			map.put("server", server);
+			map.put("moduleDir", config.moduleDir);
 			map.put("sources", jse.packageNames());
 			map.put("unitTests", jse.unitTests());
 			map.put("systemTests", jse.systemTests());
