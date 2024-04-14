@@ -92,7 +92,7 @@ public class SystemTestStepParser extends TestStepParser {
 		}
 		VarName vn = namer.nameVar(tok.location, tok.text);
 		// TODO: this is the thing that we can configure using the (hypothetical) nested parser
-		PackageName pn = vn.packageName();
+		PackageName pn = (PackageName) vn.packageName().container();
 		MockApplication ma = new MockApplication(vn, pn);
 		topLevel.mockApplication(errors, ma);
 		((SystemTestStage)builder).mockApplication(errors, vn, ma);

@@ -170,14 +170,14 @@ Assign.prototype._compare = function(cx2, other) {
     return false;
 };
 Assign.prototype.dispatch = function(cx2) {
-  var msgs2 = [];
+  var msgs = [];
   var target = this.obj;
   if (target.dispatch) {
     var rwm = this.obj.dispatch(cx2);
     target = rwm;
   }
   if (this.expr instanceof ResponseWithMessages) {
-    msgs2.unshift(ResponseWithMessages.messages(cx2, this.expr));
+    msgs.unshift(ResponseWithMessages.messages(cx2, this.expr));
     this.expr = ResponseWithMessages.response(cx2, this.expr);
   }
   target.state.set(this.slot, this.expr);
@@ -185,7 +185,7 @@ Assign.prototype.dispatch = function(cx2) {
     cx2.env.queueMessages(cx2, new UpdateDisplay(cx2, this.obj));
   else if (this.obj._card && this.obj._card._updateDisplay)
     cx2.env.queueMessages(cx2, new UpdateDisplay(cx2, this.obj._card));
-  return msgs2;
+  return msgs;
 };
 Assign.prototype.toString = function() {
   return "Assign[]";
@@ -209,7 +209,7 @@ AssignCons.prototype._compare = function(cx2, other) {
     return false;
 };
 AssignCons.prototype.dispatch = function(cx2) {
-  var msgs2 = [];
+  var msgs = [];
   var target = this.obj;
   if (target.dispatch) {
     var rwm = this.obj.dispatch(cx2);
@@ -223,18 +223,18 @@ AssignCons.prototype.dispatch = function(cx2) {
     throw Error("No, it needs to be an Item");
   }
   if (this.expr instanceof ResponseWithMessages) {
-    msgs2.unshift(ResponseWithMessages.messages(cx2, this.expr));
+    msgs.unshift(ResponseWithMessages.messages(cx2, this.expr));
     this.expr = ResponseWithMessages.response(cx2, this.expr);
   }
   target.set(this.expr);
-  return msgs2;
+  return msgs;
 };
 AssignCons.prototype.toString = function() {
   return "AssignCons[]";
 };
-var ResponseWithMessages = function(cx2, obj, msgs2) {
+var ResponseWithMessages = function(cx2, obj, msgs) {
   this.obj = obj;
-  this.msgs = msgs2;
+  this.msgs = msgs;
 };
 ResponseWithMessages.prototype._full = function(cx2) {
   this.obj = cx2.full(this.obj);
@@ -417,7 +417,7 @@ function createOne(appl, ci) {
     var card = appl.cards[ci.name] = new ci.card(_cxt);
     var ctr = _cxt.findContractOnCard(card, "Lifecycle");
     if (ctr && ctr.init) {
-      msgs = ctr.init(_cxt);
+      var msgs = ctr.init(_cxt);
       _cxt.env.queueMessages(_cxt, msgs);
     }
   };
@@ -427,7 +427,7 @@ function closeOne(appl, ci) {
     var card = appl.cards[ci.name];
     var ctr = _cxt.findContractOnCard(card, "Lifecycle");
     if (ctr && ctr.closing) {
-      msgs = ctr.closing(_cxt);
+      var msgs = ctr.closing(_cxt);
       _cxt.env.queueMessages(_cxt, msgs);
     }
     if (card._renderTree) {
@@ -447,7 +447,7 @@ function readyOne(appl, name) {
     var card = appl.cards[name];
     var ctr = _cxt.findContractOnCard(card, "Lifecycle");
     if (ctr && ctr.ready) {
-      msgs = ctr.ready(_cxt);
+      var msgs = ctr.ready(_cxt);
       _cxt.env.queueMessages(_cxt, msgs);
     }
   };
@@ -478,9 +478,8 @@ function oneAction(appl, a) {
           } else
             throw new Error("huh? " + JSON.stringify(aa));
         }
-        var msgs2;
-        msgs2 = ctr[m].apply(ctr, callWith);
-        _cxt.env.queueMessages(_cxt, msgs2);
+        var msgs = ctr[m].apply(ctr, callWith);
+        _cxt.env.queueMessages(_cxt, msgs);
       }
     }
   };
@@ -1106,16 +1105,16 @@ FLBuiltin._underlying = function(_cxt, mock) {
 FLBuiltin._underlying.nfargs = function() {
   return 1;
 };
-FLBuiltin.dispatch = function(_cxt, msgs2) {
-  msgs2 = _cxt.full(msgs2);
-  if (msgs2 instanceof FLError)
-    return msgs2;
+FLBuiltin.dispatch = function(_cxt, msgs) {
+  msgs = _cxt.full(msgs);
+  if (msgs instanceof FLError)
+    return msgs;
   var ret2 = [];
   var te = _cxt.env;
   te.queueMessages = function(cx2, m) {
     ret2.push(m);
   };
-  _cxt.env.handleMessages(_cxt, msgs2);
+  _cxt.env.handleMessages(_cxt, msgs);
   return ret2;
 };
 FLBuiltin.dispatch.nfargs = function() {
@@ -1344,7 +1343,7 @@ FLContext.prototype.spine = function(obj) {
   throw Error("spine should only be called on lists");
 };
 FLContext.prototype.full = function(obj) {
-  var msgs2 = [];
+  var msgs = [];
   obj = this.head(obj);
   if (obj == null) {
   } else if (obj._full) {
@@ -1353,7 +1352,7 @@ FLContext.prototype.full = function(obj) {
     for (var i = 0; i < obj.length; i++) {
       obj[i] = this.full(obj[i]);
       if (obj[i] instanceof ResponseWithMessages) {
-        msgs2.unshift(obj[i].msgs);
+        msgs.unshift(obj[i].msgs);
         obj[i] = obj[i].obj;
       }
     }
@@ -1362,14 +1361,14 @@ FLContext.prototype.full = function(obj) {
     for (var i = 0; i < ks.length; i++) {
       var tmp = this.full(obj.state.dict[ks[i]]);
       if (tmp instanceof ResponseWithMessages) {
-        msgs2.unshift(tmp.msgs);
+        msgs.unshift(tmp.msgs);
         tmp = tmp.obj;
       }
       obj.state.dict[ks[i]] = tmp;
     }
   }
-  if (msgs2.length)
-    return new ResponseWithMessages(this, obj, msgs2);
+  if (msgs.length)
+    return new ResponseWithMessages(this, obj, msgs);
   else
     return obj;
 };
@@ -1514,12 +1513,12 @@ FLContext.prototype.startCard = function(card, elt) {
   card._renderInto(cx, elt);
   var lc = this.findContractOnCard(card, "Lifecycle");
   if (lc && lc.init) {
-    var msgs2 = lc.init(this);
-    this.env.queueMessages(this, msgs2);
+    var msgs = lc.init(this);
+    this.env.queueMessages(this, msgs);
   }
   if (lc && lc.ready) {
-    var msgs2 = lc.ready(this);
-    this.env.queueMessages(this, msgs2);
+    var msgs = lc.ready(this);
+    this.env.queueMessages(this, msgs);
   }
   return card;
 };

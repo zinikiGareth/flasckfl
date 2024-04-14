@@ -2,6 +2,20 @@
 import { IdempotentHandler, NamedIdempotentHandler } from "/js/ziwsh.js";
 import { FLError } from "/js/flasjs.js";
 import { FLURI } from "/js/flasjs.js";
+
+// src/main/javascript/unittest/stsecurity.js
+function STSecurityModule() {
+  this.currentUser = null;
+}
+STSecurityModule.prototype.requireLogin = function() {
+  return this.currentUser != null;
+};
+STSecurityModule.prototype.userLoggedIn = function(_cxt, app, user) {
+  this.currentUser = user;
+  app.nowLoggedIn(_cxt);
+};
+
+// src/main/javascript/unittest/mocks.js
 var BoundVar = function(name) {
   this.name = name;
 };
@@ -226,6 +240,7 @@ var MockAppl = function(_cxt, clz) {
   newdiv.setAttribute("id", _cxt.nextDocumentId());
   document.body.appendChild(newdiv);
   this.appl = new clz._Application(_cxt, newdiv);
+  this.appl.securityModule = new STSecurityModule();
   this.appl._updateDisplay(_cxt, this.appl._currentRenderTree());
 };
 MockAppl.prototype.route = function(_cxt, r, andThen) {
@@ -723,18 +738,6 @@ UTRunner.prototype.module = function(mod) {
   return m;
 };
 UTRunner.prototype.addHistory = function(state, title, url) {
-};
-
-// src/main/javascript/unittest/stsecurity.js
-function STSecurityModule() {
-  this.currentUser = null;
-}
-STSecurityModule.prototype.requireLogin = function() {
-  return this.currentUser != null;
-};
-STSecurityModule.prototype.userLoggedIn = function(_cxt, app, user) {
-  this.currentUser = user;
-  app.nowLoggedIn(_cxt);
 };
 export {
   BoundVar,

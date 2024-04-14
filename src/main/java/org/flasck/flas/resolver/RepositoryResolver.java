@@ -15,6 +15,7 @@ import org.flasck.flas.commonBase.ParenExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.ModuleExtensible;
@@ -1145,12 +1146,16 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		if (gr.iv == null)
 			return;
 		
-		ApplicationRouting ar = repository.get(scope.packageName().uniqueName() + "_Routing");
-		if (ar != null) {
-			gr.iv.bindType(ar);
-		} else {
-			errors.message(gr.iv.location, "there is no routing table for " + scope.packageName().uniqueName());
+		PackageName pn = scope.packageName();
+		while (pn != null) {
+			ApplicationRouting ar = repository.get(pn.uniqueName() + "_Routing");
+			if (ar != null) {
+				gr.iv.bindType(ar);
+				return;
+			}
+			pn = (PackageName)pn.container();
 		}
+		errors.message(gr.iv.location, "there is no routing table for " + scope.packageName().uniqueName());
 	}
 	
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {
