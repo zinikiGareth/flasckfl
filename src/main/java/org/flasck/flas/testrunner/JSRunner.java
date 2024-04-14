@@ -105,12 +105,10 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	public void stepsForTest(List<String> steps) {
 		this.testSteps = steps;
 		cdl.countDown();
-		System.out.println("Have steps: " + steps + cdl.getCount());
 	}
 	
 	public void systemTestPrepared() {
 		cdl.countDown();
-		System.out.println("stprep: " + cdl.getCount());
 	}
 	
 	private void startServer() throws Exception {
@@ -182,7 +180,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 	public void ready() {
 		cdl.countDown();
-		System.out.println("ready: " + cdl.getCount());
 	}
 
 	@Override

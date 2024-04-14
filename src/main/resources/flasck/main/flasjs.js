@@ -1620,10 +1620,14 @@ var Html = function(_cxt, _html) {
 };
 Html._ctor_from = function(_cxt, _card, _html) {
   var ret2;
-  if (!(_html instanceof AjaxMessage)) {
-    ret2 = new FLError("not an AjaxMessage");
+  if (!_html._convertToHTML) {
+    ret2 = new FLError("not valid HTML source");
   } else {
-    ret2 = new Html(_cxt, _html.state.get("body"));
+    ret2 = new Html(
+      _cxt,
+      _html._convertToHTML()
+      /* state.get('body') */
+    );
   }
   return new ResponseWithMessages(_cxt, ret2, []);
 };
