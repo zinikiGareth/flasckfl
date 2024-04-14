@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
@@ -27,6 +28,7 @@ import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.packaging.JSFile;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.Repository;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -36,7 +38,7 @@ import org.zinutils.graphs.DirectedAcyclicGraph;
 public class ClassGeneration {
 //	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
-	JSEnvironment jse = new JSEnvironment(new Repository(), new File("/tmp"), new DirectedAcyclicGraph<>(), null);
+	JSEnvironment jse = new JSEnvironment(new Configuration(null, null), new ErrorResult(), new Repository(), new File("/tmp"), new DirectedAcyclicGraph<>(), null);
 	StringWriter sw = new StringWriter();
 	PrintWriter pw = new PrintWriter(sw);
 	IndentWriter w = new IndentWriter(pw);

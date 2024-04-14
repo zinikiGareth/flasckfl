@@ -75,7 +75,7 @@ var merge = function(args) {
   }
   return ret;
 };
-WSBridge.prototype.module = function(moduleName, callback) {
+WSBridge.prototype.connectModule = function(moduleName, callback) {
   console.log("creating module", moduleName);
   this.moduleCreators[moduleName] = callback;
   this.lock("bindModule");

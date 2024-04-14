@@ -170,7 +170,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void shareWith(SystemTestModule module) {
-		module.inject(jse, meth, state, block, runner);
+		module.inject(jse, null, meth, state, block, runner);
 	}
 
 	@Override

@@ -3,7 +3,6 @@ package org.flasck.flas.testrunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -117,7 +116,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	private Navigation nav;
 	private List<String> testSteps;
 	private CountDownLatch cdl;
-	final Map<Class<?>, Object> modules = new HashMap<>();
 	private File flasckPath;
 	private File basePath;
 	private String htmlUri;
@@ -165,33 +163,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			visitUri(htmlUri);
 		}
 	}
-	
-	/*
-		try {
-			while (runAvailableTests()) {
-				while (runNextStep()) {
-				}
-			}
-			if (!headless) {
-				System.out.println("done ... waiting to allow browser to be examined");
-				Thread.sleep(50000);
-			}
-		} finally {
-			shutdown();
-		}
-	*/	
-		/*
-		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
-		buildHTML(templates);
-		page = browser.navigate("file:" + html.getPath());
-		boolean await = uiThread(cdl -> {
-			JSObject win = (JSObject)page.executeScript("window");
-			win.setMember("callJava", bridge);
-			cdl.countDown();
-		});
-		if (!await)
-			throw new RuntimeException("Whole test failed to initialize");
-		 */
 
 	public void stepsForTest(List<String> steps) {
 		this.testSteps = steps;
@@ -394,7 +365,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			pw.println("{");
 			pw.println("\t\"imports\": {");
 			boolean prev = false;
-			for (ContentObject incl : jse.jsIncludes(config, testDirJS)) {
+			Iterable<ContentObject> jsfiles = jse.jsIncludes(testDirJS);
+			for (ContentObject incl : jsfiles) {
 				importMapName(pw, prev, incl);
 				prev = true;
 			}
@@ -413,51 +385,12 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			for (Entry<String, String> e : templates.entrySet())
 				renderTemplate(pw, e.getKey(), e.getValue());
 
-			for (ContentObject incl : jse.jsIncludes(config, testDirJS)) {
+			for (ContentObject incl : jsfiles) {
 				includeAsScript(pw, incl);
 			}
 			pw.println("<script src='/gen/run.js' type='module'></script>");
 			pw.println("</head>");
 			pw.println("<body>");
-			/*
-			pw.println("<script>");
-			repository.traverse(new LeafAdapter() {
-				@Override
-				public void visitAssembly(ApplicationAssembly e) {
-					pw.println(e.name().uniqueName() +  "._Application.prototype.securityModule = new STSecurityModule();");
-				}
-			});
-			for (SystemTest st : jse.systemTests()) {
-				pw.println(st.name().jsName()  + ".manual = function(host, port) {");
-				pw.println("  var runner = new UTRunner(new WSBridge(host, port));");
-				pw.println("  runner.runRemote(" + st.name().jsName() + ", {");
-				String comma = "";
-				if (st.configure != null) {
-					pw.print("    configure: " + st.configure.name.jsPName());
-					comma = ",\n";
-				}
-				if (st.stages != null) {
-					pw.print(comma + "    stages: [");
-					comma = "\n      ";
-					String other = "";
-					for (SystemTestStage e : st.stages) {
-						pw.print(comma + e.name.jsPName());
-						comma = ",      \n";
-						other = "\n    ";
-					}
-					pw.println(other + "]");
-					comma = ",\n";
-				}
-				if (st.cleanup != null) {
-					pw.println(comma + "    cleanup: " + st.cleanup.name.jsPName());
-					comma = ",\n";
-				}
-				pw.println("  });");
-//				pw.println("  st.configure_step_1(cxt);");
-				pw.println("}");
-			}
-			pw.println("</script>");
-			*/
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();

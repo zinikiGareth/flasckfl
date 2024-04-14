@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.Configuration;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -21,6 +22,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.templates.EventTargetZones;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -60,8 +62,12 @@ public class JSEnvironment implements JSStorage {
 	private final List<File> localOnly = new ArrayList<>();
 	private final List<UnitTestCase> unitTests = new ArrayList<>();
 	private final List<SystemTest> systemTests = new ArrayList<>();
+	private final Configuration config;
+	private final ErrorReporter errors;
 
-	public JSEnvironment(Repository repository, File root, DirectedAcyclicGraph<String> pkgs, JSUploader uploader) {
+	public JSEnvironment(Configuration config, ErrorReporter errors, Repository repository, File root, DirectedAcyclicGraph<String> pkgs, JSUploader uploader) {
+		this.config = config;
+		this.errors = errors;
 		this.repository = repository;
 		this.root = root;
 		this.pkgdag = pkgs;
@@ -230,7 +236,7 @@ public class JSEnvironment implements JSStorage {
 	// untested
 	public void writeAllTo(File jsDir) throws FileNotFoundException {
 		FileUtils.assertDirectory(jsDir);
-		List<String> imports = fileImports();
+		Collection<String> imports = fileImports();
 		for (JSFile jsf : files.values()) {
 			File tof = jsf.write(jsDir, imports);
 			if (uploader != null) {
@@ -243,8 +249,8 @@ public class JSEnvironment implements JSStorage {
 		}
 	}
 
-	private List<String> fileImports() {
-		List<String> ret = new ArrayList<>();
+	private Collection<String> fileImports() {
+		LinkedHashSet<String> ret = new LinkedHashSet<>();
 		for (String s : files.keySet()) {
 			if (s.contains("_ut") || s.contains("_st"))
 				continue;
@@ -255,6 +261,7 @@ public class JSEnvironment implements JSStorage {
 				continue;
 			ret.add(s);
 		}
+		this.additionalModulePackages(ret);
 		return ret;
 	}
 
@@ -265,20 +272,10 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	public Iterable<PackageName> packageNames() {
-		Collection<String> flims = repository.flimPackages();
+		Iterable<String> strings = packageStrings();
 		LinkedHashSet<PackageName> ret = new LinkedHashSet<>();
-		if (pkgdag.hasNode("root.package"))
-			ret.add(new PackageName("root.package"));
-		for (String s : files.keySet()) {
-			pkgdag.ensure(s);
-			pkgdag.postOrderFrom(new NodeWalker<String>() {
-				@Override
-				public void present(Node<String> node) {
-					String pkg = node.getEntry();
-					if (files.containsKey(pkg) || flims.contains(pkg))
-						ret.add(new PackageName(pkg));
-				}
-			}, s);
+		for (String s : strings) {
+			ret.add(new PackageName(s));
 		}
 		return ret;
 	}
@@ -299,11 +296,27 @@ public class JSEnvironment implements JSStorage {
 				}
 			}, s);
 		}
+
+		additionalModulePackages(ret);
 		return ret;
 	}
 
+	private void additionalModulePackages(LinkedHashSet<String> ret) {
+		for (String m : config.modules) {
+			File mdir = new File(config.moduleDir, m);
+			if (!mdir.isDirectory())
+				continue;
+			File pf = new File(mdir, "packages");
+			if (pf.canRead()) {
+				for (String s : FileUtils.readFileAsLines(pf)) {
+					ret.add(s);
+				}
+			}
+		}
+	}
+
 	@Override
-	public Iterable<ContentObject> jsIncludes(Configuration config, String testDirJS) {
+	public Iterable<ContentObject> jsIncludes(String testDirJS) {
 		List<ContentObject> ret = new ArrayList<>();
 		if (config.flascklibDir != null) {
 			figureJSFilesOnDisk(ret, config, testDirJS);
@@ -321,18 +334,22 @@ public class JSEnvironment implements JSStorage {
 			addModule(ret, config.moduleDir, testDirJS, inlib, mld);
 		}
 
-		for (String s : packageStrings()) {
+		Iterable<String> pkgs = packageStrings();
+		
+		for (String s : pkgs) {
 			File f = fileFor(s);
 			if (f != null) {
 				includeFile(ret, testDirJS, f);
 				inlib.add(f.getName());
 			} else {
+				boolean added = false;
 				for (File q : config.readFlims) {
 					File i = new File(q, s + ".js");
 					if (i.exists()) {
 						if (!inlib.contains(i.getName())) {
 							includeFile(ret, testDirJS, i);
 							inlib.add(i.getName());
+							added = true;
 						}
 					}
 				}
@@ -341,8 +358,12 @@ public class JSEnvironment implements JSStorage {
 						if (!inlib.contains(i.getName())) {
 							includeFile(ret, testDirJS, i);
 							inlib.add(i.getName());
+							added = true;
 						}
 					}
+				}
+				if (!added) {
+					errors.message((InputPosition)null, "no files could be added for package " + s);
 				}
 			}
 		}

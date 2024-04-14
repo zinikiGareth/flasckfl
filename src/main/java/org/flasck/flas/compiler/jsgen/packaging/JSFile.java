@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,7 +71,7 @@ public class JSFile {
 	}
 
 	// untested
-	public File write(File jsDir, List<String> imports) throws FileNotFoundException {
+	public File write(File jsDir, Collection<String> imports) throws FileNotFoundException {
 		File f = new File(jsDir, file.getName());
 		PrintWriter pw = new PrintWriter(f);
 		IndentWriter iw = new IndentWriter(pw);
@@ -79,7 +80,7 @@ public class JSFile {
 		return f;
 	}
 
-	public void writeTo(IndentWriter iw, List<String> imports) {
+	public void writeTo(IndentWriter iw, Collection<String> imports) {
 		declarePackages(iw);
 		iw.println(
 			"import { IdempotentHandler } from \"/js/ziwsh.js\";"

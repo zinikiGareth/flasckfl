@@ -99,9 +99,6 @@ import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
 import org.flasck.flas.parsedForm.assembly.RoutingAction;
 import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
-import org.flasck.flas.parsedForm.st.AjaxCreate;
-import org.flasck.flas.parsedForm.st.AjaxPump;
-import org.flasck.flas.parsedForm.st.AjaxSubscribe;
 import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.MockApplication;
@@ -1989,10 +1986,6 @@ public class Traverser implements RepositoryVisitor {
 			visitUnitTestMatch((UnitTestMatch)s);
 		else if (s instanceof UnitTestNewDiv)
 			visitUnitTestNewDiv((UnitTestNewDiv)s);
-		else if (s instanceof AjaxCreate)
-			visitAjaxCreate((AjaxCreate)s);
-		else if (s instanceof AjaxPump)
-			visitAjaxPump((AjaxPump)s);
 		else if (s instanceof CreateMockApplication)
 			visitMockApplication((CreateMockApplication)s);
 		else if (s instanceof GotoRoute)
@@ -2287,41 +2280,6 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void leaveSystemTest(SystemTest st) {
 		visitor.leaveSystemTest(st);
-	}
-
-	@Override
-	public void visitAjaxCreate(AjaxCreate ac) {
-		visitor.visitAjaxCreate(ac);
-		for (AjaxSubscribe as : ac.expectations) {
-			if (as instanceof AjaxSubscribe) {
-				visitAjaxExpectSubscribe((AjaxSubscribe)as);
-			} else
-				throw new NotImplementedException();
-		}
-		leaveAjaxCreate(ac);
-	}
-
-	@Override
-	public void visitAjaxExpectSubscribe(AjaxSubscribe as) {
-		visitor.visitAjaxExpectSubscribe(as);
-		for (Expr e : as.responses)
-			visitExpr(e, 0);
-		leaveAjaxExpectSubscribe(as);
-	}
-
-	@Override
-	public void leaveAjaxExpectSubscribe(AjaxSubscribe as) {
-		visitor.leaveAjaxExpectSubscribe(as);
-	}
-
-	@Override
-	public void leaveAjaxCreate(AjaxCreate ac) {
-		visitor.leaveAjaxCreate(ac);
-	}
-
-	@Override
-	public void visitAjaxPump(AjaxPump ac) {
-		visitor.visitAjaxPump(ac);
 	}
 
 	@Override

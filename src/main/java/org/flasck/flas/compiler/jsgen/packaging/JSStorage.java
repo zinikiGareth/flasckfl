@@ -3,7 +3,6 @@ package org.flasck.flas.compiler.jsgen.packaging;
 import java.io.File;
 import java.util.List;
 
-import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -44,7 +43,7 @@ public interface JSStorage {
 
 	Iterable<PackageName> packageNames();
 	Iterable<String> packageStrings();
-	Iterable<ContentObject> jsIncludes(Configuration config, String testDirJS);
+	Iterable<ContentObject> jsIncludes(String testDirJS);
 	Iterable<SystemTest> systemTests();
 	Iterable<UnitTestCase> unitTests();
 }

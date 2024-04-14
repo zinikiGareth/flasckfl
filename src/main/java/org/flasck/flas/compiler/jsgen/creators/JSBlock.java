@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -368,8 +367,8 @@ public class JSBlock implements JSBlockCreator {
 
 	
 	@Override
-	public JSExpr module(JSExpr runner, String javaIF, String javaModule) {
-		JSModuleStmt mod = new JSModuleStmt(runner, javaIF, javaModule);
+	public JSExpr module(JSExpr runner, String jsName, String javaIF) {
+		JSModuleStmt mod = new JSModuleStmt(runner, jsName, javaIF);
 		JSLocal ret = new JSLocal(creating, mod);
 		stmts.add(ret);
 		return ret;
@@ -599,11 +598,6 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr unmock(JSExpr mock) {
 		return new JSUnmock(mock);
-	}
-
-	@Override
-	public JSExpr createAjax(JSExpr runner, StringLiteral url) {
-		return new JSAjax(runner, url);
 	}
 
 	@Override

@@ -22,22 +22,6 @@ public class SystemTestStage extends TestStepHolder implements IntroductionConsu
 		this.topLevel = topLevel;
 	}
 	
-	public void ajaxCreate(ErrorReporter errors, AjaxCreate ac) {
-		if (!"configure".equals(name.baseName())) {
-			errors.message(ac.location(), "cannot have ajax create in a test stage");
-			return;
-		}
-		this.steps.add(ac);
-	}
-	
-	public void ajaxPump(ErrorReporter errors, AjaxPump pump) {
-		if (!name.baseName().startsWith("stage")) {
-			errors.message(pump.location(), "ajax pump can only be used in a test stage");
-			return;
-		}
-		this.steps.add(pump);
-	}
-
 	@Override
 	public void newIntroduction(ErrorReporter errors, IntroduceVar var) {
 		topLevel.newIntroduction(errors, var);

@@ -163,7 +163,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
 		RepositoryEntry defn = operator.defn();
 		if (defn == null)
-			throw new RuntimeException("operator " + operator + " was still not resolved");
+			throw new RuntimeException("operator " + operator + " has not been resolved");
 		generateFnOrCtor(defn, resolveOpName(operator.op, nargs), nargs);
 	}
 

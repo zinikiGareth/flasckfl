@@ -16,8 +16,6 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.IntroduceVar;
-import org.flasck.flas.parsedForm.st.AjaxCreate;
-import org.flasck.flas.parsedForm.st.AjaxPump;
 import org.flasck.flas.parsedForm.st.CreateMockApplication;
 import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.UserLogin;
@@ -99,7 +97,7 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 
 	@Override
 	public void shareWith(SystemTestModule module) {
-		module.inject(null, meth, state, block, runner);
+		module.inject(null, clz, meth, state, block, runner);
 	}
 
 	@Override
@@ -172,17 +170,6 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 		this.block.newdiv(s.cnt);
 	}
 	
-	@Override
-	public void visitAjaxCreate(AjaxCreate ac) {
-		new AjaxCreator(clz, state, sv, this.block, this.runner, ac);
-	}
-
-	@Override
-	public void visitAjaxPump(AjaxPump ap) {
-		JSExpr member = block.member(new PackageName(J.AJAXMOCK), ap.var.baseName());
-		block.callMethod("void", member, "pump");
-	}
-
 	@Override
 	public void visitMockApplication(CreateMockApplication cma) {
 		clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), cma.name());
