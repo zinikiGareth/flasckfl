@@ -6,8 +6,6 @@ public interface JSJavaBridge {
 
 	void sendJson(String json);
 
-	Object module(Object runner, String s);
-
 	void log(String s);
 
 	void debugmsg(String s);

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -14,16 +15,20 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.jvm.fl.InterestedInBroker;
+import org.flasck.jvm.fl.JVMTestPlugin;
+import org.flasck.jvm.fl.TestModuleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.server.tda.WSReceiver;
 import org.ziniki.ziwsh.intf.WSResponder;
 import org.zinutils.exceptions.InvalidUsageException;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 import org.zinutils.sync.LockingCounter;
 
-public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
+public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver, TestModuleLoader {
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
 	protected static Logger debugLogger = LoggerFactory.getLogger("DebugLog");
 	static String patienceChild = System.getProperty("org.flasck.patience.child");
@@ -33,18 +38,26 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 	private final File root;
 	private final LockingCounter counter;
 	protected final List<String> errors = new ArrayList<>();
-	private final Map<Class<?>, Object> modules = new HashMap<>();
+	private final Map<String, Object> modules = new HashMap<>();
 	private Map<String, Object> conns = new TreeMap<>();
 	private int next = 1;
 	private WSResponder responder;
 	private boolean readyWhenZero = false;
 	private CountDownLatch shutdownCounter = new CountDownLatch(1);
+	private static Iterable<JVMTestPlugin> plugins = null;
+
+	static  {
+		plugins = ServiceLoader.load(JVMTestPlugin.class);
+	}
 
 	BrowserJSJavaBridge(JSRunner controller, ClassLoader classloader, File root, LockingCounter counter) {
 		this.controller = controller;
 		this.classloader = classloader;
 		this.root = root;
 		this.counter = counter;
+		for (JVMTestPlugin p : plugins) {
+			p.ready(this, classloader);
+		}
 	}
 
 	@Override
@@ -115,7 +128,7 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 			}
 			case "module": {
 				String name = jo.getString("name");
-				Object ret = module(null, name);
+				Object ret = module(name);
 				String conn = "conn" + (next++);
 				conns.put(conn, ret);
 				sendJson(new JSONObject().put("action", "haveModule").put("name", name).put("clz", "ZinTestModule").put("conn", conn).toString());
@@ -169,17 +182,45 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver {
 		debugLogger.info(s);
 	}
 	
+	
 	@Override
-	public Object module(Object runner, String s) {
+//	@SuppressWarnings("unchecked")
+	public void register(String ctr, String impl) {
+		// I think the relevant things need to happen in JS here ...
+		/*
 		try {
-			Class<?> clz = Class.forName(s);
-			if (!modules.containsKey(clz)) {
-				modules.put(clz, Reflection.callStatic(clz, "createChrome", this, classloader, root));
-			}
-			return modules.get(clz);
-		} catch (IllegalArgumentException | ClassNotFoundException e) {
+			@SuppressWarnings("rawtypes")
+			Class cc = Class.forName(ctr, false, classloader);
+			@SuppressWarnings("rawtypes")
+			Class ci = Class.forName(impl, false, classloader);
+			Object svc = ci.getDeclaredConstructor().newInstance();
+			if (svc instanceof InterestedInBroker)
+				((InterestedInBroker)svc).broker(this.broker);
+			controller.broker.register(cc, svc);
+		} catch (ClassNotFoundException ex) {
+			// these things happen in development ...
+			logger.info("could not find " + ex.getMessage());
+		} catch (Exception ex) {
+			throw WrappedException.wrap(ex);
+		}
+		*/
+	}
+
+	@Override
+	public void configureModule(String name, Class<?> clz) {
+		try {
+			this.modules.put(name, Reflection.callStatic(clz, "createChrome", this, classloader, root));
+		} catch (IllegalArgumentException | SecurityException e) {
 			throw WrappedException.wrap(e);
 		}
+	}
+
+	@Override
+	public Object module(String name) {
+		if (!modules.containsKey(name)) {
+			throw new InvalidUsageException("there is no loaded module '" + name + "'");
+		}
+		return modules.get(name);
 	}
 
 	@Override

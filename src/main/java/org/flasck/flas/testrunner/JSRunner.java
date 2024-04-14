@@ -41,68 +41,6 @@ import org.zinutils.exceptions.WrappedException;
 import org.zinutils.sync.LockingCounter;
 import org.zinutils.utils.FileUtils;
 
-/* To emulate this in a browser, load the html file, and then from the console:
- * 
- * Unit Tests:
- * 
-    var runner = new UTRunner(console);
-    var cxt = runner.newContext();
-    var ut = new test.golden._ut_nested._ut2(runner, cxt); <-- correct name and test number
-    ut._ut2_step_1(cxt); <-- for each step in ut._ut2_steps()
-    ut._ut2_step_2(cxt);
-    ut._ut2_step_3(cxt);
-    ut._ut2_step_4(cxt);
-    runner.assertSatisfied(); <-- to check conditions were all met
- *  
- * System Tests:
- * 
- *   var runner = new UTRunner(console, makeBridge(?,?)); <-- makeBridge is at end of runner.js
- *   var cxt = runner.newContext();
- *   var st = new test.golden._st_mymissing(runner, cxt); <-- correct test name
- *   st.configure_step_1(cxt); <-- first run the configure steps if any
- *   st.configure_step_2(cxt);
- *   runner.assertSatisfied(); <-- check everything went OK
- * 
- * Ziniki Tests:
- * 
- *   ** First, start a fake Ziniki running on a port (see ChromeTestRunner - use target "Ziniki for ChromeTestRunner")
- *   
- *   Then, the easy thing to do is to use the "manual" function, provided by the HTML file for the system test,
- *   which takes host and port and does everything:
- *   
- *     test.golden._st_mymissing.manual("localhost", 18080)
- *  
- *   -- If you insist on more control, you will need to unpack this and do a lot more work.
- *   
- *   To unroll this, you need to first create a bridge and a runner:
- *   
- *   var bridge = new WSBridge("localhost", 18080); <-- host and port must match fake Ziniki
- *   var runner = new UTRunner(bridge, bridge);     <-- WSBridge is both environment and bridge for reasons
- *   
- *   -- 1. You can run the whole system test in one go by calling runRemote with the stages that you want
- *   runner.runRemote(test.golden._st_mymissing, {
- *     configure:     configure: test.golden._st_mymissing.prototype.configure,
- *     stages: [
- *       test.golden._st_mymissing.prototype.stage0
- *     ]
- *   });
- *   
- *   -- to run things at a more granular level, you also need to instantiate the test and a context:
- *   var cxt = runner.newContext();
- *   var st = new test.golden._st_mymissing(runner, cxt);
- *
- *   -- 2. You can run all the steps of a single stage in one go
- *   bridge.executeSync(runner, st, cxt, st.configure(cxt));
- *   
- *   -- 3. You can run individual steps/groups of steps by name
- *   bridge.executeSync(runner, st, cxt, ['configure_step_1', 'st.configure_step_2', 'st.configure_step_3']);
- *   
- *   -- and from time to time, you will want to call assertSatisfied()
- *   runner.assertSatisfied();
- *   
- *   -- note that using runRemote or its child executeSync correctly handles race conditions
- */
-
 public class JSRunner extends CommonTestRunner<JSTestState> {
 	static String showOption = System.getProperty("org.ziniki.chrome.show");
 	static boolean headless = showOption == null || !showOption.equalsIgnoreCase("true");
