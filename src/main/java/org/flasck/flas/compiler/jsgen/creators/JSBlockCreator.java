@@ -6,7 +6,6 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.JSStyleIf;
@@ -117,7 +116,6 @@ public interface JSBlockCreator {
 	JSExpr createAgent(CardName cardName);
 	JSExpr createCard(CardName cardName);
 	JSExpr createService(CardName name);
-	JSExpr createMockApplication(JSExpr runner, PackageName pkg);
 	JSExpr unmock(JSExpr mock);
 
 	// support module commands

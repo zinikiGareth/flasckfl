@@ -1,21 +1,5 @@
 // src/main/javascript/unittest/mocks.js
 import { IdempotentHandler, NamedIdempotentHandler } from "/js/ziwsh.js";
-import { FLError } from "/js/flasjs.js";
-import { FLURI } from "/js/flasjs.js";
-
-// src/main/javascript/unittest/stsecurity.js
-function STSecurityModule() {
-  this.currentUser = null;
-}
-STSecurityModule.prototype.requireLogin = function() {
-  return this.currentUser != null;
-};
-STSecurityModule.prototype.userLoggedIn = function(_cxt, app, user) {
-  this.currentUser = user;
-  app.nowLoggedIn(_cxt);
-};
-
-// src/main/javascript/unittest/mocks.js
 var BoundVar = function(name) {
   this.name = name;
 };
@@ -134,6 +118,9 @@ SubscriptionFor.prototype.cancel = function(cx) {
 var MockFLObject = function(obj) {
   this.obj = obj;
 };
+MockFLObject.prototype._isMock = function() {
+  return true;
+};
 MockFLObject.prototype._currentDiv = function() {
   if (this.div)
     return this.div;
@@ -161,6 +148,9 @@ var MockCard = function(cx, card) {
   newdiv.setAttribute("id", cx.nextDocumentId());
   document.body.appendChild(newdiv);
   this.card._renderInto(cx, newdiv);
+};
+MockCard.prototype._isMock = function() {
+  return true;
 };
 MockCard.prototype.sendTo = function(_cxt, contract, msg, args) {
   const ctr = this.card._contracts.contractFor(_cxt, contract);
@@ -235,33 +225,6 @@ MockHandler.prototype._areYouA = MockContract.prototype._areYouA;
 MockHandler.prototype.expect = MockContract.prototype.expect;
 MockHandler.prototype.serviceMethod = MockContract.prototype.serviceMethod;
 MockHandler.prototype.assertSatisfied = MockContract.prototype.assertSatisfied;
-var MockAppl = function(_cxt, clz) {
-  const newdiv = document.createElement("div");
-  newdiv.setAttribute("id", _cxt.nextDocumentId());
-  document.body.appendChild(newdiv);
-  this.appl = new clz._Application(_cxt, newdiv);
-  this.appl.securityModule = new STSecurityModule();
-  this.appl._updateDisplay(_cxt, this.appl._currentRenderTree());
-};
-MockAppl.prototype.route = function(_cxt, r, andThen) {
-  this.appl.gotoRoute(_cxt, r, () => {
-    this.appl._updateDisplay(_cxt, this.appl._currentRenderTree());
-    andThen();
-  });
-};
-MockAppl.prototype.userLoggedIn = function(_cxt, u) {
-  this.appl.securityModule.userLoggedIn(_cxt, this.appl, u);
-};
-MockAppl.prototype.bindCards = function(_cxt, iv) {
-  if (!iv)
-    return;
-  var binding = {};
-  binding["main"] = this.appl.cards["main"];
-  iv.bindActual({ routes: binding });
-};
-MockAppl.prototype._currentRenderTree = function() {
-  return this.appl._currentRenderTree();
-};
 
 // src/main/javascript/unittest/runner.js
 import { CommonEnv } from "/js/flasjs.js";
@@ -312,7 +275,7 @@ UTContext.prototype.mockHandler = function(contract) {
 
 // src/main/javascript/unittest/runner.js
 import { SimpleBroker, JsonBeachhead, IdempotentHandler as IdempotentHandler2, NamedIdempotentHandler as NamedIdempotentHandler2 } from "/js/ziwsh.js";
-import { FLError as FLError2 } from "/js/flasjs.js";
+import { FLError } from "/js/flasjs.js";
 import { Debug, Send, Assign, ResponseWithMessages as ResponseWithMessages2, UpdateDisplay } from "/js/flasjs.js";
 var UTRunner = function(bridge) {
   if (!bridge)
@@ -353,7 +316,7 @@ UTRunner.prototype.assertSameValue = function(_cxt, e, a) {
     e = e.obj;
   a = _cxt.full(a);
   if (!_cxt.compare(e, a)) {
-    if (a instanceof FLError2)
+    if (a instanceof FLError)
       a = a.message;
     throw new Error("NSV\n  expected: " + e + "\n  actual:   " + a);
   }
@@ -362,7 +325,7 @@ UTRunner.prototype.assertIdentical = function(_cxt, e, a) {
   e = _cxt.full(e);
   a = _cxt.full(a);
   if (a !== e) {
-    if (a instanceof FLError2)
+    if (a instanceof FLError)
       a = a.message;
     throw new Error("NSV\n  expected: " + e + "\n  actual:   " + a);
   }
@@ -448,7 +411,7 @@ UTRunner.prototype.render = function(_cxt, target, fn, template) {
   sendTo.redraw(_cxt);
 };
 UTRunner.prototype.findMockFor = function(obj) {
-  if (obj instanceof MockFLObject || obj instanceof MockCard || obj instanceof MockAppl)
+  if (obj._isMock)
     return obj;
   var ks = Object.keys(this.mocks);
   for (var i = 0; i < ks.length; i++) {
@@ -575,28 +538,6 @@ UTRunner.prototype.matchText = function(_cxt, target, zone, contains, fails, exp
       throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
   }
 };
-UTRunner.prototype.matchTitle = function(_cxt, target, zone, contains, expected) {
-  var matchOn = this.findMockFor(target);
-  if (!matchOn)
-    throw Error("there is no mock " + target);
-  if (!(matchOn instanceof MockAppl))
-    throw Error("can only test title on Appl");
-  var titles = document.head.getElementsByTagName("title");
-  var actual = "";
-  for (var i = 0; i < titles.length; i++) {
-    actual += titles[i].innerText.trim() + " ";
-  }
-  actual = actual.trim();
-  actual = actual.replace(/\n/g, " ");
-  actual = actual.replace(/ +/, " ");
-  if (contains) {
-    if (!actual.includes(expected))
-      throw new Error("MATCH\n  expected to contain: " + expected + "\n  actual:   " + actual);
-  } else {
-    if (actual != expected)
-      throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
-  }
-};
 UTRunner.prototype.matchImageUri = function(_cxt, target, zone, expected) {
   var matchOn = this.findMockFor(target);
   if (!matchOn)
@@ -654,14 +595,6 @@ UTRunner.prototype.matchScroll = function(_cxt, target, zone, contains, expected
   if (actual != expected)
     throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
 };
-UTRunner.prototype.route = function(_cxt, app, route, storeCards) {
-  app.route(_cxt, route, () => {
-    app.bindCards(_cxt, storeCards);
-  });
-};
-UTRunner.prototype.userlogin = function(_cxt, app, user) {
-  app.userLoggedIn(_cxt, user);
-};
 UTRunner.prototype.updateCard = function(_cxt, card) {
   if (!(card instanceof MockCard))
     return;
@@ -710,11 +643,6 @@ UTRunner.prototype.mockCard = function(_cxt, name, card) {
   this.cards.push(ret);
   return ret;
 };
-UTRunner.prototype.newMockAppl = function(cxt, clz) {
-  var ma = new MockAppl(cxt, clz);
-  this.appls.push(ma);
-  return ma;
-};
 UTRunner.prototype._updateDisplay = function(_cxt, rt) {
   this.updateAllCards(_cxt);
 };
@@ -738,6 +666,18 @@ UTRunner.prototype.module = function(mod) {
   return m;
 };
 UTRunner.prototype.addHistory = function(state, title, url) {
+};
+
+// src/main/javascript/unittest/stsecurity.js
+function STSecurityModule() {
+  this.currentUser = null;
+}
+STSecurityModule.prototype.requireLogin = function() {
+  return this.currentUser != null;
+};
+STSecurityModule.prototype.userLoggedIn = function(_cxt, app, user) {
+  this.currentUser = user;
+  app.nowLoggedIn(_cxt);
 };
 export {
   BoundVar,

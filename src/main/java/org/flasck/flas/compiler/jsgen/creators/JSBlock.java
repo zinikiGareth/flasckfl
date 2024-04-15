@@ -11,7 +11,6 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.JSStyleIf;
@@ -598,11 +597,6 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr unmock(JSExpr mock) {
 		return new JSUnmock(mock);
-	}
-
-	@Override
-	public JSExpr createMockApplication(JSExpr runner, PackageName pkg) {
-		return new JSMockAppl(runner, pkg);
 	}
 
 	@Override
