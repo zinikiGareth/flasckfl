@@ -365,7 +365,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanHandleAMatchStep() {
 		context.checking(new Expectations() {{
-			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(TargetZoneMatcher.path()), with(false), with(false), with(FreeTextTokenMatcher.text("hello")));
+			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(new MatchedItem("text")), with(TargetZoneMatcher.path()), with(false), with(false), with(FreeTextTokenMatcher.text("hello")));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text"));
@@ -378,7 +378,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanMatchStyles() {
 		context.checking(new Expectations() {{
-			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("h")), with(MatchedItem.STYLE), with(TargetZoneMatcher.path()), with(false), with(false), with(FreeTextTokenMatcher.text("hello")));
+			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("h")), with(new MatchedItem("style")), with(TargetZoneMatcher.path()), with(false), with(false), with(FreeTextTokenMatcher.text("hello")));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match h style"));
@@ -391,7 +391,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanMatchWithASelector() {
 		context.checking(new Expectations() {{
-			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(TargetZoneMatcher.path("selector-tbd")), with(false), with(false), with(FreeTextTokenMatcher.text("hello")));
+			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(new MatchedItem("text")), with(TargetZoneMatcher.path("selector-tbd")), with(false), with(false), with(FreeTextTokenMatcher.text("hello")));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text selector-tbd"));
@@ -404,7 +404,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanMatchAPortionOfATextNode() {
 		context.checking(new Expectations() {{
-			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(TargetZoneMatcher.path()), with(true), with(false), with(FreeTextTokenMatcher.text("hello")));
+			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(new MatchedItem("text")), with(TargetZoneMatcher.path()), with(true), with(false), with(FreeTextTokenMatcher.text("hello")));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text contains"));
@@ -417,7 +417,7 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanMatchAPortionOfTheTextSelectedWithASelector() {
 		context.checking(new Expectations() {{
-			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(TargetZoneMatcher.path("selector-tbd")), with(true), with(false), with(FreeTextTokenMatcher.text("hello")));
+			oneOf(builder).match((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(new MatchedItem("text")), with(TargetZoneMatcher.path("selector-tbd")), with(true), with(false), with(FreeTextTokenMatcher.text("hello")));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text selector-tbd contains"));

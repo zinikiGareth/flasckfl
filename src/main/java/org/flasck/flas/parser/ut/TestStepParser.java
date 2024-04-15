@@ -512,30 +512,11 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 			errors.message(toks, "missing category");
 			return new IgnoreNestedParser(errors);
 		}
-		MatchedItem what;
-		switch (whattok.text) {
-		case "text":
-			what = MatchedItem.TEXT;
-			break;
-		case "title":
-			what = MatchedItem.TITLE;
-			break;
-		case "style":
-			what = MatchedItem.STYLE;
-			break;
-		case "scroll":
-			what = MatchedItem.SCROLL;
-			break;
-		case "image":
-			what = MatchedItem.IMAGE_URI;
-			break;
-		case "href":
-			what = MatchedItem.HREF;
-			break;
-		default:
+		MatchedItem what = new MatchedItem(whattok.text);
+		/*
 			errors.message(whattok.location, "cannot match '" + whattok.text + "'");
 			return new IgnoreNestedParser(errors);
-		}
+		*/
 		
 		tellParent(kw.location);
 		TargetZone targetZoneTmp = new TargetZone(toks.realinfo(), new ArrayList<>());

@@ -48,20 +48,20 @@ public class DoUTMatchGeneratorJS extends LeafAdapter implements ResultAware {
 	public void leaveUnitTestMatch(UnitTestMatch m) {
 		String freeText = m.text == null ? "" : m.text.text();
 		theswitch:
-		switch (m.what) {
-		case TEXT:
+		switch (m.what.item()) {
+		case "text":
 			block.assertable(runner, "matchText", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.literal(Boolean.toString(m.fails)), block.string(freeText));
 			break;
-		case STYLE:
+		case "style":
 			block.assertable(runner, "matchStyle", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(freeText));
 			break;
-		case SCROLL:
+		case "scroll":
 			block.assertable(runner, "matchScroll", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.literal(Double.toString(Double.parseDouble(freeText))));
 			break;
-		case IMAGE_URI:
+		case "image_uri":
 			block.assertable(runner, "matchImageUri", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.string(freeText));
 			break;
-		case HREF:
+		case "href":
 			block.assertable(runner, "matchHref", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.string(freeText));
 			break;
 		default: {
