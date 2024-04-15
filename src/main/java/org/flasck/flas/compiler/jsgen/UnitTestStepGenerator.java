@@ -50,7 +50,6 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 	private final TreeMap<UnitDataDeclaration, JSExpr> mocks;
 	private final TreeMap<IntroduceVar, JSExpr> introductions;
 	private final HashMap<NameOfThing, JSExpr> containers;
-	private final Map<String, JSExpr> applications;
 	private final String baseName;
 
 	public UnitTestStepGenerator(NestedVisitor sv, JSStorage jse, JSClassCreator clz, JSMethodCreator meth, JSFunctionState state, JSBlockCreator block, JSExpr runner, Set<UnitDataDeclaration> globalMocks, List<JSExpr> explodingMocks, boolean includeJs, NameOfThing testName, int stepNum) {
@@ -84,8 +83,7 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 		introductions.putAll(ostate.introductions());
 		containers = new HashMap<>();
 		containers.putAll(ostate.containers());
-		applications = ostate.applications();
-		this.state = new JSFunctionStateStore(this.meth, mocks, introductions, containers, applications);
+		this.state = new JSFunctionStateStore(this.meth, mocks, introductions, containers, ostate.moduleCaches());
 	}
 
 	public JSBlockCreator method() {
