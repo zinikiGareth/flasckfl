@@ -16,9 +16,6 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.IntroduceVar;
-import org.flasck.flas.parsedForm.st.CreateMockApplication;
-import org.flasck.flas.parsedForm.st.GotoRoute;
-import org.flasck.flas.parsedForm.st.UserLogin;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestClose;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -168,23 +165,6 @@ public class UnitTestStepGenerator extends LeafAdapter implements SharesState {
 	@Override
 	public void visitUnitTestNewDiv(UnitTestNewDiv s) {
 		this.block.newdiv(s.cnt);
-	}
-	
-	@Override
-	public void visitMockApplication(CreateMockApplication cma) {
-		clz.field(false, Access.PRIVATE, new PackageName(J.OBJECT), cma.name());
-		block.setField(false, cma.name(), block.createMockApplication(runner, cma.pkg()));
-		state.application(cma.name(), block.field(cma.name()));
-	}
-	
-	@Override
-	public void visitGotoRoute(GotoRoute gr) {
-		new DoRouteGenerator(state, sv, this.block, this.runner);
-	}
-	
-	@Override
-	public void visitUserLogin(UserLogin ul) {
-		new DoUserLoginGenerator(state, sv, this.block, this.runner);
 	}
 	
 	@Override

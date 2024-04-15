@@ -99,12 +99,8 @@ import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
 import org.flasck.flas.parsedForm.assembly.RoutingAction;
 import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
-import org.flasck.flas.parsedForm.st.CreateMockApplication;
-import org.flasck.flas.parsedForm.st.GotoRoute;
-import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
-import org.flasck.flas.parsedForm.st.UserLogin;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -328,8 +324,6 @@ public class Traverser implements RepositoryVisitor {
 		} else if (e instanceof ApplicationAssembly) {
 			visitAssembly((ApplicationAssembly) e);
 		} else if (e instanceof LibraryAssembly) {
-			;
-		} else if (e instanceof MockApplication) {
 			;
 		} else if (e instanceof ApplicationRouting) {
 			; 
@@ -1986,12 +1980,6 @@ public class Traverser implements RepositoryVisitor {
 			visitUnitTestMatch((UnitTestMatch)s);
 		else if (s instanceof UnitTestNewDiv)
 			visitUnitTestNewDiv((UnitTestNewDiv)s);
-		else if (s instanceof CreateMockApplication)
-			visitMockApplication((CreateMockApplication)s);
-		else if (s instanceof GotoRoute)
-			visitGotoRoute((GotoRoute)s);
-		else if (s instanceof UserLogin)
-			visitUserLogin((UserLogin)s);
 		else if (modules != null) {
 			boolean done = false;
 			for (TraverserModule m : modules) {
@@ -2280,37 +2268,6 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void leaveSystemTest(SystemTest st) {
 		visitor.leaveSystemTest(st);
-	}
-
-	@Override
-	public void visitMockApplication(CreateMockApplication s) {
-		visitor.visitMockApplication(s);
-	}
-
-	@Override
-	public void visitGotoRoute(GotoRoute gr) {
-		visitor.visitGotoRoute(gr);
-		visitExpr(gr.app, 0);
-		visitExpr(gr.route, 0);
-		if (gr.iv != null)
-			visitExpr(gr.iv, 0);
-		leaveGotoRoute(gr);
-	}
-
-	public void leaveGotoRoute(GotoRoute gr) {
-		visitor.leaveGotoRoute(gr);
-	}
-
-	@Override
-	public void visitUserLogin(UserLogin ul) {
-		visitor.visitUserLogin(ul);
-		visitExpr(ul.app, 0);
-		visitExpr(ul.user, 0);
-		leaveUserLogin(ul);
-	}
-
-	public void leaveUserLogin(UserLogin ul) {
-		visitor.leaveUserLogin(ul);
 	}
 	
 	@Override

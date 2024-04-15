@@ -57,7 +57,6 @@ import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -284,11 +283,6 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void polytype(ErrorReporter errors, PolyType pt) {
 		addEntry(errors, pt.name(), pt);
-	}
-
-	@Override
-	public void mockApplication(ErrorReporter errors, MockApplication app) {
-		addEntry(errors, app.name(), app);
 	}
 
 	@Override
