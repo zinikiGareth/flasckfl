@@ -59,11 +59,24 @@ public class Generator {
 			str.println(s.title);
 			str.println("</div>");
 		}
+		{
+			// Lexers
+			str.println("<div class='hamburger-section-link' data-grammar-section='lexical-issues'>");
+			str.println("Lexing");
+			str.println("</div>");
+		}
+		{
+			// Grammar Summary
+			str.println("<div class='hamburger-section-link' data-grammar-section='grammar-summary'>");
+			str.println("Summary");
+			str.println("</div>");
+		}
 		str.println("</div>");
 	}
 
 	private void generateLexical(Grammar grammar, PrintWriter str) {
 		str.println("<div class='grammar-section' data-grammar-section='lexical-issues'>");
+		str.println("<h3>Lexical Issues</h3>");
 		for (Lexer l : grammar.lexers()) {
 			str.print("<h3>" + StringEscapeUtils.escapeHtml4(l.token) + "</h3>");
 			str.print("<span class='pattern-title'>Pattern:</span><span class='pattern'>" + StringEscapeUtils.escapeHtml4(l.pattern) + "</span>");
@@ -76,6 +89,7 @@ public class Generator {
 
 	private void generateSummary(Grammar grammar, PrintWriter str) {
 		str.println("<div class='grammar-section' data-grammar-section='grammar-summary'>");
+		str.println("<h3>Summary</h3>");
 		for (Production p : grammar.productions()) {
 			p.show(str, false);
 		}
