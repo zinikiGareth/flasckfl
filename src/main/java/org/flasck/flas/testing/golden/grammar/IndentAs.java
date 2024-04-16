@@ -2,7 +2,6 @@ package org.flasck.flas.testing.golden.grammar;
 
 import org.flasck.flas.grammar.Production;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class IndentAs implements TrackProduction {
 	private final String reducesAs;

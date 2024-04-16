@@ -40,7 +40,7 @@ import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class FlimVisitor extends LeafAdapter implements ModuleExtensible {
-	private final String pkg;
+	private final PackageName pkg;
 	private final IndentWriter iw;
 	private IndentWriter sfw;
 	private IndentWriter cdw;
@@ -49,9 +49,9 @@ public class FlimVisitor extends LeafAdapter implements ModuleExtensible {
 	private boolean inctor;
 	private final Iterable<TraversalProcessor> modules;
 
-	public FlimVisitor(String pkg, IndentWriter iw) {
+	public FlimVisitor(PackageName pkgName, IndentWriter iw) {
 		this.modules = ServiceLoader.load(TraversalProcessor.class);
-		this.pkg = pkg;
+		this.pkg = pkgName;
 		this.iw = iw;
 	}
 	
@@ -81,7 +81,7 @@ public class FlimVisitor extends LeafAdapter implements ModuleExtensible {
 		String baseName = e.name().packageName().baseName();
 		if (baseName == null)
 			return;
-		if (baseName.equals(pkg))
+		if (baseName.equals(pkg.uniqueName()))
 			return;
 		packagesReferenced.add(baseName);
 	}
@@ -272,13 +272,15 @@ public class FlimVisitor extends LeafAdapter implements ModuleExtensible {
 		if (container == null || !(container instanceof PackageName))
 			return null;
 		PackageName pn = (PackageName) container;
-		if (pn.uniqueName() == null && pkg != null)
+		if (pn.isBuiltin())
 			return null;
-		else if (pn.uniqueName() != null && pkg == null)
+		if (pn.uniqueName() == null && pkg.uniqueName() != null)
 			return null;
-		else if (pkg != null && !pkg.equals(pn.uniqueName()))
+		else if (pn.uniqueName() != null && pkg.uniqueName() == null)
 			return null;
-		if (pkg == null)
+		else if (pkg.uniqueName() != null && !pkg.uniqueName().equals(pn.uniqueName()))
+			return null;
+		if (pkg.uniqueName() == null)
 			return "null";
 		else
 			return pn.uniqueName();

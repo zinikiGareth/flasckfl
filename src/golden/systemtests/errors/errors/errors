@@ -1,28 +1,4 @@
-ajax.st:      2.4:    ajax _ 
-                          ajax command requires an operator
-ajax.st:      3.11:   ajax create _ 
-                          ajax create requires a variable to name the mock
-ajax.st:      4.12:   ajax create  _ 42
-                          ajax create requires a variable to name the mock
-ajax.st:      5.18:   ajax create server _ 
-                          ajax create requires a base url
-ajax.st:      6.29:   ajax create server "qq qq/33" _ 
-                          invalid ajax uri: qq qq/33
-ajax.st:      9.0:     _ fred
-                          unrecognized ajax action fred
-ajax.st:     12.5:    ajax  _ create server "http://foo"
-                          cannot have ajax create in a test stage
 garbage.st:   3.0:     _ c = 14
                           syntax error
-subscribe.st  3.9:    subscribe _ 
-                          subscribe requires a path
-subscribe.st  5.9:    subscribe _  "g g"
-                          invalid path uri: g g
-subscribe.st  7.9:    subscribe _  "https://foo"
-                          only path permitted
-subscribe.st  9.9:    subscribe _  "foo"
-                          path must be absolute
-subscribe.st 11.9:    subscribe _  ""
-                          subscribe requires a path
 testitems.st  3.4:    test _ 
                           each test step must have a description

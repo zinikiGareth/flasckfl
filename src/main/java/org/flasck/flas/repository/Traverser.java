@@ -99,15 +99,8 @@ import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
 import org.flasck.flas.parsedForm.assembly.RoutingAction;
 import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
-import org.flasck.flas.parsedForm.st.AjaxCreate;
-import org.flasck.flas.parsedForm.st.AjaxPump;
-import org.flasck.flas.parsedForm.st.AjaxSubscribe;
-import org.flasck.flas.parsedForm.st.CreateMockApplication;
-import org.flasck.flas.parsedForm.st.GotoRoute;
-import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
-import org.flasck.flas.parsedForm.st.UserLogin;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -225,8 +218,8 @@ public class Traverser implements RepositoryVisitor {
 		return this;
 	}
 
-	public Traverser forPackage(String pkg) {
-		this.onlyPackage = new PackageName(pkg);
+	public Traverser forPackage(PackageName pkg) {
+		this.onlyPackage = pkg;
 		return this;
 	}
 
@@ -331,8 +324,6 @@ public class Traverser implements RepositoryVisitor {
 		} else if (e instanceof ApplicationAssembly) {
 			visitAssembly((ApplicationAssembly) e);
 		} else if (e instanceof LibraryAssembly) {
-			;
-		} else if (e instanceof MockApplication) {
 			;
 		} else if (e instanceof ApplicationRouting) {
 			; 
@@ -1989,16 +1980,6 @@ public class Traverser implements RepositoryVisitor {
 			visitUnitTestMatch((UnitTestMatch)s);
 		else if (s instanceof UnitTestNewDiv)
 			visitUnitTestNewDiv((UnitTestNewDiv)s);
-		else if (s instanceof AjaxCreate)
-			visitAjaxCreate((AjaxCreate)s);
-		else if (s instanceof AjaxPump)
-			visitAjaxPump((AjaxPump)s);
-		else if (s instanceof CreateMockApplication)
-			visitMockApplication((CreateMockApplication)s);
-		else if (s instanceof GotoRoute)
-			visitGotoRoute((GotoRoute)s);
-		else if (s instanceof UserLogin)
-			visitUserLogin((UserLogin)s);
 		else if (modules != null) {
 			boolean done = false;
 			for (TraverserModule m : modules) {
@@ -2287,72 +2268,6 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void leaveSystemTest(SystemTest st) {
 		visitor.leaveSystemTest(st);
-	}
-
-	@Override
-	public void visitAjaxCreate(AjaxCreate ac) {
-		visitor.visitAjaxCreate(ac);
-		for (AjaxSubscribe as : ac.expectations) {
-			if (as instanceof AjaxSubscribe) {
-				visitAjaxExpectSubscribe((AjaxSubscribe)as);
-			} else
-				throw new NotImplementedException();
-		}
-		leaveAjaxCreate(ac);
-	}
-
-	@Override
-	public void visitAjaxExpectSubscribe(AjaxSubscribe as) {
-		visitor.visitAjaxExpectSubscribe(as);
-		for (Expr e : as.responses)
-			visitExpr(e, 0);
-		leaveAjaxExpectSubscribe(as);
-	}
-
-	@Override
-	public void leaveAjaxExpectSubscribe(AjaxSubscribe as) {
-		visitor.leaveAjaxExpectSubscribe(as);
-	}
-
-	@Override
-	public void leaveAjaxCreate(AjaxCreate ac) {
-		visitor.leaveAjaxCreate(ac);
-	}
-
-	@Override
-	public void visitAjaxPump(AjaxPump ac) {
-		visitor.visitAjaxPump(ac);
-	}
-
-	@Override
-	public void visitMockApplication(CreateMockApplication s) {
-		visitor.visitMockApplication(s);
-	}
-
-	@Override
-	public void visitGotoRoute(GotoRoute gr) {
-		visitor.visitGotoRoute(gr);
-		visitExpr(gr.app, 0);
-		visitExpr(gr.route, 0);
-		if (gr.iv != null)
-			visitExpr(gr.iv, 0);
-		leaveGotoRoute(gr);
-	}
-
-	public void leaveGotoRoute(GotoRoute gr) {
-		visitor.leaveGotoRoute(gr);
-	}
-
-	@Override
-	public void visitUserLogin(UserLogin ul) {
-		visitor.visitUserLogin(ul);
-		visitExpr(ul.app, 0);
-		visitExpr(ul.user, 0);
-		leaveUserLogin(ul);
-	}
-
-	public void leaveUserLogin(UserLogin ul) {
-		visitor.leaveUserLogin(ul);
 	}
 	
 	@Override

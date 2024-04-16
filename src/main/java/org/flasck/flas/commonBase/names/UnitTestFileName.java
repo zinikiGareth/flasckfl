@@ -30,7 +30,7 @@ public class UnitTestFileName implements NameOfThing {
 	
 	@Override
 	public String jsName() {
-		return container.uniqueName() + "." + name;
+		return container.jsName() + "__" + name;
 	}
 
 	@Override

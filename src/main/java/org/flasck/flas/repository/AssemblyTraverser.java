@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.errors.ErrorReporter;
@@ -19,14 +18,12 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class AssemblyTraverser implements AssemblyVisitor {
 	public static final Logger logger = LoggerFactory.getLogger("assembler");
-	private final Configuration config;
 	private final ErrorReporter errors;
 	private final JSEnvironment jse;
 	private final ByteCodeEnvironment bce;
 	private final AssemblyVisitor v;
 
-	public AssemblyTraverser(Configuration config, ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v) {
-		this.config = config;
+	public AssemblyTraverser(ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v) {
 		this.errors = errors;
 		this.jse = jse;
 		this.bce = bce;
@@ -86,10 +83,10 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	public void traverseAssemblyWithWebs(Repository repository, Assembly a) {
 		try {
 			visitAssembly(a);
-			for (ContentObject co : jse.jsIncludes(config, null)) {
+			for (ContentObject co : jse.jsIncludes(null)) {
 				includePackageFile(co);
 			}
-			for (String s : jse.packages()) {
+			for (String s : jse.packageStrings()) {
 				if (s.contains("_ut_") || s.contains("_st_") || s.endsWith("_ut") || s.endsWith("_st"))
 					continue;
 				logger.info("have package " + s);

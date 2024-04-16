@@ -1,7 +1,6 @@
 package org.flasck.flas.tc3;
 
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
@@ -12,7 +11,6 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractProvider;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.Provides;
-import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.repository.LeafAdapter;

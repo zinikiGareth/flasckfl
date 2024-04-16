@@ -147,38 +147,30 @@ public class GrammarChecker {
 		Iterator<GrammarStep> sit = toks.iterator();
 		while (sit.hasNext()) {
 			GrammarStep s = sit.next();
-//			System.out.println("have " + s);
 
 			if (s instanceof GrammarToken) {
 				GrammarToken nt = (GrammarToken) s;
 				if (!nt.isComment()) {
-//					System.out.println("pushing " + nt);
 					srstack.add(0, nt);
 				}
 			} else {
 				// It's a reduction
 				ReductionRule rr = (ReductionRule) s;
-//				System.out.println("considering rule " + rr + " with " + srstack);
 				GrammarTree tree = new GrammarTree(rr);
 				List<GrammarStep> shifted = new ArrayList<>();
 				while (!srstack.isEmpty()) {
 					GrammarStep si = srstack.get(0);
 					if (rr.includes(si.location())) {
-//						System.out.println("reducing " + si + " with " + rr);
 						tree.push(si);
 						srstack.remove(0);
 					} else if (si.location().compareTo(rr.location()) > 0) {
-//						System.out.println("shifting " + si + " to get to earlier tokens");
 						shifted.add(si);
 						srstack.remove(0);
 					} else {
-//						System.out.println("not reducing " + si + " with " + rr);
 						break;
 					}
 				}
 				srstack.add(0, tree);
-//				if (!shifted.isEmpty())
-//					System.out.println("shifted = " + shifted);
 				srstack.addAll(0, shifted);
 			}
 		}
@@ -195,9 +187,6 @@ public class GrammarChecker {
 
 	public void checkGrammar(Map<String, GrammarTree> fileOrchards) {
 		for (Entry<String, GrammarTree> e : fileOrchards.entrySet()) {
-//			String name = e.getKey();
-//			String ext = FileUtils.extension(name);
-//			String topRule = getTopRule(ext);
 			checkProductionsAgainstGrammar(e.getValue());
 		}
 	}
@@ -254,14 +243,12 @@ public class GrammarChecker {
 
 	// We are going to use "real" recursion to traverse the tree, and keep the GrammarNavigator in step by telling it when (and how) we are recursing
 	private void traverseTree(GrammarTree tree, GrammarNavigator gn) {
-		System.out.println("traverseTree: " + tree.reducedToRule() + " " + tree.hasMembers() + " " + tree.hasIndents() + " " + gn);
 		String rule = tree.reducedToRule();
 		TrackProduction prod = gn.findChooseableRule(rule);
 		if (prod == null)
 			throw new CantHappenException("there is no chooseable rule to match " + rule + " in " + gn);
 		gn.push(prod);
 
-		System.out.println("using rule " + prod);
 		boolean scopeOnly = false;
 		if (tree.isSingleton() && !prod.isSeqReducer(rule)) {
 			traverseTree((GrammarTree) tree.members().next(), gn);
@@ -288,14 +275,12 @@ public class GrammarChecker {
 				TrackProduction indent = sp.indented();
 				assertNotNull("have a tree indent in " + rule + " but not in rule: " + gn, indent);
 				gn.push(indent);
-				System.out.println("matching indents " + indent);
 			}
 			Iterator<GrammarTree> it = tree.indents();
 			while (it.hasNext()) {
 				traverseTree(it.next(), gn);
 			}
 			if (!scopeOnly) {
-				System.out.println("done with indents");
 				gn.pop();
 			}
 		}
@@ -303,7 +288,6 @@ public class GrammarChecker {
 	}
 
 	private void matchLineSegment(String rule, GrammarTree tree, GrammarNavigator gn) {
-		System.out.println("match line segment: " + rule + " " + tree + " " + gn);
 		Iterator<GrammarStep> mit = tree.members();
 		SeqReduction sr = gn.sequence(rule);
 		Iterator<SeqElement> sit = sr.iterator();
@@ -314,9 +298,7 @@ public class GrammarChecker {
 				mi = mit.next();
 			if (si == null)
 				si = sit.next();
-			System.out.println("Comparing " + mi + " " + mi.getClass() + " :: " + si + " " + si.getClass());
 			MatchResult mr = si.matchAgainst(mi);
-			System.out.println("mr = " + mr);
 			switch (mr) {
 			case SINGLE_MATCH_ADVANCE: {
 				// they matched and there was no repetition or anything; advance both
@@ -369,7 +351,6 @@ public class GrammarChecker {
 			if (!si.canBeSkipped())
 				throw new CantHappenException("the grammar expects the tree to have more members which were not there: " + si);
 		}
-		System.out.println("matched line segment " + rule);
 	}
 
 	private void matchNested(GrammarNavigator gn, GrammarStep mi, SeqElement si) {
@@ -381,7 +362,6 @@ public class GrammarChecker {
 				TrackProduction prod = grammar.rule(inRule);
 				GrammarTree inner = (GrammarTree) tree.members().next();
 				String reducedAs = inner.reducedToRule();
-				System.out.println("XX: " + reducedAs);
 				TrackProduction tp = prod.choose(reducedAs);
 				if (tp == null)
 					throw new CantHappenException("there is no reduction for " + reducedAs + " in " + inRule);
@@ -428,7 +408,6 @@ public class GrammarChecker {
 	}
 
 	private boolean matchTerminal(TrackProduction tp, GrammarToken tok) {
-		System.out.println("match terminal: " + tok + " == " + tp);
 		TokenProduction rule = (TokenProduction) tp.choose(tok.type);
 		if (rule != null) {
 			// check it matches
@@ -436,121 +415,12 @@ public class GrammarChecker {
 				return true;
 			else
 				return false;
-//				throw new CantHappenException("the token did not match the pattern " + tok.text);
 		} else {
 			// try seeing if it is a keyword here
 			if (tp.canBeKeyword(tok.text))
 				return true;
 			else
 				return false;
-//				throw new CantHappenException("no rule could be found for " + tok.type);
 		}
 	}
-	
-	/*
-	// handle a scope where the "root" grammar definition is a many definition of
-	// a ref definition, which probably points to an OrDefinition of other cases
-	private void handleScopeWithScopeRule(Iterator<GrammarTree> trees, GrammarNavigator gn) {
-		while (trees.hasNext()) {
-			gn.stashHere();
-			GrammarTree tree = trees.next();
-			logger.info("Comparing tree " + tree + " with " + gn.current());
-			matchCompoundRule(tree, gn);
-			gn.unstash();
-		}
-	}
-
-	// By a "compound rule" what I mean is the common pattern in the parsed form,
-	// where there is one entry in the member which is a tree which is the actual line
-	// and then there may be indents (but only if supported by the grammar)
-	private void matchCompoundRule(GrammarTree tree, GrammarNavigator gn) {
-		logger.info("Matching compound rule " + tree + " with " + gn.current());
-		if (gn.canHandle(tree)) {
-			// CASE A: it's a compound rule
-			if (tree.isSingleton()) {
-				GrammarTree reducedAs = tree.singleton();
-//				System.out.println("reduced as " + reducedAs.reducedToRule());
-				if (!gn.canHandle(reducedAs))
-					fail("cannot handle " + reducedAs.reducedToRule() + " in " + gn.current());
-				int depth = gn.depth();
-				matchLine(reducedAs.reducedToRule(), reducedAs.members(), gn);
-				gn.moveToEndOfLine(depth);
-				if (gn.hasIndents()) {
-					matchIndents(tree.indents(), gn);
-				} else {
-					assertFalse(tree.hasIndents());
-				}
-			} else {
-				// case B: it's just a simple rule with no indents at all
-				int depth = gn.depth();
-				matchLine(null, tree.members(), gn);
-				gn.moveToEndOfLine(depth);
-				assertFalse("rule "+ gn.current() + " does not have indents, but tree does", tree.hasIndents());
-			}
-		} else {
-			System.out.println("At " + tree.location());
-			System.out.println("Grammar is at: " + gn.current());
-			PrintWriter pw = new PrintWriter(System.out);
-			gn.showIndentedOptionsIfApplicable(pw);
-			pw.flush();
-			System.out.println("Tree has rule: " + tree.reducedToRule());
-			if (tree.isSingleton()) {
-				System.out.println("   >> Singleton tree: " + tree.singleton().reducedToRule());
-			} else {
-				System.out.print("   >> Simple rule tree:");
-				Iterator<GrammarStep> it = tree.members();
-				while (it.hasNext()) {
-					GrammarStep s = it.next();
-					if (s instanceof GrammarToken)
-						System.out.print(" " + ((GrammarToken) s).text);
-					else if (s instanceof GrammarTree)
-						System.out.print(" " + ((GrammarTree) s).reducedToRule());
-					else
-						System.out.print(" " + s);
-				}
-				System.out.println();
-			}
-			fail("cannot handle " + tree + " with defn " + gn.current());
-		}
-	}
-
-	private void matchLine(String ruleName, Iterator<GrammarStep> members, GrammarNavigator gn) {
-		while (members.hasNext()) {
-			GrammarStep s = members.next();
-			logger.info("matching line token " + s + " with " + gn.current());
-			if (s instanceof GrammarTree) {
-				GrammarTree gt = (GrammarTree) s;
-				System.out.println(gt);
-			}
-			if (gn.canHandle(s)) {
-//				System.out.println("handled " + s);
-				if (s instanceof GrammarTree) {
-					GrammarTree gt = (GrammarTree) s;
-					matchLine(gt.reducedToRule(), gt.members(), gn);
-				}
-				// need to handle nesting and things ...
-				// can we call matchLine recursively or do we need to have something inside this?
-			} else {
-				System.out.println("At " + s.location());
-				System.out.println("Grammar is at: " + gn.current());
-				if (s instanceof GrammarTree)
-					System.out.println("Tree has: " + ((GrammarTree) s).reducedToRule());
-				else if (s instanceof GrammarToken)
-					System.out.println("Token is: " + ((GrammarToken) s).type + " " + ((GrammarToken) s).text);
-				else
-					System.out.println("File is at " + s);
-				fail("cannot match token in line " + s + " with " + gn.current());
-			}
-		}
-		System.out.println("have no more members");
-		gn.safePop(ruleName);
-	}
-
-	// I'm not sure if this is exactly the same as handleScope or if there are
-	// two (or more) possibilities depending on whether it's just a nested scope or
-	// specific nested definitions (such as struct members or guarded equations)
-	private void matchIndents(Iterator<GrammarTree> indents, GrammarNavigator gn) {
-		handleScopeWithScopeRule(indents, gn);
-	}
-	*/
 }

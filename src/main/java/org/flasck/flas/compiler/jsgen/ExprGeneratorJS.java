@@ -41,7 +41,6 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -163,7 +162,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
 		RepositoryEntry defn = operator.defn();
 		if (defn == null)
-			throw new RuntimeException("operator " + operator + " was still not resolved");
+			throw new RuntimeException("operator " + operator + " has not been resolved");
 		generateFnOrCtor(defn, resolveOpName(operator.op, nargs), nargs);
 	}
 
@@ -260,10 +259,6 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				sv.result(call);
 			} else
 				sv.result(fn);
-		} else if (defn instanceof MockApplication) {
-			MockApplication ma = (MockApplication)defn;
-			JSExpr from = state.application(ma.asVar());
-			sv.result(from);
 		} else {
 			for (ExprGeneratorModule m : modules) {
 				if (m.generateFnOrCtor(sv, state, block, defn, myName, nargs))
@@ -291,7 +286,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	private String handleBuiltinName(RepositoryEntry defn) {
 		NameOfThing name = defn.name();
-		if (name instanceof FunctionName && ((FunctionName)name).inContext == null) {
+		if (name instanceof FunctionName && ((FunctionName)name).inContext instanceof PackageName && ((PackageName)((FunctionName)name).inContext).isBuiltin()) {
 			String un = name.uniqueName();
 			if (un.equals("length"))
 				un = "arr_length";

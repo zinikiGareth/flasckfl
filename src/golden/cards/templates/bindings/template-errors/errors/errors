@@ -1,5 +1,5 @@
-cards/label.  0.0:     _ <div id="flas-style-dupl">
-                          duplicate field in 'cards/label': dupl
 index.html:   0.0:    
                           duplicate entry name dupli
+index.html:   0.0:     _ <div id="flas-style-dupl">
+                          duplicate field in 'cards/label': dupl
                           

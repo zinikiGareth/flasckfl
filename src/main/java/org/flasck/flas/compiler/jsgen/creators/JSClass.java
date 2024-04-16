@@ -149,14 +149,14 @@ public class JSClass implements JSClassCreator {
 		return ctor;
 	}
 
-	public void writeTo(IndentWriter iw) {
+	public void writeTo(Set<String> exports, IndentWriter iw) {
 		if (!genJS)
 			return;
 		Set<NameOfThing> names = new HashSet<>();
 		names.add(name);
 		if (name.container() instanceof FunctionName)
 			JSMethod.ensureContainingNames(iw, name.container(), names);
-		ctor.write(iw, names);
+		ctor.write(iw, names, exports);
 		if (this.baseClass != null) {
 			iw.println(name.jsName() + ".prototype = new " + this.baseClass.jsName() + "();");
 			iw.println(name.jsName() + ".prototype.constructor = " + name.jsName() + ";");
@@ -180,7 +180,7 @@ public class JSClass implements JSClassCreator {
 			iw.println(";");
 		}
 		for (JSMethod m : methods)
-			m.write(iw, names);
+			m.write(iw, names, exports);
 	}
 
 	public void generate(ByteCodeEnvironment bce) {

@@ -51,9 +51,9 @@ public class StructGenerationJS {
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		JSVar jsa = new JSVar("_cxt");
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
 			oneOf(jss).struct(sd);
-			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
+			oneOf(jss).newClass(new PackageName("test.repo"), new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);
 			oneOf(clz).implementsJava(J.ISDATA);
@@ -103,9 +103,9 @@ public class StructGenerationJS {
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		JSVar jsa = new JSVar("_cxt");
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
 			oneOf(jss).struct(sd);
-			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
+			oneOf(jss).newClass(new PackageName("test.repo"), new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);
 			oneOf(clz).implementsJava(J.ISDATA);
@@ -143,7 +143,7 @@ public class StructGenerationJS {
 		JSMethodCreator sfacc = context.mock(JSMethodCreator.class);
 		JSExpr obj = context.mock(JSExpr.class, "obj");
 		context.checking(new Expectations() {{
-			oneOf(jss).newFunction(null, "test.repo", new SolidName(new PackageName("test.repo"), "Struct"), true, "_field_s"); will(returnValue(sfacc));
+			oneOf(jss).newFunction(null, new PackageName("test.repo"), new SolidName(new PackageName("test.repo"), "Struct"), true, "_field_s"); will(returnValue(sfacc));
 			oneOf(sfacc).argument("_cxt");
 			oneOf(sfacc).argumentList();
 			oneOf(sfacc).loadField(with(any(JSThis.class)), with("s")); will(returnValue(obj));

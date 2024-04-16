@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -21,6 +22,7 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.patterns.HSIPatternOptions;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -49,11 +51,12 @@ public class HSIGeneration {
 	
 	@Test
 	public void headProducesAnEvalStatement() {
+		TreeSet<String> exports = new TreeSet<>();
 		JSMethod meth = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.head(new JSVar("_0"));
-		meth.write(w, new HashSet<>());
+		meth.write(w, new HashSet<>(), exports);
 		assertEquals("\npkg.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 
@@ -61,7 +64,7 @@ public class HSIGeneration {
 	public void ifCtorProducesAnIfWithTwoBlocks() {
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
 		meth.argument("_cxt");
-		JSIfCreator ifCtor = meth.ifCtor(new JSVar("_0"), new SolidName(null, "Nil"));
+		JSIfCreator ifCtor = meth.ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 		ifCtor.trueCase().returnObject(ifCtor.trueCase().string("hello"));
 		ifCtor.falseCase().returnObject(ifCtor.falseCase().string("other"));
 		ifCtor.write(w);
@@ -92,21 +95,23 @@ public class HSIGeneration {
 
 	@Test
 	public void errorCreatesAnError() {
+		TreeSet<String> exports = new TreeSet<>();
 		JSMethod meth = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoCase();
-		meth.write(w, new HashSet<>());
+		meth.write(w, new HashSet<>(), exports);
 		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no matching case');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
 	@Test
 	public void errorNoDefaultGuardCreatesAnError() {
+		TreeSet<String> exports = new TreeSet<>();
 		JSMethod meth = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoDefaultGuard();
-		meth.write(w, new HashSet<>());
+		meth.write(w, new HashSet<>(), exports);
 		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no default guard');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	

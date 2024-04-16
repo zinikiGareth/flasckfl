@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,18 +12,21 @@ import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.repository.Repository;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.CantHappenException;
 
 public class JSFile {
-	private final String pkg;
+	private final Repository repository;
+	private final NameOfThing pkg;
 	private final File file;
 	private final Set<String> packages = new TreeSet<>();
 	private final List<JSClass> classes = new ArrayList<>();
@@ -30,8 +34,10 @@ public class JSFile {
 	private final List<MethodList> methodLists = new ArrayList<>();
 	private final List<EventMap> eventMaps = new ArrayList<>();
 	private final List<ApplRoutingTable> routes = new ArrayList<>();
+	private final Set<String> exports = new TreeSet<>();
 
-	public JSFile(String pkg, File file) {
+	public JSFile(Repository repository, NameOfThing pkg, File file) {
+		this.repository = repository;
 		this.pkg = pkg;
 		this.file = file;
 	}
@@ -43,7 +49,7 @@ public class JSFile {
 	public void ensurePackage(String nested) {
 		packages.add(nested);
 	}
-	
+
 	public void addClass(JSClass ret) {
 		classes.add(ret);
 	}
@@ -65,17 +71,36 @@ public class JSFile {
 	}
 
 	// untested
-	public File write(File jsDir) throws FileNotFoundException {
+	public File write(File jsDir, Collection<String> imports) throws FileNotFoundException {
 		File f = new File(jsDir, file.getName());
 		PrintWriter pw = new PrintWriter(f);
 		IndentWriter iw = new IndentWriter(pw);
-		writeTo(iw);
+		writeTo(iw, imports);
 		pw.close();
 		return f;
 	}
 
-	public void writeTo(IndentWriter iw) {
+	public void writeTo(IndentWriter iw, Collection<String> imports) {
 		declarePackages(iw);
+		iw.println(
+			"import { IdempotentHandler } from \"/js/ziwsh.js\";"
+		);
+		iw.println(
+			"import { Application, Assign, AssignCons, AssignItem, Debug, ResponseWithMessages, Send, UpdateDisplay, ClickEvent, ScrollTo, ContractStore, Entity, Image, Link, FLBuiltin, False, True, MakeHash, HashPair, Tuple, TypeOf, FLCard, FLObject, FLError, Nil, Cons, Crobag, CroEntry, SlideWindow, CrobagWindow, CrobagChangeEvent, CrobagWindowEvent, Random, Interval, Instant, Calendar } from \"/js/flasjs.js\";"
+		);
+		iw.println(
+			"import { BoundVar } from \"/js/flastest.js\";"
+		);
+		for (String s : imports) {
+			if (s.equals(pkg.uniqueName()))
+				continue;
+			PackageName pn = new PackageName(s);
+			if (s.equals("root.package"))
+				importRootPackage(iw, s, pn);
+			else {				
+				iw.println("import { " + pn.jsName() + " } from \"/js/" + s + ".js\";");
+			}
+		}
 		ListMap<String, JSClass> deferred = new ListMap<>();
 		for (JSClass c : classes) {
 			// Handlers can be nested inside functions, so defer them ...
@@ -85,15 +110,15 @@ public class JSFile {
 					throw new CantHappenException("was expecting a function case name");
 				deferred.add(fn.container().jsName(), c);
 			} else
-				c.writeTo(iw);
+				c.writeTo(exports, iw);
 		}
 		Set<NameOfThing> names = new HashSet<>();
 		for (JSMethod f : functions) {
 			declareContainingPackage(iw, f);
-			f.write(iw, names);
+			f.write(iw, names, exports);
 			if (deferred.contains(f.jsName())) {
 				for (JSClass c : deferred.get(f.jsName()))
-					c.writeTo(iw);
+					c.writeTo(exports, iw);
 			}
 		}
 		for (MethodList m : methodLists)
@@ -102,6 +127,17 @@ public class JSFile {
 			m.write(iw);
 		for (ApplRoutingTable r : routes)
 			r.write(iw);
+
+		exportPackages(iw);
+	}
+
+	private void importRootPackage(IndentWriter iw, String s, PackageName pn) {
+		iw.print("import { " + pn.jsName());
+		for (NameOfThing n : repository.rootPackageNames()) {
+			iw.print(", ");
+			iw.print(n.jsName());
+		}
+		iw.println(" } from \"/js/" + s + ".js\";");
 	}
 
 	public void generate(ByteCodeEnvironment bce) {
@@ -120,7 +156,7 @@ public class JSFile {
 	}
 
 	private void declareContainingPackage(IndentWriter iw, JSMethod f) {
-		String full = f.getPackage()+"."+f.getName();
+		String full = f.getPackage() + "." + f.getName();
 		int li = full.lastIndexOf('.');
 		full = full.substring(0, li);
 		for (JSClass clz : classes) {
@@ -134,23 +170,32 @@ public class JSFile {
 	}
 
 	private void declarePackages(IndentWriter iw) {
-		if (pkg == null)
+		if (pkg == null || pkg.uniqueName().endsWith("_st"))
 			return;
-		String[] pkgs = pkg.split("\\.");
-		String enclosing = "";
-		for (String s : pkgs) {
-			String full = enclosing + s;
-			declarePackage(iw, full);
-			enclosing = enclosing + s + ".";
-		}
+		declarePackage(iw, pkg.uniqueName());
+		iw.println("");
 	}
 
 	private void declarePackage(IndentWriter iw, String full) {
-		iw.print("if (typeof(");
-		iw.print(full);
-		iw.print(") === 'undefined') ");
-		iw.print(full);
+		iw.print("var ");
+		String exp = full.replace(".", "__");
+		exports.add(exp);
+		iw.print(exp);
 		iw.println(" = {};");
+	}
+
+	private void exportPackages(IndentWriter iw) {
+		if (exports.isEmpty())
+			return;
+		iw.println("");
+		iw.print("export { ");
+		String sep = "";
+		for (String s : exports) {
+			iw.print(sep);
+			iw.print(s);
+			sep = ", ";
+		}
+		iw.println(" };");
 	}
 
 	public List<JSClass> classes() {

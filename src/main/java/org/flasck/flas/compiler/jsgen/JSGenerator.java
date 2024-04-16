@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.ParenExpr;
+import org.flasck.flas.commonBase.names.AssemblyName;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -169,7 +170,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void shareWith(SystemTestModule module) {
-		module.inject(jse, meth, state, block, runner);
+		module.inject(jse, null, meth, state, block, runner);
 	}
 
 	@Override
@@ -189,13 +190,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 			this.meth = null;
 			return;
 		}
-		String pkg = fn.name().packageName().jsName();
+		PackageName pkg = fn.name().packageName();
 		NameOfThing cxName;
 		if (fn.name().containingCard() != null)
 			cxName = fn.name().wrappingObject();
 		else
 			cxName = fn.name().inContext;
-		jse.ensurePackageExists(pkg, cxName.jsName());
+		jse.ensurePackageExists(pkg, cxName.uniqueName());
 		this.meth = jse.newFunction(fn.name(), pkg, cxName, fn.hasState(), fn.name().name);
 		
 		this.meth.argument("_cxt");
@@ -220,7 +221,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	@Override
 	public void visitTuple(TupleAssignment e) {
 		switchVars.clear();
-		String pkg = e.name().packageName().jsName();
+		PackageName pkg = e.name().packageName();
 		NameOfThing cxName = e.name().inContext;
 		jse.ensurePackageExists(pkg, cxName.jsName());
 		this.meth = jse.newFunction(e.name(), pkg, cxName, false, e.name().name);
@@ -235,7 +236,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	@Override
 	public void visitTupleMember(TupleMember e) {
 		switchVars.clear();
-		String pkg = e.name().packageName().jsName();
+		PackageName pkg = e.name().packageName();
 		NameOfThing cxName = e.name().inContext;
 		jse.ensurePackageExists(pkg, cxName.jsName());
 		this.meth = jse.newFunction(e.name(), pkg, cxName, false, e.name().name);
@@ -252,8 +253,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	public void visitStructDefn(StructDefn obj) {
 		if (!obj.generate)
 			return;
-		String pkg = ((SolidName)obj.name()).packageName().jsName();
-		jse.ensurePackageExists(pkg, obj.name().container().jsName());
+		PackageName pkg = ((SolidName)obj.name()).packageName();
+		jse.ensurePackageExists(pkg, obj.name().container().uniqueName());
 		jse.struct(obj);
 		JSClassCreator ctr = jse.newClass(pkg, obj.name());
 		ctr.inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
@@ -273,11 +274,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		areYouA.argument(J.STRING, "ty");
 		areYouA.returnsType("boolean");
 		JSExpr aya = areYouA.arg(1);
-		JSIfCreator ifblk = areYouA.ifTrue(new JSCompare(aya, areYouA.string(obj.name().jsName())));
+		JSIfCreator ifblk = areYouA.ifTrue(new JSCompare(aya, areYouA.string(obj.name().uniqueName())));
 		ifblk.trueCase().returnObject(ifblk.trueCase().literal("true"));
 		JSBlockCreator fc = ifblk.falseCase();
 		for (UnionTypeDefn u : repository.unionsContaining(obj)) {
-			JSIfCreator ifu = fc.ifTrue(new JSCompare(aya, areYouA.string(u.name().jsName())));
+			JSIfCreator ifu = fc.ifTrue(new JSCompare(aya, areYouA.string(u.name().uniqueName())));
 			ifu.trueCase().returnObject(ifblk.trueCase().literal("true"));
 			fc = ifu.falseCase();
 		}
@@ -303,8 +304,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	public void visitObjectDefn(ObjectDefn obj) {
 		if (!obj.generate)
 			return;
-		String pkg = ((SolidName)obj.name()).packageName().jsName();
-		jse.ensurePackageExists(pkg, obj.name().container().jsName());
+		PackageName pkg = ((SolidName)obj.name()).packageName();
+		jse.ensurePackageExists(pkg, obj.name().container().uniqueName());
 		jse.object(obj);
 		templateCreator = jse.newClass(pkg, obj.name());
 		templateCreator.inheritsFrom(new PackageName("FLObject"), J.FLOBJECT);
@@ -319,7 +320,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		areYouA.argument(J.EVALCONTEXT, "_cxt");
 		areYouA.argument(J.STRING, "ty");
 		areYouA.returnsType("boolean");
-		areYouA.returnCompare(areYouA.arg(1), areYouA.string(obj.name().jsName()));
+		areYouA.returnCompare(areYouA.arg(1), areYouA.string(obj.name().uniqueName()));
 		JSMethodCreator ud = templateCreator.createMethod("_updateDisplay", true);
 		ud.argument("_cxt");
 		ud.returnsType("void");
@@ -351,7 +352,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	public void visitStructFieldAccessor(StructField sf) {
 		if (!sf.generate)
 			return;
-		String pkg = sf.name().packageName().jsName();
+		PackageName pkg = sf.name().packageName();
 		NameOfThing cxName = sf.name().container();
 		JSMethodCreator meth = jse.newFunction(null, pkg, cxName, true, "_field_" + sf.name);
 		meth.argument("_cxt");
@@ -379,8 +380,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 			this.meth = null;
 			return;
 		}
-		String pkg = om.name().packageName().jsName();
-		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
+		PackageName pkg = om.name().packageName();
+		jse.ensurePackageExists(pkg, om.name().inContext.uniqueName());
 		this.meth = jse.newFunction(om.name(), pkg, om.name().container(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent() || om.hasState(), om.name().name);
 		if (om.hasImplements()) {
 			if (om.getImplements().getParent() instanceof ServiceDefinition) {
@@ -409,8 +410,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		if (!oc.generate)
 			return;
 		switchVars.clear();
-		String pkg = oc.name().packageName().jsName();
-		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());
+		PackageName pkg = oc.name().packageName();
+		jse.ensurePackageExists(pkg, oc.name().inContext.uniqueName());
 		this.meth = jse.newFunction(null, pkg, oc.name().container(), false, oc.name().name);
 		this.meth.argumentList();
 		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
@@ -561,8 +562,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
-		String pkg = ((SolidName)cd.name()).packageName().jsName();
-		jse.ensurePackageExists(pkg, cd.name().container().jsName());
+		PackageName pkg = ((SolidName)cd.name()).packageName();
+		jse.ensurePackageExists(pkg, cd.name().container().uniqueName());
 		currentContract = jse.newClass(pkg, cd.name());
 		currentContract.justAnInterface();
 		JSMethodCreator ctor = currentContract.constructor();
@@ -610,8 +611,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void visitAgentDefn(AgentDefinition ad) {
-		String pkg = ad.name().container().jsName();
-		jse.ensurePackageExists(pkg, pkg);
+		PackageName pkg = (PackageName) ad.name().container();
+		jse.ensurePackageExists(pkg, pkg.uniqueName());
 		agentCreator = jse.newClass(pkg, ad.name());
 		agentCreator.inheritsFrom(null, J.FLAGENT);
 		agentCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
@@ -647,8 +648,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	
 	@Override
 	public void visitCardDefn(CardDefinition cd) {
-		String pkg = cd.name().container().jsName();
-		jse.ensurePackageExists(pkg, pkg);
+		PackageName pkg = (PackageName) cd.name().container();
+		jse.ensurePackageExists(pkg, pkg.uniqueName());
 		agentCreator = jse.newClass(pkg, cd.name());
 		templateCreator = agentCreator;
 		agentCreator.inheritsFrom(new PackageName("FLCard"), J.FLCARD);
@@ -691,8 +692,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	
 	@Override
 	public void visitServiceDefn(ServiceDefinition sd) {
-		String pkg = sd.name().container().jsName();
-		jse.ensurePackageExists(pkg, pkg);
+		PackageName pkg = (PackageName) sd.name().container();
+		jse.ensurePackageExists(pkg, pkg.uniqueName());
 		agentCreator = jse.newClass(pkg, sd.name());
 		agentCreator.notJS();
 		templateCreator = agentCreator;
@@ -714,7 +715,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		CSName csn = (CSName)ic.name();
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.recordContract(ic.actualType().name(), csn);
-		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn);
+		JSClassCreator svc = jse.newClass(csn.packageName(), csn);
 		JSMethodCreator svcCtor = svc.constructor();
 		svcCtor.argument(J.FLEVALCONTEXT, "_cxt");
 		svc.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
@@ -731,7 +732,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		CSName csn = (CSName)p.name();
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.recordContract(p.actualType().name(), csn);
-		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn);
+		JSClassCreator svc = jse.newClass(csn.packageName(), csn);
 		if (!agentCreator.wantJS())
 			svc.notJS();
 		JSMethodCreator svcCtor = svc.constructor();
@@ -751,8 +752,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	
 	@Override
 	public void visitHandlerImplements(HandlerImplements hi) {
-		String pkg = hi.name().packageName().jsName();
-		jse.ensurePackageExists(pkg, hi.name().container().jsName());
+		PackageName pkg = hi.name().packageName();
+		jse.ensurePackageExists(pkg, hi.name().container().uniqueName());
 		new HIGeneratorJS(sv, jse, methodMap, hi);
 	}
 
@@ -844,7 +845,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		if (currentOA != null)
 			throw new NotImplementedException("I don't think you can nest a unit test in an accessor");
 		NameOfThing pkg = clzName.container();
-		jse.ensurePackageExists(pkg.jsName(), e.name.container().jsName());
+		jse.ensurePackageExists(pkg, e.name.container().jsName());
 		this.utclz = jse.newUnitTest(e);
 		utclz.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");
 		JSMethodCreator ctor = utclz.constructor();
@@ -861,6 +862,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		this.testServices = true;
 		this.testName = clzName;
 		if (involvesServices(e)) {
+			e.dontRunJS();
+			ctor.noJS();
 			this.meth.noJS();
 			this.testServices = false;
 		}
@@ -934,7 +937,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void visitAssembly(ApplicationAssembly e) {
-		appclz = jse.newClass(e.name().uniqueName(), new SolidName(e.name(), "_Application"));
+		AssemblyName an = e.name();
+		appclz = jse.newClass(an.packageName(), new SolidName(e.name(), "_Application"));
 		appclz.inheritsFrom(new PackageName("Application"), J.FLAPPLICATION);
 		recnt = 0;
 		JSMethodCreator ctor = appclz.constructor();

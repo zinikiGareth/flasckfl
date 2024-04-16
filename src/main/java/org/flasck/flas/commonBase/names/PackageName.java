@@ -1,15 +1,43 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.InvalidUsageException;
+
 public class PackageName implements NameOfThing, Comparable<PackageName> {
+	private final PackageName parent;
 	private final String name;
+	private final Boolean builtin;
+
+	// For the global namespace, things can either be "built in" or "stdlib"; either way name is null, but we can tell these apart as they are handled differently in a few places
+	// (specifically, builtins don't have code generated for them)
+	public PackageName(boolean isBuiltin) {
+		this.parent = null;
+		this.name = null;
+		this.builtin = isBuiltin;
+	}
 
 	public PackageName(String s) {
+		if (s == null) {
+			try {
+				throw new InvalidUsageException("Must use PackageName(isBuiltin)");
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				throw ex;
+			}
+		}
+		this.parent = null;
 		this.name = s;
+		this.builtin = null;
 	}
-	
+
+	public PackageName(PackageName parent, String baseName) {
+		this.parent = parent;
+		this.name = baseName;
+		this.builtin = null;
+	}
+
 	@Override
 	public NameOfThing container() {
-		return null;
+		return parent;
 	}
 	
 	@Override
@@ -28,27 +56,33 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	}
 	
 	public String uniqueName() {
+		if (parent != null)
+			return parent.uniqueName() + "." + name;
 		return name;
 	}
 	
 	@Override
 	public String jsName() {
-		return name;
+		if (name == null)
+			return null;
+		if (parent != null)
+			return parent.jsName() + "__" + name;
+		return name.replace(".", "__");
 	}
 
 	@Override
 	public String javaName() {
-		return name;
+		return uniqueName();
 	}
 
 	@Override
 	public String javaPackageName() {
-		return name;
+		return uniqueName();
 	}
 
 	@Override
 	public String javaClassName() {
-		return name;
+		return uniqueName();
 	}
 
 	public String simpleName() {
@@ -105,5 +139,9 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	@Override
 	public String toString() {
 		return "Pkg[" + name + "]";
+	}
+
+	public boolean isBuiltin() {
+		return builtin != null && builtin;
 	}
 }

@@ -53,8 +53,8 @@ public class FunctionGenerationJS {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+			oneOf(jss).newFunction(name, new PackageName("test.repo"), new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).argumentList();
 			oneOf(meth).checkCached();
@@ -96,14 +96,14 @@ public class FunctionGenerationJS {
 		hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 		fn.bindHsi(hsi);
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+			oneOf(jss).newFunction(name, new PackageName("test.repo"), new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
 			oneOf(meth).head(new JSVar("_0"));
-			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch));
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(nilSwitch));
 			oneOf(isNil).string("hello"); will(returnValue(sret));
 			oneOf(isNil).returnObject(sret);
 			
@@ -119,8 +119,8 @@ public class FunctionGenerationJS {
 		JSExpr slot0 = new JSVar("slot0");
 		FunctionName name = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "f"); will(returnValue(meth));
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+			oneOf(jss).newFunction(name, new PackageName("test.repo"), new PackageName("test.repo"), false, "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
@@ -174,14 +174,14 @@ public class FunctionGenerationJS {
 		hsi.get(1).addVar(vp, fi);
 		fn.bindHsi(hsi);
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "f"); will(returnValue(meth)); inSequence(ordering);
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+			oneOf(jss).newFunction(name, new PackageName("test.repo"), new PackageName("test.repo"), false, "f"); will(returnValue(meth)); inSequence(ordering);
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt)); inSequence(ordering);
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0)); inSequence(ordering);
 			oneOf(meth).argument("_1"); will(returnValue(slot1)); inSequence(ordering);
 			oneOf(meth).head(new JSVar("_0")); inSequence(ordering);
-			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch)); inSequence(ordering);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(nilSwitch)); inSequence(ordering);
 			oneOf(isNil).bindVar(with(SlotMatcher.id("1")), with(new JSVar("_1")), with("x")); inSequence(ordering);
 			oneOf(isNil).boundVar("x"); will(returnValue(ret)); inSequence(ordering);
 			oneOf(isNil).returnObject(ret); inSequence(ordering);
@@ -225,17 +225,17 @@ public class FunctionGenerationJS {
 		hsi.get(0).requireCM(LoadBuiltins.cons).consider(f2);
 		fn.bindHsi(hsi);
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
+			oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+			oneOf(jss).newFunction(name, new PackageName("test.repo"), new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
 			oneOf(meth).head(new JSVar("_0"));
-			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Cons")); will(returnValue(consSwitch));
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Cons")); will(returnValue(consSwitch));
 			oneOf(isCons).string("goodbye"); will(returnValue(gret));
 			oneOf(isCons).returnObject(gret);
-			oneOf(notCons).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch));
+			oneOf(notCons).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(nilSwitch));
 			oneOf(isNil).string("hello"); will(returnValue(sret));
 			oneOf(isNil).returnObject(sret);
 			
@@ -262,11 +262,11 @@ public class FunctionGenerationJS {
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
 			oneOf(meth).head(new JSVar("_0"));
-			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Cons")); will(returnValue(outer));
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Cons")); will(returnValue(outer));
 		}});
 		sv.hsiArgs(Arrays.asList(a0));
 		sv.switchOn(a0);
-		sv.withConstructor(new SolidName(null, "Cons"));
+		sv.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Cons"));
 		HSIPatternOptions headOpts = new HSIPatternOptions();
 		headOpts.includes(intro);
 		Slot cm1 = new CMSlot("0_head", headOpts, null);
@@ -278,10 +278,10 @@ public class FunctionGenerationJS {
 		JSIfExpr inner = new JSIfExpr(null, context.mock(JSBlockCreator.class, "innerT"), context.mock(JSBlockCreator.class, "innerF"));
 		context.checking(new Expectations() {{
 			oneOf(isCons).head(new JSVar("_1"));
-			oneOf(isCons).ifCtor(new JSVar("_1"), new SolidName(null, "True")); will(returnValue(inner));
+			oneOf(isCons).ifCtor(new JSVar("_1"), new SolidName(LoadBuiltins.builtinPkg, "True")); will(returnValue(inner));
 		}});
 		sv.switchOn(cm1);
-		sv.withConstructor(new SolidName(null, "True"));
+		sv.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "True"));
 	}
 
 	@Test
@@ -299,11 +299,11 @@ public class FunctionGenerationJS {
 		context.checking(new Expectations() {{
 			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
-			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(outer));
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(outer));
 		}});
 		gen.hsiArgs(Arrays.asList(a0));
 		gen.switchOn(a0);
-		gen.withConstructor(new SolidName(null, "Nil"));
+		gen.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
@@ -359,11 +359,11 @@ public class FunctionGenerationJS {
 		context.checking(new Expectations() {{
 			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
-			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Number")); will(returnValue(outer));
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Number")); will(returnValue(outer));
 		}});
 		gen.hsiArgs(Arrays.asList(a0));
 		gen.switchOn(a0);
-		gen.withConstructor(new SolidName(null, "Number"));
+		gen.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Number"));
 
 		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
@@ -416,11 +416,11 @@ public class FunctionGenerationJS {
 		context.checking(new Expectations() {{
 			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
-			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "String")); will(returnValue(outer));
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "String")); will(returnValue(outer));
 		}});
 		gen.hsiArgs(Arrays.asList(a0));
 		gen.switchOn(a0);
-		gen.withConstructor(new SolidName(null, "String"));
+		gen.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "String"));
 
 		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
@@ -472,22 +472,22 @@ public class FunctionGenerationJS {
 		context.checking(new Expectations() {{
 			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
-			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(outer));
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(outer));
 		}});
 		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0, a1));
 		gen.switchOn(a0);
-		gen.withConstructor(new SolidName(null, "Nil"));
+		gen.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 
 		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
 		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
 		context.checking(new Expectations() {{
 			oneOf(isNil0).head(new JSVar("_1"));
-			oneOf(isNil0).ifCtor(new JSVar("_1"), new SolidName(null, "Nil")); will(returnValue(inner));
+			oneOf(isNil0).ifCtor(new JSVar("_1"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(inner));
 		}});
 		gen.switchOn(a1);
-		gen.withConstructor(new SolidName(null, "Nil"));
+		gen.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 		
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
@@ -537,22 +537,22 @@ public class FunctionGenerationJS {
 		context.checking(new Expectations() {{
 			allowing(state).ocret(); will(returnValue(null));
 			oneOf(meth).head(new JSVar("_0"));
-			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "True")); will(returnValue(outer));
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "True")); will(returnValue(outer));
 		}});
 		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0, a1));
 		gen.switchOn(a0);
-		gen.withConstructor(new SolidName(null, "True"));
+		gen.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "True"));
 
 		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
 		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
 		context.checking(new Expectations() {{
 			oneOf(isTrue0).head(new JSVar("_1"));
-			oneOf(isTrue0).ifCtor(new JSVar("_1"), new SolidName(null, "Nil")); will(returnValue(inner));
+			oneOf(isTrue0).ifCtor(new JSVar("_1"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(inner));
 		}});
 		gen.switchOn(a1);
-		gen.withConstructor(new SolidName(null, "Nil"));
+		gen.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 		
 		{
 			FunctionIntro intro1 = new FunctionIntro(name, new ArrayList<>());
@@ -585,19 +585,19 @@ public class FunctionGenerationJS {
 		JSBlockCreator notFalse0 = context.mock(JSBlockCreator.class, "notFalse0");
 		JSIfExpr outer2 = new JSIfExpr(null, isFalse0, notFalse0);
 		context.checking(new Expectations() {{
-			oneOf(notTrue0).ifCtor(new JSVar("_0"), new SolidName(null, "False")); will(returnValue(outer2));
+			oneOf(notTrue0).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "False")); will(returnValue(outer2));
 		}});
-		gen.withConstructor(new SolidName(null, "False"));
+		gen.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "False"));
 
 		JSBlockCreator isNil1b = context.mock(JSBlockCreator.class, "isNil1b");
 		JSBlockCreator notNil1b = context.mock(JSBlockCreator.class, "notNil1b");
 		JSIfExpr innerB = new JSIfExpr(null, isNil1b, notNil1b);
 		context.checking(new Expectations() {{
 			oneOf(isFalse0).head(new JSVar("_1"));
-			oneOf(isFalse0).ifCtor(new JSVar("_1"), new SolidName(null, "Nil")); will(returnValue(innerB));
+			oneOf(isFalse0).ifCtor(new JSVar("_1"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(innerB));
 		}});
 		gen.switchOn(a1);
-		gen.withConstructor(new SolidName(null, "Nil"));
+		gen.withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 
 		{
 			FunctionIntro intro2 = new FunctionIntro(name, new ArrayList<>());
@@ -658,14 +658,14 @@ public class FunctionGenerationJS {
 			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
 			context.checking(new Expectations() {{
-				oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-				oneOf(jss).newFunction(nameX, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
+				oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+				oneOf(jss).newFunction(nameX, new PackageName("test.repo"), new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 				oneOf(meth).argumentList();
 				oneOf(meth).argument("_0"); will(returnValue(slot0));
 
 				oneOf(meth).head(new JSVar("_0"));
-				oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch));
+				oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(nilSwitch));
 				oneOf(isNil).string("hello"); will(returnValue(sret));
 				oneOf(isNil).returnObject(sret);
 				
@@ -685,14 +685,14 @@ public class FunctionGenerationJS {
 			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
 			context.checking(new Expectations() {{
-				oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-				oneOf(jss).newFunction(nameY, "test.repo", new PackageName("test.repo"), false, "y"); will(returnValue(meth));
+				oneOf(jss).ensurePackageExists(new PackageName("test.repo"), "test.repo");
+				oneOf(jss).newFunction(nameY, new PackageName("test.repo"), new PackageName("test.repo"), false, "y"); will(returnValue(meth));
 				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 				oneOf(meth).argumentList();
 				oneOf(meth).argument("_0"); will(returnValue(slot0));
 
 				oneOf(meth).head(new JSVar("_0"));
-				oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch));
+				oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(LoadBuiltins.builtinPkg, "Nil")); will(returnValue(nilSwitch));
 				oneOf(isNil).string("hello"); will(returnValue(sret));
 				oneOf(isNil).returnObject(sret);
 				

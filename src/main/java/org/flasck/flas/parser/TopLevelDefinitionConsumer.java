@@ -16,7 +16,6 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parser.ut.IntroductionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -38,5 +37,4 @@ public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer, I
 	void newTemplate(ErrorReporter errors, Template template);
 	void replaceDefinition(HandlerLambda hl);
 	void addEntry(ErrorReporter errors, NameOfThing name, RepositoryEntry entry);
-	void mockApplication(ErrorReporter errors, MockApplication ma);
 }

@@ -26,7 +26,7 @@ public class JSRecordContract implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		w.print("this._contracts.record(_cxt, '");
-		w.print(ctr.jsName());
+		w.print(ctr.uniqueName());
 		w.print("', new ");
 		w.print(impl.jsName());
 		w.println("(_cxt, this));");

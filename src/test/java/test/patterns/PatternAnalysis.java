@@ -178,7 +178,7 @@ public class PatternAnalysis {
 		slots.add(s);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(s);
-			oneOf(hsi).withConstructor(new SolidName(null, "Number"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Number"));
 			oneOf(hsi).bind(s, "x");
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitCase(fcd1);
@@ -195,7 +195,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void argumentsCanBeContracts() {
-		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(null, "Svc"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(LoadBuiltins.builtinPkg, "Svc"));
 		
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro;
@@ -217,7 +217,7 @@ public class PatternAnalysis {
 		slots.add(s);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(s);
-			oneOf(hsi).withConstructor(new SolidName(null, "Svc"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Svc"));
 			oneOf(hsi).bind(s, "x");
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitCase(fcd1);
@@ -256,7 +256,7 @@ public class PatternAnalysis {
 		Sequence seq = context.sequence("gen");
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(s); inSequence(seq);
-			oneOf(hsi).withConstructor(new SolidName(null, "Number")); inSequence(seq);
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Number")); inSequence(seq);
 			oneOf(hsi).matchNumber(42); inSequence(seq);
 			oneOf(hsi).startInline(intro); inSequence(seq);
 			oneOf(hsi).visitCase(fcd1);
@@ -297,7 +297,7 @@ public class PatternAnalysis {
 		Sequence seq = context.sequence("gen");
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(s); inSequence(seq);
-			oneOf(hsi).withConstructor(new SolidName(null, "String")); inSequence(seq);
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "String")); inSequence(seq);
 			oneOf(hsi).matchString("hello"); inSequence(seq);
 			oneOf(hsi).startInline(intro); inSequence(seq);
 			oneOf(hsi).visitCase(fcd1);
@@ -334,7 +334,7 @@ public class PatternAnalysis {
 		slots.add(a0);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(a0);
-			oneOf(hsi).withConstructor(new SolidName(null, "Nil"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitCase(fcd1);
 			oneOf(hsi).leaveCase(fcd1);
@@ -378,14 +378,14 @@ public class PatternAnalysis {
 		slots.add(a0);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(a0);
-			oneOf(hsi).withConstructor(new SolidName(null, "Nil"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 			oneOf(hsi).startInline(intro1);
 			oneOf(hsi).visitCase(fcd1);
 			oneOf(hsi).leaveCase(fcd1);
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro1);
-			oneOf(hsi).withConstructor(new SolidName(null, "Cons"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Cons"));
 			oneOf(hsi).startInline(intro2);
 			oneOf(hsi).visitCase(fcd2);
 			oneOf(hsi).leaveCase(fcd2);
@@ -457,9 +457,9 @@ public class PatternAnalysis {
 		slots.add(a1);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(a0);
-			oneOf(hsi).withConstructor(new SolidName(null, "Nil"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 			oneOf(hsi).switchOn(a1);
-			oneOf(hsi).withConstructor(new SolidName(null, "Nil"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitCase(fcd1);
 			oneOf(hsi).leaveCase(fcd1);
@@ -510,9 +510,9 @@ public class PatternAnalysis {
 		slots.add(a1);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(a0);
-			oneOf(hsi).withConstructor(new SolidName(null, "False"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "False"));
 			oneOf(hsi).switchOn(a1);
-			oneOf(hsi).withConstructor(new SolidName(null, "Nil"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 			oneOf(hsi).startInline(intro1);
 			oneOf(hsi).visitCase(fcd1);
 			oneOf(hsi).leaveCase(fcd1);
@@ -522,9 +522,9 @@ public class PatternAnalysis {
 			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
-			oneOf(hsi).withConstructor(new SolidName(null, "True"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "True"));
 			oneOf(hsi).switchOn(a1);
-			oneOf(hsi).withConstructor(new SolidName(null, "Nil"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 			oneOf(hsi).startInline(intro2);
 			oneOf(hsi).visitCase(fcd2);
 			oneOf(hsi).leaveCase(fcd2);
@@ -575,7 +575,7 @@ public class PatternAnalysis {
 		slots.add(a1);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(a0);
-			oneOf(hsi).withConstructor(new SolidName(null, "False"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "False"));
 			oneOf(hsi).bind(a1, "v");
 			oneOf(hsi).startInline(intro2);
 			oneOf(hsi).visitCase(fcd2);
@@ -583,9 +583,9 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(simpleExpr, 0);
 			oneOf(hsi).visitStringLiteral(simpleExpr);
 			oneOf(hsi).endInline(intro2);
-			oneOf(hsi).withConstructor(new SolidName(null, "True"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "True"));
 			oneOf(hsi).switchOn(a1);
-			oneOf(hsi).withConstructor(new SolidName(null, "Nil"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Nil"));
 			oneOf(hsi).startInline(intro1);
 			oneOf(hsi).visitCase(fcd1);
 			oneOf(hsi).leaveCase(fcd1);
@@ -636,10 +636,10 @@ public class PatternAnalysis {
 		CaptureAction switchSlot = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(a0);
-			oneOf(hsi).withConstructor(new SolidName(null, "Cons"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Cons"));
 			oneOf(hsi).constructorField(with(a0), with("head"), with(any(CMSlot.class))); will(cfSlot);
 			oneOf(hsi).switchOn(with(any(CMSlot.class))); will(switchSlot);
-			oneOf(hsi).withConstructor(new SolidName(null, "True"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "True"));
 			oneOf(hsi).startInline(intro2);
 			oneOf(hsi).visitCase(fcd2);
 			oneOf(hsi).leaveCase(fcd2);
@@ -695,10 +695,10 @@ public class PatternAnalysis {
 		slots.add(a0);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(a0);
-			oneOf(hsi).withConstructor(new SolidName(null, "Cons"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "Cons"));
 			oneOf(hsi).constructorField(with(a0), with("head"), with(any(CMSlot.class)));
 			oneOf(hsi).switchOn(with(any(CMSlot.class)));
-			oneOf(hsi).withConstructor(new SolidName(null, "True"));
+			oneOf(hsi).withConstructor(new SolidName(LoadBuiltins.builtinPkg, "True"));
 			oneOf(hsi).startInline(intro1);
 			oneOf(hsi).visitCase(fcd1);
 			oneOf(hsi).leaveCase(fcd1);

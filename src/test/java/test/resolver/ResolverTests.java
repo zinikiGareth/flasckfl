@@ -70,6 +70,7 @@ public class ResolverTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 //	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private static PackageName poly = new PackageName(true);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final SolidName nested = new SolidName(pkg, "Nested");
 	private final FunctionName nameF = FunctionName.function(pos, nested, "f");
@@ -83,7 +84,7 @@ public class ResolverTests {
 	private final FunctionName namePlPl = FunctionName.function(pos, null, "++");
 	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2, null);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
-	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
+	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(LoadBuiltins.builtinPkg, "Number"), true, new ArrayList<>());
 	private final ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
 	private final ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "d"), new ArrayList<>(), null);
 	private final ContractMethodDecl cmu = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "u"), new ArrayList<>(), null);
@@ -275,7 +276,7 @@ public class ResolverTests {
 
 	@Test
 	public void weCanResolveAPolyTypeNameInAStructField() {
-		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
+		PolyType pa = new PolyType(pos, new SolidName(poly, "A"));
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.MyStruct.A"); will(returnValue(pa));
 		}});
@@ -295,7 +296,7 @@ public class ResolverTests {
 
 	@Test
 	public void weCanResolveATupleInAPolyField() {
-		StructDefn listType = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "List"), true, Arrays.asList(new PolyType(pos, new SolidName(null, "A"))));
+		StructDefn listType = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(LoadBuiltins.builtinPkg, "List"), true, Arrays.asList(new PolyType(pos, new SolidName(poly, "A"))));
 		Primitive strType = new Primitive(pos, "String");
 		Primitive nbrType = new Primitive(pos, "Number");
 		context.checking(new Expectations() {{
@@ -363,7 +364,7 @@ public class ResolverTests {
 
 	@Test
 	public void weCanResolveAPolyTypeNameInAnObjectStateDecl() {
-		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
+		PolyType pa = new PolyType(pos, new SolidName(poly, "A"));
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.MyObject.A"); will(returnValue(pa));
 		}});

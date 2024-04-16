@@ -12,7 +12,6 @@ import org.flasck.flas.grammar.Grammar;
 import org.flasck.flas.grammar.ManyDefinition;
 import org.flasck.flas.grammar.OrProduction;
 import org.flasck.flas.grammar.Production;
-import org.flasck.flas.grammar.ReducesAs;
 import org.flasck.flas.grammar.RefDefinition;
 import org.flasck.flas.grammar.SequenceDefinition;
 import org.flasck.flas.grammar.TokenDefinition;
@@ -97,7 +96,6 @@ public class GrammarChooser {
 
 	public void addReduction(String reduction, SeqReduction reducer) {
 		if (reductions.containsKey(reduction)) {
-			System.out.println("duplicated reducer for " + reduction);
 			return;
 		}
 		reductions.put(reduction, new SeqProduction(this, orig, reduction, reducer));

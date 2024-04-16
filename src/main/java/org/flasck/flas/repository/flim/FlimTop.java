@@ -56,7 +56,7 @@ public class FlimTop implements TDAParsing {
 			return new NoNestingParser(errors);
 		}
 		if (pkg.equals("root.package") && "null".equals(inpkg.text))
-			container = new PackageName(null);
+			container = new PackageName(false);
 		else if (inpkg.text.equals(pkg)) {
 			container = new PackageName(pkg);
 		} else {

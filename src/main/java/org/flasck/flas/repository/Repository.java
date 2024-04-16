@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,6 @@ import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parsedForm.st.MockApplication;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -72,8 +72,6 @@ import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
-
-import io.webfolder.ui4j.api.dom.Input;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	private static final Logger logger = LoggerFactory.getLogger("Repository");
@@ -285,11 +283,6 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void polytype(ErrorReporter errors, PolyType pt) {
 		addEntry(errors, pt.name(), pt);
-	}
-
-	@Override
-	public void mockApplication(ErrorReporter errors, MockApplication app) {
-		addEntry(errors, app.name(), app);
 	}
 
 	@Override
@@ -571,7 +564,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	public void traverseAssemblies(Configuration config, ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v) {
-		AssemblyTraverser t = new AssemblyTraverser(config, errors, jse, bce, v);
+		AssemblyTraverser t = new AssemblyTraverser(errors, jse, bce, v);
 		t.doTraversal(this);
 	}
 
@@ -600,5 +593,22 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	public void dump() {
 		for (RepositoryEntry e : dict.values())
 			System.out.println(e.name().uniqueName() + " => " + e);
+	}
+
+	public List<NameOfThing> rootPackageNames() {
+		List<NameOfThing> rpns = new ArrayList<>();
+		for (RepositoryEntry e : dict.values()) {
+			NameOfThing name = e.name();
+			if (name.container() instanceof PackageName) {
+				PackageName pn = (PackageName) name.container();
+				if (pn.baseName() == null && !pn.isBuiltin())
+					rpns.add(name);
+			}
+		}
+		return rpns;
+	}
+
+	public Collection<String> flimPackages() {
+		return flimDefines.keySet();
 	}
 }

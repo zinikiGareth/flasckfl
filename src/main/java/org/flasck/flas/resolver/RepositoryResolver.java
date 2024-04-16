@@ -69,7 +69,6 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
-import org.flasck.flas.parsedForm.st.GotoRoute;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -1140,19 +1139,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		r.template.bindTo(otd);
 	}
 
-	@Override
-	public void visitGotoRoute(GotoRoute gr) {
-		if (gr.iv == null)
-			return;
-		
-		ApplicationRouting ar = repository.get(scope.packageName().uniqueName() + "_Routing");
-		if (ar != null) {
-			gr.iv.bindType(ar);
-		} else {
-			errors.message(gr.iv.location, "there is no routing table for " + scope.packageName().uniqueName());
-		}
-	}
-	
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {
 		NamedType defn = udd.ofType.namedDefn();
 		if (defn == null) {
@@ -1264,8 +1250,13 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 	@Override
 	public <T extends TraversalProcessor> T forModule(Class<T> extension, Class<? extends RepositoryVisitor> phase) {
 		for (TraversalProcessor tp : modules) {
-			if (tp.is(extension) && phase.isInstance(this))
+			if (tp.is(extension) && phase.isInstance(this)) {
+				if (tp instanceof RepositoryResolverModule) {
+					((RepositoryResolverModule)tp).init(errors, repository);
+					((RepositoryResolverModule)tp).currentScope(scope);
+				}
 				return extension.cast(tp);
+			}
 		}
 		return null;
 	}

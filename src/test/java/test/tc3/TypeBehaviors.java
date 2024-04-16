@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
@@ -15,6 +16,7 @@ import org.junit.Test;
 
 public class TypeBehaviors {
 	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, null, "<<builtin>>");
+	private static PackageName pkg = new PackageName("hello");
 
 	@Test(expected=RuntimeException.class)
 	public void applyRequiresArgs() {
@@ -57,7 +59,7 @@ public class TypeBehaviors {
 
 	@Test
 	public void contractIncorporatesAnArbitraryContract() {
-		assertTrue(LoadBuiltins.contract.incorporates(pos, new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(null, "Svc"))));
+		assertTrue(LoadBuiltins.contract.incorporates(pos, new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Svc"))));
 	}
 
 	@Test

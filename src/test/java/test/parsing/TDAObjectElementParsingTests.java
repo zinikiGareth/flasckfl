@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -45,11 +46,12 @@ import org.zinutils.support.jmock.ReturnInvoker;
 public class TDAObjectElementParsingTests {
 	interface ObjDef extends ObjectElementsConsumer, StateHolder, Type {}
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private PackageName pkg = new PackageName("hello");
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private ObjectElementsConsumer builder = context.mock(ObjDef.class);
 	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
-	final SolidName objName = new SolidName(null, "MyObject");
+	final SolidName objName = new SolidName(pkg, "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(objName);
 	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private LocationTracker locTracker = null;
@@ -132,8 +134,8 @@ public class TDAObjectElementParsingTests {
 	public void objectsCanHaveAccessorMethods() { // Correct me if I'm wrong, but these are really functions, because they don't do state updates
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
+			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("hello.MyObject.myname"))));
+			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("hello.MyObject.myname"))));
 //			oneOf(builder).complete(tracker, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);
@@ -147,8 +149,8 @@ public class TDAObjectElementParsingTests {
 	public void objectsCanHaveAccessorMethodsWithFunctionArguments() {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
+			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("hello.MyObject.myname"))));
+			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("hello.MyObject.myname"))));
 			oneOf(topLevel).argument(with(aNull(ErrorReporter.class)), with(any(VarPattern.class)));
 			oneOf(topLevel).argument(with(tracker), with(any(TypedPattern.class)));
 //			oneOf(builder).complete(tracker, pos);
@@ -163,10 +165,10 @@ public class TDAObjectElementParsingTests {
 	public void anObjectCanHaveMultipleAccessorMethods() {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.othername"))));
-			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.othername"))));
+			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("hello.MyObject.myname"))));
+			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("hello.MyObject.myname"))));
+			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("hello.MyObject.othername"))));
+			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("hello.MyObject.othername"))));
 //			oneOf(builder).complete(tracker, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel, locTracker);

@@ -39,8 +39,8 @@ public class SystemTestGenerator extends LeafAdapter {
 	private final Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
 	private final Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
 	private final Map<NameOfThing, JSExpr> containers = new HashMap<>();
-	private final Map<String, JSExpr> applications = new HashMap<>();
 	private final List<JSExpr> steps = new ArrayList<>();
+	private final Map<Class<?>, Map<String, Object>> moduleCaches = new HashMap<>();
 	private SystemTestName stageName;
 	
 	public SystemTestGenerator(NestedVisitor sv, JSStorage jse, SystemTest st) {
@@ -51,13 +51,13 @@ public class SystemTestGenerator extends LeafAdapter {
 	}
 	
 	public void shareWith(SystemTestModule module) {
-		module.inject(jse, meth, state, block, runner);
+		module.inject(jse, clz, meth, state, block, runner);
 	}
 
 	private void createClass(SystemTest st) {
 		NameOfThing name = st.name();
-		String pkg = name.packageName().jsName();
-		jse.ensurePackageExists(pkg, name.container().jsName());
+		PackageName pkg = name.packageName();
+		jse.ensurePackageExists(pkg, name.jsName());
 		clz = jse.newSystemTest(st);
 		clz.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");
 		JSMethodCreator ctor = clz.constructor();
@@ -74,7 +74,7 @@ public class SystemTestGenerator extends LeafAdapter {
 		this.stageName = s.name;
 		this.meth = clz.createMethod(s.name.baseName(), true);
 		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
-		state = new JSFunctionStateStore(meth, this.mocks, this.introductions, this.containers, this.applications);
+		state = new JSFunctionStateStore(meth, this.mocks, this.introductions, this.containers, this.moduleCaches);
 		meth.returnsType(List.class.getName());
 		this.runner = meth.field("_runner");
 //		meth.initContext(true);

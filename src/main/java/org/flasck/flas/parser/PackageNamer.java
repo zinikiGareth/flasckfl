@@ -9,7 +9,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 
 public class PackageNamer extends InnerPackageNamer implements TopLevelNamer {
 	public PackageNamer(String pkg) {
-		this(new PackageName("root.package".equals(pkg) ? null : pkg));
+		this("root.package".equals(pkg) ? new PackageName(false) : new PackageName(pkg));
 	}
 
 	public PackageNamer(NameOfThing pkgName) {

@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.NamedThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.PolyHolder;
@@ -22,7 +23,7 @@ public class Tuple implements PolyHolder, RepositoryEntry, NamedType, NamedThing
 
 	public Tuple(InputPosition loc, int nargs) {
 		this.loc = loc;
-		this.name = new SolidName(null, "_tuple_"+nargs);
+		this.name = new SolidName(new PackageName(true), "_tuple_"+nargs);
 		for (int i=0;i<nargs;i++) {
 			polys.add(new PolyType(loc, new SolidName(this.name, "P" + i)));
 		}

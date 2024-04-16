@@ -23,5 +23,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/HTTP"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/VSCode"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX 18"/>
+	<classpathentry kind="src" path="/paas-tdaserver"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/WebDriver"/>
+	<classpathentry kind="src" path="/paas-intf"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Grizzly"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

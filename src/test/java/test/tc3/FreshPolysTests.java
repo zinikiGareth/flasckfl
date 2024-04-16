@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -27,13 +28,14 @@ import org.junit.Test;
 
 public class FreshPolysTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private static PackageName poly = new PackageName(true);
 	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 
 	@Test
 	public void weCanIntroduceANewPolyInstanceForAPolyVar() {
 		UnifiableType ut = context.mock(UnifiableType.class);
-		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
+		PolyType pa = new PolyType(pos, new SolidName(poly, "A"));
 		context.checking(new Expectations() {{
 			allowing(state).hasPoly(pa);
 			oneOf(state).createUT(null, "instantiating map.A"); will(returnValue(ut));
@@ -46,7 +48,7 @@ public class FreshPolysTests {
 	@Test
 	public void weCanReplaceAPolyVarInsideAnApply() {
 		UnifiableType ut = context.mock(UnifiableType.class);
-		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
+		PolyType pa = new PolyType(pos, new SolidName(poly, "A"));
 		context.checking(new Expectations() {{
 			allowing(state).hasPoly(pa);
 			oneOf(state).createUT(null, "instantiating map.A"); will(returnValue(ut));
@@ -59,7 +61,7 @@ public class FreshPolysTests {
 	@Test
 	public void weReplaceASinglePolyVarWithTheSameUTEachTime() {
 		UnifiableType ut = context.mock(UnifiableType.class);
-		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
+		PolyType pa = new PolyType(pos, new SolidName(poly, "A"));
 		context.checking(new Expectations() {{
 			allowing(state).hasPoly(pa);
 			oneOf(state).createUT(null, "instantiating map.A"); will(returnValue(ut));
@@ -73,8 +75,8 @@ public class FreshPolysTests {
 	public void weReplaceDifferentPolyVarsWithSeparateUTs() {
 		UnifiableType ut1 = context.mock(UnifiableType.class, "ut1");
 		UnifiableType ut2 = context.mock(UnifiableType.class, "ut2");
-		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
-		PolyType pb = new PolyType(pos, new SolidName(null, "B"));
+		PolyType pa = new PolyType(pos, new SolidName(poly, "A"));
+		PolyType pb = new PolyType(pos, new SolidName(poly, "B"));
 		context.checking(new Expectations() {{
 			allowing(state).hasPoly(pa);
 			allowing(state).hasPoly(pb);

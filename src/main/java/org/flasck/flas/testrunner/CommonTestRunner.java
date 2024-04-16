@@ -86,7 +86,7 @@ public abstract class CommonTestRunner<T extends CommonState> {
 			
 			@Override
 			public void visitSystemTest(SystemTest e) {
-				String nn = e.name().baseName().replace("_st_", "");
+				String nn = e.name().baseName().replaceFirst(".*_st_", "");
 				File f = new File(nn);
 				this.pw = writers.get(f);
 				if (pw == null) {
@@ -120,6 +120,11 @@ public abstract class CommonTestRunner<T extends CommonState> {
 	public abstract void runUnitTest(TestResultWriter pw, UnitTestCase utc);
 
 	public void runSystemTest(TestResultWriter pw, SystemTest st) {
+		logger.info(this.getClass().getSimpleName() + " running system test " + st);
+//		if (this.getClass().getSimpleName().equals("JVMRunner")) {
+//			logger.error("Ha! Not!");
+//			return;
+//		}
 		T state = createSystemTest(pw, st);
 		if (state == null)
 			return;

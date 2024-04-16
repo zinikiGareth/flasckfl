@@ -269,7 +269,7 @@ public class FLASCompiler implements CompileUnit {
 				continue;
 			errors.track(fi);
 			String file = FileUtils.dropExtension(fi.getName());
-			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
+			PackageName stfn = new PackageName(new PackageName(inPkg), "_st_" + file);
 			SystemTest st = new SystemTest(stfn);
 			repository.systemTest(errors, st);
 			ParsingPhase parser = new ParsingPhase(errors, stfn, st, (TopLevelDefinitionConsumer) repository, modules);
@@ -534,9 +534,11 @@ public class FLASCompiler implements CompileUnit {
 				}
 				File libroot = new File(config.flascklibDir);
 				copyJSLib(reloc, userDir, pf, fldir, libroot);
-				for (File mld : config.modules) {
-					copyJSLib(reloc, userDir, pf, mdir, mld);
-				}
+				if (!config.modules.isEmpty())
+					System.out.println("do not handle modules properly here yet");
+//				for (String mls : config.modules) {
+//					copyJSLib(reloc, userDir, pf, mdir, mld);
+//				}
 				FLASAssembler asm = new FLASAssembler(fos);
 				File incdir = new File("includes/js");
 				File ct = new File(pf, incdir.getPath());
@@ -671,7 +673,7 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public boolean generateCode(Configuration config, DirectedAcyclicGraph<String> pkgs) {
-		jse = new JSEnvironment(config.jsDir(), pkgs, uploader);
+		jse = new JSEnvironment(config, errors, repository, config.jsDir(), pkgs, uploader);
 		bce = new ByteCodeEnvironment();
 		populateBCE(bce);
 
@@ -718,12 +720,19 @@ public class FLASCompiler implements CompileUnit {
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
 			jvmRunner.runAllUnitTests(writers);
 			jvmRunner.reportErrors(errors);
+//			jvmRunner.shutdown();
 		}
 
 		if (config.generateJS && config.unitjs) {
-			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, this.getClass().getClassLoader());
-			jsRunner.runAllUnitTests(writers);
-			jsRunner.reportErrors(errors);
+			try {
+				ClassLoader cl = this.getClass().getClassLoader();
+				JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
+				jsRunner.runAllUnitTests(writers);
+				jsRunner.reportErrors(errors);
+				jsRunner.shutdown();
+			} catch (Exception ex) {
+				errors.reportException(ex);
+			}
 		}
 
 		return errors.hasErrors();
@@ -757,10 +766,15 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		if (config.generateJS && config.systemjs) {
-			ClassLoader cl = bcl != null ? bcl : this.getClass().getClassLoader();
-			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
-			jsRunner.runAllSystemTests(writers);
-			jsRunner.reportErrors(errors);
+			try {
+				ClassLoader cl = bcl != null ? bcl : this.getClass().getClassLoader();
+				JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
+				jsRunner.runAllSystemTests(writers);
+				jsRunner.reportErrors(errors);
+				jsRunner.shutdown();
+			} catch (Exception ex) {
+				errors.reportException(ex);
+			}
 		}
 
 		return errors.hasErrors();

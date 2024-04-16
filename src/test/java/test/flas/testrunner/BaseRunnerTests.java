@@ -202,7 +202,7 @@ public abstract class BaseRunnerTests {
 	*/
 
 	protected abstract String prefix();
-	protected abstract CommonTestRunner<?> prepareRunner(Configuration config, Repository repository) throws IOException, ErrorResultException;
+	protected abstract CommonTestRunner<?> prepareRunner(Configuration config, Repository repository) throws IOException, ErrorResultException, Exception;
 	
 //	protected FunctionCaseDefn function(String name, Object expr) {
 //		FunctionCaseDefn defn = new FunctionCaseDefn(FunctionName.function(loc, new PackageName("test.runner.script"), name), new ArrayList<>(), expr);

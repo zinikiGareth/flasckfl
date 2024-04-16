@@ -50,7 +50,7 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	public String jsName() {
 		if (pkg == null || pkg.simpleName() == null)
 			return cardName;
-		return pkg.simpleName() + "." + cardName;
+		return pkg.jsName() + "." + cardName;
 	}
 
 	public String jsUName() {

@@ -3,7 +3,6 @@ package org.flasck.flas.tc3;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;

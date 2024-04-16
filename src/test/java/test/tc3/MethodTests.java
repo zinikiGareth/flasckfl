@@ -64,6 +64,7 @@ public class MethodTests {
 
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private final PackageName poly = new PackageName(true);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final StringLiteral str = new StringLiteral(pos, "yoyo");
 	private final List<Pattern> args = new ArrayList<>();
@@ -436,7 +437,7 @@ public class MethodTests {
 		new FunctionChecker(tracker, repository, sv, meth.name(), state, null);
 		SendMessage msg = new SendMessage(pos, new NumericLiteral(pos, 42));
 		meth.sendMessage(msg);
-		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, new SolidName(null, "A"))));
+		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, new SolidName(poly, "A"))));
 		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		PolyInstance pi = new PolyInstance(pos, sda, Arrays.asList(LoadBuiltins.message));
 		CaptureAction capture = new CaptureAction(null);

@@ -2,12 +2,10 @@ package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.List;
 
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.JSStyleIf;
@@ -118,13 +116,10 @@ public interface JSBlockCreator {
 	JSExpr createAgent(CardName cardName);
 	JSExpr createCard(CardName cardName);
 	JSExpr createService(CardName name);
-	JSExpr createAjax(JSExpr runner, StringLiteral url);
-	JSExpr createMockApplication(JSExpr runner, PackageName pkg);
 	JSExpr unmock(JSExpr mock);
 
 	// support module commands
-	JSExpr module(JSExpr runner, String javaIF, String javaModule);
-
+	JSExpr module(JSExpr runner, String jsName, String javaIF);
 	
 	// Send the block to disk
 	JSExpr singleton();

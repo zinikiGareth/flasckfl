@@ -1,13 +1,13 @@
 package org.flasck.flas.parser.st;
 
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SystemTestName;
-import org.flasck.flas.commonBase.names.UnitTestFileName;
 
 public class SystemTestPackageNamer implements SystemTestNamer {
-	private final UnitTestFileName file;
+	private final PackageName file;
 	private int step = 0;
 
-	public SystemTestPackageNamer(UnitTestFileName fn) {
+	public SystemTestPackageNamer(PackageName fn) {
 		this.file = fn;
 	}
 

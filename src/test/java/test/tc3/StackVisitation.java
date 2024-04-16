@@ -70,6 +70,7 @@ import org.zinutils.support.jmock.CaptureAction;
 public class StackVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private static PackageName poly = new PackageName(true);
 	private final PackageName pkg = new PackageName("test.repo");
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
@@ -283,7 +284,7 @@ public class StackVisitation {
 	public void applyExpressionWithPolyApplyInstantiatesFreshUTs() {
 		state = new FunctionGroupTCState(repository, new DependencyGroup());
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(tracker, repository, state, nv, fnCxt, false);
-		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
+		PolyType pt = new PolyType(pos, new SolidName(poly, "A"));
 		Type fnt = new Apply(pt, pt);
 		Type nbr = LoadBuiltins.number;
 		CaptureAction ut = new CaptureAction(null);
