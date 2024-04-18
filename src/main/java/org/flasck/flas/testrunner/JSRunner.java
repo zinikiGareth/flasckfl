@@ -48,6 +48,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	static String chromeDriver = System.getProperty("org.ziniki.chrome.driver");
 	static String chromeBinary = System.getProperty("org.ziniki.chrome.binary");
 	static String headlessBinary = System.getProperty("org.ziniki.headless.binary");
+	static String patienceChild = System.getProperty("org.flasck.patience.child");
+	boolean wantTimeout = patienceChild == null || !patienceChild.equals("true");
 	private final JSStorage jse;
 	private BrowserJSJavaBridge bridge = null;
 	private WebDriver wd = null;
@@ -170,11 +172,15 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	private void visitUri(String uri) throws InterruptedException {
 		cdl = new CountDownLatch(1);
 		nav.to("http://localhost:14040/" + uri);
-		boolean isReady = cdl.await(25, TimeUnit.SECONDS);
-		if (!isReady) {
-			this.server.stop();
-			this.server = null;
-			throw new CantHappenException("the test server did not become available");
+		if (wantTimeout) {
+			boolean isReady = cdl.await(25, TimeUnit.SECONDS);
+			if (!isReady) {
+				this.server.stop();
+				this.server = null;
+				throw new CantHappenException("the test server did not become available");
+			}
+		} else {
+			cdl.await();
 		}
 	}
 
