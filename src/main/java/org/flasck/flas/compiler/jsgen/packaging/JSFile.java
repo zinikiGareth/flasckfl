@@ -27,6 +27,7 @@ import org.zinutils.exceptions.CantHappenException;
 public class JSFile {
 	private final Repository repository;
 	private final NameOfThing pkg;
+	private final boolean isTest;
 	private final File file;
 	private final Set<String> packages = new TreeSet<>();
 	private final List<JSClass> classes = new ArrayList<>();
@@ -40,6 +41,7 @@ public class JSFile {
 		this.repository = repository;
 		this.pkg = pkg;
 		this.file = file;
+		this.isTest = pkg.uniqueName().contains("_");
 	}
 
 	public File file() {
@@ -88,9 +90,11 @@ public class JSFile {
 		iw.println(
 			"import { Application, Assign, AssignCons, AssignItem, Debug, ResponseWithMessages, Send, UpdateDisplay, ClickEvent, ScrollTo, ContractStore, Entity, Image, Link, FLBuiltin, False, True, MakeHash, HashPair, Tuple, TypeOf, FLCard, FLObject, FLError, Nil, Cons, Crobag, CroEntry, SlideWindow, CrobagWindow, CrobagChangeEvent, CrobagWindowEvent, Random, Interval, Instant, Calendar } from \"/js/flasjs.js\";"
 		);
-		iw.println(
-			"import { BoundVar } from \"/js/flastest.js\";"
-		);
+		if (isTest) {
+			iw.println(
+				"import { BoundVar } from \"/js/flastest.js\";"
+			);
+		}
 		for (String s : imports) {
 			if (s.equals(pkg.uniqueName()))
 				continue;

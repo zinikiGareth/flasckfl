@@ -83,7 +83,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	public void traverseAssemblyWithWebs(Repository repository, Assembly a) {
 		try {
 			visitAssembly(a);
-			for (ContentObject co : jse.jsIncludes(null)) {
+			for (ContentObject co : jse.jsIncludes("live")) {
 				includePackageFile(co);
 			}
 			for (String s : jse.packageStrings()) {
