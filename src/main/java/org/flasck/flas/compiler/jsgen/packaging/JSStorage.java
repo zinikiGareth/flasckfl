@@ -43,7 +43,7 @@ public interface JSStorage {
 
 	Iterable<PackageName> packageNames();
 	Iterable<String> packageStrings();
-	Iterable<ContentObject> jsIncludes(String testDirJS);
+	Iterable<ContentObject> jsIncludes(String testOrLive);
 	Iterable<SystemTest> systemTests();
 	Iterable<UnitTestCase> unitTests();
 }

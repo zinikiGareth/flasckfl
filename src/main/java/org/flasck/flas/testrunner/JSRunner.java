@@ -3,6 +3,8 @@ package org.flasck.flas.testrunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -306,9 +308,16 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			pw.println("{");
 			pw.println("\t\"imports\": {");
 			boolean prev = false;
-			Iterable<ContentObject> jsfiles = jse.jsIncludes(testDirJS);
+			Iterable<ContentObject> jsfiles = jse.jsIncludes("test");
+			List<ContentObject> thenUse = new ArrayList<>();
 			for (ContentObject incl : jsfiles) {
-				importMapName(pw, prev, incl);
+				File f = new File(URI.create(((FileContentObject)incl).url()).getPath());
+				File copyTo = new File(testDir, f.getName());
+				FileUtils.copy(f, copyTo);
+				FileContentObject as = new FileContentObject(copyTo);
+				thenUse.add(as);
+
+				importMapName(pw, prev, as);
 				prev = true;
 			}
 			if (prev)
@@ -326,7 +335,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			for (Entry<String, String> e : templates.entrySet())
 				renderTemplate(pw, e.getKey(), e.getValue());
 
-			for (ContentObject incl : jsfiles) {
+			for (ContentObject incl : thenUse) {
 				includeAsScript(pw, incl);
 			}
 			pw.println("<script src='/gen/run.js' type='module'></script>");

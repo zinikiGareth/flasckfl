@@ -250,6 +250,7 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	private Collection<String> fileImports() {
+		Collection<String> wantedPkgs = packageStrings();
 		LinkedHashSet<String> ret = new LinkedHashSet<>();
 		for (String s : files.keySet()) {
 			if (s.contains("_ut") || s.contains("_st"))
@@ -258,6 +259,8 @@ public class JSEnvironment implements JSStorage {
 		}
 		for (String s : repository.flimPackages()) {
 			if (s.contains("_ut") || s.contains("_st"))
+				continue;
+			if (!wantedPkgs.contains(s))
 				continue;
 			ret.add(s);
 		}
@@ -271,7 +274,7 @@ public class JSEnvironment implements JSStorage {
 		}
 	}
 
-	public Iterable<PackageName> packageNames() {
+	public Collection<PackageName> packageNames() {
 		Iterable<String> strings = packageStrings();
 		LinkedHashSet<PackageName> ret = new LinkedHashSet<>();
 		for (String s : strings) {
@@ -280,7 +283,7 @@ public class JSEnvironment implements JSStorage {
 		return ret;
 	}
 
-	public Iterable<String> packageStrings() {
+	public Collection<String> packageStrings() {
 		Collection<String> flims = repository.flimPackages();
 		LinkedHashSet<String> ret = new LinkedHashSet<>();
 		if (pkgdag.hasNode("root.package"))
@@ -316,22 +319,22 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
-	public Iterable<ContentObject> jsIncludes(String testDirJS) {
+	public Iterable<ContentObject> jsIncludes(String testOrLive) {
 		List<ContentObject> ret = new ArrayList<>();
 		if (config.flascklibDir != null) {
-			figureJSFilesOnDisk(ret, config, testDirJS);
+			figureJSFilesOnDisk(ret, config, testOrLive);
 		} else if (config.flascklibCPV != null) {
-			figureJSFilesFromContentStore(ret, config, testDirJS);
+			figureJSFilesFromContentStore(ret, config);
 		}
 		return ret;
 	}
 
-	private void figureJSFilesOnDisk(List<ContentObject> ret, Configuration config, String testDirJS) {
+	private void figureJSFilesOnDisk(List<ContentObject> ret, Configuration config, String testOrLive) {
 		List<String> inlib = new ArrayList<>();
-		addFrom(ret, testDirJS, inlib, new File(config.flascklibDir, "main"));
-		addFrom(ret, testDirJS, inlib, new File(config.flascklibDir, "test"));
+		addFrom(ret, inlib, new File(config.flascklibDir, "main"));
+		addFrom(ret, inlib, new File(config.flascklibDir, testOrLive));
 		for (String mld : config.modules) {
-			addModule(ret, config.moduleDir, testDirJS, inlib, mld);
+			addModule(ret, config.moduleDir, inlib, mld);
 		}
 
 		Iterable<String> pkgs = packageStrings();
@@ -339,7 +342,7 @@ public class JSEnvironment implements JSStorage {
 		for (String s : pkgs) {
 			File f = fileFor(s);
 			if (f != null) {
-				includeFile(ret, testDirJS, f);
+				includeFile(ret, f);
 				inlib.add(f.getName());
 			} else {
 				boolean added = false;
@@ -347,7 +350,7 @@ public class JSEnvironment implements JSStorage {
 					File i = new File(q, s + ".js");
 					if (i.exists()) {
 						if (!inlib.contains(i.getName())) {
-							includeFile(ret, testDirJS, i);
+							includeFile(ret, i);
 							inlib.add(i.getName());
 							added = true;
 						}
@@ -356,7 +359,7 @@ public class JSEnvironment implements JSStorage {
 				for (File q : config.includeFrom) {
 					for (File i : FileUtils.findFilesMatching(q, s + ".js")) {
 						if (!inlib.contains(i.getName())) {
-							includeFile(ret, testDirJS, i);
+							includeFile(ret, i);
 							inlib.add(i.getName());
 							added = true;
 						}
@@ -369,26 +372,26 @@ public class JSEnvironment implements JSStorage {
 		}
 	}
 
-	private void addModule(List<ContentObject> ret, File moduleDir, String testDirJS, List<String> inlib, String m) {
+	private void addModule(List<ContentObject> ret, File moduleDir, List<String> inlib, String m) {
 		File f = new File(moduleDir, m);
 		if (!f.isDirectory()) {
 			throw new InvalidUsageException("there is no module " + m + " defined in " + moduleDir);
 		}
-		addFrom(ret, testDirJS, inlib, new File(f, "core"));
-		addFrom(ret, testDirJS, inlib, new File(f, "mock"));
+		addFrom(ret, inlib, new File(f, "core"));
+		addFrom(ret, inlib, new File(f, "mock"));
 	}
 	
-	private void addFrom(List<ContentObject> ret, String testDirJS, List<String> inlib, File from) {
+	private void addFrom(List<ContentObject> ret, List<String> inlib, File from) {
 		if (!from.isDirectory())
 			return;
 		List<File> library = FileUtils.findFilesMatching(from, "*");
 		for (File f : library) {
-			includeFile(ret, testDirJS, f);
+			includeFile(ret, f);
 			inlib.add(f.getName());
 		}
 	}
 
-	private void figureJSFilesFromContentStore(List<ContentObject> ret, Configuration config, String testDir) {
+	private void figureJSFilesFromContentStore(List<ContentObject> ret, Configuration config) {
 		for (ContentObject co : config.flascklibCPV.mainjs()) {
 			ret.add(co);
 		}
@@ -422,22 +425,16 @@ public class JSEnvironment implements JSStorage {
 			ret.add(co);
 		}
 		for (File f : localOnly) {
-			includeFile(ret, testDir, f);
+			includeFile(ret, f);
 		}
 	}
 
-	private void includeFile(List<ContentObject> ret, String testDir, File f) {
+	private void includeFile(List<ContentObject> ret, File f) {
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
 		if (!f.isFile())
 			return;
-		if (testDir != null) {
-			File copyTo = new File(testDir, f.getName());
-			FileUtils.copy(f, copyTo);
-			ret.add(new FileContentObject(copyTo));
-		} else {
-			ret.add(new FileContentObject(f));
-		}
+		ret.add(new FileContentObject(f));
 	}
 	
 	public void asivm() {

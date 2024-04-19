@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -21,7 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
@@ -46,8 +44,6 @@ import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.EventHolder;
-import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
-import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -71,7 +67,6 @@ import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
 import org.flasck.flas.testrunner.TestResultWriter;
 import org.flasck.jvm.J;
-import org.flasck.jvm.assembly.CardInitializer;
 import org.flasck.jvm.assembly.FLASAssembler;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.flasck.jvm.ziniki.FileContentObject;
@@ -375,7 +370,6 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		// do the rest of the compilation
-//		sendRepo();
 		errors.beginPhase2(uri);
 		repository.clean();
 		if (stage2(null)) { // I don't think this should upload, so it won't need the package sources per se ...
@@ -506,75 +500,14 @@ public class FLASCompiler implements CompileUnit {
 		}
 		
 		if (config.html != null) {
-			Map<File, File> reloc = new HashMap<>();
-			File userDir = new File(System.getProperty("user.dir"));
-			File pf = config.html.getParentFile();
-			if (pf != null)
-				FileUtils.assertDirectory(pf);
+			File todir = config.html.getParentFile();
+			if (todir != null)
+				FileUtils.assertDirectory(todir);
 			else
-				pf = config.root;
+				todir = config.root;
 			try (FileWriter fos = new FileWriter(config.html)) {
-				File fldir = new File(pf, "flascklib/js");
-				FileUtils.cleanDirectory(fldir);
-				FileUtils.assertDirectory(fldir);
-				File mdir = new File(pf, "modules/js");
-				FileUtils.cleanDirectory(mdir);
-				FileUtils.assertDirectory(mdir);
-				File cssdir = new File(pf, "css");
-				FileUtils.cleanDirectory(cssdir);
-				FileUtils.assertDirectory(cssdir);
-				for (SplitMetaData wd : repository.allWebs()) {
-					ZipInputStream zoo = wd.processedZip();
-					ZipEntry ze;
-					while ((ze = zoo.getNextEntry()) != null) {
-						if (ze.getName().endsWith(".css"))
-							FileUtils.copyStreamToFileWithoutClosing(zoo, new File(cssdir, ze.getName()));
-					}
-					zoo.close();
-				}
-				File libroot = new File(config.flascklibDir);
-				copyJSLib(reloc, userDir, pf, fldir, libroot);
-				if (!config.modules.isEmpty())
-					System.out.println("do not handle modules properly here yet");
-//				for (String mls : config.modules) {
-//					copyJSLib(reloc, userDir, pf, mdir, mld);
-//				}
 				FLASAssembler asm = new FLASAssembler(fos);
-				File incdir = new File("includes/js");
-				File ct = new File(pf, incdir.getPath());
-				FileUtils.cleanDirectory(ct);
-				FileUtils.assertDirectory(ct);
-				for (File f : config.readFlims) {
-					try {
-						nextJs:
-						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
-							for (PackageSources p : packages) {
-								if (i.getName().equals(p.getPackageName() + ".js"))
-									continue nextJs;
-							}
-							reloc.put(absWith(userDir, i), FileUtils.makeRelativeTo(new File(ct, i.getName()), pf));
-							FileUtils.copy(i, ct);
-							asm.includeJS(new File(incdir, i.getName()));
-						}
-					} catch (NoSuchDirectoryException ex) {
-						logger.info("ignoring non-existent directory " + f);
-					}
-				}
-				for (File f : config.includeFrom) {
-					try {
-						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
-							reloc.put(absWith(userDir, i), FileUtils.makeRelativeTo(new File(ct, i.getName()), pf));
-							FileUtils.copy(i, ct);
-							asm.includeJS(new File(incdir, i.getName()));
-						}
-					} catch (NoSuchDirectoryException ex) {
-						logger.info("ignoring non-existent directory " + f);
-					}
-				}
-				File outdir = new File(pf, "js");
-				FileUtils.cleanDirectory(outdir);
-				FileUtils.assertDirectory(outdir);
-				generateHTML(asm, outdir, reloc);
+				generateHTML(asm, todir);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -592,26 +525,6 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		return false;
-	}
-
-	private void copyJSLib(Map<File, File> reloc, File userDir, File pf, File fldir, File libroot) {
-		List<File> library = FileUtils.findFilesUnderMatching(libroot, "*");
-		for (File f : library) {
-			File lrf = FileUtils.combine(libroot, f);
-			File to = new File(fldir, f.getPath());
-			if (lrf.isDirectory()) {
-				to.mkdir();
-			} else {
-				reloc.put(absWith(userDir, lrf), FileUtils.makeRelativeTo(to, pf));
-				FileUtils.copy(lrf, to);
-			}
-		}
-	}
-
-	private File absWith(File userDir, File f) {
-		if (f.isAbsolute())
-			return f;
-		return new File(userDir, f.getPath());
 	}
 
 	public boolean resolve() {
@@ -720,7 +633,6 @@ public class FLASCompiler implements CompileUnit {
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
 			jvmRunner.runAllUnitTests(writers);
 			jvmRunner.reportErrors(errors);
-//			jvmRunner.shutdown();
 		}
 
 		if (config.generateJS && config.unitjs) {
@@ -785,130 +697,8 @@ public class FLASCompiler implements CompileUnit {
 			repository.traverseAssemblies(config, errors, jse, bce, storer);
 	}
 
-	public void generateHTML(FLASAssembler asm, File outdir, Map<File, File> reloc) {
-		Map<String, String> remap = new TreeMap<>();
-		for (Entry<File, File> e : reloc.entrySet()) {
-			remap.put("file://" + e.getKey().getPath(), config.inclPrefix + e.getValue().getPath());
-		}
-		repository.traverseAssemblies(config, errors, jse, bce, new AssemblyVisitor() {
-			private List<String> inits = new ArrayList<>();
-			private List<String> css = new ArrayList<>();
-			private List<String> js = new ArrayList<>();
-			private List<ContentObject> temps = new ArrayList<>();
-
-			@Override
-			public void visitAssembly(Assembly a) {
-			}
-			
-			@Override
-			public void visitResource(String name, ZipInputStream zis) throws IOException {
-			}
-			
-			@Override
-			public void visitPackage(String pkg) {
-				inits.add(pkg);
-			}
-			
-			@Override
-			public void uploadJar(ByteCodeEnvironment bce, String s) {
-			}
-			
-			@Override
-			public void includePackageFile(ContentObject co) {
-				String url = co.url();
-				if (url.startsWith("file://")) {
-					String tmp = remap.get(url);
-					if (tmp != null)
-						url = tmp;
-					else if (url.startsWith("file://" + config.jsDir().getPath())) {
-						url = url.substring(7 + config.jsDir().getPath().length());
-						url = url.replaceAll("^/*", "");
-						FileUtils.copyStreamToFile(co.asStream(), new File(outdir, url));
-						url = config.inclPrefix + "js/" + url;
-					}
-				}
-				js.add(url);
-			}
-
-			@Override
-			public void visitCardTemplate(String cardName, InputStream is, long length) throws IOException {
-				String s = FileUtils.readNStream(length, is);
-				ContentObject co = new ContentObject() {
-					@Override
-					public String key() {
-						return null;
-					}
-
-					@Override
-					public String url() {
-						return null;
-					}
-					
-					@Override
-					public String writeUrl() {
-						return null;
-					}
-
-					@Override
-					public byte[] asByteArray() {
-						return null;
-					}
-
-					@Override
-					public InputStream asStream() {
-						return null;
-					}
-
-					@Override
-					public String asString() {
-						return "    <template id='" + cardName + "'>\n" + s + "\n    </template>\n";
-					}
-				};
-				temps.add(co);
-			}
-			
-			@Override
-			public void visitCSS(String name, ZipInputStream zis, long length) throws IOException {
-				css.add(name);
-			}
-			
-			@Override
-			public void leaveAssembly(Assembly a) throws IOException {
-				ApplicationAssembly aa = (ApplicationAssembly) a;
-				asm.begin();
-				asm.title(aa.getTitle());
-				asm.afterTitle();
-				for (ContentObject co : temps)
-					asm.templates(co);
-				asm.beginCss();
-				for (String c : css)
-					asm.css(config.inclPrefix + "css/" + c);
-				asm.endCss();
-				asm.beginJs();
-				logger.info("assembly has " + js);
-				for (String j : js)
-					asm.javascript(j);
-				asm.endJs();
-				asm.beginInit();
-				asm.initializer(new CardInitializer() {
-					@Override
-					public Iterable<String> packages() {
-						return inits;
-					}
-
-					@Override
-					public String packageName() {
-						return aa.name().uniqueName();
-					}
-				});
-				asm.endInit();
-				asm.end();
-			}
-			
-			@Override
-			public void traversalDone() throws Exception {
-			}
-		}); 
+	public void generateHTML(FLASAssembler asm, File todir) {
+		repository.traverseAssemblies(config, errors, jse, bce, new CompilerAssembler(config, asm, todir)); 
 	}
 
 	private Map<String, String> extractTemplatesFromWebs() {
