@@ -3,6 +3,8 @@ package org.flasck.flas.testrunner;
 import java.io.File;
 import java.io.FileInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ziniki.servlet.basic.InputStreamResponder;
 import org.ziniki.servlet.tda.ParameterSource;
 import org.ziniki.servlet.tda.RequestPathParameters;
@@ -11,6 +13,7 @@ import org.ziniki.servlet.tda.Responder;
 import org.ziniki.ziwsh.intf.Param;
 
 public class RunTestHandler extends InputStreamResponder implements RequestProcessor, RequestPathParameters {
+	static final Logger logger = LoggerFactory.getLogger("JSRunner");
 	private final File basePath;
 	private final File flasck;
 	private String test;
@@ -34,7 +37,7 @@ public class RunTestHandler extends InputStreamResponder implements RequestProce
 			f = new File(flasck, test.substring(5));
 		else
 			f = new File(basePath, test);
-		System.out.println("file " + f + " exists: " + f.exists());
+		logger.info("requested file " + f + " exists: " + f.exists());
 		String contentType = null;
 		if (f.getName().endsWith(".html"))
 			contentType = "text/html";

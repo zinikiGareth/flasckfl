@@ -197,4 +197,3 @@ src/golden/eval/shared/vars
 src/golden/cards/templates/structs
 src/golden/assembly/consistency
 src/golden/regression/duplvar
-src/golden/workon

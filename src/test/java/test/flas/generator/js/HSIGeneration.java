@@ -101,7 +101,7 @@ public class HSIGeneration {
 		meth.argument("_0");
 		meth.errorNoCase();
 		meth.write(w, new HashSet<>(), exports);
-		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no matching case');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
+		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'fred: no matching case');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
 	@Test
@@ -112,7 +112,7 @@ public class HSIGeneration {
 		meth.argument("_0");
 		meth.errorNoDefaultGuard();
 		meth.write(w, new HashSet<>(), exports);
-		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no default guard');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
+		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'fred: no default guard');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
 	@Test

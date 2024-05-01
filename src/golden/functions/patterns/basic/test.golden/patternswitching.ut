@@ -5,7 +5,7 @@
 // while interesting, this is actually a type error			
 .	test anything else is an error because of typing
 .		assert (a 3)
-.			Error "no matching case"
+.			Error "f: no matching case"
 
 	test that we can match Cons as a type
 		assert (a2 (Cons "hello" Nil))
@@ -57,7 +57,7 @@
 
 	test any other constant is an error
 		assert (f 5)
-			Error "no matching case"
+			Error "f: no matching case"
 
 	test we can switch on a string
 		assert (g "hello")
@@ -65,7 +65,7 @@
 
 	test any other string is an error
 		assert (g "goodbye")
-			Error "no matching case"
+			Error "g: no matching case"
 
 	test if a variable is ignored, it's value is irrelevant
 		assert (k 22)
@@ -78,8 +78,3 @@
 	test that we can pass any number to a function expecting numbers
 		assert (l 17)
 			0
-			
-.	test anything else is an error because of typing
-.		assert (l Nil)
-.			Error
-			

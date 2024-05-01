@@ -20,5 +20,5 @@
 
 	test guard2 for 0 is an error
 		assert (guard2 0)
-			Error "no default guard"
+			Error "guard2: no default guard"
 

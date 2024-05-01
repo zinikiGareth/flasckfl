@@ -25,6 +25,7 @@ import org.flasck.jvm.fl.ClientContext;
 import org.flasck.jvm.fl.FlasTestException;
 import org.flasck.jvm.fl.JVMTestHelper;
 import org.flasck.jvm.fl.NewDivException;
+import org.flasck.jvm.fl.NoFLASModule;
 import org.flasck.jvm.fl.NotMatched;
 import org.flasck.jvm.fl.TestHelper;
 import org.zinutils.exceptions.WrappedException;
@@ -185,6 +186,10 @@ public class JVMRunner extends CommonTestRunner<State>  {
 			errors.add(code + " FAIL " + desc);
 			pw.println("  " + e2.getMessage());
 		} else if (e2 instanceof UnexpectedCancelException) {
+			pw.fail(code, desc);
+			errors.add(code + " FAIL " + desc);
+			pw.println("  " + e2.getMessage());
+		} else if (e2 instanceof NoFLASModule) {
 			pw.fail(code, desc);
 			errors.add(code + " FAIL " + desc);
 			pw.println("  " + e2.getMessage());

@@ -58,12 +58,12 @@ public class SingleJSTest {
 		if (error)
 			return;
 		List<Throwable> excs = new ArrayList<>();
-		logger.warn("calling " + desc + " step " + s);
+		logger.info("calling " + desc + " step " + s);
 		try {
 			counter.start();
 			runStep(s);
 			counter.waitForZero(15000);
-			logger.warn("step " + s + " has finished");
+			logger.info("step " + s + " has finished");
 		} catch (JSCaughtException t) {
 			excs.add(t);
 			logger.warn("step " + s + " failed with " + t.getMessage());

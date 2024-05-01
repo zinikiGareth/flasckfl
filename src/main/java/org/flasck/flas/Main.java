@@ -150,6 +150,10 @@ public class Main {
 		if (arg != null) {
 			level = Level.valueOf(arg.toUpperCase());
 		}
+		String defarg = System.getProperty("streamlogger.defaultLevel");
+		if (defarg == null) {
+			System.setProperty("streamlogger.defaultLevel", "WARN");
+		}
 		SLF4JBridgeHandler.removeHandlersForRootLogger();
 		SLF4JBridgeHandler.install();
 		StaticLoggerBinder.defaultLevel("Compiler", level);

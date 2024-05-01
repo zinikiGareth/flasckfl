@@ -525,12 +525,12 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public void errorNoDefaultGuard() {
-		stmts.add(new JSError("no default guard"));
+		stmts.add(new JSError(creating.getName() + ": no default guard"));
 	}
 
 	@Override
 	public void errorNoCase() {
-		stmts.add(new JSError("no matching case"));
+		stmts.add(new JSError(creating.getName() + ": no matching case"));
 	}
 
 	@Override
