@@ -18,6 +18,8 @@ import org.zinutils.sync.LockingCounter;
 
 public class SingleJSTest {
 	static final Logger logger = LoggerFactory.getLogger("SingleJSTest");
+	static String patienceChild = System.getProperty("org.flasck.patience.child");
+	boolean wantTimeout = patienceChild == null || !patienceChild.equals("true");
 	private BrowserJSJavaBridge bridge;
 	private final LockingCounter counter;
 	private final List<String> errors;
@@ -40,9 +42,13 @@ public class SingleJSTest {
 			bridge.prepareUnitTest(utn.container(), utn.baseName());
 		else
 			bridge.prepareSystemTest(utn);
-		boolean isReady = cdl.await(25, TimeUnit.SECONDS);
-		if (!isReady)
-			throw new CantHappenException("the test steps were not made available");
+		if (wantTimeout) {
+			boolean isReady = cdl.await(25, TimeUnit.SECONDS);
+			if (!isReady)
+				throw new CantHappenException("the test steps were not made available");
+		} else {
+			cdl.await();
+		}
 	}
 
 	public void prepareStage(CountDownLatch cdl, SystemTestStage e) throws JSONException, InterruptedException {

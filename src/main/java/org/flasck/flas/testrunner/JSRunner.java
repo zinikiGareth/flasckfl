@@ -44,6 +44,8 @@ import org.zinutils.sync.LockingCounter;
 import org.zinutils.utils.FileUtils;
 
 public class JSRunner extends CommonTestRunner<JSTestState> {
+	static String jsPortNum = System.getProperty("org.flasck.jsrunner.port");
+	static int jsPort = jsPortNum != null ? Integer.parseInt(jsPortNum) : 14040;
 	static String showOption = System.getProperty("org.ziniki.chrome.show");
 	static boolean headless = showOption == null || !showOption.equalsIgnoreCase("true");
 	static String chromeRoot = System.getProperty("org.ziniki.chrome.root");
@@ -116,7 +118,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	}
 	
 	private void startServer() throws Exception {
-		server = new GrizzlyTDAServer(14040);
+		server = new GrizzlyTDAServer(jsPort);
 		PathTree<RequestProcessor> tree = new SimplePathTree<>();
 		Map<String, Object> items = new TreeMap<>();
 		{
@@ -173,7 +175,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 	private void visitUri(String uri) throws InterruptedException {
 		cdl = new CountDownLatch(1);
-		nav.to("http://localhost:14040/" + uri);
+		nav.to("http://localhost:" + jsPort + "/" + uri);
 		if (wantTimeout) {
 			boolean isReady = cdl.await(25, TimeUnit.SECONDS);
 			if (!isReady) {
@@ -380,7 +382,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 				path = path.replace(basePath.toString(), "");
 				if (path.startsWith("/html/"))
 					path = path.replace("/html/", "");
-				if (path.startsWith(config.writeJS.getPath()))
+				if (config.writeJS != null && path.startsWith(config.writeJS.getPath()))
 					path = path.replace(config.writeJS.getPath(), "js");
 			} else
 				throw new CantHappenException("what is this path? " + path);
