@@ -72,7 +72,7 @@ public class FileBasedSources implements PackageSources {
 	}
 
 	@Override
-	public List<ContentObject> mainjs() {
+	public List<ContentObject> corejs() {
 		return mjs;
 	}
 
@@ -82,7 +82,7 @@ public class FileBasedSources implements PackageSources {
 	}
 
 	@Override
-	public List<ContentObject> testjs() {
+	public List<ContentObject> mockjs() {
 		return tjs;
 	}
 

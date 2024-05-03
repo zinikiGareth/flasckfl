@@ -308,7 +308,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			pw.println("{");
 			pw.println("\t\"imports\": {");
 			boolean prev = false;
-			Iterable<ContentObject> jsfiles = jse.jsIncludes("test");
+			Iterable<ContentObject> jsfiles = jse.jsIncludes("mock");
 			List<ContentObject> thenUse = new ArrayList<>();
 			for (ContentObject incl : jsfiles) {
 				File f = new File(URI.create(((FileContentObject)incl).url()).getPath());

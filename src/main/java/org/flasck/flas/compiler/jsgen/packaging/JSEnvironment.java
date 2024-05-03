@@ -331,7 +331,7 @@ public class JSEnvironment implements JSStorage {
 
 	private void figureJSFilesOnDisk(List<ContentObject> ret, Configuration config, String testOrLive) {
 		List<String> inlib = new ArrayList<>();
-		addFrom(ret, inlib, new File(config.flascklibDir, "main"));
+		addFrom(ret, inlib, new File(config.flascklibDir, "core"));
 		addFrom(ret, inlib, new File(config.flascklibDir, testOrLive));
 		for (String mld : config.modules) {
 			addModule(ret, config.moduleDir, inlib, mld);
@@ -392,32 +392,32 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	private void figureJSFilesFromContentStore(List<ContentObject> ret, Configuration config) {
-		for (ContentObject co : config.flascklibCPV.mainjs()) {
+		for (ContentObject co : config.flascklibCPV.corejs()) {
 			ret.add(co);
 		}
 		for (ContentObject co : config.flascklibCPV.livejs()) {
 			ret.add(co);
 		}
-		for (ContentObject co : config.flascklibCPV.testjs()) {
+		for (ContentObject co : config.flascklibCPV.mockjs()) {
 			ret.add(co);
 		}
 		if (config.moduleCOs != null) {
 			for (PackageSources d : config.moduleCOs) {
-				for (ContentObject co : d.mainjs())
+				for (ContentObject co : d.corejs())
 					ret.add(co);
 				for (ContentObject co : d.livejs())
 					ret.add(co);
-				for (ContentObject co : d.testjs())
+				for (ContentObject co : d.mockjs())
 					ret.add(co);
 			}
 		}
 		if (config.dependencies != null) {
 			for (PackageSources d : config.dependencies) {
-				for (ContentObject co : d.mainjs())
+				for (ContentObject co : d.corejs())
 					ret.add(co);
 				for (ContentObject co : d.livejs())
 					ret.add(co);
-				for (ContentObject co : d.testjs())
+				for (ContentObject co : d.mockjs())
 					ret.add(co);
 			}
 		}
