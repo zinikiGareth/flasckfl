@@ -295,11 +295,12 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			File testDirCSS = new File(testDir + "/css");
 			FileUtils.assertDirectory(new File(testDirJS));
 			File html = new File(testDir, testName + ".html");
-			basePath = new File(config.root.getPath().replace(" ", "%20"));
+			basePath = config.root;
 			if (basePath == null)
 				basePath = new File(System.getProperty("user.dir"));
 			else if (!basePath.isAbsolute())
 				basePath = FileUtils.combine(new File(System.getProperty("user.dir")), basePath);
+			basePath = new File(basePath.getPath().replace(" ", "%20"));
 			htmlUri = "test/html/" + testName + ".html";
 			PrintWriter pw = new PrintWriter(html);
 			pw.println("<!DOCTYPE html>");
