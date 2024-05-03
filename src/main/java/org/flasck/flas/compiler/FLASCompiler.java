@@ -178,6 +178,7 @@ public class FLASCompiler implements CompileUnit {
 			return;
 		
 		for (FlimTop ft : importers) {
+			repository.selectPackage(ft.pkgName());
 			ft.resolve();
 		}
 	}
