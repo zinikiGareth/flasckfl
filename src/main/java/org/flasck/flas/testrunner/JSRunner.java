@@ -295,7 +295,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			File testDirCSS = new File(testDir + "/css");
 			FileUtils.assertDirectory(new File(testDirJS));
 			File html = new File(testDir, testName + ".html");
-			basePath = config.root;
+			basePath = new File(config.root.getPath().replace(" ", "%20"));
 			if (basePath == null)
 				basePath = new File(System.getProperty("user.dir"));
 			else if (!basePath.isAbsolute())
@@ -313,7 +313,9 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			Iterable<ContentObject> jsfiles = jse.jsIncludes("mock");
 			List<ContentObject> thenUse = new ArrayList<>();
 			for (ContentObject incl : jsfiles) {
-				File f = new File(URI.create(((FileContentObject)incl).url()).getPath());
+				String uri = ((FileContentObject)incl).url();
+				String path = URI.create(uri).getPath();
+				File f = new File(path);
 				File copyTo = new File(testDir, f.getName());
 				FileUtils.copy(f, copyTo);
 				FileContentObject as = new FileContentObject(copyTo);

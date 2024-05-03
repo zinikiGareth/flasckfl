@@ -19,7 +19,7 @@ public class RunTestHandler extends InputStreamResponder implements RequestProce
 	private String test;
 
 	public RunTestHandler(@Param("path") File basePath, @Param("flasck") File flasck) {
-		this.basePath = basePath;
+		this.basePath = new File(basePath.getPath().replace("%20", " "));
 		this.flasck = flasck;
 	}
 
