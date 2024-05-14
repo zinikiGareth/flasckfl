@@ -54,8 +54,6 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	static String flascklib = flascklibOption != null ? flascklibOption : "src/main/resources/flasck";
 	private static int MAXCNT = maxcnt == null ? Integer.MAX_VALUE : Integer.parseInt(maxcnt);
 	protected static Interceptor interceptor = null;
-	private static String wantOrderedOption = System.getProperty("wantOrdered");
-	private static boolean wantOrdered = wantOrderedOption == null || wantOrderedOption.equals("ordered");
 	private static String checkGrammarOption = System.getProperty("checkGrammar");
 	private static boolean checkGrammar = checkGrammarOption == null || checkGrammarOption.equals("check");
 	private static String moduleDir = System.getProperty("org.flasck.module.dir");
@@ -99,8 +97,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			sf.add(f.getParentFile());
 		sf = trackOrdering(sf);
 		ByteCodeCreator bcc = CGHarnessRunnerHelper.emptyTestClass(bce, clz.getName());
-		if (wantOrdered)
-			bcc.addRTVAnnotation("org.junit.FixMethodOrder").addEnumParam(MethodSorters.NAME_ASCENDING);
+		bcc.addRTVAnnotation("org.junit.FixMethodOrder").addEnumParam(MethodSorters.NAME_ASCENDING);
 		for (File dir : sf) {
 			if (p == null || p.matcher(dir.getPath()).find()) {
 				addGoldenTest(bcc, "ut"+df.format(cnt++)+"_", dir);
@@ -108,7 +105,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			if (cnt > MAXCNT)
 				break;
 		}
-		return CGHarnessRunnerHelper.generate(cl, bcc);
+		Class<?> ret = CGHarnessRunnerHelper.generate(cl, bcc);
+		return ret;
 	}
 
 	private static Set<File> trackOrdering(Set<File> sf) throws IOException {
@@ -197,7 +195,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		FileUtils.deleteDirectoryTree(flimstoreTo);
 		if (flimfrom.exists()) {
 			FileUtils.assertDirectory(flimstoreTo);
-			copyFlimstoresTo(flimstoreTo, flimfrom);
+//			copyFlimstoresTo(flimstoreTo, flimfrom);
 		}
 		List<String> packageList = new ArrayList<>();
 		if (packages.exists()) {
@@ -219,7 +217,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			}
 		}
 		List<String> args = new ArrayList<String>();
-		args.addAll(Arrays.asList("--flascklib", flascklib, "--root", s, "--unit-js", "--system-js", "--jvmout", "jvmout", "--jsout", "jsout", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types"));
+		args.addAll(Arrays.asList("--project-dir", s, "--unit-js", "--system-js", "--flascklib", flascklib, "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types"));
 		for (File wf : new File(s).listFiles()) {
 			// TODO: this restricts us to directories, which are easier to work with, but we could add another case for ZIP files if we wanted ...
 			// We could also add a case that zipped up the directory to /tmp and did that ...
@@ -240,15 +238,13 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			for (String ff : FileUtils.readFileAsLines(flimfrom)) {
 				if (ff.startsWith("."))
 					continue;
-				args.add("--incl");
-				args.add("src/golden/" + ff + "/jsout");
-				args.add("--incl");
-				args.add("src/golden/" + ff + "/jvmout");
+				args.add("--import");
+				args.add("src/golden/" + ff + "/flimstore");
 			}
 		}
 		if (incldirs.exists()) {
 			for (String fi : FileUtils.readFileAsLines(incldirs)) {
-				args.add("--incl");
+				args.add("--import");
 				args.add(fi);
 			}
 		}
@@ -265,7 +261,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		}
 		if (interceptor != null)
 			interceptor.addIncludes(args);
-//		args.add("--dumprepo");
+//		args.add("--capture-repository");
 //		args.add("repo.txt");
 
 		args.add("--testname");
@@ -344,7 +340,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File aef = new File(actualErrors, "errors");
 		if (expectedErrors.isDirectory()) {
 			// fairly obviously, we are expecting errors, but we say we aren't so the checks go through
-			te.assertGolden(false, expectedErrors, actualErrors, false, false);
+			te.assertGolden(false, expectedErrors, actualErrors, fn -> true, false);
 			return false;
 		} else if (aef.length() > 0) {
 			FileUtils.cat(aef);
