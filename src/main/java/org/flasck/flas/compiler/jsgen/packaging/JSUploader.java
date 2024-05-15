@@ -1,10 +1,10 @@
 package org.flasck.flas.compiler.jsgen.packaging;
 
-import java.io.File;
+import java.io.IOException;
 
 import org.flasck.jvm.ziniki.ContentObject;
 
 public interface JSUploader {
-	ContentObject uploadJs(File f);
-	ContentObject uploadFlim(File file);
+	void uploadFlim(ContentObject co) throws IOException;
+	boolean uploadJs(ContentObject co) throws IOException;
 }

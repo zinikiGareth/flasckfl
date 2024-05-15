@@ -2,6 +2,7 @@ package org.flasck.flas.repository.flim;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.Set;
@@ -10,6 +11,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.packaging.JSUploader;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.jvm.ziniki.FileContentObject;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
@@ -53,10 +55,10 @@ public class FlimWriter {
 				iw.println("usespackage " + s);
 			pw.close();
 			if (uploader != null) {
-				uploader.uploadFlim(file);
+				uploader.uploadFlim(new FileContentObject(file));
 			}
 			return vizier.referencedPackages();
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			System.out.println("could not write flim " + pkg + " to " + flimdir);
 			return null;
 		}

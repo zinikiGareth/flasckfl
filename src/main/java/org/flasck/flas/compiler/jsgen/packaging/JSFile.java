@@ -1,8 +1,9 @@
 package org.flasck.flas.compiler.jsgen.packaging;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,16 +20,19 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.repository.Repository;
+import org.flasck.jvm.ziniki.ContentObject;
+import org.flasck.jvm.ziniki.MemoryContentObject;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.utils.FileUtils;
 
 public class JSFile {
 	private final Repository repository;
 	private final NameOfThing pkg;
 	private final boolean isTest;
-	private final File file;
+	private final String key;
 	private final Set<String> packages = new TreeSet<>();
 	private final List<JSClass> classes = new ArrayList<>();
 	private final List<JSMethod> functions = new ArrayList<>();
@@ -36,16 +40,17 @@ public class JSFile {
 	private final List<EventMap> eventMaps = new ArrayList<>();
 	private final List<ApplRoutingTable> routes = new ArrayList<>();
 	private final Set<String> exports = new TreeSet<>();
+	private MemoryContentObject co;
 
-	public JSFile(Repository repository, NameOfThing pkg, File file) {
+	public JSFile(Repository repository, NameOfThing pkg, String name) {
 		this.repository = repository;
 		this.pkg = pkg;
-		this.file = file;
+		this.key = name;
 		this.isTest = pkg.uniqueName().contains("_");
 	}
 
-	public File file() {
-		return file;
+	public String key() {
+		return key;
 	}
 
 	public void ensurePackage(String nested) {
@@ -73,13 +78,25 @@ public class JSFile {
 	}
 
 	// untested
-	public File write(File jsDir, Collection<String> imports) throws FileNotFoundException {
-		File f = new File(jsDir, file.getName());
-		PrintWriter pw = new PrintWriter(f);
+	public ContentObject generate(Collection<String> imports) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
 		IndentWriter iw = new IndentWriter(pw);
 		writeTo(iw, imports);
 		pw.close();
-		return f;
+		
+		this.co = new MemoryContentObject(key, sw.toString().getBytes());
+		return co;
+	}
+
+
+	public void saveTo(File flimdir) {
+		File f = new File(flimdir, this.co.key());
+		FileUtils.copyStreamToFile(this.co.asStream(), f);
+	}
+
+	public boolean upload(JSUploader uploader) throws IOException {
+		return uploader.uploadJs(this.co);
 	}
 
 	public void writeTo(IndentWriter iw, Collection<String> imports) {
@@ -215,5 +232,9 @@ public class JSFile {
 			System.out.println(c.asivm());
 		for (JSMethod m : functions)
 			System.out.println(m.asivm());
+	}
+
+	public ContentObject co() {
+		return this.co;
 	}
 }

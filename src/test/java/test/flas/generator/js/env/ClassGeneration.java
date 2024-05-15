@@ -3,7 +3,6 @@ package test.flas.generator.js.env;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.packaging.JSFile;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.Repository;
+import org.flasck.jvm.ziniki.ContentObject;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -38,7 +38,7 @@ import org.zinutils.graphs.DirectedAcyclicGraph;
 public class ClassGeneration {
 //	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
-	JSEnvironment jse = new JSEnvironment(new Configuration(null, null), new ErrorResult(), new Repository(), new File("/tmp"), new DirectedAcyclicGraph<>(), null);
+	JSEnvironment jse = new JSEnvironment(new Configuration(null, null), new ErrorResult(), new Repository(), new DirectedAcyclicGraph<>());
 	StringWriter sw = new StringWriter();
 	PrintWriter pw = new PrintWriter(sw);
 	IndentWriter w = new IndentWriter(pw);
@@ -46,10 +46,11 @@ public class ClassGeneration {
 	@Test
 	public void creatingAClassEnsuresThereIsOnePackageFile() {
 		jse.newClass(new PackageName("test.repo"), new SolidName(new PackageName("test"), "Clazz"));
-		List<File> acc = new ArrayList<>();
+		jse.generateCOs();
+		List<ContentObject> acc = new ArrayList<>();
 		jse.files().forEach(x -> acc.add(x));
 		assertEquals(1, acc.size());
-		assertEquals("/tmp/test.repo.js", acc.get(0).getPath());
+		assertEquals("test.repo.js", acc.get(0).key());
 	}
 
 	@Test

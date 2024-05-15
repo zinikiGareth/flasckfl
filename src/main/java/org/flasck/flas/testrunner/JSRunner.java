@@ -3,7 +3,6 @@ package org.flasck.flas.testrunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +145,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		wstree.add("/bridge", new MakeAHandler<WSProcessor>() {
 			@Override
 			public WSProcessor instantiate(TDAConfiguration c) throws Exception {
-				BrowserJSJavaBridge bridge = new BrowserJSJavaBridge(JSRunner.this, classloader, config.root, counter);
+				BrowserJSJavaBridge bridge = new BrowserJSJavaBridge(JSRunner.this, classloader, config.projectDir, counter);
 				JSRunner.this.bridge = bridge;
 				return bridge;
 			}
@@ -295,7 +294,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			File testDirCSS = new File(testDir + "/css");
 			FileUtils.assertDirectory(new File(testDirJS));
 			File html = new File(testDir, testName + ".html");
-			basePath = config.root;
+			basePath = config.projectDir;
 			if (basePath == null)
 				basePath = new File(System.getProperty("user.dir"));
 			else if (!basePath.isAbsolute())
@@ -314,11 +313,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			Iterable<ContentObject> jsfiles = jse.jsIncludes("mock");
 			List<ContentObject> thenUse = new ArrayList<>();
 			for (ContentObject incl : jsfiles) {
-				String uri = ((FileContentObject)incl).url();
-				String path = URI.create(uri).getPath();
-				File f = new File(path);
-				File copyTo = new File(testDir, f.getName());
-				FileUtils.copy(f, copyTo);
+				File copyTo = new File(testDir, incl.key());
+				FileUtils.copyStreamToFile(incl.asStream(), copyTo);
 				FileContentObject as = new FileContentObject(copyTo);
 				thenUse.add(as);
 
@@ -385,8 +381,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 				path = path.replace(basePath.toString(), "");
 				if (path.startsWith("/html/"))
 					path = path.replace("/html/", "");
-				if (config.writeJS != null && path.startsWith(config.writeJS.getPath()))
-					path = path.replace(config.writeJS.getPath(), "js");
 			} else
 				throw new CantHappenException("what is this path? " + path);
 		}

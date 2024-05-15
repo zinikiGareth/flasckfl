@@ -1,7 +1,7 @@
 Test that we can bring in items from other packages that depend on each other in the right order
 
 	test that we can call the method
-		data test.objects.Accumulator[Number] acc <- test.objects.Accumulator.makeMe
+		data test.objects.Accumulator[String] acc <- test.objects.Accumulator.makeMe
 		shove acc.n
 			42
 		assert (test.golden.current acc)

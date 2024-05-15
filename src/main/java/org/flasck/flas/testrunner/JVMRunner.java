@@ -66,7 +66,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
 		String desc = utc.description;
 		try {
-			JVMTestHelper helper = new JVMTestHelper(loader, config.root, templates, runtimeErrors, counter);
+			JVMTestHelper helper = new JVMTestHelper(loader, config.projectDir, templates, runtimeErrors, counter);
 			ClientContext cxt = (ClientContext) helper.create();
 			helper.clearBody(cxt);
 			Object test = Class.forName(utc.name.javaName(), false, loader).getConstructor(TestHelper.class, FLEvalContext.class).newInstance(helper, cxt);
@@ -83,7 +83,7 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	protected State createSystemTest(TestResultWriter pw, SystemTest st) {
 		pw.systemTest("JVM", st);
 		try {
-			JVMTestHelper helper = new JVMTestHelper(loader, config.root, templates, runtimeErrors, counter);
+			JVMTestHelper helper = new JVMTestHelper(loader, config.projectDir, templates, runtimeErrors, counter);
 			ClientContext cxt = (ClientContext) helper.create();
 			helper.clearBody(cxt);
 			Class<?> clz = Class.forName(st.name().javaName(), false, loader);

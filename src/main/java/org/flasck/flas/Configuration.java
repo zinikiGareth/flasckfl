@@ -20,17 +20,14 @@ public class Configuration {
 	public final ErrorReporter errors;
 	public boolean unitjvm = true, unitjs = false;
 	public boolean systemjvm = true, systemjs = false;
-	public boolean nowritejs = false, nowritejvm = false;
 	public boolean usesplitter = true;
 	public final List<File> readFlims = new ArrayList<>();
-	public File root;
+	public File projectDir;
 	public boolean doTypeCheck = true;
 	public boolean generateJS = true;
 	public boolean generateJVM = true;
-	public File writeJS;
 	public File html;
 	public String inclPrefix = "/";
-	public File writeJVM;
 	PhaseTo upto = PhaseTo.COMPLETE;
 	File dumprepo = null;
 	public final List<File> inputs = new ArrayList<File>();
@@ -45,7 +42,6 @@ public class Configuration {
 	public PackageSources flascklibCPV;
 	public List<PackageSources> moduleCOs;
 	public List<PackageSources> dependencies;
-	public boolean openHTML;
 	public final List<File> includeFrom = new ArrayList<File>();
 	public final List<String> modules = new ArrayList<>(); // just the "names" of the modules - we will use the "moduleDir" and known rules to find the actual items we want
 
@@ -59,12 +55,15 @@ public class Configuration {
 
 	private void process(String[] args) {
 		for (int i=0;i<args.length-1;i++) {
-			if (args[i].equals("--root")) {
-				if (root != null) {
-					System.out.println("--root can only be specified once");
+			if (args[i].equals("--project-dir")) {
+				if (projectDir != null) {
+					System.out.println("--project-dir can only be specified once");
+					System.exit(1);
+				} else if (i == args.length-1) {
+					System.out.println("--project-dir <dir>");
 					System.exit(1);
 				} else {
-					root = new File(args[++i]);
+					projectDir = new File(args[++i]);
 				}
 			}
 		}
@@ -74,65 +73,23 @@ public class Configuration {
 				continue;
 			int hasMore = args.length-i-1;
 			if (arg.startsWith("-")) {
-				if (arg.equals("--root")) {
-					if (hasMore == 0) {
-						System.out.println("--root <dir>");
-						System.exit(1);
-					}
+				if (arg.equals("--project-dir")) {
 					// was processed above
 					++i;
-				} else if (arg.equals("--flascklib")) {
-					if (hasMore == 0) {
-						System.out.println("--flascklib <dir>");
-						System.exit(1);
-					}
-					this.flascklibDir = args[++i]; // definitely NOT under root 
-				} else if (arg.equals("--moduledir")) {
-					if (hasMore == 0) {
-						System.out.println("--moduledir <dir>");
-						System.exit(1);
-					}
-					moduleDir = new File(args[++i]); // definitely NOT under root
 				} else if (arg.equals("--module")) {
 					this.modules.add(args[++i]); 
-				} else if (arg.equals("--phase"))
-					upto = PhaseTo.valueOf(args[++i]);
-				else if (arg.equals("--dumprepo"))
-					dumprepo = new File(root, args[++i]);
-				else if (arg.equals("--errors")) {
-					if (hasMore == 0) {
-						System.out.println("--errors <dir>");
-						System.exit(1);
-					}
-					writeErrorsTo = new File(root, args[++i]);
-				} else if (arg.equals("--types")) {
-					if (hasMore == 0) {
-						System.out.println("--types <dir>");
-						System.exit(1);
-					}
-					writeTypesTo = new File(root, args[++i]);
-				} else if (arg.equals("--testReports")) {
-					if (hasMore == 0) {
-						System.out.println("--testReports <dir>");
-						System.exit(1);
-					}
-					writeTestReportsTo = new File(root, args[++i]);
 				} else if (arg.equals("--html")) {
 					if (hasMore == 0) {
 						System.out.println("--html <file>");
 						System.exit(1);
 					}
-					html = new File(root, args[++i]);
+					html = new File(projectDir, args[++i]);
 				} else if (arg.equals("--incl-prefix")) {
 					if (hasMore == 0) {
 						System.out.println("--incl-prefix <prefix>");
 						System.exit(1);
 					}
 					inclPrefix = args[++i];
-				} else if (arg.equals("--open")) {
-					openHTML = true;
-					// TODO: will also want "--card-dir" to go and look for other cards
-					// This may also be "--flim"
 				} else if (arg.equals("--store-html")) {
 					if (hasMore == 0) {
 						System.out.println("--store-html <dir>");
@@ -145,25 +102,32 @@ public class Configuration {
 						System.exit(1);
 					}
 					specifiedTestName = args[++i];
-				} else if (arg.equals("--flim")) {
+				}
+				
+// TODO: I'm not sure this works the way I want
+// it says "read" for the first one and "include" for the second
+// so at least rename "read"
+// plus, the writing one shouldn't be a list
+
+				// flim import and export
+				else if (arg.equals("--flim")) {
 					if (hasMore == 0) {
 						System.out.println("--flim <dir>");
 						System.exit(1);
 					}
 					File flimDir = new File(args[++i]);
 					readFlims.add(flimDir);
-				} else if (arg.equals("--incl")) {
+				} else if (arg.equals("--import")) {
 					if (hasMore == 0) {
-						System.out.println("--incl <dir>");
+						System.out.println("--import <dir>");
 						System.exit(1);
 					}
 					includeFrom.add(new File(args[++i]));
-				} else if (arg.equals("--jsout")) {
-					if (hasMore == 0) {
-						System.out.println("--jsout <dir>");
-						System.exit(1);
-					}
-					writeJS = new File(root, args[++i]);
+				}
+				
+				// turn things on or off
+				else if (arg.equals("--phase")) {
+					upto = PhaseTo.valueOf(args[++i]);
 				} else if (arg.equals("--unit-js")) {
 					unitjs = true;
 				} else if (arg.equals("--no-unit-jvm")) {
@@ -172,19 +136,54 @@ public class Configuration {
 					systemjs = true;
 				} else if (arg.equals("--no-system-jvm")) {
 					systemjvm = false;
-				} else if (arg.equals("--jvmout")) {
+				}
+				
+				// things in unusual places
+				else if (arg.equals("--flascklib")) {
 					if (hasMore == 0) {
-						System.out.println("--jvmout <build-dir>");
+						System.out.println("--flascklib <dir>");
 						System.exit(1);
 					}
-					writeJVM = new File(root, args[++i]);
+					this.flascklibDir = args[++i]; // definitely NOT under root 
+				} else if (arg.equals("--moduledir")) {
+					if (hasMore == 0) {
+						System.out.println("--moduledir <dir>");
+						System.exit(1);
+					}
+					moduleDir = new File(args[++i]); // definitely NOT under root
 				} else if (arg.equals("--web")) {
 					if (hasMore == 0) {
 						System.out.println("--web <dir|zip>");
 						System.exit(1);
 					}
-					webs.add(new File(root, args[++i]));
-				} else {
+					webs.add(new File(projectDir, args[++i]));
+				}
+
+				// --capture options, mainly used by the golden tests ...
+				else if (arg.equals("--capture-repository")) {
+					dumprepo = new File(projectDir, args[++i]);
+				} else if (arg.equals("--errors")) {
+					if (hasMore == 0) {
+						System.out.println("--errors <dir>");
+						System.exit(1);
+					}
+					writeErrorsTo = new File(projectDir, args[++i]);
+				} else if (arg.equals("--types")) {
+					if (hasMore == 0) {
+						System.out.println("--types <dir>");
+						System.exit(1);
+					}
+					writeTypesTo = new File(projectDir, args[++i]);
+				} else if (arg.equals("--testReports")) {
+					if (hasMore == 0) {
+						System.out.println("--testReports <dir>");
+						System.exit(1);
+					}
+					writeTestReportsTo = new File(projectDir, args[++i]);
+				}
+				
+				// at this point, give up ...
+				else {
 					boolean matched = false;
 					for (OptionModule om : optionModules) {
 						int cnt = om.options(errors, args, i);
@@ -199,7 +198,7 @@ public class Configuration {
 					}
 				}
 			} else {
-				inputs.add(new File(root, arg));
+				inputs.add(new File(projectDir, arg));
 			}
 		}
 		if (moduleDir == null && !modules.isEmpty()) {
@@ -207,9 +206,6 @@ public class Configuration {
 		}
 		if (html != null && flascklibDir == null) {
 			errors.message((InputPosition)null, "Use of --html requires --flascklib");
-		}
-		if (openHTML && html == null) {
-			errors.message((InputPosition)null, "Use of --open requires --html");
 		}
 	}
 
@@ -225,35 +221,13 @@ public class Configuration {
 		}
 	}
 
-	public File jvmDir() {
-		if (nowritejvm)
-			return null;
-		if (writeJVM != null)
-			return writeJVM;
-		else if (root != null)
-			return root;
-		else
-			return new File(".");
-	}
-
-	public File jsDir() {
-		if (nowritejs)
-			return null;
-		if (writeJS != null)
-			return writeJS;
-		else if (root != null)
-			return root;
-		else
-			return new File(".");
-	}
-
 	public String jsTestDir() {
 		File front;
-		if (root != null) {
-			if (root.isAbsolute())
-				front = root;
+		if (projectDir != null) {
+			if (projectDir.isAbsolute())
+				front = projectDir;
 			else
-				front = FileUtils.combine(System.getProperty("user.dir"), root);
+				front = FileUtils.combine(System.getProperty("user.dir"), projectDir);
 		} else
 			front = new File(System.getProperty("user.dir"));
 		if (jstestdir != null)

@@ -129,4 +129,9 @@ public class FlimTop implements TDAParsing {
 	public String pkgName() {
 		return pkg;
 	}
+	
+	@Override
+	public String toString() {
+		return "FlimTop[" + pkg + "]";
+	}
 }

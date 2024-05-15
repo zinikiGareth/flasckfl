@@ -1,6 +1,5 @@
 package org.flasck.flas.compiler;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -505,19 +504,12 @@ public class FLASCompiler implements CompileUnit {
 			if (todir != null)
 				FileUtils.assertDirectory(todir);
 			else
-				todir = config.root;
+				todir = config.projectDir;
 			try (FileWriter fos = new FileWriter(config.html)) {
 				FLASAssembler asm = new FLASAssembler(fos);
 				generateHTML(asm, todir);
 			} catch (IOException ex) {
 				ex.printStackTrace();
-			}
-			if (config.openHTML) {
-				try {
-					Desktop.getDesktop().open(config.html);
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
 			}
 		}
 
@@ -557,7 +549,7 @@ public class FLASCompiler implements CompileUnit {
 		// dump types if specified
 		if (ty != null) {
 			OutputStream fos;
-			if (ty.equals(config.root))
+			if (ty.equals(config.projectDir))
 				fos = System.out;
 			else
 				fos = new FileOutputStream(ty);
@@ -587,7 +579,7 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public boolean generateCode(Configuration config, DirectedAcyclicGraph<String> pkgs) {
-		jse = new JSEnvironment(config, errors, repository, config.jsDir(), pkgs, uploader);
+		jse = new JSEnvironment(config, errors, repository, pkgs);
 		bce = new ByteCodeEnvironment();
 		populateBCE(bce);
 
@@ -602,9 +594,9 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		if (config.generateJS) {
-			saveJSE(config.jsDir(), jse, bce);
+			saveJSE(null, jse, bce);
 			jse.generate(bce);
-			saveBCE(config.jvmDir(), bce);
+			saveBCE(null, bce);
 		}
 
 		return errors.hasErrors();
@@ -617,17 +609,10 @@ public class FLASCompiler implements CompileUnit {
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
 		if (config.generateJVM && config.unitjvm) {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
-			for (File f : config.readFlims) {
+			for (File f : config.includeFrom)
 				try {
 					for (File g : FileUtils.findFilesMatching(f, "*.jar"))
 						bcl.addClassesFrom(g);
-				} catch (NoSuchDirectoryException ex) {
-					logger.info("ignoring non-existent flim directory " + f);
-				}
-			}
-			for (File f : config.includeFrom)
-				try {
-					bcl.addClassesFrom(f);
 				} catch (NoSuchDirectoryException ex) {
 					logger.info("ignoring non-existent includeFrom directory " + f);
 				}
@@ -659,17 +644,10 @@ public class FLASCompiler implements CompileUnit {
 		BCEClassLoader bcl = null;
 		if (config.generateJVM && config.systemjvm) {
 			bcl = new BCEClassLoader(bce);
-			for (File f : config.readFlims) {
+			for (File f : config.includeFrom)
 				try {
 					for (File g : FileUtils.findFilesMatching(f, "*.jar"))
 						bcl.addClassesFrom(g);
-				} catch (NoSuchDirectoryException ex) {
-					logger.info("ignoring non-existent directory " + f);
-				}
-			}
-			for (File f : config.includeFrom)
-				try {
-					bcl.addClassesFrom(f);
 				} catch (NoSuchDirectoryException ex) {
 					logger.info("ignoring non-existent includeFrom directory " + f);
 				}
@@ -734,45 +712,35 @@ public class FLASCompiler implements CompileUnit {
 	public void saveBCE(File jvmDir, ByteCodeEnvironment bce) {
 //		bce.dumpAll(true);
 		try {
-			if (jvmDir != null) {
-				FileUtils.assertDirectory(jvmDir);
-				// Doing this makes things clean, but stops you putting multiple things in the
-				// same directory
-				// FileUtils.cleanDirectory(writeJVM);
-				for (ByteCodeCreator bcc : bce.all()) {
-					File wto = new File(jvmDir, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
-					bcc.writeTo(wto);
+			if (config.flimdir() != null) {
+				Comparator<String> invertor = (x,y) -> -x.compareTo(y);
+				Set<String> pkgs = new TreeSet<>(invertor);
+				for (File s : config.inputs) {
+					pkgs.add(s.getName());
 				}
-				if (config.flimdir() != null) {
-					Comparator<String> invertor = (x,y) -> -x.compareTo(y);
-					Set<String> pkgs = new TreeSet<>(invertor);
-					for (File s : config.inputs) {
-						pkgs.add(s.getName());
-					}
-					Map<String, ZipOutputStream> streams = new TreeMap<>();
-					for (ByteCodeCreator c : bce.all()) {
-						String clname = c.getCreatedName();
-						String pkg = null;
-						for (String s : pkgs) {
-							if (clname.startsWith(s)) {
-								pkg = s;
-								break;
-							}
-						}
-						if (pkg != null && clname.startsWith(pkg) && !clname.contains("_st_") && !clname.contains("_ut_")) {
-							ZipOutputStream zos = streams.get(pkg);
-							if (zos == null) {
-								File f = new File(config.flimdir(), pkg + ".jar");
-								zos = new ZipOutputStream(new FileOutputStream(f));
-								streams.put(pkg, zos);
-							}
-							zos.putNextEntry(new ZipEntry(FileUtils.convertDottedToPath(clname).getPath() + ".class"));
-							zos.write(c.generate());
+				Map<String, ZipOutputStream> streams = new TreeMap<>();
+				for (ByteCodeCreator c : bce.all()) {
+					String clname = c.getCreatedName();
+					String pkg = null;
+					for (String s : pkgs) {
+						if (isInPackage(clname, s)) {
+							pkg = s;
+							break;
 						}
 					}
-					for (ZipOutputStream zos : streams.values()) 
-						zos.close();
+					if (isInPackage(clname, pkg) && !clname.contains("_st_") && !clname.contains("_ut_")) {
+						ZipOutputStream zos = streams.get(pkg);
+						if (zos == null) {
+							File f = new File(config.flimdir(), pkg + ".jar");
+							zos = new ZipOutputStream(new FileOutputStream(f));
+							streams.put(pkg, zos);
+						}
+						zos.putNextEntry(new ZipEntry(FileUtils.convertDottedToPath(clname).getPath() + ".class"));
+						zos.write(c.generate());
+					}
 				}
+				for (ZipOutputStream zos : streams.values()) 
+					zos.close();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -780,13 +748,18 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
+	private boolean isInPackage(String clname, String pkg) {
+		return pkg != null && (clname.startsWith(pkg) || (pkg.equals("root.package") && clname.startsWith("org.flasck.jvm.builtin.")));
+	}
+
 	public void saveJSE(File jsDir, JSEnvironment jse, ByteCodeEnvironment bce) {
 		try {
-			if (jsDir != null) {
-				jse.writeAllTo(jsDir);
+			jse.generateCOs();
+			if (uploader != null) {
+				jse.upload(uploader);
 			}
 			if (config.flimdir() != null) {
-				jse.writeAllTo(config.flimdir());
+				jse.saveCOsTo(config.flimdir());
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();

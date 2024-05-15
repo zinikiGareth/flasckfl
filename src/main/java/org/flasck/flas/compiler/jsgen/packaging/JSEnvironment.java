@@ -1,7 +1,8 @@
 package org.flasck.flas.compiler.jsgen.packaging;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -51,46 +52,42 @@ public class JSEnvironment implements JSStorage {
 	private final Repository repository;
 	// The idea is that there is one file per package
 	private final Map<String, JSFile> files = new TreeMap<String, JSFile>();
-	private final File root;
 	private final List<StructDefn> structs = new ArrayList<>();
 	private final List<ContractDecl> contracts = new ArrayList<>();
 	private final List<ObjectDefn> objects = new ArrayList<>();
 	private final List<HandlerImplements> handlers = new ArrayList<>();
 	private final DirectedAcyclicGraph<String> pkgdag;
-	private final JSUploader uploader;
 	private final Map<String, ContentObject> gencos = new TreeMap<>();
-	private final List<File> localOnly = new ArrayList<>();
+	private final List<ContentObject> localOnly = new ArrayList<>();
 	private final List<UnitTestCase> unitTests = new ArrayList<>();
 	private final List<SystemTest> systemTests = new ArrayList<>();
 	private final Configuration config;
 	private final ErrorReporter errors;
 
-	public JSEnvironment(Configuration config, ErrorReporter errors, Repository repository, File root, DirectedAcyclicGraph<String> pkgs, JSUploader uploader) {
+	public JSEnvironment(Configuration config, ErrorReporter errors, Repository repository, DirectedAcyclicGraph<String> pkgs) {
 		this.config = config;
 		this.errors = errors;
 		this.repository = repository;
-		this.root = root;
 		this.pkgdag = pkgs;
-		this.uploader = uploader;
 	}
 	
-	public Iterable<File> files() {
-		List<File> ret = new ArrayList<>();
+	public Iterable<ContentObject> files() {
+		List<ContentObject> ret = new ArrayList<>();
 		Iterable<String> pkgs = packageStrings();
 		for (String s : pkgs) {
 			JSFile f = files.get(s);
 			if (f != null)
-				ret.add(f.file());
+				ret.add(f.co());
 		}
 		return ret;
 	}
 
 	@Override
-	public File fileFor(String s) {
+	public ContentObject fileFor(String s) {
 		JSFile r = files.get(s);
 		if (r == null)
 			return null;
-		return r.file();
+		return r.co();
 	}
 
 	@Override
@@ -175,8 +172,8 @@ public class JSEnvironment implements JSStorage {
 			throw new CantHappenException("there should not be a __ in the package name: " + pkg);
 		JSFile inpkg = files.get(pkg.uniqueName());
 		if (inpkg == null) {
-			File f = new File(root, pkg.uniqueName() + ".js");
-			inpkg = new JSFile(repository, pkg, f);
+			String name = pkg.uniqueName() + ".js";
+			inpkg = new JSFile(repository, pkg, name);
 			files.put(pkg.uniqueName(), inpkg);
 		}
 		return inpkg;
@@ -227,25 +224,36 @@ public class JSEnvironment implements JSStorage {
 
 	// debugMethod
 	public void dumpAll(boolean b) {
-		for (File f : files()) {
-			System.out.println("JSFile " + f);
-			FileUtils.cat(f);
+		for (ContentObject f : files()) {
+			System.out.println("JSFile " + f.key());
+			try (InputStream cos = f.asStream()) {
+				FileUtils.copyStreamWithoutClosingEither(cos, System.out);
+			} catch (IOException ex) {
+				System.err.println("could not dump " + f.key());
+			}
 		}
 	}
 
 	// untested
-	public void writeAllTo(File jsDir) throws FileNotFoundException {
-		FileUtils.assertDirectory(jsDir);
+	public void generateCOs() {
 		Collection<String> imports = fileImports();
 		for (JSFile jsf : files.values()) {
-			File tof = jsf.write(jsDir, imports);
-			if (uploader != null) {
-				ContentObject co = uploader.uploadJs(tof);
-				if (co != null)
-					gencos.put(jsf.file().getName(), co);
-				else
-					localOnly.add(tof);
-			}
+			ContentObject co = jsf.generate(imports);
+			gencos.put(jsf.key(), co);
+		}
+	}
+	
+	public void saveCOsTo(File flimdir) {
+		FileUtils.assertDirectory(flimdir);
+		for (JSFile jsf : files.values()) {
+			jsf.saveTo(flimdir);
+		}
+	}
+
+	public void upload(JSUploader uploader) throws IOException {
+		for (JSFile jsf : files.values()) {
+			if (!jsf.upload(uploader))
+				localOnly.add(jsf.co());
 		}
 	}
 
@@ -340,17 +348,17 @@ public class JSEnvironment implements JSStorage {
 		Iterable<String> pkgs = packageStrings();
 		
 		for (String s : pkgs) {
-			File f = fileFor(s);
-			if (f != null) {
-				includeFile(ret, f);
-				inlib.add(f.getName());
+			ContentObject co = fileFor(s);
+			if (co != null) {
+				ret.add(co);
+				inlib.add(co.key());
 			} else {
 				boolean added = false;
 				for (File q : config.readFlims) {
 					File i = new File(q, s + ".js");
 					if (i.exists()) {
 						if (!inlib.contains(i.getName())) {
-							includeFile(ret, i);
+							ret.add(new FileContentObject(i));
 							inlib.add(i.getName());
 							added = true;
 						}
@@ -359,7 +367,7 @@ public class JSEnvironment implements JSStorage {
 				for (File q : config.includeFrom) {
 					for (File i : FileUtils.findFilesMatching(q, s + ".js")) {
 						if (!inlib.contains(i.getName())) {
-							includeFile(ret, i);
+							ret.add(new FileContentObject(i));
 							inlib.add(i.getName());
 							added = true;
 						}
@@ -386,7 +394,7 @@ public class JSEnvironment implements JSStorage {
 			return;
 		List<File> library = FileUtils.findFilesMatching(from, "*");
 		for (File f : library) {
-			includeFile(ret, f);
+			ret.add(new FileContentObject(f));
 			inlib.add(f.getName());
 		}
 	}
@@ -424,19 +432,11 @@ public class JSEnvironment implements JSStorage {
 		for (ContentObject co : gencos.values()) {
 			ret.add(co);
 		}
-		for (File f : localOnly) {
-			includeFile(ret, f);
+		for (ContentObject co : localOnly) {
+			ret.add(co);
 		}
 	}
 
-	private void includeFile(List<ContentObject> ret, File f) {
-		if (!f.isAbsolute())
-			f = new File(new File(System.getProperty("user.dir")), f.getPath());
-		if (!f.isFile())
-			return;
-		ret.add(new FileContentObject(f));
-	}
-	
 	public void asivm() {
 		for (JSFile f : files.values()) {
 			f.asivm();

@@ -1,6 +1,5 @@
 package org.flasck.flas.compiler.jsgen.packaging;
 
-import java.io.File;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -31,8 +30,8 @@ public interface JSStorage {
 	void eventMap(NameOfThing name, EventTargetZones eventMethods);
 	void applRouting(JSClassCreator clz, NameOfThing name, ApplicationRouting routes);
 
-	Iterable<File> files();
-	File fileFor(String s);
+	Iterable<ContentObject> files();
+	ContentObject fileFor(String s);
 
 	void struct(StructDefn s);
 	void contract(ContractDecl cd);

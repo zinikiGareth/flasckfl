@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.flasck.flas.Configuration;
 import org.zinutils.system.RunProcess;
@@ -17,9 +18,7 @@ import org.zinutils.utils.FileUtils;
 
 public class TestEnvironment {
 
-	private File jsout;
 	private File tc2;
-	private File jvmout;
 	public final File testReportTo;
 	private File errors;
 	private boolean useJSRunner;
@@ -32,14 +31,13 @@ public class TestEnvironment {
 	private File goldfd;
 	private File tmpfd;
 
-	public TestEnvironment(File jvmdir, String root, boolean useJSRunner, boolean useJVMRunner, boolean checkNothing, boolean checkEverything) throws FileNotFoundException, IOException {
+	public TestEnvironment(File jvmdir, String root, boolean useJSRunner, boolean useJVMRunner, boolean checkNothing,
+			boolean checkEverything) throws FileNotFoundException, IOException {
 		this.rootdir = new File(root, "test.golden");
 		this.useJSRunner = useJSRunner;
 		this.useJVMRunner = useJVMRunner;
 		this.checkNothing = checkNothing;
 		this.checkEverything = checkEverything;
-		jsout = new File(root, "jsout");
-		jvmout = new File(root, "jvmout");
 		goldfd = new File(root, "flimstore");
 		tmpfd = new File(root, "flimstore-tmp");
 		goldtc = new File(root, "tc");
@@ -50,19 +48,16 @@ public class TestEnvironment {
 	}
 
 	public boolean haveTests() {
-		return rootdir.isDirectory() && 
-			(!FileUtils.findFilesMatching(rootdir, "*.ut").isEmpty() ||
-			 !FileUtils.findFilesMatching(rootdir, "*.st").isEmpty() ||
-			 !FileUtils.findFilesMatching(rootdir, "*.pt").isEmpty());
+		return rootdir.isDirectory() && (!FileUtils.findFilesMatching(rootdir, "*.ut").isEmpty()
+				|| !FileUtils.findFilesMatching(rootdir, "*.st").isEmpty()
+				|| !FileUtils.findFilesMatching(rootdir, "*.pt").isEmpty());
 	}
 
 	public void cleanUp() {
 		FileUtils.deleteDirectoryTree(errors);
-		clean(jsout);
-		clean(jvmout);
 		clean(tc2);
 	}
-	
+
 	public static void clean(File dir) {
 		FileUtils.cleanDirectory(dir);
 		FileUtils.assertDirectory(dir);
@@ -74,11 +69,12 @@ public class TestEnvironment {
 			for (String f : testReportTo.list()) {
 				FileUtils.assertFile(new File(testReports, f));
 			}
-			assertGolden(errorsExpected, testReports, testReportTo, false, false);
+			assertGolden(errorsExpected, testReports, testReportTo, fn -> true, false);
 		}
 	}
-	
-	public void assertGolden(boolean errorsExpected, File golden, File genned, boolean allowMissingGolden, boolean allowWSDiffs) {
+
+	public void assertGolden(boolean errorsExpected, File golden, File genned, Predicate<String> requireNamedGolden,
+			boolean allowWSDiffs) {
 		if (checkNothing)
 			return;
 		if (!golden.isDirectory()) {
@@ -93,9 +89,13 @@ public class TestEnvironment {
 		}
 		List<File> missing = new ArrayList<>();
 		for (File f : genned.listFiles()) {
-			if (!new File(golden, f.getName()).exists() && !allowMissingGolden) {
+			if (!new File(golden, f.getName()).exists() && requireNamedGolden.test(f.getName())) {
 				System.out.println("--- missing " + f);
-				FileUtils.cat(f);
+				if (FileUtils.extension(f.getName()).equals(".jar")) {
+					System.out.println(" ... is binary");
+				} else {
+					FileUtils.cat(f);
+				}
 				System.out.println("---");
 				missing.add(f);
 			}
@@ -107,6 +107,8 @@ public class TestEnvironment {
 			if (!gen.exists() && errorsExpected)
 				continue;
 			assertTrue("There is no generated file for the golden " + f, gen.exists());
+			if (".jar".equals(FileUtils.extension(f.getName())))
+				continue;
 			String goldhash = Crypto.hashTrim(f);
 			String genhash = Crypto.hashTrim(gen);
 			if (!goldhash.equals(genhash)) {
@@ -132,7 +134,7 @@ public class TestEnvironment {
 			return;
 		if (!tmpfd.exists())
 			fail("flim store was not created");
-		assertGolden(errorsExpected, goldfd, tmpfd, true, false);
+		assertGolden(errorsExpected, goldfd, tmpfd, fn -> !fn.contains("._ut") && !fn.contains("._st"), false);
 	}
 
 	public void checkTypes(boolean expectingErrors) throws IOException {
@@ -144,10 +146,10 @@ public class TestEnvironment {
 			return;
 		FileUtils.assertDirectory(goldtc);
 		FileUtils.assertFile(goldtf);
-		assertGolden(expectingErrors, goldtc, tc2, false, false);
+		assertGolden(expectingErrors, goldtc, tc2, fn -> true, false);
 	}
 
 	public void checkReconstructions(File sources, File reconstructions) {
-		assertGolden(false, sources, reconstructions, true, true);
+		assertGolden(false, sources, reconstructions, fn -> false, true);
 	}
 }

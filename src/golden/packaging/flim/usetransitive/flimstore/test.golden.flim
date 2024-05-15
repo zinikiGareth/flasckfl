@@ -1,5 +1,0 @@
-	function test.golden current
-		apply
-			named test.objects.Accumulator
-			named Number
-	usespackage test.objects

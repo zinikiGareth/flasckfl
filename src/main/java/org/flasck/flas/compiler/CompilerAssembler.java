@@ -96,6 +96,11 @@ public class CompilerAssembler implements AssemblyVisitor {
 			}
 			
 			@Override
+			public long length() {
+				return 0;
+			}
+			
+			@Override
 			public String writeUrl() {
 				return null;
 			}
