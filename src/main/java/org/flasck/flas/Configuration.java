@@ -43,6 +43,7 @@ public class Configuration {
 	public List<PackageSources> moduleCOs;
 	public List<PackageSources> dependencies;
 	public final List<File> includeFrom = new ArrayList<File>();
+	public final List<File> loadJars = new ArrayList<File>();
 	public final List<String> modules = new ArrayList<>(); // just the "names" of the modules - we will use the "moduleDir" and known rules to find the actual items we want
 
 	public Configuration(ErrorReporter errors, String[] args) {
@@ -124,6 +125,16 @@ public class Configuration {
 					}
 					includeFrom.add(new File(args[++i]));
 				}
+				
+				// if we want to load additional jars that depend on generated code
+				else if (arg.equals("--load-jar")) {
+					if (hasMore == 0) {
+						System.out.println("--load-jar <jar>");
+						System.exit(1);
+					}
+					loadJars.add(new File(args[++i]));
+				}
+				
 				
 				// turn things on or off
 				else if (arg.equals("--phase")) {

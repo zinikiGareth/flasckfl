@@ -163,7 +163,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	public void startDriver() {
 		ChromeOptions options = new ChromeOptions();
 		if (headless) {
-//			options.addArguments("headless", "window-size=1200x900");
+			options.addArguments("--headless=new");
 			options.setBinary(new File(new File(chromeRoot), headlessBinary));
 		} else {
 			options.setBinary(new File(new File(chromeRoot), chromeBinary));

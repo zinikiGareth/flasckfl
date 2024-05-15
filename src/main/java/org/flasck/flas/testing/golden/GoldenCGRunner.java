@@ -3,7 +3,6 @@ package org.flasck.flas.testing.golden;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -180,7 +179,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File flimstore = new File(s, "flimstore");
 		final File flimstoreTo = new File(s, "flimstore-tmp");
 		final File flimfrom = new File(s, "flim-imports");
-		final File incldirs = new File(s, "incl");
+		final File incldirs = new File(s, "imports");
+		final File andjars = new File(s, "jars");
 		final File modules = new File(s, "modules");
 		final File parseTokens = new File(s, "parsetokens");
 		final File reconstruct = new File(s, "reconstruct");
@@ -195,7 +195,6 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		FileUtils.deleteDirectoryTree(flimstoreTo);
 		if (flimfrom.exists()) {
 			FileUtils.assertDirectory(flimstoreTo);
-//			copyFlimstoresTo(flimstoreTo, flimfrom);
 		}
 		List<String> packageList = new ArrayList<>();
 		if (packages.exists()) {
@@ -245,6 +244,12 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		if (incldirs.exists()) {
 			for (String fi : FileUtils.readFileAsLines(incldirs)) {
 				args.add("--import");
+				args.add(fi);
+			}
+		}
+		if (andjars.exists()) {
+			for (String fi : FileUtils.readFileAsLines(andjars)) {
+				args.add("--load-jar");
 				args.add(fi);
 			}
 		}
@@ -303,38 +308,6 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		if (tmp != null)
 			throw tmp;
 	}
-
-	private static void copyFlimstoresTo(File flimstoreTo, File flimfrom) throws FileNotFoundException, IOException {
-		try (LineNumberReader lnr = new LineNumberReader(new FileReader(flimfrom))) {
-			String s;
-			while ((s = lnr.readLine()) != null) {
-				File f;
-				if (s.startsWith("."))
-					f = new File(s);
-				else
-					f = new File("src/golden", s);
-				if (!f.isDirectory())
-					throw new RuntimeException("No FLIM directory " + s + " in golden test");
-				File g = new File(f, "flimstore");
-				if (!g.isDirectory())
-					g = f;
-				boolean any = false;
-				for (File z : FileUtils.findFilesMatching(g, "*.flim")) {
-					FileUtils.copy(z, flimstoreTo);
-					any = true;
-				}
-				if (!any)
-					throw new RuntimeException("No .flim files found in " + g);
-				for (File z : FileUtils.findFilesMatching(g, "*.js")) {
-					FileUtils.copy(z, flimstoreTo);
-				}
-				for (File z : FileUtils.findFilesMatching(g, "*.jar")) {
-					FileUtils.copy(z, flimstoreTo);
-				}
-			}
-		}
-	}
-
 
 	private static boolean checkExpectedErrors(TestEnvironment te, File expectedErrors, File actualErrors) {
 		final File aef = new File(actualErrors, "errors");

@@ -607,23 +607,16 @@ public class FLASCompiler implements CompileUnit {
 			return errors.hasErrors();
 		
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
+		ClassLoader cl = this.getClass().getClassLoader();
 		if (config.generateJVM && config.unitjvm) {
-			BCEClassLoader bcl = new BCEClassLoader(bce);
-			for (File f : config.includeFrom)
-				try {
-					for (File g : FileUtils.findFilesMatching(f, "*.jar"))
-						bcl.addClassesFrom(g);
-				} catch (NoSuchDirectoryException ex) {
-					logger.info("ignoring non-existent includeFrom directory " + f);
-				}
-			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
+			cl = makeBCL(config);
+			JVMRunner jvmRunner = new JVMRunner(config, repository, cl, allTemplates);
 			jvmRunner.runAllUnitTests(writers);
 			jvmRunner.reportErrors(errors);
 		}
 
 		if (config.generateJS && config.unitjs) {
 			try {
-				ClassLoader cl = this.getClass().getClassLoader();
 				JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
 				jsRunner.runAllUnitTests(writers);
 				jsRunner.reportErrors(errors);
@@ -641,24 +634,16 @@ public class FLASCompiler implements CompileUnit {
 			return errors.hasErrors();
 		
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
-		BCEClassLoader bcl = null;
+		ClassLoader cl = this.getClass().getClassLoader();
 		if (config.generateJVM && config.systemjvm) {
-			bcl = new BCEClassLoader(bce);
-			for (File f : config.includeFrom)
-				try {
-					for (File g : FileUtils.findFilesMatching(f, "*.jar"))
-						bcl.addClassesFrom(g);
-				} catch (NoSuchDirectoryException ex) {
-					logger.info("ignoring non-existent includeFrom directory " + f);
-				}
-			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
+			cl = makeBCL(config);
+			JVMRunner jvmRunner = new JVMRunner(config, repository, cl, allTemplates);
 			jvmRunner.runAllSystemTests(writers);
 			jvmRunner.reportErrors(errors);
 		}
 
 		if (config.generateJS && config.systemjs) {
 			try {
-				ClassLoader cl = bcl != null ? bcl : this.getClass().getClassLoader();
 				JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
 				jsRunner.runAllSystemTests(writers);
 				jsRunner.reportErrors(errors);
@@ -669,6 +654,20 @@ public class FLASCompiler implements CompileUnit {
 		}
 
 		return errors.hasErrors();
+	}
+
+	private BCEClassLoader makeBCL(Configuration config) {
+		BCEClassLoader bcl = new BCEClassLoader(bce);
+		for (File f : config.includeFrom)
+			try {
+				for (File g : FileUtils.findFilesMatching(f, "*.jar"))
+					bcl.addClassesFrom(g);
+			} catch (NoSuchDirectoryException ex) {
+				logger.info("ignoring non-existent includeFrom directory " + f);
+			}
+		for (File f : config.loadJars)
+			bcl.addClassesFrom(f);
+		return bcl;
 	}
 
 	public void storeAssemblies(AssemblyVisitor storer) {
