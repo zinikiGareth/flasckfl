@@ -665,8 +665,13 @@ public class FLASCompiler implements CompileUnit {
 			} catch (NoSuchDirectoryException ex) {
 				logger.info("ignoring non-existent includeFrom directory " + f);
 			}
-		for (File f : config.loadJars)
-			bcl.addClassesFrom(f);
+		for (String m : config.modules) {
+			File md = new File(config.moduleDir, m);
+			File mjd = new File(md, "jars");
+			for (File f : FileUtils.findFilesMatching(mjd, "*.jar")) {
+				bcl.addClassesFrom(f);
+			}
+		}
 		return bcl;
 	}
 

@@ -180,7 +180,6 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File flimstoreTo = new File(s, "flimstore-tmp");
 		final File flimfrom = new File(s, "flim-imports");
 		final File incldirs = new File(s, "imports");
-		final File andjars = new File(s, "jars");
 		final File modules = new File(s, "modules");
 		final File parseTokens = new File(s, "parsetokens");
 		final File reconstruct = new File(s, "reconstruct");
@@ -247,12 +246,6 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 				args.add(fi);
 			}
 		}
-		if (andjars.exists()) {
-			for (String fi : FileUtils.readFileAsLines(andjars)) {
-				args.add("--load-jar");
-				args.add(fi);
-			}
-		}
 		if (modules.exists()) {
 			if (moduleDir == null) {
 				throw new InvalidUsageException("cannot use modules without specifying -Dorg.flasck.module.dir");
@@ -280,7 +273,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 //		} finally {
 //		FileUtils.cat(new File(s, "repo.txt"));
 //		}
-		checkExpectedErrors(te, expectedErrors, actualErrors);
+		checkExpectedErrors(te, tr, expectedErrors, actualErrors);
 		GrammarChecker r = new GrammarChecker(parseTokens, reconstruct);
 		// TODO: allow it to merge in other grammars such as Ziniki
 		Map<String, GrammarTree> fileOrchards = r.checkParseTokenLogic(expectedErrors.isDirectory());
@@ -309,13 +302,20 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			throw tmp;
 	}
 
-	private static boolean checkExpectedErrors(TestEnvironment te, File expectedErrors, File actualErrors) {
+	private static boolean checkExpectedErrors(TestEnvironment te, File tr, File expectedErrors, File actualErrors) {
 		final File aef = new File(actualErrors, "errors");
 		if (expectedErrors.isDirectory()) {
 			// fairly obviously, we are expecting errors, but we say we aren't so the checks go through
 			te.assertGolden(false, expectedErrors, actualErrors, fn -> true, false);
 			return false;
 		} else if (aef.length() > 0) {
+			if (tr != null) {
+				for (File f : FileUtils.findFilesMatching(tr, "*.tr")) {
+					System.out.println("----- there are errors below, but the test logs may be relevant: " + f.getName());
+					FileUtils.cat(f);
+					System.out.println("-----");
+				}
+			}
 			FileUtils.cat(aef);
 			fail("unexpected compilation errors");
 			return false; // won't actually happen
