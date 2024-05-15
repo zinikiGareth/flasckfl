@@ -126,7 +126,18 @@ public class Configuration {
 					includeFrom.add(new File(args[++i]));
 				}
 				
-				// if we want to load additional jars that depend on generated code
+				// It may be the case that handwritten Java code depends on code generated from FLAS.
+				// In that case, it is not sufficient to just put the Java code on the classpath, because
+				// of classloader issues.  Instead, it must be explicitly mentioned here.
+				// Note that Java code which is part of a module is brought in directly using the --module
+				// directive, and generated code is automatically loaded, so this is only for code which has
+				// been handwritten to support a library.
+				
+				// WHAT?  How is that not a module?  I'm not sure, but I think this was specifically added for stdlib,
+				// and I think that *is* a module, so I'm very confused.
+				
+				// TODO: review this and see what gives.  It's noticeable that ATM, the module dir does not have any
+				// Jars in it.
 				else if (arg.equals("--load-jar")) {
 					if (hasMore == 0) {
 						System.out.println("--load-jar <jar>");
