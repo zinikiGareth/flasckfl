@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.server.tda.WSReceiver;
 import org.ziniki.ziwsh.intf.WSResponder;
+import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
@@ -42,19 +43,21 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver, TestModule
 	private WSResponder responder;
 	private boolean readyWhenZero = false;
 	private CountDownLatch shutdownCounter = new CountDownLatch(1);
-	private static Iterable<JVMTestPlugin> plugins = null;
-
-	static  {
-		plugins = ServiceLoader.load(JVMTestPlugin.class);
-	}
+	private Iterable<JVMTestPlugin> plugins;
 
 	BrowserJSJavaBridge(JSRunner controller, ClassLoader classloader, File root, LockingCounter counter) {
 		this.controller = controller;
 		this.classloader = classloader;
 		this.root = root;
 		this.counter = counter;
+		plugins = ServiceLoader.load(JVMTestPlugin.class);
 		for (JVMTestPlugin p : plugins) {
 			p.ready(this, classloader);
+		}
+		if (classloader instanceof BCEClassLoader) {
+			for (JVMTestPlugin p : ((BCEClassLoader)classloader).services(JVMTestPlugin.class)) {
+				p.ready(this, classloader);
+			}
 		}
 	}
 

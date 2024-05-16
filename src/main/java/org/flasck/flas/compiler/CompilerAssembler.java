@@ -149,7 +149,7 @@ public class CompilerAssembler implements AssemblyVisitor {
 		asm.beginJs();
 		FLASCompiler.logger.info("assembly has " + js);
 		for (String j : js)
-			asm.javascript(config.inclPrefix + j);
+			asm.javascript(config.inclPrefix + /* "js" + */j);
 		asm.endJs();
 		asm.endHead();
 		asm.beginInit();

@@ -312,8 +312,9 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 			boolean prev = false;
 			Iterable<ContentObject> jsfiles = jse.jsIncludes("mock");
 			List<ContentObject> thenUse = new ArrayList<>();
+			File jsdir = new File(testDir, "js");
 			for (ContentObject incl : jsfiles) {
-				File copyTo = new File(testDir, incl.key());
+				File copyTo = new File(jsdir, incl.key());
 				FileUtils.copyStreamToFile(incl.asStream(), copyTo);
 				FileContentObject as = new FileContentObject(copyTo);
 				thenUse.add(as);
