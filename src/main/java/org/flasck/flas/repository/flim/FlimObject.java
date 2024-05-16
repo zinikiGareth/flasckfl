@@ -103,4 +103,8 @@ public class FlimObject implements TDAParsing {
 		create(location);
 	}
 
+	@Override
+	public String toString() {
+		return "FlimObject[" + this.on + "]";
+	}
 }

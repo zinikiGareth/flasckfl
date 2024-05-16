@@ -54,7 +54,7 @@ public class FlimReader {
 		Set<FlimTop> importers = new HashSet<>();
 		for (File f : FileUtils.findFilesMatching(flimdir, "*.flim")) {
 			String name = FileUtils.dropExtension(f.getName());
-			if (!ignore.contains(name)) {
+			if (!ignore.contains(name) && !pkgs.hasNode(name)) {
 				logger.info("reading flim file for " + name + " from " + f);
 				repository.readingFLIM(name);
 				FlimTop importer = importFlim(f, name);
