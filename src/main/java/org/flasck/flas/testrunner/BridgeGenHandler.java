@@ -44,17 +44,18 @@ public class BridgeGenHandler implements RequestProcessor {
 		}
 		int mk = 0, tk = 0;
 		for (String n : modules) {
-			File m = new File(moduleDir, n);
-			if (!m.isDirectory()) {
+			File md = new File(moduleDir, n);
+			if (!md.isDirectory()) {
 				throw new InvalidUsageException("there is no module called " + n + " in " + moduleDir);
 			}
-			File core = new File(m, "core");
+			File mjs = new File(md, "js");
+			File core = new File(mjs, "core");
 			if (core.isDirectory()) {
 				for (File f : FileUtils.findFilesMatching(core, "*.js")) {
 					sb.append("import { module_init as module_init_" + (mk++) +" } from '/js/" + f.getName() + "';\n");
 				}
 			}
-			File mock = new File(m, "mock");
+			File mock = new File(mjs, "mock");
 			if (mock.isDirectory()) {
 				for (File f : FileUtils.findFilesMatching(mock, "*.js")) {
 					sb.append("import { installer as installer_" + (tk++) + " } from '/js/" + f.getName() + "';\n");
