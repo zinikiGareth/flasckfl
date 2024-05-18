@@ -90,7 +90,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		int cnt = 1;
 		Set<File> sf = new TreeSet<>(new FileNameComparator());
 		for (File f : FileUtils.findFilesMatching(new File("src/golden"), "test.golden"))
-			if (f.isDirectory())
+			if (f.isDirectory() && !f.getParentFile().getName().equals("apps"))
 				sf.add(f.getParentFile());
 		for (File f : FileUtils.findFilesMatching(new File("src/golden"), "packages"))
 			sf.add(f.getParentFile());

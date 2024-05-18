@@ -26,5 +26,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/WebDriver"/>
 	<classpathentry kind="src" path="/paas-intf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Grizzly"/>
+	<classpathentry kind="src" path="/paas-storesupport"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

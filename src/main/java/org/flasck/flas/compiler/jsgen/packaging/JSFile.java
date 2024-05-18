@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.packaging;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -21,7 +23,6 @@ import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.ziniki.ContentObject;
-import org.flasck.jvm.ziniki.MemoryContentObject;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.collections.ListMap;
@@ -40,7 +41,7 @@ public class JSFile {
 	private final List<EventMap> eventMaps = new ArrayList<>();
 	private final List<ApplRoutingTable> routes = new ArrayList<>();
 	private final Set<String> exports = new TreeSet<>();
-	private MemoryContentObject co;
+	private ContentObject co;
 
 	public JSFile(Repository repository, NameOfThing pkg, String name) {
 		this.repository = repository;
@@ -78,14 +79,15 @@ public class JSFile {
 	}
 
 	// untested
-	public ContentObject generate(Collection<String> imports) {
+	public ContentObject generate(Configuration config, Collection<String> imports) throws IOException {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		IndentWriter iw = new IndentWriter(pw);
 		writeTo(iw, imports);
 		pw.close();
 		
-		this.co = new MemoryContentObject(key, sw.toString().getBytes());
+		byte[] bs = sw.toString().getBytes();
+		this.co = config.contentStore.upload(key, new ByteArrayInputStream(bs), "text/javascript", bs.length, true);
 		return co;
 	}
 
@@ -95,8 +97,11 @@ public class JSFile {
 		FileUtils.copyStreamToFile(this.co.asStream(), f);
 	}
 
-	public boolean upload(JSUploader uploader) throws IOException {
-		return uploader.uploadJs(this.co);
+	public ContentObject upload(JSUploader uploader) throws IOException {
+		ContentObject ret = uploader.uploadJs(this.co);
+		if (ret != null)
+			this.co = ret;
+		return ret;
 	}
 
 	public void writeTo(IndentWriter iw, Collection<String> imports) {

@@ -16,12 +16,14 @@ import org.flasck.jvm.assembly.CardInitializer;
 import org.flasck.jvm.assembly.FLASAssembler;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.utils.FileUtils;
 
 public class CompilerAssembler implements AssemblyVisitor {
 	private final Configuration config;
 	private final FLASAssembler asm;
 	private final File jsdir;
+	private final File cssdir;
 	private List<String> inits = new ArrayList<>();
 	private List<String> css = new ArrayList<>();
 	private List<String> js = new ArrayList<>();
@@ -32,8 +34,12 @@ public class CompilerAssembler implements AssemblyVisitor {
 		this.asm = asm;
 		
 		jsdir = new File(todir, "js");
+		cssdir = new File(todir, "css");
+
 		FileUtils.cleanDirectory(jsdir);
 		FileUtils.assertDirectory(jsdir);
+		FileUtils.cleanDirectory(cssdir);
+		FileUtils.assertDirectory(cssdir);
 
 	}
 
@@ -56,29 +62,29 @@ public class CompilerAssembler implements AssemblyVisitor {
 
 	@Override
 	public void includePackageFile(ContentObject co) {
+		js.add(copyCOToAppFile("js", co));
+	}
+
+	private String copyCOToAppFile(String dir, ContentObject co) {
 		String url = co.url();
-//				TODO: copy files if they are file;//
 		URI uri = URI.create(url);
 		if (uri.getScheme().equals("file")) {
 			File f = new File(uri.getPath());
 			File to = new File(jsdir, f.getName());
 			FileUtils.copyStreamToFile(co.asStream(), to);
-			url = "/js/" + f.getName();
-			/*
-			url= remap.get(url);
-			if (url == null)
-				throw new CantHappenException("should remap all files now");
-			/*
-				url = tmp;
-			else if (url.startsWith("file://" + config.jsDir().getPath())) {
-				url = url.substring(7 + config.jsDir().getPath().length());
-				url = url.replaceAll("^/*", "");
-				FileUtils.copyStreamToFile(co.asStream(), new File(outdir, url));
-				url = config.inclPrefix + "js/" + url;
-			}
-			*/
+			url = "/" + dir + "/" + f.getName();
+		} else if (uri.getScheme().equals("memory")) {
+			File to = new File(jsdir, co.key());
+			FileUtils.copyStreamToFile(co.asStream(), to);
+			url = "/" + dir + "/" + co.key();
+		} else if (uri.getScheme().equals("https")) {
+			File to = new File(jsdir, co.key());
+			FileUtils.copyStreamToFile(co.asStream(), to);
+			url = "/" + dir + "/" + co.key();
+		} else {
+			throw new NotImplementedException("how do I include package file " + url);
 		}
-		js.add(url);
+		return url;
 	}
 
 	@Override
@@ -125,6 +131,8 @@ public class CompilerAssembler implements AssemblyVisitor {
 
 	@Override
 	public void visitCSS(String name, ZipInputStream zis, long length) throws IOException {
+		File to = new File(cssdir, name);
+		FileUtils.copyStreamToFileWithoutClosing(zis, to);
 		css.add(name);
 	}
 
@@ -138,7 +146,7 @@ public class CompilerAssembler implements AssemblyVisitor {
 			asm.templates(co);
 		asm.beginCss();
 		for (String c : css)
-			asm.css(config.inclPrefix + "css/" + c);
+			asm.css(config.inclPrefix + "/css/" + c);
 		asm.endCss();
 		if (config.inclPrefix != null && config.inclPrefix.length() > 0) {
 			asm.beginImportMap();
@@ -171,21 +179,4 @@ public class CompilerAssembler implements AssemblyVisitor {
 	@Override
 	public void traversalDone() throws Exception {
 	}
-	
-	/*
-	private void copyJSLib(Map<File, File> reloc, File userDir, File pf, File jsdir, File libroot) {
-		List<File> library = FileUtils.findFilesMatching(libroot, "*.js");
-		for (File f : library) {
-			File to = new File(jsdir, f.getName());
-			FileUtils.copy(f, to);
-			reloc.put(absWith(userDir, f), to);
-		}
-	}
-
-	private File absWith(File userDir, File f) {
-		if (f.isAbsolute())
-			return f;
-		return new File(userDir, f.getPath());
-	}
-	*/
 }

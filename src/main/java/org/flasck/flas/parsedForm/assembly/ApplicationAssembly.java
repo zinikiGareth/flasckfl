@@ -43,4 +43,9 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 	public ApplicationRouting routing() {
 		return routing;
 	}
+	
+	@Override
+	public String toString() {
+		return "AppAssembly[" + assemblyName.uniqueName() + "]";
+	}
 }

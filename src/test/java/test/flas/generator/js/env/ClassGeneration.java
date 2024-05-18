@@ -3,6 +3,7 @@ package test.flas.generator.js.env;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class ClassGeneration {
 	IndentWriter w = new IndentWriter(pw);
 	
 	@Test
-	public void creatingAClassEnsuresThereIsOnePackageFile() {
+	public void creatingAClassEnsuresThereIsOnePackageFile() throws IOException {
 		jse.newClass(new PackageName("test.repo"), new SolidName(new PackageName("test"), "Clazz"));
 		jse.generateCOs();
 		List<ContentObject> acc = new ArrayList<>();

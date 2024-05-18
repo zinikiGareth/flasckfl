@@ -43,6 +43,8 @@ import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.EventHolder;
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
+import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -499,17 +501,24 @@ public class FLASCompiler implements CompileUnit {
 			testWriters.values().forEach(w -> w.close());
 		}
 		
-		if (config.html != null) {
-			File todir = config.html.getParentFile();
-			if (todir != null)
-				FileUtils.assertDirectory(todir);
-			else
-				todir = config.projectDir;
-			try (FileWriter fos = new FileWriter(config.html)) {
-				FLASAssembler asm = new FLASAssembler(fos);
-				generateHTML(asm, todir);
-			} catch (IOException ex) {
-				ex.printStackTrace();
+		if (config.genapps) {
+			for (Assembly a : repository.getAssemblies()) {
+				if (a instanceof ApplicationAssembly) {
+					File todir = FileUtils.combine(config.projectDir, "apps", a.name().uniqueName());
+					logger.info("build app for " + a + " in " + todir);
+					FileUtils.cleanDirectory(todir);
+					FileUtils.assertDirectory(todir);
+					String idx = "index.html";
+					if (config.html != null)
+						idx = config.html;
+					File saveAs = new File(todir, idx);
+					try (FileWriter fos = new FileWriter(saveAs)) {
+						FLASAssembler asm = new FLASAssembler(fos);
+						generateHTML(asm, todir, a);
+					} catch (IOException ex) {
+						System.err.println("could not save " + a.name().uniqueName() + " to " + saveAs);
+					}
+				}
 			}
 		}
 
@@ -680,8 +689,8 @@ public class FLASCompiler implements CompileUnit {
 			repository.traverseAssemblies(config, errors, jse, bce, storer);
 	}
 
-	public void generateHTML(FLASAssembler asm, File todir) {
-		repository.traverseAssemblies(config, errors, jse, bce, new CompilerAssembler(config, asm, todir)); 
+	public void generateHTML(FLASAssembler asm, File todir, Assembly assembly) {
+		repository.traverseAssembly(config, errors, jse, bce, new CompilerAssembler(config, asm, todir), assembly); 
 	}
 
 	private Map<String, String> extractTemplatesFromWebs() {

@@ -41,6 +41,16 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		}
 	}
 
+	public void traverse(Repository repository, Assembly asm) {
+		visitEntry(repository, asm);
+		try {
+			traversalDone();
+		} catch (Exception ex) {
+			logger.error("Error uploading", ex);
+			errors.message((InputPosition)null, "error uploading assembly: " + ex);
+		}
+	}
+
 	private void visitWebInfo(SplitMetaData w) {
 		try (ZipInputStream zis = w.processedZip()) {
 			ZipEntry ze;
@@ -142,5 +152,4 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	public void traversalDone() throws Exception {
 		v.traversalDone();
 	}
-	
 }

@@ -57,6 +57,7 @@ import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -568,6 +569,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.doTraversal(this);
 	}
 
+	public void traverseAssembly(Configuration config, ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v, Assembly asm) {
+		AssemblyTraverser t = new AssemblyTraverser(errors, jse, bce, v);
+		t.traverse(this, asm);
+	}
+
 	@Override
 	public CardData findWeb(String baseName) {
 		for (SplitMetaData web : webs) {
@@ -608,6 +614,15 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		return rpns;
 	}
 
+	public List<Assembly> getAssemblies() {
+		List<Assembly> ret = new ArrayList<Assembly>();
+		for (RepositoryEntry d : dict.values()) {
+			if (d instanceof Assembly)
+				ret.add((Assembly) d);
+		}
+		return ret ;
+	}
+	
 	public Collection<String> flimPackages() {
 		return flimDefines.keySet();
 	}

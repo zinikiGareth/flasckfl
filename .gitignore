@@ -6,7 +6,7 @@ src/test/resources/**/*.js
 src/test/resources/**/*.flim
 src/regression/
 src/golden/workon/
-!src/main/resources/flasck/*.js
+!src/main/resources/flasck/**/*.js
 !src/test/resources/jsrunner/**/*.js
 parser-tmp/
 rw-tmp/

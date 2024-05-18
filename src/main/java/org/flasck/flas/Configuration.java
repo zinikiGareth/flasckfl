@@ -11,6 +11,8 @@ import org.flasck.flas.compiler.modules.OptionModule;
 import org.flasck.flas.compiler.modules.PreCompilationModule;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.jvm.ziniki.PackageSources;
+import org.ziniki.paas.interfaces.ContentStorage;
+import org.ziniki.tdastore.support.InternalContentStorage;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
 
@@ -26,7 +28,8 @@ public class Configuration {
 	public boolean doTypeCheck = true;
 	public boolean generateJS = true;
 	public boolean generateJVM = true;
-	public File html;
+	public boolean genapps = true;
+	public String html;
 	public String inclPrefix = "/";
 	PhaseTo upto = PhaseTo.COMPLETE;
 	File dumprepo = null;
@@ -44,7 +47,10 @@ public class Configuration {
 	public List<PackageSources> dependencies;
 	public final List<File> includeFrom = new ArrayList<File>();
 	public final List<File> loadJars = new ArrayList<File>();
-	public final List<String> modules = new ArrayList<>(); // just the "names" of the modules - we will use the "moduleDir" and known rules to find the actual items we want
+	public final List<String> modules = new ArrayList<>(); // just the "names" of the modules - we will use the
+															// "moduleDir" and known rules to find the actual items we
+															// want
+	public ContentStorage contentStore = new InternalContentStorage();
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.optionModules = ServiceLoader.load(OptionModule.class);
@@ -55,12 +61,12 @@ public class Configuration {
 	}
 
 	private void process(String[] args) {
-		for (int i=0;i<args.length-1;i++) {
+		for (int i = 0; i < args.length - 1; i++) {
 			if (args[i].equals("--project-dir")) {
 				if (projectDir != null) {
 					System.out.println("--project-dir can only be specified once");
 					System.exit(1);
-				} else if (i == args.length-1) {
+				} else if (i == args.length - 1) {
 					System.out.println("--project-dir <dir>");
 					System.exit(1);
 				} else {
@@ -68,23 +74,23 @@ public class Configuration {
 				}
 			}
 		}
-		for (int i=0;i<args.length;i++) {
+		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
 			if (arg == null || arg.length() == 0)
 				continue;
-			int hasMore = args.length-i-1;
+			int hasMore = args.length - i - 1;
 			if (arg.startsWith("-")) {
 				if (arg.equals("--project-dir")) {
 					// was processed above
 					++i;
 				} else if (arg.equals("--module")) {
-					this.modules.add(args[++i]); 
+					this.modules.add(args[++i]);
 				} else if (arg.equals("--html")) {
 					if (hasMore == 0) {
 						System.out.println("--html <file>");
 						System.exit(1);
 					}
-					html = new File(projectDir, args[++i]);
+					html = args[++i];
 				} else if (arg.equals("--incl-prefix")) {
 					if (hasMore == 0) {
 						System.out.println("--incl-prefix <prefix>");
@@ -104,7 +110,7 @@ public class Configuration {
 					}
 					specifiedTestName = args[++i];
 				}
-				
+
 // TODO: I'm not sure this works the way I want
 // it says "read" for the first one and "include" for the second
 // so at least rename "read"
@@ -124,8 +130,8 @@ public class Configuration {
 						System.exit(1);
 					}
 					includeFrom.add(new File(args[++i]));
-				}				
-				
+				}
+
 				// turn things on or off
 				else if (arg.equals("--phase")) {
 					upto = PhaseTo.valueOf(args[++i]);
@@ -138,14 +144,14 @@ public class Configuration {
 				} else if (arg.equals("--no-system-jvm")) {
 					systemjvm = false;
 				}
-				
+
 				// things in unusual places
 				else if (arg.equals("--flascklib")) {
 					if (hasMore == 0) {
 						System.out.println("--flascklib <dir>");
 						System.exit(1);
 					}
-					this.flascklibDir = args[++i]; // definitely NOT under root 
+					this.flascklibDir = args[++i]; // definitely NOT under root
 				} else if (arg.equals("--moduledir")) {
 					if (hasMore == 0) {
 						System.out.println("--moduledir <dir>");
@@ -182,20 +188,20 @@ public class Configuration {
 					}
 					writeTestReportsTo = new File(projectDir, args[++i]);
 				}
-				
-				// at this point, give up ...
+
+				// at this point, give up and ask for help...
 				else {
 					boolean matched = false;
 					for (OptionModule om : optionModules) {
 						int cnt = om.options(errors, args, i);
 						if (cnt > 0) {
-							i += cnt-1;
+							i += cnt - 1;
 							matched = true;
 							break;
 						}
 					}
 					if (!matched) {
-						errors.message((InputPosition)null, "unknown option: " + arg);
+						errors.message((InputPosition) null, "unknown option: " + arg);
 					}
 				}
 			} else {
@@ -203,10 +209,10 @@ public class Configuration {
 			}
 		}
 		if (moduleDir == null && !modules.isEmpty()) {
-			errors.message((InputPosition)null, "cannot specify --module without --moduledir");
+			errors.message((InputPosition) null, "cannot specify --module without --moduledir");
 		}
 		if (html != null && flascklibDir == null) {
-			errors.message((InputPosition)null, "Use of --html requires --flascklib");
+			errors.message((InputPosition) null, "Use of --html requires --flascklib");
 		}
 	}
 
@@ -239,7 +245,7 @@ public class Configuration {
 		else
 			return front.getPath();
 	}
-	
+
 	public File writeErrorsTo() {
 		return writeErrorsTo;
 	}
@@ -254,7 +260,7 @@ public class Configuration {
 	public File flimdir() {
 		if (readFlims.isEmpty())
 			return null;
-		return readFlims.get(readFlims.size()-1);
+		return readFlims.get(readFlims.size() - 1);
 	}
 
 	public File dumprepo() {

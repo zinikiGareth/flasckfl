@@ -235,10 +235,10 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	// untested
-	public void generateCOs() {
+	public void generateCOs() throws IOException {
 		Collection<String> imports = fileImports();
 		for (JSFile jsf : files.values()) {
-			ContentObject co = jsf.generate(imports);
+			ContentObject co = jsf.generate(config, imports);
 			gencos.put(jsf.key(), co);
 		}
 	}
@@ -252,7 +252,10 @@ public class JSEnvironment implements JSStorage {
 
 	public void upload(JSUploader uploader) throws IOException {
 		for (JSFile jsf : files.values()) {
-			if (!jsf.upload(uploader))
+			ContentObject co = jsf.upload(uploader);
+			if (co != null)
+				gencos.put(jsf.key(), co);
+			else
 				localOnly.add(jsf.co());
 		}
 	}
@@ -327,27 +330,32 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
-	public Iterable<ContentObject> jsIncludes(String testOrLive) {
+	public Iterable<ContentObject> jsIncludes(String mockOrLive) {
 		List<ContentObject> ret = new ArrayList<>();
 		if (config.flascklibDir != null) {
-			figureJSFilesOnDisk(ret, config, testOrLive);
+			figureJSFilesOnDisk(ret, config, mockOrLive);
 		} else if (config.flascklibCPV != null) {
-			figureJSFilesFromContentStore(ret, config);
+			figureJSFilesFromContentStore(ret, config, mockOrLive);
 		}
 		return ret;
 	}
 
-	private void figureJSFilesOnDisk(List<ContentObject> ret, Configuration config, String testOrLive) {
+	private void figureJSFilesOnDisk(List<ContentObject> ret, Configuration config, String mockOrLive) {
 		List<String> inlib = new ArrayList<>();
-		addFrom(ret, inlib, new File(config.flascklibDir, "core"));
-		addFrom(ret, inlib, new File(config.flascklibDir, testOrLive));
+		
+		File fljs = new File(config.flascklibDir, "js"); 
+		addFrom(ret, inlib, new File(fljs, "core"));
+		addFrom(ret, inlib, new File(fljs, mockOrLive));
+		
 		for (String mld : config.modules) {
-			addModule(ret, config.moduleDir, inlib, mld);
+			addModule(ret, config.moduleDir, inlib, mld, mockOrLive);
 		}
 
 		Iterable<String> pkgs = packageStrings();
 		
 		for (String s : pkgs) {
+			if (mockOrLive.equals("live") && (s.contains("_ut_") || s.contains("_st_")))
+				continue;
 			ContentObject co = fileFor(s);
 			if (co != null) {
 				ret.add(co);
@@ -380,14 +388,14 @@ public class JSEnvironment implements JSStorage {
 		}
 	}
 
-	private void addModule(List<ContentObject> ret, File moduleDir, List<String> inlib, String m) {
+	private void addModule(List<ContentObject> ret, File moduleDir, List<String> inlib, String m, String mockOrLive) {
 		File f = new File(moduleDir, m);
 		if (!f.isDirectory()) {
 			throw new InvalidUsageException("there is no module " + m + " defined in " + moduleDir);
 		}
 		File mjs = new File(f, "js");
 		addFrom(ret, inlib, new File(mjs, "core"));
-		addFrom(ret, inlib, new File(mjs, "mock"));
+		addFrom(ret, inlib, new File(mjs, mockOrLive));
 	}
 	
 	private void addFrom(List<ContentObject> ret, List<String> inlib, File from) {
@@ -400,34 +408,46 @@ public class JSEnvironment implements JSStorage {
 		}
 	}
 
-	private void figureJSFilesFromContentStore(List<ContentObject> ret, Configuration config) {
+	private void figureJSFilesFromContentStore(List<ContentObject> ret, Configuration config, String mockOrLive) {
 		for (ContentObject co : config.flascklibCPV.corejs()) {
 			ret.add(co);
 		}
-		for (ContentObject co : config.flascklibCPV.livejs()) {
-			ret.add(co);
+		if (mockOrLive.equals("live")) {
+			for (ContentObject co : config.flascklibCPV.livejs()) {
+				ret.add(co);
+			}
 		}
-		for (ContentObject co : config.flascklibCPV.mockjs()) {
-			ret.add(co);
+		if (mockOrLive.equals("mock")) {
+			for (ContentObject co : config.flascklibCPV.mockjs()) {
+				ret.add(co);
+			}
 		}
 		if (config.moduleCOs != null) {
 			for (PackageSources d : config.moduleCOs) {
 				for (ContentObject co : d.corejs())
 					ret.add(co);
-				for (ContentObject co : d.livejs())
-					ret.add(co);
-				for (ContentObject co : d.mockjs())
-					ret.add(co);
+				if (mockOrLive.equals("live")) {
+					for (ContentObject co : d.livejs())
+						ret.add(co);
+				}
+				if (mockOrLive.equals("mock")) {	
+					for (ContentObject co : d.mockjs())
+						ret.add(co);
+				}
 			}
 		}
 		if (config.dependencies != null) {
 			for (PackageSources d : config.dependencies) {
 				for (ContentObject co : d.corejs())
 					ret.add(co);
-				for (ContentObject co : d.livejs())
-					ret.add(co);
-				for (ContentObject co : d.mockjs())
-					ret.add(co);
+				if (mockOrLive.equals("live")) {
+					for (ContentObject co : d.livejs())
+						ret.add(co);
+				}
+				if (mockOrLive.equals("mock")) {
+					for (ContentObject co : d.mockjs())
+						ret.add(co);
+				}
 			}
 		}
 		for (ContentObject co : gencos.values()) {
