@@ -250,9 +250,9 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			if (moduleDir == null) {
 				throw new InvalidUsageException("cannot use modules without specifying -Dorg.flasck.module.dir");
 			}
+			args.add("--moduledir");
+			args.add(moduleDir);
 			for (String m : FileUtils.readFileAsLines(modules)) {
-				args.add("--moduledir");
-				args.add(moduleDir);
 				args.add("--module");
 				args.add(m);
 			}

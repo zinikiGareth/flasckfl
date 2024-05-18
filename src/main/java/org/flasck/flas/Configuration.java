@@ -74,6 +74,7 @@ public class Configuration {
 				}
 			}
 		}
+		boolean error = false;
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
 			if (arg == null || arg.length() == 0)
@@ -86,24 +87,30 @@ public class Configuration {
 				} else if (arg.equals("--module")) {
 					this.modules.add(args[++i]);
 				} else if (arg.equals("--html")) {
+					if (html != null) {
+						System.out.println("--html can only be specified once");
+						error = true;
+					}
 					if (hasMore == 0) {
 						System.out.println("--html <file>");
 						System.exit(1);
 					}
 					html = args[++i];
 				} else if (arg.equals("--incl-prefix")) {
+					if (!inclPrefix.equals("/")) {
+						System.out.println("--incl-prefix can only be specified once");
+						error = true;
+					}
 					if (hasMore == 0) {
 						System.out.println("--incl-prefix <prefix>");
 						System.exit(1);
 					}
 					inclPrefix = args[++i];
-				} else if (arg.equals("--store-html")) {
-					if (hasMore == 0) {
-						System.out.println("--store-html <dir>");
-						System.exit(1);
-					}
-					jstestdir = args[++i];
 				} else if (arg.equals("--testname")) {
+					if (specifiedTestName != null) {
+						System.out.println("--testname can only be specified once");
+						error = true;
+					}
 					if (hasMore == 0) {
 						System.out.println("--testname <name>");
 						System.exit(1);
@@ -118,6 +125,10 @@ public class Configuration {
 
 				// flim import and export
 				else if (arg.equals("--flim")) {
+					if (writeFlim != null) {
+						System.out.println("--flim can only be specified once");
+						error = true;
+					}
 					if (hasMore == 0) {
 						System.out.println("--flim <dir>");
 						System.exit(1);
@@ -133,6 +144,10 @@ public class Configuration {
 
 				// turn things on or off
 				else if (arg.equals("--phase")) {
+					if (upto != PhaseTo.COMPLETE) {
+						System.out.println("--phase can only be specified once");
+						error = true;
+					}
 					upto = PhaseTo.valueOf(args[++i]);
 				} else if (arg.equals("--unit-js")) {
 					unitjs = true;
@@ -148,12 +163,30 @@ public class Configuration {
 
 				// things in unusual places
 				else if (arg.equals("--flascklib")) {
+					if (flascklibDir != null) {
+						System.out.println("--flascklib can only be specified once");
+						error = true;
+					}
 					if (hasMore == 0) {
 						System.out.println("--flascklib <dir>");
 						System.exit(1);
 					}
 					this.flascklibDir = args[++i]; // definitely NOT under root
+				} else if (arg.equals("--store-html")) {
+					if (jstestdir != null) {
+						System.out.println("--store-html can only be specified once");
+						error = true;
+					}
+					if (hasMore == 0) {
+						System.out.println("--store-html <dir>");
+						System.exit(1);
+					}
+					jstestdir = args[++i];
 				} else if (arg.equals("--moduledir")) {
+					if (moduleDir != null) {
+						System.out.println("--moduledir can only be specified once");
+						error = true;
+					}
 					if (hasMore == 0) {
 						System.out.println("--moduledir <dir>");
 						System.exit(1);
@@ -169,20 +202,40 @@ public class Configuration {
 
 				// --capture options, mainly used by the golden tests ...
 				else if (arg.equals("--capture-repository")) {
+					if (specifiedTestName != null) {
+						System.out.println("--capture-repository can only be specified once");
+						error = true;
+					}
+					if (hasMore == 0) {
+						System.out.println("--capture-repository <dir>");
+						System.exit(1);
+					}
 					dumprepo = new File(projectDir, args[++i]);
 				} else if (arg.equals("--errors")) {
+					if (writeErrorsTo != null) {
+						System.out.println("--errors can only be specified once");
+						error = true;
+					}
 					if (hasMore == 0) {
 						System.out.println("--errors <dir>");
 						System.exit(1);
 					}
 					writeErrorsTo = new File(projectDir, args[++i]);
 				} else if (arg.equals("--types")) {
+					if (writeTypesTo != null) {
+						System.out.println("--types can only be specified once");
+						error = true;
+					}
 					if (hasMore == 0) {
 						System.out.println("--types <dir>");
 						System.exit(1);
 					}
 					writeTypesTo = new File(projectDir, args[++i]);
 				} else if (arg.equals("--testReports")) {
+					if (writeTestReportsTo != null) {
+						System.out.println("--testReports can only be specified once");
+						error = true;
+					}
 					if (hasMore == 0) {
 						System.out.println("--testReports <dir>");
 						System.exit(1);
@@ -208,6 +261,9 @@ public class Configuration {
 			} else {
 				inputs.add(new File(projectDir, arg));
 			}
+		}
+		if (error) {
+			System.exit(1);
 		}
 		if (moduleDir == null && !modules.isEmpty()) {
 			errors.message((InputPosition) null, "cannot specify --module without --moduledir");
