@@ -34,6 +34,10 @@ public class FlimReader {
 	}
 
 	public void read(DirectedAcyclicGraph<String> pkgs, File flimdir, List<File> butNot) {
+		if (flimdir == null) {
+			return;
+		}
+		
 		if (!flimdir.exists()) {
 			logger.warn("cannot read flim dir " + flimdir);
 			return;

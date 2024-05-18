@@ -148,16 +148,19 @@ public class FLASCompiler implements CompileUnit {
 		LoadBuiltins.applyTo(errors, repository);
 		pkgs = new DirectedAcyclicGraph<>();
 		FlimReader reader = new FlimReader(errors, repository);
+
+		// read from (multiple) read-only import locations
 		for (File dir : config.includeFrom) {
 			reader.read(pkgs, dir, config.inputs);
 			if (errors.hasErrors())
 				return true;
 		}
-		for (File f : config.readFlims) {
-			reader.read(pkgs, f, config.inputs);
-			if (errors.hasErrors())
-				return true;
-		}
+		
+		// read from where we write (but beware of recursion)
+		reader.read(pkgs, config.writeFlim, config.inputs);
+		if (errors.hasErrors())
+			return true;
+		
 		return false;
 	}
 

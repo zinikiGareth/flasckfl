@@ -362,14 +362,12 @@ public class JSEnvironment implements JSStorage {
 				inlib.add(co.key());
 			} else {
 				boolean added = false;
-				for (File q : config.readFlims) {
-					File i = new File(q, s + ".js");
-					if (i.exists()) {
-						if (!inlib.contains(i.getName())) {
-							ret.add(new FileContentObject(i));
-							inlib.add(i.getName());
-							added = true;
-						}
+				File inc = new File(config.writeFlim, s + ".js");
+				if (inc.exists()) {
+					if (!inlib.contains(inc.getName())) {
+						ret.add(new FileContentObject(inc));
+						inlib.add(inc.getName());
+						added = true;
 					}
 				}
 				for (File q : config.includeFrom) {

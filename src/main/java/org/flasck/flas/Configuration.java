@@ -23,8 +23,8 @@ public class Configuration {
 	public boolean unitjvm = true, unitjs = false;
 	public boolean systemjvm = true, systemjs = false;
 	public boolean usesplitter = true;
-	public final List<File> readFlims = new ArrayList<>();
 	public File projectDir;
+	public File writeFlim = null;
 	public boolean doTypeCheck = true;
 	public boolean generateJS = true;
 	public boolean generateJVM = true;
@@ -122,8 +122,7 @@ public class Configuration {
 						System.out.println("--flim <dir>");
 						System.exit(1);
 					}
-					File flimDir = new File(args[++i]);
-					readFlims.add(flimDir);
+					writeFlim = new File(args[++i]);
 				} else if (arg.equals("--import")) {
 					if (hasMore == 0) {
 						System.out.println("--import <dir>");
@@ -143,6 +142,8 @@ public class Configuration {
 					systemjs = true;
 				} else if (arg.equals("--no-system-jvm")) {
 					systemjvm = false;
+				} else if (arg.equals("--no-gen-apps")) {
+					genapps = false;
 				}
 
 				// things in unusual places
@@ -258,9 +259,7 @@ public class Configuration {
 	}
 
 	public File flimdir() {
-		if (readFlims.isEmpty())
-			return null;
-		return readFlims.get(readFlims.size() - 1);
+		return writeFlim;
 	}
 
 	public File dumprepo() {
