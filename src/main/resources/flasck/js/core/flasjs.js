@@ -328,26 +328,31 @@ Application.prototype.gotoRoute = function(_cxt, r, allDone) {
   }
 };
 Application.prototype.parseRoute = function(_cxt, r) {
-  if (r instanceof Location || r instanceof URL) {
-    r = r.href;
-  }
   var buri;
   if (typeof baseUri !== "undefined" && baseUri)
     buri = baseUri;
   else
     buri = this.baseUri();
-  if (r.startsWith("/"))
-    r = buri + r;
-  if (!r.endsWith("/"))
-    r = r + "/";
-  try {
-    if (this.currentPath)
-      r = new URL(r, this.currentPath).href;
-    else
-      r = new URL(r, this.baseUri()).href;
-  } catch (e) {
+  if (r instanceof Location || r instanceof URL) {
+    if (!buri) {
+      r = r.hash;
+    } else
+      r = r.href;
   }
-  this.currentPath = r;
+  if (buri) {
+    if (r.startsWith("/"))
+      r = buri + r;
+    if (!r.endsWith("/"))
+      r = r + "/";
+    try {
+      if (this.currentPath)
+        r = new URL(r, this.currentPath).href;
+      else
+        r = new URL(r, this.baseUri()).href;
+    } catch (e) {
+    }
+    this.currentPath = r;
+  }
   var url = r.replace(buri, "").replace(/^[#/]*/, "");
   var parts = url.split("/").filter((x) => !!x);
   return parts;

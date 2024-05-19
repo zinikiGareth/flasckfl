@@ -99,6 +99,9 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 			super.tellParent(kw.location);
 			return new TDAParsingWithAction(new TDARoutingParser(errors, group, this), reduction(kw.location, "assembly-route-nested"));
 		}
+		case "query": {
+			return new NoNestingParser(errors);
+		}
 		case "title": {
 			int mark = toks.at();
 			InputPosition pos = toks.realinfo();
@@ -120,7 +123,7 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 		default: {
 			ExprToken op = ExprToken.from(errors, toks);
 			if (op == null || !"<-".equals(op.text)) {
-				errors.message(toks, "expected 'enter', 'at', 'exit', 'secure', 'route', 'title' or card assignment");
+				errors.message(toks, "expected 'enter', 'at', 'exit', 'secure', 'route', 'query', 'title' or card assignment");
 				return new IgnoreNestedParser(errors);
 			}
 			if (kw.text.equals("main") && !(consumer instanceof MainRoutingGroupConsumer)) {
