@@ -99,9 +99,6 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 			super.tellParent(kw.location);
 			return new TDAParsingWithAction(new TDARoutingParser(errors, group, this), reduction(kw.location, "assembly-route-nested"));
 		}
-		case "query": {
-			return new NoNestingParser(errors);
-		}
 		case "title": {
 			int mark = toks.at();
 			InputPosition pos = toks.realinfo();
