@@ -128,8 +128,13 @@ public class JVMRunner extends CommonTestRunner<State>  {
 				if (state != null && state.failed > 0)
 					return;
 				pw.begin("JVM", (desc!=null?desc:"configure") + ": " + s);
-				counter.start();
-				Reflection.call(test, s, cxt);
+				counter.start("JVM run test");
+				Throwable ct = null;
+				try {
+					Reflection.call(test, s, cxt);
+				} catch (Throwable t) {
+					ct = t;
+				}
 				counter.end(s);
 				while (true) {
 					counter.waitForZero(5000);
@@ -140,6 +145,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 						break;
 					}
 				}
+				if (ct != null)
+					throw ct;
 			}
 			((CardContext)cxt).assertSatisfied();
 			if (cxt.getError() != null)

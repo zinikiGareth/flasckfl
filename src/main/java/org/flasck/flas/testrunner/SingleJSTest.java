@@ -66,7 +66,7 @@ public class SingleJSTest {
 		List<Throwable> excs = new ArrayList<>();
 		logger.info("calling " + desc + " step " + s);
 		try {
-			counter.start();
+			counter.start("JS runstep");
 			runStep(s);
 			counter.waitForZero(15000);
 			logger.info("step " + s + " has finished");
@@ -89,7 +89,7 @@ public class SingleJSTest {
 	public void checkContextSatisfied(String desc) {
 		List<Throwable> excs = new ArrayList<>();
 		try {
-			counter.start();
+			counter.start("JS assert satisfied");
 			bridge.checkContextSatisfied();
 			counter.waitForZero(15000);
 		} catch (JSCaughtException t) {

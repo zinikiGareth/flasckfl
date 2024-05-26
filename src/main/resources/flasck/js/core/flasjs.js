@@ -275,23 +275,319 @@ UpdateDisplay.prototype.toString = function() {
   return "UpdateDisplay";
 };
 
-// src/main/javascript/runtime/appl.js
-var Application = function(_cxt, topdiv) {
+// src/main/javascript/runtime/appl/route.js
+var Segment = function(action, segment, map) {
+  this.action = action;
+  this.segment = segment;
+  this.entry = map;
+};
+var Route = function() {
+  this.parts = [];
+  this.pos = 0;
+};
+Route.parse = function(baseuri, table, path) {
+  if (typeof path === "string") {
+    try {
+      var p1 = new URL(path);
+      path = p1;
+    } catch (e) {
+      try {
+        var p2 = new URL(baseuri + path);
+        path = p2;
+      } catch (f) {
+        var p3 = new URL("https://base.uri/#" + path);
+        path = p3;
+      }
+    }
+  } else if (path instanceof Location) {
+    path = new URL(path.href);
+  } else if (!(path instanceof URL)) {
+    throw new Error("path is not a url, location or string");
+  }
+  this.claimedRoute = path;
+  var query = new URLSearchParams(path.search);
+  if (path.hash) {
+    path = path.hash.replace(/^#/, "");
+  } else if (baseuri) {
+    var buu = baseuri;
+    if (typeof buu == "string") {
+      try {
+        buu = new URL(buu);
+        buu = buu.path;
+      } catch (e) {
+      }
+    } else if (buu instanceof URL) {
+      buu = buu.path;
+    } else {
+      throw new Error("baseuri is not a URL or a string");
+    }
+    if (!buu)
+      buu = "";
+    if (path && path.pathname)
+      path = path.pathname.replace(buu, "");
+    else
+      path = "";
+  } else {
+    path = "";
+  }
+  var route;
+  route = path.split("/").filter((i) => i);
+  var ret2 = new Route();
+  ret2.parts.push(new Segment("push", "/", table));
+  var map = table;
+  for (var s of route) {
+    map = map.route(s);
+    if (!map) {
+      break;
+    }
+    ret2.parts.push(new Segment("push", s, map));
+  }
+  ret2.query = query;
+  return ret2;
+};
+Route.prototype.reset = function() {
+  this.pos = 0;
+};
+Route.prototype.length = function() {
+  return this.parts.length - this.pos;
+};
+Route.prototype.head = function() {
+  return this.parts[this.pos];
+};
+Route.prototype.advance = function() {
+  this.pos++;
+};
+Route.prototype.movingFrom = function(from) {
+  this.reset();
+  if (from)
+    from.reset();
+  var ret2 = new Route();
+  ret2.query = this.query;
+  while (from && this.length() > 0 && from.length() > 0) {
+    if (this.head().segment != from.head().segment)
+      break;
+    this.advance();
+    from.advance();
+  }
+  while (from && from.length() > 0) {
+    var s = from.head();
+    ret2.parts.unshift(new Segment("pop", s.segment, s.entry));
+    from.advance();
+  }
+  while (this.length() > 0) {
+    ret2.parts.push(this.head());
+    this.advance();
+  }
+  return ret2;
+};
+Route.prototype.getQueryParam = function(v) {
+  return this.query.get(v);
+};
+
+// src/main/javascript/runtime/appl/routeevent.js
+var RouteTraversalState = function(appl, allDone) {
+  this.appl = appl;
+  this.newcards = [];
+  this.allDone = allDone;
+};
+var RouteEvent = function(route, stateOrAppl, lastAct, allDone) {
+  this.route = route;
+  this.action = nextAction(lastAct);
+  if (stateOrAppl instanceof RouteTraversalState)
+    this.state = stateOrAppl;
+  else
+    this.state = new RouteTraversalState(stateOrAppl, allDone);
+};
+RouteEvent.prototype.dispatch = function(cxt) {
+  if (this.route.length() == 0) {
+    return;
+  }
+  if (this.route.head().action == "push") {
+    if (this.processDownAction(cxt) == "break")
+      return;
+  } else
+    this.processUpAction(cxt);
+  this.queueNextAction(cxt);
+};
+RouteEvent.prototype.processDownAction = function(cxt) {
+  cxt.log("processing route event for", this.route.pos, "is", this.route.head().action, "action", this.action);
+  switch (this.action) {
+    case "title": {
+      if (this.route.head().entry.title) {
+        this.state.appl.setTitle(cxt, this.route.head().entry.title);
+      }
+      break;
+    }
+    case "secure": {
+      var e = this.route.head();
+      if (this.route.head().entry.secure) {
+        var nev = new RouteEvent(this.route, this.state, this.action);
+        this.state.appl.handleSecurity(cxt, nev);
+        return "break";
+      }
+      break;
+    }
+    case "create": {
+      for (var ci of this.route.head().entry.cards) {
+        this.state.appl.createCard(cxt, ci);
+        this.state.newcards.unshift(ci.name);
+      }
+      break;
+    }
+    case "enter": {
+      for (var act of this.route.head().entry.enter) {
+        var arg;
+        if (act.contract == "Lifecycle" && act.action == "query") {
+          arg = this.route.getQueryParam(act.args[0].str);
+        }
+        this.state.appl.oneAction(cxt, act, arg);
+      }
+      break;
+    }
+    case "at": {
+      for (var act of this.route.head().entry.at) {
+        var arg;
+        if (act.contract == "Lifecycle" && act.action == "query") {
+          arg = this.route.getQueryParam(act.args[0].str);
+        }
+        this.state.appl.oneAction(cxt, act, arg);
+      }
+      break;
+    }
+    case "exit": {
+      break;
+    }
+    default: {
+      throw new Error("cannot handle action " + this.action);
+    }
+  }
+};
+RouteEvent.prototype.processUpAction = function(cxt) {
+  switch (this.action) {
+    case "title":
+    case "create":
+    case "enter":
+    case "secure":
+    case "at": {
+      break;
+    }
+    case "exit": {
+      for (var act of this.route.head().entry.exit) {
+        var arg;
+        this.state.appl.oneAction(cxt, act, arg);
+      }
+      break;
+    }
+    default: {
+      throw new Error("cannot handle action " + this.action);
+    }
+  }
+};
+RouteEvent.prototype.queueNextAction = function(cxt) {
+  var nev = new RouteEvent(this.route, this.state, this.action);
+  if (nev.action) {
+    cxt.env.queueMessages(cxt, nev);
+  } else {
+    this.route.advance();
+    if (this.route.length() > 0) {
+      nev = new RouteEvent(this.route, this.state, null);
+      cxt.env.queueMessages(cxt, nev);
+    } else {
+      this.alldone(cxt);
+    }
+  }
+};
+RouteEvent.prototype.alldone = function(cxt) {
+  for (var c of this.state.newcards) {
+    this.state.appl.readyCard(cxt, c);
+  }
+  this.state.appl.complete(cxt, this.route.claimedRoute);
+  this.state.allDone();
+};
+function nextAction(curr) {
+  switch (curr) {
+    case null:
+    case void 0:
+      return "secure";
+    case "secure":
+      return "title";
+    case "title":
+      return "create";
+    case "create":
+      return "enter";
+    case "enter":
+      return "exit";
+    case "exit":
+      return "at";
+    case "at":
+      return null;
+  }
+}
+
+// src/main/javascript/runtime/appl/routingentry.js
+function RoutingEntry(entry) {
+  this.secure = entry.secure;
+  this.title = entry.title;
+  this.namedPaths = {};
+  this.paramRoute = null;
+  this.path = entry.path;
+  this.param = entry.param;
+  this.cards = entry.cards;
+  this.enter = entry.enter;
+  this.at = entry.at;
+  this.exit = entry.exit;
+  for (var sub of entry.routes) {
+    if (sub.path) {
+      this.namedPaths[sub.path] = new RoutingEntry(sub);
+    } else if (sub.param) {
+      this.paramRoute = new RoutingEntry(sub);
+    }
+  }
+}
+RoutingEntry.prototype.route = function(path) {
+  if (this.namedPaths[path]) {
+    return this.namedPaths[path];
+  } else if (this.paramRoute) {
+    return this.paramRoute;
+  } else
+    return null;
+};
+
+// src/main/javascript/runtime/appl/appl.js
+var Application = function(_cxt, topdiv, baseuri) {
   if (typeof topdiv == "string")
     this.topdiv = document.getElementById(topdiv);
   else
     this.topdiv = topdiv;
+  this.baseuri = baseuri;
   this.cards = {};
   this.params = {};
   this.currentRoute = null;
 };
 Application.prototype.baseUri = function(_cxt) {
-  return "";
+  return this.baseuri;
 };
 Application.prototype.nowLoggedIn = function(_cxt) {
-  this.gotoRoute(_cxt, this.routingPendingSecure.route);
+  if (this.routingPendingSecure instanceof RouteEvent)
+    _cxt.env.queueMessages(this.routingPendingSecure);
+  else
+    this.gotoRoute(_cxt, this.routingPendingSecure.route);
+  this.routingPendingSecure = null;
 };
-Application.prototype.gotoRoute = function(_cxt, r, allDone) {
+Application.prototype.gotoRoute = function(_cxt, route, allDone) {
+  var goto = Route.parse(this.baseUri(), new RoutingEntry(this._routing()), route);
+  var moveTo = goto.movingFrom(this.currentRoute);
+  var event = new RouteEvent(moveTo, this, null, allDone);
+  _cxt.env.queueMessages(_cxt, event);
+};
+Application.prototype.handleSecurity = function(_cxt, ev) {
+  if (this.securityModule.requireLogin(_cxt, this, this.topdiv)) {
+    this.routingPendingSecure = ev;
+  } else {
+    _cxt.queueMessages(ev);
+  }
+};
+Application.prototype.OLDgotoRoute = function(_cxt, r, allDone) {
   var routing = this._routing();
   if (routing.secure) {
     if (!this.securityModule.requireLogin(_cxt, this, this.topdiv)) {
@@ -374,6 +670,15 @@ Application.prototype.moveUp = function(_cxt) {
   _cxt.env.queueMessages(_cxt, ev);
   _cxt.env.queueMessages(_cxt, new UpdateDisplay(_cxt, this));
 };
+Application.prototype.setTitle = function(_cxt, title) {
+  if (title != null)
+    this.title = title;
+};
+Application.prototype.complete = function(_cxt, route) {
+  this.currentPath = route;
+  _cxt.env.queueMessages(_cxt, new UpdateDisplay(_cxt, this));
+  _cxt.addHistory({}, this.title, this.currentPath);
+};
 Application.prototype.moveDown = function(_cxt, table, path, allDone) {
   if (table.title != null)
     this.title = table.title;
@@ -417,6 +722,28 @@ Application.prototype._closeCards = function(_cxt, ev, cards) {
     ev.add(closeOne(this, cards[i]));
   }
 };
+Application.prototype.createCard = function(_cxt, ci) {
+  debugger;
+  var card = this.cards[ci.name] = new ci.card(_cxt);
+  var ctr = _cxt.findContractOnCard(card, "Lifecycle");
+  if (ctr && ctr.init) {
+    var msgs = ctr.init(_cxt);
+    _cxt.env.queueMessages(_cxt, msgs);
+  }
+};
+Application.prototype.closeCard = function(_cxt, ci) {
+  var card = this.cards[ci.name];
+  var ctr = _cxt.findContractOnCard(card, "Lifecycle");
+  if (ctr && ctr.closing) {
+    var msgs = ctr.closing(_cxt);
+    _cxt.env.queueMessages(_cxt, msgs);
+  }
+  if (card._renderTree) {
+    var div = document.getElementById(card._renderTree._id);
+    div.innerHTML = "";
+    card._renderTree = null;
+  }
+};
 function createOne(appl, ci) {
   return (_cxt) => {
     var card = appl.cards[ci.name] = new ci.card(_cxt);
@@ -447,6 +774,14 @@ Application.prototype._readyCards = function(_cxt, ev, cards) {
     ev.add(readyOne(this, cards[i].name));
   }
 };
+Application.prototype.readyCard = function(_cxt, name) {
+  var card = this.cards[name];
+  var ctr = _cxt.findContractOnCard(card, "Lifecycle");
+  if (ctr && ctr.ready) {
+    var msgs = ctr.ready(_cxt);
+    _cxt.env.queueMessages(_cxt, msgs);
+  }
+};
 function readyOne(appl, name) {
   return (_cxt) => {
     var card = appl.cards[name];
@@ -460,6 +795,31 @@ function readyOne(appl, name) {
 Application.prototype._routeActions = function(_cxt, ev, enter) {
   for (var i = 0; i < enter.length; i++) {
     ev.add(oneAction(this, enter[i]));
+  }
+};
+Application.prototype.oneAction = function(_cxt, a) {
+  var card = this.cards[a.card];
+  var ctr = _cxt.findContractOnCard(card, a.contract);
+  if (ctr) {
+    var m = a.action;
+    if (ctr[m]) {
+      var callWith = [_cxt];
+      for (var ai = 0; ai < a.args.length; ai++) {
+        var aa = a.args[ai];
+        if (aa.str) {
+          callWith.push(aa.str);
+        } else if (aa.ref) {
+          callWith.push(this.cards[aa.ref]);
+        } else if (aa.param) {
+          callWith.push(this.params[aa.param]);
+        } else if (aa.expr) {
+          callWith.push(this[aa.expr].call(this, _cxt));
+        } else
+          throw new Error("huh? " + JSON.stringify(aa));
+      }
+      var msgs = ctr[m].apply(ctr, callWith);
+      _cxt.env.queueMessages(_cxt, msgs);
+    }
   }
 };
 function oneAction(appl, a) {
@@ -490,12 +850,13 @@ function oneAction(appl, a) {
   };
 }
 Application.prototype._currentRenderTree = function() {
-  var card = this.cards.main;
+  var card = this.cards["main"];
   if (card == null)
     return null;
   return card._currentRenderTree();
 };
 Application.prototype._updateDisplay = function(_cxt, rt) {
+  debugger;
   if (this.title) {
     var titles = document.head.getElementsByTagName("title");
     if (titles.length == 0) {
@@ -505,9 +866,12 @@ Application.prototype._updateDisplay = function(_cxt, rt) {
     }
     titles[0].innerText = this.title;
   }
-  var card = this.cards.main;
+  var card = this.cards["main"];
   if (card == null)
     return;
+  if (card._renderTree == null) {
+    this.cards["main"]._renderInto(_cxt, this.topdiv);
+  }
   card._updateDisplay(_cxt, card._renderTree);
 };
 function EnterEvent(appl, div) {
@@ -527,7 +891,7 @@ EnterEvent.prototype.dispatch = function(_cxt) {
   if (this.cnt < this.actions.length) {
     this.actions[this.cnt](_cxt);
   } else if (this.cnt == this.actions.length && this.div) {
-    this.appl.cards.main._renderInto(_cxt, this.div);
+    this.appl.cards["main"]._renderInto(_cxt, this.div);
   } else if (this.cnt == this.actions.length && !this.div || this.cnt == this.actions.length + 1 && this.div) {
     if (this.andThenMsg)
       this.andThenMsg.dispatch(_cxt);
@@ -1025,6 +1389,15 @@ FLBuiltin.strlen = function(_cxt, str) {
   if (typeof str != "string")
     return _cxt.error("not a string");
   return str.length;
+};
+FLBuiltin.strlen.nfargs = function() {
+  return 1;
+};
+FLBuiltin.numberFromString = function(_cxt, str) {
+  str = _cxt.head(str);
+  if (typeof str != "string")
+    return _cxt.error("not a string");
+  return parseFloat(str);
 };
 FLBuiltin.strlen.nfargs = function() {
   return 1;
@@ -3154,6 +3527,9 @@ CommonEnv.prototype.queueMessages = function(_cxt, msg) {
     self.dispatchMessages(_cxt);
     this.locker.unlock("queue");
   }, 0);
+};
+CommonEnv.prototype.quiescent = function() {
+  return this.queue.length == 0;
 };
 CommonEnv.prototype.dispatchMessages = function(_cxt) {
   var set = [];

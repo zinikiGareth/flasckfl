@@ -19,7 +19,9 @@ once created, it can be cancelled be repeating the process.
 		expect h help -> _first
 		contract c Top subscribe
 
-These expectations are not specified; the second doesn't happen because the first explodes first		
+It is an error that the first of these expectations is not specified;
+the second doesn't happen because the first explodes first		
+(Could we make that a separate exploding test?)
 //		expect <~ first
 //		expect h help -> _second
 		contract c Top subscribe
