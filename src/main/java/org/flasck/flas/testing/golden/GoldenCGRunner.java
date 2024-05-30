@@ -215,7 +215,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			}
 		}
 		List<String> args = new ArrayList<String>();
-		args.addAll(Arrays.asList("--project-dir", s, "--unit-js", "--system-js", "--no-gen-apps", "--flascklib", flascklib, "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types"));
+		args.addAll(Arrays.asList("--project-dir", s, "--no-gen-apps", "--flascklib", flascklib, "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types"));
 		for (File wf : new File(s).listFiles()) {
 			// TODO: this restricts us to directories, which are easier to work with, but we could add another case for ZIP files if we wanted ...
 			// We could also add a case that zipped up the directory to /tmp and did that ...
@@ -224,10 +224,14 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 				args.add(wf.getName());
 			}
 		}
-		if (!useJVMRunner || !runJvm)
+		if (!useJVMRunner || !runJvm) {
 			args.add("--no-unit-jvm");
-		if (!useJSRunner || !runJs)
-			args.add("--no-unit-js");
+			args.add("--no-system-jvm");
+		}
+		if (useJSRunner && runJs) {
+			args.add("--unit-js");
+			args.add("--system-js");
+		}
 		if (flimstore.exists() || flimstoreTo.exists()) {
 			args.add("--flim");
 			args.add(flimstoreTo.getPath());

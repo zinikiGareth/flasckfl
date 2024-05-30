@@ -281,9 +281,15 @@ var Segment = function(action, segment, map) {
   this.segment = segment;
   this.entry = map;
 };
+Segment.prototype.toString = function() {
+  return this.action + "->" + this.segment;
+};
 var Route = function() {
   this.parts = [];
   this.pos = 0;
+};
+Route.prototype.toString = function() {
+  return this.parts.toString();
 };
 Route.parse = function(baseuri, table, path) {
   if (typeof path === "string") {
@@ -295,7 +301,13 @@ Route.parse = function(baseuri, table, path) {
         var p2 = new URL(baseuri + path);
         path = p2;
       } catch (f) {
-        var p3 = new URL("https://base.uri/#" + path);
+        var p3;
+        if (path.includes("#"))
+          p3 = new URL("https://base.uri/" + path);
+        else if (path.includes("?"))
+          p3 = new URL("https://base.uri/" + path + "#/");
+        else
+          p3 = new URL("https://base.uri/#" + path);
         path = p3;
       }
     }
@@ -304,7 +316,7 @@ Route.parse = function(baseuri, table, path) {
   } else if (!(path instanceof URL)) {
     throw new Error("path is not a url, location or string");
   }
-  this.claimedRoute = path;
+  var claimedRoute = path;
   var query = new URLSearchParams(path.search);
   if (path.hash) {
     path = path.hash.replace(/^#/, "");
@@ -333,6 +345,7 @@ Route.parse = function(baseuri, table, path) {
   var route;
   route = path.split("/").filter((i) => i);
   var ret2 = new Route();
+  ret2.claimedRoute = claimedRoute;
   ret2.parts.push(new Segment("push", "/", table));
   var map = table;
   for (var s of route) {
@@ -362,8 +375,11 @@ Route.prototype.movingFrom = function(from) {
   if (from)
     from.reset();
   var ret2 = new Route();
+  ret2.claimedRoute = this.claimedRoute;
   ret2.query = this.query;
+  var popAt = null;
   while (from && this.length() > 0 && from.length() > 0) {
+    popAt = from.head();
     if (this.head().segment != from.head().segment)
       break;
     this.advance();
@@ -375,8 +391,12 @@ Route.prototype.movingFrom = function(from) {
     from.advance();
   }
   while (this.length() > 0) {
+    popAt = this.head();
     ret2.parts.push(this.head());
     this.advance();
+  }
+  if (popAt != null && ret2.parts.length > 0) {
+    ret2.parts.push(new Segment("at", popAt.segment, popAt.entry));
   }
   return ret2;
 };
@@ -390,9 +410,9 @@ var RouteTraversalState = function(appl, allDone) {
   this.newcards = [];
   this.allDone = allDone;
 };
-var RouteEvent = function(route, stateOrAppl, lastAct, allDone) {
+var RouteEvent = function(route, stateOrAppl, lastAct, posn, allDone) {
   this.route = route;
-  this.action = nextAction(lastAct);
+  this.nextAction(route.head().entry, lastAct, posn);
   if (stateOrAppl instanceof RouteTraversalState)
     this.state = stateOrAppl;
   else
@@ -402,16 +422,35 @@ RouteEvent.prototype.dispatch = function(cxt) {
   if (this.route.length() == 0) {
     return;
   }
-  if (this.route.head().action == "push") {
-    if (this.processDownAction(cxt) == "break")
-      return;
-  } else
-    this.processUpAction(cxt);
-  this.queueNextAction(cxt);
+  var needPause = null;
+  switch (this.route.head().action) {
+    case "push": {
+      needPause = this.processDownAction(cxt);
+      break;
+    }
+    case "pop": {
+      this.processUpAction(cxt);
+      break;
+    }
+    case "at": {
+      this.processAtAction(cxt);
+      break;
+    }
+  }
+  if (needPause != "break")
+    this.queueNextAction(cxt);
 };
 RouteEvent.prototype.processDownAction = function(cxt) {
-  cxt.log("processing route event for", this.route.pos, "is", this.route.head().action, "action", this.action);
+  cxt.log("processing down event for", this.route.pos, "is", this.route.head().action, "action", this.action, "#", this.posn);
   switch (this.action) {
+    case "param": {
+      var p = this.route.head().entry.param;
+      if (p) {
+        var q = this.route.head().segment;
+        this.state.appl.bindParam(cxt, p, q);
+      }
+      break;
+    }
     case "title": {
       if (this.route.head().entry.title) {
         this.state.appl.setTitle(cxt, this.route.head().entry.title);
@@ -421,7 +460,7 @@ RouteEvent.prototype.processDownAction = function(cxt) {
     case "secure": {
       var e = this.route.head();
       if (this.route.head().entry.secure) {
-        var nev = new RouteEvent(this.route, this.state, this.action);
+        var nev = new RouteEvent(this.route, this.state, this.action, null);
         this.state.appl.handleSecurity(cxt, nev);
         return "break";
       }
@@ -435,26 +474,17 @@ RouteEvent.prototype.processDownAction = function(cxt) {
       break;
     }
     case "enter": {
-      for (var act of this.route.head().entry.enter) {
-        var arg;
-        if (act.contract == "Lifecycle" && act.action == "query") {
-          arg = this.route.getQueryParam(act.args[0].str);
-        }
-        this.state.appl.oneAction(cxt, act, arg);
+      var act = this.route.head().entry.enter[this.posn];
+      var arg;
+      if (act.contract == "Lifecycle" && act.action == "query") {
+        arg = this.route.getQueryParam(act.args[0].str);
       }
+      this.state.appl.oneAction(cxt, act, arg);
       break;
     }
-    case "at": {
-      for (var act of this.route.head().entry.at) {
-        var arg;
-        if (act.contract == "Lifecycle" && act.action == "query") {
-          arg = this.route.getQueryParam(act.args[0].str);
-        }
-        this.state.appl.oneAction(cxt, act, arg);
-      }
-      break;
-    }
-    case "exit": {
+    case "at":
+    case "exit":
+    case "destroy": {
       break;
     }
     default: {
@@ -463,7 +493,9 @@ RouteEvent.prototype.processDownAction = function(cxt) {
   }
 };
 RouteEvent.prototype.processUpAction = function(cxt) {
+  cxt.log("processing up event for", this.route.pos, "is", this.route.head().action, "action", this.action, "#", this.posn);
   switch (this.action) {
+    case "param":
     case "title":
     case "create":
     case "enter":
@@ -472,9 +504,14 @@ RouteEvent.prototype.processUpAction = function(cxt) {
       break;
     }
     case "exit": {
-      for (var act of this.route.head().entry.exit) {
-        var arg;
-        this.state.appl.oneAction(cxt, act, arg);
+      var act = this.route.head().entry.exit[this.posn];
+      var arg;
+      this.state.appl.oneAction(cxt, act, arg);
+      break;
+    }
+    case "destroy": {
+      for (var ci of this.route.head().entry.cards) {
+        this.state.appl.destroyCard(cxt, ci);
       }
       break;
     }
@@ -483,14 +520,40 @@ RouteEvent.prototype.processUpAction = function(cxt) {
     }
   }
 };
+RouteEvent.prototype.processAtAction = function(cxt) {
+  cxt.log("processing at event for", this.route.pos, "is", this.route.head().action, "action", this.action, "#", this.posn);
+  switch (this.action) {
+    case "param":
+    case "title":
+    case "create":
+    case "enter":
+    case "exit":
+    case "destroy":
+    case "secure": {
+      break;
+    }
+    case "at": {
+      var act = this.route.head().entry.at[this.posn];
+      var arg;
+      if (act.contract == "Lifecycle" && act.action == "query") {
+        arg = this.route.getQueryParam(act.args[0].str);
+      }
+      this.state.appl.oneAction(cxt, act, arg);
+      break;
+    }
+    default: {
+      throw new Error("cannot handle action " + this.action);
+    }
+  }
+};
 RouteEvent.prototype.queueNextAction = function(cxt) {
-  var nev = new RouteEvent(this.route, this.state, this.action);
+  var nev = new RouteEvent(this.route, this.state, this.action, this.posn);
   if (nev.action) {
     cxt.env.queueMessages(cxt, nev);
   } else {
     this.route.advance();
     if (this.route.length() > 0) {
-      nev = new RouteEvent(this.route, this.state, null);
+      nev = new RouteEvent(this.route, this.state, null, null);
       cxt.env.queueMessages(cxt, nev);
     } else {
       this.alldone(cxt);
@@ -502,27 +565,57 @@ RouteEvent.prototype.alldone = function(cxt) {
     this.state.appl.readyCard(cxt, c);
   }
   this.state.appl.complete(cxt, this.route.claimedRoute);
-  this.state.allDone();
+  if (this.state.allDone)
+    this.state.allDone();
 };
-function nextAction(curr) {
+RouteEvent.prototype.nextAction = function(head, curr, posn) {
   switch (curr) {
     case null:
     case void 0:
-      return "secure";
+      this.action = "param";
+      break;
+    case "param":
+      this.action = "secure";
+      break;
     case "secure":
-      return "title";
+      this.action = "title";
+      break;
     case "title":
-      return "create";
+      this.action = "create";
+      break;
     case "create":
-      return "enter";
-    case "enter":
-      return "exit";
+      this.nextAction(head, "enter", null);
+      break;
+    case "enter": {
+      if (head.enter.length == 0 || posn != null && posn + 1 >= head.enter.length) {
+        this.nextAction(head, "exit", null);
+      } else {
+        this.action = "enter";
+        this.posn = posn == null ? 0 : posn + 1;
+      }
+      break;
+    }
     case "exit":
-      return "at";
+      if (head.exit.length == 0 || posn != null && posn + 1 >= head.exit.length) {
+        this.nextAction(head, "at", null);
+      } else {
+        this.action = "exit";
+        this.posn = posn == null ? 0 : posn + 1;
+      }
+      break;
     case "at":
-      return null;
+      if (head.at.length == 0 || posn != null && posn + 1 >= head.at.length) {
+        this.action = "destroy";
+      } else {
+        this.action = "at";
+        this.posn = posn == null ? 0 : posn + 1;
+      }
+      break;
+    case "destroy":
+      this.action = null;
+      break;
   }
-}
+};
 
 // src/main/javascript/runtime/appl/routingentry.js
 function RoutingEntry(entry) {
@@ -567,61 +660,29 @@ var Application = function(_cxt, topdiv, baseuri) {
 Application.prototype.baseUri = function(_cxt) {
   return this.baseuri;
 };
-Application.prototype.nowLoggedIn = function(_cxt) {
-  if (this.routingPendingSecure instanceof RouteEvent)
-    _cxt.env.queueMessages(this.routingPendingSecure);
-  else
-    this.gotoRoute(_cxt, this.routingPendingSecure.route);
-  this.routingPendingSecure = null;
-};
 Application.prototype.gotoRoute = function(_cxt, route, allDone) {
+  _cxt.log("going to route", route, "from", this.currentRoute);
   var goto = Route.parse(this.baseUri(), new RoutingEntry(this._routing()), route);
-  var moveTo = goto.movingFrom(this.currentRoute);
-  var event = new RouteEvent(moveTo, this, null, allDone);
+  var curr = null;
+  if (this.currentRoute) {
+    curr = Route.parse(this.baseUri(), new RoutingEntry(this._routing()), this.currentRoute);
+  }
+  var moveTo = goto.movingFrom(curr);
+  _cxt.log("move to is", moveTo);
+  var event = new RouteEvent(moveTo, this, null, null, allDone);
   _cxt.env.queueMessages(_cxt, event);
 };
 Application.prototype.handleSecurity = function(_cxt, ev) {
-  if (this.securityModule.requireLogin(_cxt, this, this.topdiv)) {
+  if (!this.securityModule.requireLogin(_cxt, this, this.topdiv)) {
     this.routingPendingSecure = ev;
   } else {
-    _cxt.queueMessages(ev);
+    _cxt.env.queueMessages(ev);
   }
 };
-Application.prototype.OLDgotoRoute = function(_cxt, r, allDone) {
-  var routing = this._routing();
-  if (routing.secure) {
-    if (!this.securityModule.requireLogin(_cxt, this, this.topdiv)) {
-      this.routingPendingSecure = { routing, route: r };
-      if (allDone)
-        allDone();
-      return;
-    } else {
-      this.routingPendingSecure = null;
-    }
-  }
-  var ev = null;
-  if (this.currentRoute == null) {
-    ev = new EnterEvent(this, this.topdiv);
-    this.currentRoute = [{ routes: routing }];
-    this._createCards(_cxt, ev, routing.cards);
-    this._routeActions(_cxt, ev, routing.enter);
-    this._routeActions(_cxt, ev, routing.at);
-    this._readyCards(_cxt, ev, routing.cards);
-  }
-  var path = this.parseRoute(_cxt, r);
-  var cmn = this.removeCommon(_cxt, path);
-  var at;
-  if (this.currentRoute.length > cmn + 1) {
-    at = new MoveUpEvent(this, cmn, path);
-  } else {
-    at = new MoveDownEvent(this, this.currentRoute[cmn].routes, path, allDone);
-  }
-  if (ev) {
-    ev.andThen(at);
-    _cxt.env.queueMessages(_cxt, ev);
-  } else {
-    _cxt.env.queueMessages(_cxt, at);
-  }
+Application.prototype.nowLoggedIn = function(_cxt) {
+  if (this.routingPendingSecure instanceof RouteEvent)
+    _cxt.env.queueMessages(_cxt, this.routingPendingSecure);
+  this.routingPendingSecure = null;
 };
 Application.prototype.parseRoute = function(_cxt, r) {
   var buri;
@@ -653,77 +714,19 @@ Application.prototype.parseRoute = function(_cxt, r) {
   var parts = url.split("/").filter((x) => !!x);
   return parts;
 };
-Application.prototype.removeCommon = function(_cxt, path) {
-  var cmn = 0;
-  while (path.length > 0 && cmn + 1 < this.currentRoute.length && path[cmn] == this.currentRoute[cmn + 1].routes.path) {
-    path.shift();
-    cmn++;
-  }
-  return cmn;
-};
-Application.prototype.moveUp = function(_cxt) {
-  var exiting = this.currentRoute.pop().routes;
-  var ev = new EnterEvent(this, null);
-  this._routeActions(_cxt, ev, exiting.exit);
-  this._closeCards(_cxt, ev, exiting.cards);
-  this._routeActions(_cxt, ev, this.currentRoute[this.currentRoute.length - 1].routes.at);
-  _cxt.env.queueMessages(_cxt, ev);
-  _cxt.env.queueMessages(_cxt, new UpdateDisplay(_cxt, this));
-};
 Application.prototype.setTitle = function(_cxt, title) {
   if (title != null)
     this.title = title;
 };
 Application.prototype.complete = function(_cxt, route) {
-  this.currentPath = route;
+  this.currentRoute = route;
   _cxt.env.queueMessages(_cxt, new UpdateDisplay(_cxt, this));
-  _cxt.addHistory({}, this.title, this.currentPath);
+  _cxt.addHistory({}, this.title, this.currentRoute);
 };
-Application.prototype.moveDown = function(_cxt, table, path, allDone) {
-  if (table.title != null)
-    this.title = table.title;
-  if (path.length == 0) {
-    _cxt.env.queueMessages(_cxt, new UpdateDisplay(_cxt, this));
-    if (allDone)
-      allDone();
-    _cxt.addHistory({}, this.title, this.currentPath);
-    return;
-  }
-  var first = path[0];
-  for (var i = 0; i < table.routes.length; i++) {
-    var rr = table.routes[i];
-    if (rr.path == first || rr.param) {
-      if (rr.secure) {
-        throw new Error("cannot handle nested secure cards yet");
-      }
-      if (rr.param) {
-        this.params[rr.param] = first;
-      }
-      this.currentRoute.push({ routes: rr });
-      var ev = new EnterEvent(this, null);
-      this._createCards(_cxt, ev, rr.cards);
-      this._routeActions(_cxt, ev, rr.enter);
-      this._routeActions(_cxt, ev, rr.at);
-      this._readyCards(_cxt, ev, rr.cards);
-      path.shift();
-      ev.andThen(new MoveDownEvent(this, rr, path, allDone));
-      _cxt.env.queueMessages(_cxt, ev);
-      break;
-    }
-  }
-};
-Application.prototype._createCards = function(_cxt, ev, cards) {
-  for (var i = 0; i < cards.length; i++) {
-    ev.add(createOne(this, cards[i]));
-  }
-};
-Application.prototype._closeCards = function(_cxt, ev, cards) {
-  for (var i = 0; i < cards.length; i++) {
-    ev.add(closeOne(this, cards[i]));
-  }
+Application.prototype.bindParam = function(_cxt, param, value) {
+  this.params[param] = value;
 };
 Application.prototype.createCard = function(_cxt, ci) {
-  debugger;
   var card = this.cards[ci.name] = new ci.card(_cxt);
   var ctr = _cxt.findContractOnCard(card, "Lifecycle");
   if (ctr && ctr.init) {
@@ -731,48 +734,10 @@ Application.prototype.createCard = function(_cxt, ci) {
     _cxt.env.queueMessages(_cxt, msgs);
   }
 };
-Application.prototype.closeCard = function(_cxt, ci) {
+Application.prototype.destroyCard = function(_cxt, ci) {
   var card = this.cards[ci.name];
-  var ctr = _cxt.findContractOnCard(card, "Lifecycle");
-  if (ctr && ctr.closing) {
-    var msgs = ctr.closing(_cxt);
-    _cxt.env.queueMessages(_cxt, msgs);
-  }
-  if (card._renderTree) {
-    var div = document.getElementById(card._renderTree._id);
-    div.innerHTML = "";
-    card._renderTree = null;
-  }
-};
-function createOne(appl, ci) {
-  return (_cxt) => {
-    var card = appl.cards[ci.name] = new ci.card(_cxt);
-    var ctr = _cxt.findContractOnCard(card, "Lifecycle");
-    if (ctr && ctr.init) {
-      var msgs = ctr.init(_cxt);
-      _cxt.env.queueMessages(_cxt, msgs);
-    }
-  };
-}
-function closeOne(appl, ci) {
-  return (_cxt) => {
-    var card = appl.cards[ci.name];
-    var ctr = _cxt.findContractOnCard(card, "Lifecycle");
-    if (ctr && ctr.closing) {
-      var msgs = ctr.closing(_cxt);
-      _cxt.env.queueMessages(_cxt, msgs);
-    }
-    if (card._renderTree) {
-      var div = document.getElementById(card._renderTree._id);
-      div.innerHTML = "";
-      card._renderTree = null;
-    }
-  };
-}
-Application.prototype._readyCards = function(_cxt, ev, cards) {
-  for (var i = 0; i < cards.length; i++) {
-    ev.add(readyOne(this, cards[i].name));
-  }
+  card.destroyed = true;
+  card._updateDisplay(_cxt, card._renderTree);
 };
 Application.prototype.readyCard = function(_cxt, name) {
   var card = this.cards[name];
@@ -782,30 +747,15 @@ Application.prototype.readyCard = function(_cxt, name) {
     _cxt.env.queueMessages(_cxt, msgs);
   }
 };
-function readyOne(appl, name) {
-  return (_cxt) => {
-    var card = appl.cards[name];
-    var ctr = _cxt.findContractOnCard(card, "Lifecycle");
-    if (ctr && ctr.ready) {
-      var msgs = ctr.ready(_cxt);
-      _cxt.env.queueMessages(_cxt, msgs);
-    }
-  };
-}
-Application.prototype._routeActions = function(_cxt, ev, enter) {
-  for (var i = 0; i < enter.length; i++) {
-    ev.add(oneAction(this, enter[i]));
-  }
-};
-Application.prototype.oneAction = function(_cxt, a) {
-  var card = this.cards[a.card];
-  var ctr = _cxt.findContractOnCard(card, a.contract);
+Application.prototype.oneAction = function(_cxt, act, arg) {
+  var card = this.cards[act.card];
+  var ctr = _cxt.findContractOnCard(card, act.contract);
   if (ctr) {
-    var m = a.action;
+    var m = act.action;
     if (ctr[m]) {
       var callWith = [_cxt];
-      for (var ai = 0; ai < a.args.length; ai++) {
-        var aa = a.args[ai];
+      for (var ai = 0; ai < act.args.length; ai++) {
+        var aa = act.args[ai];
         if (aa.str) {
           callWith.push(aa.str);
         } else if (aa.ref) {
@@ -817,38 +767,14 @@ Application.prototype.oneAction = function(_cxt, a) {
         } else
           throw new Error("huh? " + JSON.stringify(aa));
       }
+      if (typeof arg !== "undefined") {
+        callWith.push(arg);
+      }
       var msgs = ctr[m].apply(ctr, callWith);
       _cxt.env.queueMessages(_cxt, msgs);
     }
   }
 };
-function oneAction(appl, a) {
-  return (_cxt) => {
-    var card = appl.cards[a.card];
-    var ctr = _cxt.findContractOnCard(card, a.contract);
-    if (ctr) {
-      var m = a.action;
-      if (ctr[m]) {
-        var callWith = [_cxt];
-        for (var ai = 0; ai < a.args.length; ai++) {
-          var aa = a.args[ai];
-          if (aa.str) {
-            callWith.push(aa.str);
-          } else if (aa.ref) {
-            callWith.push(appl.cards[aa.ref]);
-          } else if (aa.param) {
-            callWith.push(appl.params[aa.param]);
-          } else if (aa.expr) {
-            callWith.push(appl[aa.expr].call(appl, _cxt));
-          } else
-            throw new Error("huh? " + JSON.stringify(aa));
-        }
-        var msgs = ctr[m].apply(ctr, callWith);
-        _cxt.env.queueMessages(_cxt, msgs);
-      }
-    }
-  };
-}
 Application.prototype._currentRenderTree = function() {
   var card = this.cards["main"];
   if (card == null)
@@ -856,7 +782,7 @@ Application.prototype._currentRenderTree = function() {
   return card._currentRenderTree();
 };
 Application.prototype._updateDisplay = function(_cxt, rt) {
-  debugger;
+  _cxt.log("updating display");
   if (this.title) {
     var titles = document.head.getElementsByTagName("title");
     if (titles.length == 0) {
@@ -873,61 +799,6 @@ Application.prototype._updateDisplay = function(_cxt, rt) {
     this.cards["main"]._renderInto(_cxt, this.topdiv);
   }
   card._updateDisplay(_cxt, card._renderTree);
-};
-function EnterEvent(appl, div) {
-  this.appl = appl;
-  this.div = div;
-  this.actions = [];
-  this.andThenMsg = null;
-  this.cnt = 0;
-}
-EnterEvent.prototype.add = function(r) {
-  this.actions.push(r);
-};
-EnterEvent.prototype.andThen = function(at) {
-  this.andThenMsg = at;
-};
-EnterEvent.prototype.dispatch = function(_cxt) {
-  if (this.cnt < this.actions.length) {
-    this.actions[this.cnt](_cxt);
-  } else if (this.cnt == this.actions.length && this.div) {
-    this.appl.cards["main"]._renderInto(_cxt, this.div);
-  } else if (this.cnt == this.actions.length && !this.div || this.cnt == this.actions.length + 1 && this.div) {
-    if (this.andThenMsg)
-      this.andThenMsg.dispatch(_cxt);
-  } else
-    return;
-  this.cnt++;
-  _cxt.env.queueMessages(_cxt, this);
-  return;
-};
-function MoveDownEvent(appl, routing, path, allDone) {
-  this.appl = appl;
-  this.routing = routing;
-  this.path = path;
-  this.allDone = allDone;
-}
-MoveDownEvent.prototype.dispatch = function(_cxt) {
-  this.appl.moveDown(_cxt, this.routing, this.path, this.allDone);
-};
-MoveDownEvent.prototype.toString = function() {
-  return "MDE[" + this.path + "]";
-};
-function MoveUpEvent(appl, cmn, path) {
-  this.appl = appl;
-  this.cmn = cmn;
-  this.path = path;
-}
-MoveUpEvent.prototype.dispatch = function(_cxt) {
-  if (this.appl.currentRoute.length > this.cmn + 1) {
-    this.appl.moveUp(_cxt);
-    _cxt.env.queueMessages(_cxt, this);
-  } else {
-    _cxt.env.queueMessages(_cxt, new MoveDownEvent(this.appl, this.appl.currentRoute[this.cmn].routes, this.path));
-  }
-};
-MoveUpEvent.prototype.toString = function() {
-  return "MUE[" + this.cmn + "]";
 };
 
 // src/main/javascript/runtime/closure.js
@@ -1399,7 +1270,7 @@ FLBuiltin.numberFromString = function(_cxt, str) {
     return _cxt.error("not a string");
   return parseFloat(str);
 };
-FLBuiltin.strlen.nfargs = function() {
+FLBuiltin.numberFromString.nfargs = function() {
   return 1;
 };
 FLBuiltin.isNull = function(_cxt, a) {
@@ -2835,6 +2706,12 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
     node.appendChild(pe);
     value._renderInto(_cxt, pe);
   } else if (Array.isArray(value)) {
+    for (var i = 0; i < value.length; i++) {
+      if (value[i].destroyed) {
+        value.splice(i, 1);
+        --i;
+      }
+    }
     var sw = this._diffLists(_cxt, crt.children, value);
     if (sw === true) {
       for (var i = 0; i < value.length; i++) {
@@ -2871,6 +2748,13 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
         if (ai.where < node.childElementCount - 1)
           node.insertBefore(node.lastElementChild, node.children[ai.where]);
       }
+    } else if (sw.op === "removefromend") {
+      debugger;
+      for (var i = value.length; i < crt.children.length; i++) {
+        var child = crt.children[i];
+        node.removeChild(child.value._containedIn);
+      }
+      crt.children.splice(value.length);
     } else {
       throw new Error("cannot handle punnet change: " + sw.op);
     }
@@ -3524,8 +3408,13 @@ CommonEnv.prototype.queueMessages = function(_cxt, msg) {
   this.queue.push(msg);
   var self = this;
   setTimeout(() => {
-    self.dispatchMessages(_cxt);
-    this.locker.unlock("queue");
+    try {
+      self.dispatchMessages(_cxt);
+    } catch (e) {
+      self.logger.log(e);
+    } finally {
+      this.locker.unlock("queue");
+    }
   }, 0);
 };
 CommonEnv.prototype.quiescent = function() {
