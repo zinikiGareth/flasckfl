@@ -763,6 +763,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition take = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "take"), 2, null).dontGenerate();
 	public static final FunctionDefinition drop = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "drop"), 2, null).dontGenerate();
 	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "append"), 2, null).dontGenerate();
+	public static final FunctionDefinition reverse = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "reverse"), 1, null).dontGenerate();
 	public static final FunctionDefinition concatLists = new FunctionDefinition(FunctionName.function(pos, builtinPkg, "concatLists"), 1, null).dontGenerate();
 	static {
 		length.bindType(new Apply(list, number));
@@ -772,6 +773,7 @@ public class LoadBuiltins {
 		take.bindType(new Apply(number, list, list));
 		drop.bindType(new Apply(number, list, list));
 		append.bindType(new Apply(list, listA_A, list));
+		reverse.bindType(new Apply(list, list));
 		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(listA_A)))), new PolyInstance(pos, list, Arrays.asList(listA_A))));
 	}	
 	
@@ -938,6 +940,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, drop);
 		repository.functionDefn(errors, take);
 		repository.functionDefn(errors, append);
+		repository.functionDefn(errors, reverse);
 		repository.functionDefn(errors, concatLists);
 
 		repository.functionDefn(errors, assoc);
