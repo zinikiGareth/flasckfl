@@ -96,6 +96,7 @@ src/golden/objects/acor/withNestedFun
 src/golden/objects/assignment
 src/golden/objects/common
 src/golden/objects/contracts
+src/golden/objects/contractArgConstructor
 src/golden/objects/convertCtors
 src/golden/objects/ctorneedscard
 src/golden/objects/ctors

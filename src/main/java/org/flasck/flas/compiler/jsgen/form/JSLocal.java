@@ -10,7 +10,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class JSLocal implements IVForm {
 	private final JSMethod meth;
-	private final JSExpr value;
+	public final JSExpr value;
 	private String var;
 
 	public JSLocal(JSMethod meth, JSExpr value) {

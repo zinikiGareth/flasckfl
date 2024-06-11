@@ -1,0 +1,31 @@
+	contract DoSomething
+		meth (String s)
+		
+	contract ForTest
+		init (String arg)
+		run
+
+	object NeedsArg
+		state
+			String myname
+			
+		requires DoSomething ds
+		
+		ctor init (String name)
+			myname <- name
+		
+		method sayHello
+			<- ds.meth ("hello " ++ myname)
+		
+	agent HoldContract
+		state
+			NeedsArg obj
+
+		requires DoSomething ds
+
+		implements ForTest
+			init arg
+				obj <- NeedsArg.init arg
+			run
+				<- obj.sayHello
+		

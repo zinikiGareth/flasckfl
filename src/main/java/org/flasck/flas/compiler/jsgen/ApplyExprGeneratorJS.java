@@ -13,6 +13,7 @@ import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LogicHolder;
@@ -59,38 +60,47 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				throw new NotImplementedException("stack should now have size 1");
 			sv.result(stack.remove(0));
 		} else {
-			Object fn = expr.fn;
-			WithTypeSignature defn;
-			if (fn instanceof UnresolvedVar)
-				defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
-			else if (fn instanceof TypeReference)
-				defn = (WithTypeSignature) ((TypeReference)fn).namedDefn();
-			else if (fn instanceof UnresolvedOperator)
-				defn = (WithTypeSignature) ((UnresolvedOperator)fn).defn();
-			else if (fn instanceof MakeSend)
-				defn = (MakeSend) fn;
-			else if (fn instanceof MemberExpr) {
-				fn = ((MemberExpr)fn).converted();
-				if (fn instanceof MakeSend)
-					defn = (MakeSend) fn;
-				else if (fn instanceof MakeAcor)
-					defn = (MakeAcor) fn;
-				else if (fn instanceof UnresolvedVar)
-					defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
-				else if (fn instanceof TypeReference)
-					defn = (WithTypeSignature) ((TypeReference)fn).namedDefn();
-				else if (fn instanceof ApplyExpr) {
-					defn = (WithTypeSignature) ((UnresolvedVar) ((ApplyExpr)fn).fn).defn();
-					makeClosure(null, defn.argCount() - ((ApplyExpr)fn).args.size());
-					return;
-				} else
-					throw new NotImplementedException("unknown operator type: " + fn.getClass());
-			} else if (fn instanceof MakeAcor)
-				defn = (MakeAcor)fn;
-			else
-				throw new NotImplementedException("unknown operator type: " + fn.getClass());
-			makeClosure(defn, defn.argCount());
+			WithTypeSignature defn = figureDefn(expr.fn);
+			if (defn != null)
+				makeClosure(defn, defn.argCount());
 		}
+	}
+
+	private WithTypeSignature figureDefn(Object fn) {
+		if (fn instanceof UnresolvedVar)
+			return (WithTypeSignature) ((UnresolvedVar)fn).defn();
+		else if (fn instanceof ApplyExpr) {
+			// if we have an apply applied to an apply, unwrap it
+//			return unwrap((ApplyExpr)fn);
+			WithTypeSignature defn = (WithTypeSignature) ((UnresolvedVar) ((ApplyExpr)fn).fn).defn();
+			makeClosure(null, defn.argCount() - ((ApplyExpr)fn).args.size());
+			return null;
+		} else if (fn instanceof TypeReference)
+			return (WithTypeSignature) ((TypeReference)fn).namedDefn();
+		else if (fn instanceof UnresolvedOperator)
+			return (WithTypeSignature) ((UnresolvedOperator)fn).defn();
+		else if (fn instanceof MakeSend)
+			return (MakeSend) fn;
+		else if (fn instanceof MemberExpr) {
+			fn = ((MemberExpr)fn).converted();
+			if (fn instanceof MakeSend)
+				return (MakeSend) fn;
+			else if (fn instanceof MakeAcor)
+				return (MakeAcor) fn;
+			else if (fn instanceof UnresolvedVar)
+				return (WithTypeSignature) ((UnresolvedVar)fn).defn();
+			else if (fn instanceof TypeReference)
+				return (WithTypeSignature) ((TypeReference)fn).namedDefn();
+			else if (fn instanceof ApplyExpr) {
+				WithTypeSignature defn = (WithTypeSignature) ((UnresolvedVar) ((ApplyExpr)fn).fn).defn();
+				makeClosure(null, defn.argCount() - ((ApplyExpr)fn).args.size());
+				return null;
+			} else
+				throw new NotImplementedException("unknown operator type: " + fn.getClass());
+		} else if (fn instanceof MakeAcor)
+			return (MakeAcor)fn;
+		else
+			throw new NotImplementedException("unknown operator type: " + fn.getClass());
 	}
 
 	@Override
@@ -115,9 +125,19 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				}
 			}
 		} else if (defn instanceof ObjectCtor) {
-			stack.add(1, state.container(new PackageName("_DisplayUpdater")));
+			int reqcnt = ((ObjectActionHandler)defn).getObject().contracts.size();
+			// We need to add the "contract" to handle updating the display, but we don't want
+			// to do it more than once if we have a nested apply expr.  So check first.
+			if (!(stack.get(1) instanceof JSFromCard)) {
+				stack.add(1, state.container(new PackageName("_DisplayUpdater")));
+				// and add some curry items in the middle if we expect required contracts
+				if (reqcnt > 0) {
+					for (int i=0;i<expArgs;i++)
+						stack.add(2, new JSCurryArg());
+				}
+			}
 			expArgs++;
-			expArgs += ((ObjectActionHandler)defn).getObject().contracts.size();
+			expArgs += reqcnt;
 		}
 		
 		// Then divided and conquer for special cases ...

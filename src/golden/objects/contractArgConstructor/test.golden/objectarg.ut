@@ -1,0 +1,10 @@
+This is in part a regression and otherwise similar to objects/contracts.
+
+In the wild, the logic of requiring contracts in objects did not work when there were arguments.
+
+	test we can use a contract stored on a nested object
+		data DoSomething helper
+		data HoldContract agent
+		contract agent ForTest init "gazza"
+		expect helper meth "hello gazza"
+		contract agent ForTest run

@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -185,6 +186,16 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 				return new ExprResult(var.location, sf.type());
 			} else if (vardefn instanceof TypedPattern) {
 				return new ExprResult(var.location, ((TypedPattern)vardefn).type.namedDefn());
+			} else if (vardefn instanceof VarPattern) {
+				// it has a type but we may not yet know what it is
+				VarPattern vp = (VarPattern) vardefn;
+				if (vp.hasBoundType())
+					return new ExprResult(var.location, vp.type());
+				else {
+					UnifiableType vt = state.createUT(var.location, "vardefn:" + vp.var);
+					vp.bindType(vt);
+					return new ExprResult(var.location, vt);
+				}
 			} else if (vardefn instanceof FunctionDefinition) {
 				FunctionDefinition fd = (FunctionDefinition)vardefn;
 				if (fd.hasType()) {
@@ -211,7 +222,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 				return res;
 			return analyzeContainer(toSlot, pos, me, ty);
 		} else
-			throw new NotImplementedException();
+			throw new NotImplementedException(toSlot + " is a " + toSlot.getClass());
 	}
 
 	private ExprResult checkInnermostType(UnresolvedVar var, Type ty) {

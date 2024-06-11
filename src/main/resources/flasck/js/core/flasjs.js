@@ -121,6 +121,10 @@ Send.prototype._compare = function(cx2, other) {
 };
 Send.prototype.dispatch = function(cx2) {
   this._full(cx2);
+  if (this.obj instanceof FLError) {
+    cx2.log(this.obj);
+    return null;
+  }
   if (this.obj instanceof ResponseWithMessages) {
     const ret3 = ResponseWithMessages.messages(cx2, this.obj);
     ret3.push(Send.eval(cx2, ResponseWithMessages.response(cx2, this.obj), this.meth, this.args, this.handle));
@@ -801,54 +805,6 @@ Application.prototype._updateDisplay = function(_cxt, rt) {
   card._updateDisplay(_cxt, card._renderTree);
 };
 
-// src/main/javascript/runtime/closure.js
-var FLClosure = function(obj, fn, args) {
-  if (!fn)
-    throw new Error("must define a function");
-  this.obj = obj;
-  this.fn = fn;
-  args.splice(0, 0, null);
-  this.args = args;
-};
-FLClosure.prototype.splitRWM = function(msgsTo) {
-  this.msgsTo = msgsTo;
-};
-FLClosure.prototype.eval = function(_cxt) {
-  if (this.val)
-    return this.val;
-  this.args[0] = _cxt;
-  this.obj = _cxt.full(this.obj);
-  if (this.obj instanceof FLError)
-    return this.obj;
-  if (this.fn instanceof FLError)
-    return this.fn;
-  var cnt = this.fn.nfargs();
-  this.val = this.fn.apply(this.obj, this.args.slice(0, cnt + 1));
-  if (typeof this.msgsTo !== "undefined") {
-    if (this.val instanceof ResponseWithMessages) {
-      _cxt.addAll(this.msgsTo, ResponseWithMessages.messages(_cxt, this.val));
-      this.val = ResponseWithMessages.response(_cxt, this.val);
-    } else if (this.val instanceof FLClosure) {
-      this.val.splitRWM(this.msgsTo);
-    }
-  }
-  if (cnt + 1 < this.args.length) {
-    this.val = new FLClosure(this.obj, this.val, this.args.slice(cnt + 1));
-  }
-  return this.val;
-};
-FLClosure.prototype.apply = function(_, args) {
-  const asfn = this.eval(args[0]);
-  return asfn.apply(null, args);
-};
-FLClosure.prototype.nfargs = function() {
-  return 0;
-};
-FLClosure.prototype.toString = function() {
-  return "FLClosure[]";
-};
-var closure_default = FLClosure;
-
 // src/main/javascript/runtime/curry.js
 var FLCurry = function(obj, fn, reqd, xcs) {
   if (fn == null)
@@ -891,12 +847,67 @@ FLCurry.prototype.apply = function(_, args) {
   }
 };
 FLCurry.prototype.nfargs = function() {
-  return this.reqd;
+  return this.missing.length;
 };
 FLCurry.prototype.toString = function() {
-  return "FLCurry[" + this.reqd + "]";
+  return "FLCurry[" + this.missing.length + "]";
 };
-var curry_default = FLCurry;
+
+// src/main/javascript/runtime/closure.js
+var FLClosure = function(obj, fn, args) {
+  if (!fn)
+    throw new Error("must define a function");
+  this.obj = obj;
+  this.fn = fn;
+  args.splice(0, 0, null);
+  this.args = args;
+};
+FLClosure.prototype.splitRWM = function(msgsTo) {
+  this.msgsTo = msgsTo;
+};
+FLClosure.prototype.eval = function(_cxt) {
+  if (this.val)
+    return this.val;
+  this.args[0] = _cxt;
+  this.obj = _cxt.full(this.obj);
+  if (this.obj instanceof FLError)
+    return this.obj;
+  if (this.fn instanceof FLError)
+    return this.fn;
+  var cnt = this.fn.nfargs();
+  if (this.args.length < cnt + 1) {
+    var xcs = {};
+    for (var i = 1; i < this.args.length; i++) {
+      xcs[i] = this.args[i];
+    }
+    return new FLCurry(this.obj, this.fn, cnt, xcs);
+  }
+  this.val = this.fn.apply(this.obj, this.args.slice(0, cnt + 1));
+  if (typeof this.msgsTo !== "undefined") {
+    if (this.val instanceof ResponseWithMessages) {
+      _cxt.addAll(this.msgsTo, ResponseWithMessages.messages(_cxt, this.val));
+      this.val = ResponseWithMessages.response(_cxt, this.val);
+    } else if (this.val instanceof FLClosure) {
+      this.val.splitRWM(this.msgsTo);
+    }
+  }
+  if (cnt + 1 < this.args.length) {
+    this.val = new FLClosure(this.obj, this.val, this.args.slice(cnt + 1));
+  }
+  return this.val;
+};
+FLClosure.prototype.apply = function(_, args) {
+  const asfn = this.eval(args[0]);
+  if (asfn instanceof FLError)
+    return asfn;
+  return asfn.apply(null, args);
+};
+FLClosure.prototype.nfargs = function() {
+  return 0;
+};
+FLClosure.prototype.toString = function() {
+  return "FLClosure[]";
+};
 
 // src/main/javascript/runtime/makesend.js
 var FLMakeSend = function(meth, obj, nargs, handler, subscriptionName) {
@@ -926,7 +937,6 @@ FLMakeSend.prototype.nfargs = function() {
 FLMakeSend.prototype.toString = function() {
   return "MakeSend[" + this.nargs + "]";
 };
-var makesend_default = FLMakeSend;
 
 // src/main/javascript/runtime/events.js
 var FLEvent = function() {
@@ -1477,24 +1487,24 @@ FLContext.prototype.addAll = function(ret2, arr) {
   this.env.addAll(ret2, arr);
 };
 FLContext.prototype.closure = function(fn, ...args) {
-  return new closure_default(null, fn, args);
+  return new FLClosure(null, fn, args);
 };
 FLContext.prototype.oclosure = function(fn, obj, ...args) {
-  return new closure_default(obj, fn, args);
+  return new FLClosure(obj, fn, args);
 };
 FLContext.prototype.curry = function(reqd, fn, ...args) {
   var xcs = {};
   for (var i = 0; i < args.length; i++) {
     xcs[i + 1] = args[i];
   }
-  return new curry_default(null, fn, reqd, xcs);
+  return new FLCurry(null, fn, reqd, xcs);
 };
 FLContext.prototype.ocurry = function(reqd, fn, obj, ...args) {
   var xcs = {};
   for (var i = 0; i < args.length; i++) {
     xcs[i + 1] = args[i];
   }
-  return new curry_default(obj, fn, reqd, xcs);
+  return new FLCurry(obj, fn, reqd, xcs);
 };
 FLContext.prototype.xcurry = function(reqd, ...args) {
   var fn;
@@ -1505,7 +1515,7 @@ FLContext.prototype.xcurry = function(reqd, ...args) {
     else
       xcs[args[i]] = args[i + 1];
   }
-  return new curry_default(null, fn, reqd, xcs);
+  return new FLCurry(null, fn, reqd, xcs);
 };
 FLContext.prototype.array = function(...args) {
   return args;
@@ -1553,7 +1563,7 @@ FLContext.prototype.mksend = function(meth, obj, cnt, handler, subscriptionName)
   if (cnt == 0)
     return Send.eval(this, obj, meth, [], handler, subscriptionName);
   else
-    return new makesend_default(meth, obj, cnt, handler, subscriptionName);
+    return new FLMakeSend(meth, obj, cnt, handler, subscriptionName);
 };
 FLContext.returnNull = function(_cxt) {
   return null;
@@ -1587,7 +1597,7 @@ FLContext.prototype.makeStatic = function(clz, meth) {
   return ret2;
 };
 FLContext.prototype.head = function(obj) {
-  while (obj instanceof closure_default)
+  while (obj instanceof FLClosure)
     obj = obj.eval(this);
   return obj;
 };

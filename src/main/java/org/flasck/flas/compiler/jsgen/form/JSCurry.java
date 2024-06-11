@@ -12,7 +12,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public class JSCurry implements JSExpr {
 	private final boolean wantObject;
 	private final int required;
-	private final JSExpr[] args;
+	public final JSExpr[] args;
 
 	public JSCurry(boolean wantObject, int required, JSExpr... args) {
 		this.wantObject = wantObject;
