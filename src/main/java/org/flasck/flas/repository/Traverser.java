@@ -1566,14 +1566,19 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitCase(FunctionCaseDefn c) {
+//		System.out.println("visiting case " + c + " in " + visitor);
 		visitor.visitCase(c);
 		if (c.guard != null) {
+//			System.out.println("visiting guard " + c.guard);
 			visitGuard(c);
 			visitExpr(c.guard, 0);
 			leaveGuard(c);
+//			System.out.println("leaving guard " + c.guard);
 		}
+//		System.out.println("fn case expr is " + c.expr);
 		visitExpr(c.expr, 0);
 		visitor.leaveCase(c);
+//		System.out.println("left case " + c);
 	}
 
 	public void visitGuard(FunctionCaseDefn c) {
@@ -1600,12 +1605,17 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitExpr(Expr expr, int nargs) {
+//		System.out.println("visiting expr " + expr + " in " + visitor);
 		if (expr instanceof ParenExpr) {
 			visitExpr((Expr) ((ParenExpr)expr).expr, nargs);
 			return;
 		}
-		if (!isNeedingEnhancement(expr, nargs) && !convertedMemberExpr(expr))
+		boolean ine = isNeedingEnhancement(expr, nargs);
+		boolean cme = convertedMemberExpr(expr);
+		if ((!ine && !cme) || isConverted)
 			visitor.visitExpr(expr, nargs);
+//		else
+//			System.out.println("not calling visitExpr because" + (ine?" needs enhancement":"") + (cme?" expr with conversion":"") + (isConverted?" processing conversion":""));
 		if (expr == null)
 			return;
 		else if (expr instanceof ApplyExpr)
@@ -1698,6 +1708,7 @@ public class Traverser implements RepositoryVisitor {
 	
 	public void visitApplyExpr(ApplyExpr expr) {
 		ApplyExpr ae = expr;
+//		System.out.println("visiting apply expr " + expr + " in " + visitor);
 		Expr fn = (Expr) expr.fn;
 		if (wantNestedPatterns && !isConverted) {
 			NamedType sh = containingMe(fn);

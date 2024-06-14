@@ -13,7 +13,6 @@ import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LogicHolder;
@@ -55,6 +54,7 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
+//		System.out.println("leaving AE " + expr);
 		if (expr.args.isEmpty()) { // if it's a single-arg apply, just return the value
 			if (stack.size() != 1)
 				throw new NotImplementedException("stack should now have size 1");
@@ -70,8 +70,6 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (fn instanceof UnresolvedVar)
 			return (WithTypeSignature) ((UnresolvedVar)fn).defn();
 		else if (fn instanceof ApplyExpr) {
-			// if we have an apply applied to an apply, unwrap it
-//			return unwrap((ApplyExpr)fn);
 			WithTypeSignature defn = (WithTypeSignature) ((UnresolvedVar) ((ApplyExpr)fn).fn).defn();
 			makeClosure(null, defn.argCount() - ((ApplyExpr)fn).args.size());
 			return null;
@@ -126,15 +124,11 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 			}
 		} else if (defn instanceof ObjectCtor) {
 			int reqcnt = ((ObjectActionHandler)defn).getObject().contracts.size();
-			// We need to add the "contract" to handle updating the display, but we don't want
-			// to do it more than once if we have a nested apply expr.  So check first.
-			if (!(stack.get(1) instanceof JSFromCard)) {
-				stack.add(1, state.container(new PackageName("_DisplayUpdater")));
-				// and add some curry items in the middle if we expect required contracts
-				if (reqcnt > 0) {
-					for (int i=0;i<expArgs;i++)
-						stack.add(2, new JSCurryArg());
-				}
+			stack.add(1, state.container(new PackageName("_DisplayUpdater")));
+			// and add some curry items in the middle if we expect required contracts
+			if (reqcnt > 0) {
+				for (int i=0;i<expArgs;i++)
+					stack.add(2, new JSCurryArg());
 			}
 			expArgs++;
 			expArgs += reqcnt;

@@ -18,4 +18,9 @@ public class Messages implements Expr {
 	public InputPosition location() {
 		return location;
 	}
+	
+	@Override
+	public String toString() {
+		return "Messages[" + exprs + "]";
+	}
 }

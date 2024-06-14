@@ -2,9 +2,18 @@ This is in part a regression and otherwise similar to objects/contracts.
 
 In the wild, the logic of requiring contracts in objects did not work when there were arguments.
 
-	test we can use a contract stored on a nested object
+	test we can use a contract stored on an object in a card
 		data DoSomething helper
-		data HoldContract agent
+		data HoldContract card
+		contract card ForTest init "gazza"
+		expect helper meth "hello gazza"
+		expect helper meth "hello XgazzaX"
+		contract card ForTest run
+		
+	test we can use a contract stored on an object in an agent
+		data DoSomething helper
+		data AgentHolder agent
 		contract agent ForTest init "gazza"
 		expect helper meth "hello gazza"
+		expect helper meth "hello AgazzaA"
 		contract agent ForTest run

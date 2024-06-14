@@ -17,15 +17,41 @@
 		method sayHello
 			<- ds.meth ("hello " ++ myname)
 		
-	agent HoldContract
+This may seem excessive and redundant, but there are multiple paths through the code,
+depending on how the object is created: (in a card or in an agent) and (directly or through a variable)
+
+So we test all four
+
+	card HoldContract
 		state
-			NeedsArg obj
+			NeedsArg first
+			NeedsArg second
 
 		requires DoSomething ds
 
 		implements ForTest
 			init arg
-				obj <- NeedsArg.init arg
+				first <- NeedsArg.init arg
+				second <- tab
+					tab = NeedsArg.init ("X" ++ arg ++ "X")
 			run
-				<- obj.sayHello
+				<- first.sayHello
+				<- second.sayHello
+
+						
+	agent AgentHolder
+		state
+			NeedsArg first
+			NeedsArg second
+
+		requires DoSomething ds
+
+		implements ForTest
+			init arg
+				first <- NeedsArg.init arg
+				second <- tab
+					tab = NeedsArg.init ("A" ++ arg ++ "A")
+			run
+				<- first.sayHello
+				<- second.sayHello
 		

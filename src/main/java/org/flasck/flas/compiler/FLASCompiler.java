@@ -595,6 +595,7 @@ public class FLASCompiler implements CompileUnit {
 		bce = new ByteCodeEnvironment();
 		populateBCE(bce);
 
+//		System.out.println("_______CODEGEN_______");
 		StackVisitor jsstack = new StackVisitor();
 		new JSGenerator(repository, jse, jsstack, eventMap);
 

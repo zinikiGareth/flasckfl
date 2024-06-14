@@ -14,7 +14,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class AgentDefinition implements Locatable, AgentElementsConsumer, RepositoryEntry, NamedType, StateHolder, ContractImplementor, ContractProvider, FieldsHolder {
+public class AgentDefinition implements Locatable, AgentElementsConsumer, RepositoryEntry, NamedType, StateHolder, ContractImplementor, ContractProvider, RequiresHolder, FieldsHolder {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
@@ -68,6 +68,11 @@ public class AgentDefinition implements Locatable, AgentElementsConsumer, Reposi
 		requires.add(o);
 	}
 
+	@Override
+	public Iterable<RequiresContract> requires() {
+		return requires;
+	}
+	
 	public void addContractService(Provides o) {
 		services.add(o);
 	}

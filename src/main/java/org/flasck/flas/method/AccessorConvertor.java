@@ -1,5 +1,8 @@
 package org.flasck.flas.method;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
@@ -9,14 +12,20 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parsedForm.AccessorHolder;
+import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CastExpr;
+import org.flasck.flas.parsedForm.ContractReferencer;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.RequiresContract;
+import org.flasck.flas.parsedForm.RequiresHolder;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -48,11 +57,14 @@ public class AccessorConvertor extends LeafAdapter {
 	private final NestedVisitor sv;
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
+	private ContractReferencer cr = null;
 
-	public AccessorConvertor(NestedVisitor sv, ErrorReporter errors, RepositoryReader repository) {
+	public AccessorConvertor(NestedVisitor sv, ErrorReporter errors, RepositoryReader repository, StateHolder stateHolder) {
 		this.sv = sv;
 		this.errors = errors;
 		this.repository = repository;
+		if (stateHolder instanceof ContractReferencer)
+			cr = (ContractReferencer)stateHolder;
 		sv.push(this);
 	}
 
@@ -174,12 +186,13 @@ public class AccessorConvertor extends LeafAdapter {
 		} else if (defn instanceof ObjectDefn) {
 			// it's actually a ctor not an accessor
 			ObjectDefn od = (ObjectDefn) defn;
-			ObjectActionHandler ctor = od.getConstructor(meth.var);
-			if (ctor == null)
-				throw new CantHappenException("no constructor " + ctor);
-			UnresolvedVar cv = new UnresolvedVar(from.location(), meth.var);
-			cv.bind(ctor);
-			expr.conversion(cv);
+			ObjectActionHandler odctor = od.getConstructor(meth.var);
+			if (odctor == null)
+				throw new CantHappenException("no constructor " + meth.var);
+			convertObjectCtor(od, odctor, expr);
+//			UnresolvedVar cv = new UnresolvedVar(from.location(), meth.var);
+//			cv.bind(odctor);
+//			expr.conversion(cv);
 			return;
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern)defn;
@@ -244,5 +257,41 @@ public class AccessorConvertor extends LeafAdapter {
 			if (expr.defn() == null)
 				expr.bind((RepositoryEntry) acc, false);
 		}
+	}
+	
+	// basically copied (and adapted) from MemberExprConvertor.  It would be good to share :)
+	// but beware the difference in usage
+	private void convertObjectCtor(ObjectDefn od, ObjectActionHandler odctor, MemberExpr expr) {
+		UnresolvedVar fn = new UnresolvedVar(expr.fld.location(), ((UnresolvedVar)expr.fld).var);
+		fn.bind(odctor);
+		List<Expr> args = new ArrayList<>();
+		for (ObjectContract oc : od.contracts) {
+			if (cr != null) {
+				NamedType parent = cr.getParent();
+				if (parent instanceof AgentDefinition || parent instanceof CardDefinition) {
+					RequiresHolder ad = (RequiresHolder) parent;
+					RequiresContract found = null;
+					for (RequiresContract rc : ad.requires()) {
+						if (rc.actualType() == oc.implementsType().namedDefn()) {
+							found = rc;
+							break;
+						}
+					}
+					if (found == null) {
+						errors.message(expr.fld.location(), "there is no available implementation of " + oc.implementsType().namedDefn().name().uniqueName());
+					} else {
+						UnresolvedVar ret = new UnresolvedVar(expr.fld.location(), found.referAsVar);
+						ret.bind(found);
+						args.add(ret);
+					}
+				} else
+					throw new NotImplementedException("there are other valid cases ... and probably invalid ones too");
+			} else
+				throw new NotImplementedException("there are other valid cases ... and probably invalid ones too");
+		}
+		if (args.isEmpty())
+			expr.conversion(fn);
+		else
+			expr.conversion(new ApplyExpr(expr.location, fn, (Object[])args.toArray(new Expr[args.size()])));
 	}
 }

@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -21,6 +22,7 @@ import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.RequiresContract;
+import org.flasck.flas.parsedForm.RequiresHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -224,10 +226,10 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 		for (ObjectContract oc : od.contracts) {
 			if (oah.hasImplements()) {
 				NamedType parent = oah.getImplements().getParent();
-				if (parent instanceof AgentDefinition) { // This is probably the case for cards as well if we have the right interface
-					AgentDefinition ad = (AgentDefinition) parent;
+				if (parent instanceof AgentDefinition || parent instanceof CardDefinition) {
+					RequiresHolder ad = (RequiresHolder) parent;
 					RequiresContract found = null;
-					for (RequiresContract rc : ad.requires) {
+					for (RequiresContract rc : ad.requires()) {
 						if (rc.actualType() == oc.implementsType().namedDefn()) {
 							found = rc;
 							break;

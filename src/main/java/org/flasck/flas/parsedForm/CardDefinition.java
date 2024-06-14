@@ -19,7 +19,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class CardDefinition implements Locatable, CardElementsConsumer, RepositoryEntry, NamedType, StateHolder, EventHolder, ContractImplementor, ContractProvider {
+public class CardDefinition implements Locatable, CardElementsConsumer, RepositoryEntry, NamedType, StateHolder, EventHolder, ContractImplementor, ContractProvider, RequiresHolder {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
@@ -63,6 +63,11 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 		return templates;
 	}
 
+	@Override
+	public Iterable<RequiresContract> requires() {
+		return this.requires;
+	}
+	
 	@Override
 	public int templatePosn() {
 		return templates.size();

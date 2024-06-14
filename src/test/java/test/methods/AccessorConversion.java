@@ -86,7 +86,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository, null);
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
@@ -116,7 +116,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository, null);
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
@@ -149,7 +149,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository, null);
 		FunctionName an = FunctionName.function(pos, pkg, "f");
 		FunctionDefinition fn = new FunctionDefinition(an, 0, null);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Struct"), true, new ArrayList<>());
@@ -177,7 +177,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository, null);
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
@@ -210,7 +210,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository, null);
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");

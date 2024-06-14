@@ -1,9 +1,11 @@
 package org.flasck.flas.method;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractReferencer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
@@ -29,7 +31,7 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		new AccessorConvertor(sv, errors, repository);
+		new AccessorConvertor(sv, errors, repository, fn.state());
 	}
 	
 	@Override
@@ -51,12 +53,12 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	
 	@Override
 	public void visitTemplateBindingOption(TemplateBindingOption option) {
-		new AccessorConvertor(sv, errors, repository);
+		new AccessorConvertor(sv, errors, repository, null);
 	}
 
 	@Override
 	public void visitTemplateStyling(TemplateStylingOption option) {
-		new AccessorConvertor(sv, errors, repository);
+		new AccessorConvertor(sv, errors, repository, null);
 	}
 
 	@Override
@@ -66,12 +68,12 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert e) {
-		new AccessorConvertor(sv, errors, repository);
+		new AccessorConvertor(sv, errors, repository, null);
 	}
 	
 	@Override
 	public void visitUnitTestIdentical(UnitTestIdentical e) {
-		new AccessorConvertor(sv, errors, repository);
+		new AccessorConvertor(sv, errors, repository, null);
 	}
 	
 	@Override
