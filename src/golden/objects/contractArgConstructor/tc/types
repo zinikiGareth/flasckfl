@@ -1,4 +1,8 @@
+test.golden.AgentHolder._C1.init :: String->List[Message]
+test.golden.AgentHolder._C1.init.tab :: test.golden.AgentHolder._C1->String->test.golden.NeedsArg
+test.golden.AgentHolder._C1.run :: List[Message]
 test.golden.HoldContract._C1.init :: String->List[Message]
+test.golden.HoldContract._C1.init.tab :: test.golden.HoldContract._C1->String->test.golden.NeedsArg
 test.golden.HoldContract._C1.run :: List[Message]
 test.golden.NeedsArg._ctor_init :: String->test.golden.NeedsArg
 test.golden.NeedsArg.sayHello :: List[Message]

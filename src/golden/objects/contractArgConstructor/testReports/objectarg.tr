@@ -1,2 +1,4 @@
-JVM PASS we can use a contract stored on a nested object
-JS PASS we can use a contract stored on a nested object
+JVM PASS we can use a contract stored on an object in a card
+JVM PASS we can use a contract stored on an object in an agent
+JS PASS we can use a contract stored on an object in a card
+JS PASS we can use a contract stored on an object in an agent
