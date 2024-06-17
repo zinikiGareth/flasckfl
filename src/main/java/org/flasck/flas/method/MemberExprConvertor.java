@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.RequiresHolder;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -235,12 +236,17 @@ public class MemberExprConvertor extends LeafAdapter implements ResultAware {
 							break;
 						}
 					}
-					if (found == null) {
-						errors.message(expr.fld.location(), "there is no available implementation of " + oc.implementsType().namedDefn().name().uniqueName());
-					} else {
+					Provides prov = ad.providesContract(oc.implementsType().namedDefn().name());
+					if (found != null) {
 						UnresolvedVar ret = new UnresolvedVar(expr.fld.location(), found.referAsVar);
 						ret.bind(found);
 						args.add(ret);
+					} else if (prov != null) {
+						UnresolvedVar ret = new UnresolvedVar(expr.fld.location(), prov.referAsVar);
+						ret.bind(prov);
+						args.add(ret);
+					} else {
+						errors.message(expr.fld.location(), "there is no available implementation of " + oc.implementsType().namedDefn().name().uniqueName());
 					}
 				} else
 					throw new NotImplementedException("there are other valid cases ... and probably invalid ones too");
