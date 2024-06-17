@@ -733,12 +733,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.recordContract(p.actualType().name(), csn);
 		JSClassCreator svc = jse.newClass(csn.packageName(), csn);
+		svc.implementsJava(p.actualType().name().javaName());
 		if (!agentCreator.wantJS())
 			svc.notJS();
 		JSMethodCreator svcCtor = svc.constructor();
 		svcCtor.argument(J.FLEVALCONTEXT, "_cxt");
 		svc.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
-		// TODO: we need to "declare" the field _card here for the benefit of the JVM generator
 		// TODO: we probably also need to start declaring base classes - because that is currently assumed to be struct
 		svcCtor.argument(J.OBJECT, "_incard");
 		svcCtor.setField(false, "_card", new JSVar("_incard"));
@@ -759,6 +759,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 
 	@Override
 	public void leaveProvides(Provides p) {
+		JSBlockCreator ctor = agentCreator.constructor();
+		ctor.requireContract(p.referAsVar, p.actualType().name());
 		this.block = null;
 		this.evalRet = null;
 		this.meth = null;

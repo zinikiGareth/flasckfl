@@ -3,6 +3,7 @@ package org.flasck.flas.parsedForm;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.zinutils.exceptions.CantHappenException;
 
 public class UnresolvedVar implements Expr {
 	public final InputPosition location;
@@ -10,6 +11,8 @@ public class UnresolvedVar implements Expr {
 	private RepositoryEntry definition;
 
 	public UnresolvedVar(InputPosition location, String var) {
+		if (var == null)
+			throw new CantHappenException("var must be defined");
 		this.location = location;
 		this.var = var;
 	}

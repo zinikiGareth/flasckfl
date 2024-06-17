@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -236,6 +237,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof RequiresContract) {
 			RequiresContract rc = (RequiresContract)defn;
 			sv.result(block.contractByVar(state.container(rc.getParent().name()), rc.referAsVar));
+		} else if (defn instanceof Provides) {
+			Provides p = (Provides)defn;
+			sv.result(block.contractByVar(state.container(p.getParent().name()), p.referAsVar));
 		} else if (defn instanceof ObjectContract) {
 			ObjectContract oc = (ObjectContract)defn;
 			sv.result(block.member(oc.implementsType().namedDefn().name(), oc.varName().var));

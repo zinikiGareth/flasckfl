@@ -1,0 +1,7 @@
+test.golden.DefinesFred._C1.init :: List[Message]
+test.golden.DefinesFred._C1.init.fred :: test.golden.DefinesFred._C1->test.golden.UsesFred
+test.golden.DefinesFred._C2.runU :: List[Message]
+test.golden.DefinesFred._C2.runV :: List[Message]
+test.golden.DefinesFred._S0.setX :: Number->List[Message]
+test.golden.UsesFred._ctor_create :: test.golden.UsesFred
+test.golden.UsesFred.go :: Number->List[Message]

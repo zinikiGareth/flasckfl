@@ -1,0 +1,12 @@
+We want to check that if we have a card which provides a service to a nested card,
+it can be used on the card
+
+	test that an object can use a provided service
+		data DefinesFred c
+		contract c MakeReady init
+		contract c AndTest runU
+		assert (c.value)
+			42
+		contract c AndTest runV
+		assert (c.value)
+			200

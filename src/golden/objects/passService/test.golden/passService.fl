@@ -1,0 +1,60 @@
+If we have objects inside cards, they can acquire services defined on the card using requires.
+This also applies to services that are literally defined on the card
+
+Fred is the contract service we are going to provide
+
+	contract service Fred
+		setX (Number x)
+
+	
+	object UsesFred
+		requires Fred fr
+		
+		ctor create
+		
+		method go (Number k)
+			<- fr.setX k
+
+These two contracts are here to wire everything together
+
+	contract MakeReady
+		init
+	contract AndTest
+		runU
+		runV
+
+This is the test card
+		
+	card DefinesFred
+	
+We provide Fred "anonymously".  Internally, we will call it "_Fred" so it can be
+referenced by the system using "requires", but it cannot be referenced in the script.
+
+		provides Fred
+			setX x
+				value <- x
+
+We need "value" on the state to make sure things work on a round trip; the other
+two represent different ways of defining and setting state, since the code for an
+indirect function is different to defining it directly
+		
+		state
+			Number value <- 0
+			UsesFred u
+			UsesFred v
+		
+Bind the objects onto the card
+
+		implements MakeReady
+			init
+				u <- UsesFred.create
+				v <- fred
+					fred = UsesFred.create
+
+And provide the test methods for both paths
+		
+		implements AndTest
+			runU
+				<- u.go 42
+			runV
+				<- v.go 200

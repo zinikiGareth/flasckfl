@@ -100,6 +100,7 @@ src/golden/objects/contractArgConstructor
 src/golden/objects/convertCtors
 src/golden/objects/ctorneedscard
 src/golden/objects/ctors
+src/golden/objects/passService
 src/golden/objects/events
 src/golden/objects/methods/guarded
 src/golden/objects/state/assignfn
