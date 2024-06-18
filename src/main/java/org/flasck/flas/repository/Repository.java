@@ -44,6 +44,7 @@ import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -207,6 +208,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		addEntry(errors, rc.varName(), rc);
 	}
 	
+	@Override
+	public void newProvidesServiceWithName(ErrorReporter errors, Provides cs) {
+		addEntry(errors, cs.varName(), cs);
+	}
+
 	@Override
 	public void newContractImpl(ErrorReporter errors, ImplementsContract ci) {
 		addEntry(errors, ci.name(), ci);

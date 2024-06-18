@@ -55,16 +55,33 @@ public class TDAServiceElementsParser extends BlockLocationTracker implements TD
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser(errors);
 			}
+			InputPosition varloc = null;
+			String varname = null;
+			if (toks.hasMoreContent(errors)) {
+				ValidIdentifierToken var = VarNameToken.from(errors, toks);
+				if (var == null) {
+					errors.message(toks, "invalid service var name");
+					return new IgnoreNestedParser(errors);
+				}
+				varloc = var.location;
+				varname = var.text;
+				updateLoc(varloc);
+				errors.logReduction("provides-contract-name-with-var", kw.location, varloc);
+			} else {
+				updateLoc(tn.location);
+				errors.logReduction("provides-contract-name", kw.location, tn.location);
+			}
 			if (toks.hasMoreContent(errors)) {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser(errors);
 			}
-			updateLoc(tn.location);
-			errors.logReduction("provides-contract-name", kw.location, tn.location);
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName csn = namer.csn(tn.location, "S");
-			final Provides cs = new Provides(kw.location, tn.location, (NamedType)service, ctr, csn);
+			final Provides cs = new Provides(kw.location, tn.location, (NamedType)service, ctr, csn, varloc, varname);
 			consumer.addProvidedService(cs);
+			if (varname != null) {
+				topLevel.newProvidesServiceWithName(errors, cs);
+			}
 			return new TDAParsingWithAction(
 				new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), cs, topLevel, null, this),
 				reduction(kw.location, "provides-contract")

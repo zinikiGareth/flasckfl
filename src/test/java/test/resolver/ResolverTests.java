@@ -481,7 +481,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides cs = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
+		Provides cs = new Provides(pos, pos, null, ty, new CSName(card, "S0"), null, null);
 		r.currentScope(cs.name());
 		r.visitTypeReference(ty, true, 0);
 		assertEquals(type, ty.namedDefn());
@@ -499,7 +499,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"), null, null);
 		r.currentScope(card);
 		r.visitProvides(pr);
 		r.visitTypeReference(ty, true, 0);
@@ -516,7 +516,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"), null, null);
 		r.currentScope(card);
 		r.visitProvides(pr);
 		r.visitTypeReference(ty, true, 0);
@@ -533,7 +533,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"), null, null);
 		r.currentScope(card);
 		r.visitProvides(pr);
 		r.visitTypeReference(ty, true, 0);
@@ -550,7 +550,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"), null, null);
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "u"), new ArrayList<>(), null, null);
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
@@ -571,7 +571,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "AContract");
-		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"), null, null);
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "absent"), new ArrayList<>(), null, null);
 		pr.addImplementationMethod(om);
 		r.currentScope(card);

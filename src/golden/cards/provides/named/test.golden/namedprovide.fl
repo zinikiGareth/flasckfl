@@ -1,0 +1,37 @@
+If you want to provide a service to nested cards and objects, you may also
+want to use it locally.  I didn't originally think of this, but if you do, it
+will need a name.  Consequently, the name is optional (you may not want to use
+it locally).
+
+This service structure in this example is excessive since it doesn't actually share
+the provided service with any children, but "it doesn't know that" because
+of the anonymous nature of the "requires" structure. 
+
+the service needs a contract
+
+	contract service ProvideLocally
+		setMe (String s)
+
+we also need a contract to control the card from a test
+	
+	contract Control
+		invokeLocal (String q)
+
+this is the main card
+
+	card UseProvidedServiceLocally
+		state
+			String value <- ""
+
+the service trivially sets the value on the state
+
+		provides ProvideLocally pl
+			setMe s
+				value <- s
+
+		implements Control
+		
+the tested method simply turns around and calls the service locally
+
+			invokeLocal q	
+				<- pl.setMe q

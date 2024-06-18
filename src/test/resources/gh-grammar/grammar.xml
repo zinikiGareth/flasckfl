@@ -1452,6 +1452,10 @@ These are mainly independent from each other
       <token type='PROVIDES' />
       <token type='type-name'/>
    	  <push-part prefix='S' />
+      <optional>
+      	<reduces-as rule="-with-var" />
+    	<token type='var-name' />
+      </optional>
    	  <indent>
    	    <ref production='implementation-method'/>
    	  </indent>

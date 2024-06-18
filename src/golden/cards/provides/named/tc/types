@@ -1,0 +1,2 @@
+test.golden.UseProvidedServiceLocally._C1.invokeLocal :: String->List[Message]
+test.golden.UseProvidedServiceLocally._S0.setMe :: String->List[Message]

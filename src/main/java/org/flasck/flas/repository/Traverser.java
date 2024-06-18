@@ -328,7 +328,7 @@ public class Traverser implements RepositoryVisitor {
 		} else if (e instanceof ApplicationRouting) {
 			; 
 		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof IntroduceVar || e instanceof HandlerLambda ||
-				   e instanceof PolyType || e instanceof RequiresContract || e instanceof ObjectContract || e instanceof ImplementsContract ||
+				   e instanceof PolyType || e instanceof RequiresContract || e instanceof Provides || e instanceof ObjectContract || e instanceof ImplementsContract ||
 				   e instanceof Template) {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof ContractMethodDecl) {

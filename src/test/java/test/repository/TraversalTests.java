@@ -280,7 +280,7 @@ public class TraversalTests {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
 		TypeReference fred = new TypeReference(pos, "Fred");
-		Provides p = new Provides(pos, pos, s, fred, new CSName(an, "S0"));
+		Provides p = new Provides(pos, pos, s, fred, new CSName(an, "S0"), null, null);
 		s.addProvidedService(p);
 		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
@@ -299,7 +299,7 @@ public class TraversalTests {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
 		TypeReference fred = new TypeReference(pos, "Fred");
-		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"));
+		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"), null, null);
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null, null);
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
@@ -320,7 +320,7 @@ public class TraversalTests {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
 		TypeReference fred = new TypeReference(pos, "Fred");
-		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"));
+		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"), null, null);
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null, null);
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);

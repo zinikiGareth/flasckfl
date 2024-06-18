@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -174,6 +175,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			announce(pos, tnf.type());
 		} else if (defn instanceof RequiresContract) {
 			announce(pos, ((RequiresContract)defn).implementsType().namedDefn());
+		} else if (defn instanceof Provides) {
+			announce(pos, ((Provides)defn).implementsType().namedDefn());
 		} else if (defn instanceof ObjectContract) {
 			announce(pos, ((ObjectContract)defn).implementsType().namedDefn());
 		} else if (defn instanceof UnitDataDeclaration) {

@@ -1,0 +1,10 @@
+Test that we can name a provided service and invoke it from the card.
+
+This test instantiates the card and then invokes the method on the "Control" contract, which is supposed to call the locally provided service.
+If everything works, the state will be updated.
+
+	test we can invoke a provided service directly from the card
+		data UseProvidedServiceLocally card
+		contract card Control invokeLocal "gazza"
+		assert (card.value)
+			"gazza"
