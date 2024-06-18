@@ -1,0 +1,2 @@
+functionfail  5.0:     _ f (String x) = "this error"
+                          inconsistent number of formal parameters

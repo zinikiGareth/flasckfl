@@ -26,6 +26,8 @@ src/golden/unittests/typeerrors
 src/golden/services/errors
 src/golden/structs/errors
 src/golden/unittests/errors
+src/golden/cascade/functionfail
+src/golden/cascade/nested
 src/golden/functions/comments
 src/golden/functions/simple/assignment
 src/golden/functions/simple/arithmetic
@@ -186,7 +188,6 @@ src/golden/crobags/scroll
 src/golden/unittests/handlers
 src/golden/crobags/explicit
 src/golden/cards/templates/input
-src/golden/cascade/nested
 src/golden/regression/listimage
 src/golden/cards/templates/links
 src/golden/cards/templates/punnets/list

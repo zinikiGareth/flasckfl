@@ -43,6 +43,11 @@ public class FunctionAssembler extends BlockLocationTracker implements FunctionI
 		} else if (fn.argCount() != next.args.size()) {
 			errors.message(next.location, "inconsistent number of formal parameters");
 			broken = true;
+			
+			// 2024-06-18 To avoid cascades, define the function anyway; if you don't every use shows up as an "undefined function" error,
+			// swamping the actual error message
+			consumer.functionDefn(errors, fn);
+			
 			return;
 		}
 		fn.intro(next);

@@ -1,0 +1,9 @@
+If we define a function, but get it wrong, we should get an error telling us about the issue.
+We should not get a string of errors telling us that it is undefined.
+
+	f = "an error"
+	f (String x) = "this error"
+	
+	g = f
+	h = f "hello"
+	i = f "hello" "world"
