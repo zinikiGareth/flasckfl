@@ -87,7 +87,12 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, topLevel, "action", holder, this);
 		return new TDAParsingWithAction(
 			new TDAMethodGuardParser(errors, meth, nestedParser, this),
-			reduction(name.location, "implementation-method")
+			() -> {
+				if (!meth.messages().isEmpty()) {
+					reduce(meth.messages().get(0).location(), "method-actions");
+				}
+				reduce(name.location, "implementation-method");
+			}
 		);
 	}
 

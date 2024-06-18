@@ -1,11 +1,9 @@
 package org.flasck.flas.method;
 
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.ContractReferencer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateStylingOption;

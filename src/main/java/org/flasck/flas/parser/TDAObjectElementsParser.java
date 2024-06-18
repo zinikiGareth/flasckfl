@@ -173,7 +173,12 @@ public class TDAObjectElementsParser extends BlockLocationTracker implements TDA
 			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
 			return new TDAParsingWithAction(
 				new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder, this), this),
-				reduction(kw.location, "object-ctor-definition")
+				() -> {
+					if (!ctor.messages().isEmpty()) {
+						reduce(ctor.messages().get(0).location(), "method-actions");
+					}
+					reduce(kw.location, "object-ctor-definition");
+				}
 			);
 		}
 		case "acor": {

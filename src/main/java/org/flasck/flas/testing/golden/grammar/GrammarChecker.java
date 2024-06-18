@@ -244,6 +244,7 @@ public class GrammarChecker {
 	// We are going to use "real" recursion to traverse the tree, and keep the GrammarNavigator in step by telling it when (and how) we are recursing
 	private void traverseTree(GrammarTree tree, GrammarNavigator gn) {
 		String rule = tree.reducedToRule();
+		logger.info("traversing tree with " + rule + " and " + gn);
 		TrackProduction prod = gn.findChooseableRule(rule);
 		if (prod == null)
 			throw new CantHappenException("there is no chooseable rule to match " + rule + " in " + gn);
@@ -261,6 +262,7 @@ public class GrammarChecker {
 			scopeOnly = true;
 		
 		if (tree.hasIndents()) {
+			logger.info("tree " + rule + " has indents, scopeOnly = " + scopeOnly);
 			if (!scopeOnly) {
 				if (!(prod instanceof SeqProduction)) {
 					// It's possible we have an OrChoice and the tree is a singleton which specifically named a reduction, in which case we should look into that
@@ -276,9 +278,12 @@ public class GrammarChecker {
 				assertNotNull("have a tree indent in " + rule + " but not in rule: " + gn, indent);
 				gn.push(indent);
 			}
+			logger.info("now going to go through the indents");
 			Iterator<GrammarTree> it = tree.indents();
 			while (it.hasNext()) {
-				traverseTree(it.next(), gn);
+				GrammarTree ind = it.next();
+				logger.info("processing indent for " + rule + ": " + ind);
+				traverseTree(ind, gn);
 			}
 			if (!scopeOnly) {
 				gn.pop();

@@ -16,11 +16,13 @@ public class GrammarNavigator {
 	}
 
 	public void push(TrackProduction rule) {
+		logger.info("pushing " + rule);
 		stack.add(0, rule);
 	}
 	
 	public void pop() {
-		stack.remove(0);
+		TrackProduction rule = stack.remove(0);
+		logger.info("popped " + rule);
 	}
 
 	public boolean isAtEnd() {

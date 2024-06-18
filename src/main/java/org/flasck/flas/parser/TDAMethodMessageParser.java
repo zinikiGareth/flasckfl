@@ -108,7 +108,11 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 		}
 		builder.sendMessage(send);
 		tellParent(arrowPos.location());
-		return new TDAParsingWithAction(nestedParser, reduceToActions(arrowPos));
+		return new TDAParsingWithAction(nestedParser,
+				() -> {
+					tellParent(lastInner());
+				}
+			);
 	}
 
 	private TDAParsing handleAssign(ExprToken tok, Tokenizable toks) {
@@ -159,15 +163,11 @@ public class TDAMethodMessageParser extends BlockLocationTracker implements TDAP
 		}
 		errors.logReduction("assign-method-action", slot, seen.get(seen.size()-1));
 		tellParent(slot.location());
-		return new TDAParsingWithAction(nestedParser, reduceToActions(slot));
-	}
-
-	private Runnable reduceToActions(Locatable start) {
-		return () -> {
-//			if (lastInner().compareTo(start.location()) > 0) {
-//				reduce(actionsTracker.lastInner(), "method-actions");
-//			}
-		};
+		return new TDAParsingWithAction(nestedParser,
+				() -> {
+					tellParent(lastInner());
+				}
+			);
 	}
 
 	@Override
