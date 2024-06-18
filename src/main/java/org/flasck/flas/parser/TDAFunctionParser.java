@@ -86,14 +86,11 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 		}
 		ExprToken tok = ExprToken.from(errors, line);
 		if (tok == null) {
-			errors.message(line, "syntax error");
 			return null;
 		} else if (!tok.text.equals("=")) {
-			errors.message(tok.location, "syntax error");
 			return null;
 		}
 		if (!line.hasMoreContent(errors)) {
-			errors.message(line, "function definition requires expression");
 			return null;
 		}
 		List<FunctionCaseDefn> fcds = new ArrayList<>();
@@ -106,6 +103,11 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 		
 		if (fcds.isEmpty())
 			return new IgnoreNestedParser(errors);
+
+		if (line.hasMoreContent(errors)) {
+			errors.message(line, "syntax error");
+			return new IgnoreNestedParser(errors);
+		}
 
 		consumer.hasGuards(false);
 		super.updateLoc(t.location);

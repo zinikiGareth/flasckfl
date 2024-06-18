@@ -1,0 +1,3 @@
+Semicolons do not terminate lines in FLAS, no matter how much your muscle memory makes you type them
+
+	nosemis q = q * q;
