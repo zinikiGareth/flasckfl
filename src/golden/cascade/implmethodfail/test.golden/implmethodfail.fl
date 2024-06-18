@@ -1,0 +1,20 @@
+Implementation methods should not duplicate the type.  This is an error.
+
+But this should not cause cascaded errors, such as that we "didn't implement the method".  We did, just wrongly.
+It certainly shouldn't cause a cascade in the (initialized) fields of an unrelated object.
+
+	contract Anything
+		load (String s)
+		
+	card Implementor
+		implements Anything
+			load (String s)
+			
+	object Unrelated
+		state
+			String m
+			Number k <- 0
+		
+		ctor create
+			m <- "hello"
+			k <- 6

@@ -20,6 +20,7 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 	private List<Template> eventSources = new ArrayList<>();
 	private List<Type> eventSourceTypes = new ArrayList<>();
 	public boolean generate = true;
+	private boolean broken;
 
 	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args, VarPattern handler, StateHolder holder) {
 		super(location, name, args);
@@ -149,5 +150,12 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 
 	public boolean isStandalone() {
 		return impl == null && eventCard == null && od == null;
+	}
+
+	public void broke() {
+		this.broken = true;
+	}
+	public boolean isBroken() {
+		return broken;
 	}
 }

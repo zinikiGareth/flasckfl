@@ -48,6 +48,10 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 		VarPattern handler = null;
 		String withResult = "";
 		InputPosition lastLoc = methName.location.locAtEnd();
+		
+		// 2024-06-18 To avoid cascade errors, when there are errors processing the arguments,
+		// we still add the method to the repo, even though it is incorrect to avoid cascading errors about "method not implemented" 
+		boolean sawError = false;
 		while (toks.hasMoreContent(errors)) {
 			ValidIdentifierToken arg = VarNameToken.from(errors, toks);
 			if (arg == null) {
@@ -66,7 +70,8 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 					break;
 				} else {
 					errors.message(tok.location, "invalid argument name");
-					return new IgnoreNestedParser(errors);
+					sawError = true;
+					break;
 				}
 			}
 			final VarPattern vp = new VarPattern(arg.location, new VarName(arg.location, methName, arg.text));
@@ -74,15 +79,20 @@ public class TDAImplementationMethodsParser extends BlockLocationTracker impleme
 			topLevel.argument(errors, vp);
 			lastLoc = vp.location();
 		}
-		if (toks.hasMoreContent(errors)) {
-			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser(errors);
-		}
 		final ObjectMethod meth = new ObjectMethod(name.location, methName, args, handler, holder);
 		errors.logReduction("implementation-method-first-line" + withResult, methName.location, lastLoc);
 		super.updateLoc(name.location);
 		consumer.addImplementationMethod(meth);
 		topLevel.newObjectMethod(errors, meth);
+		if (!sawError && toks.hasMoreContent(errors)) {
+			errors.message(toks, "syntax error");
+			sawError = true;
+		}
+		if (sawError) {
+			// now return 
+			meth.broke();
+			return new IgnoreNestedParser(errors);
+		}
 		InnerPackageNamer innerNamer = new InnerPackageNamer(methName);
 		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, topLevel, "action", holder, this);
 		return new TDAParsingWithAction(

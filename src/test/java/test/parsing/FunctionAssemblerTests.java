@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.grammar.tracking.LoggableToken;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.FunctionAssembler;
@@ -128,6 +129,7 @@ public class FunctionAssemblerTests {
 		context.checking(new Expectations() {
 			{
 				oneOf(errors).message(pos, "inconsistent number of formal parameters");
+				oneOf(consumer).functionDefn(with(errors), with(any(FunctionDefinition.class)));
 			}
 		});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer, null, null);

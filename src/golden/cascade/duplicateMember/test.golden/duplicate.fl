@@ -1,0 +1,21 @@
+I saw cascades with duplicate members, but it was unrelated (members were not being defined if any previous errors had occurred, even if unrelated).
+
+But I wrote this test anyway to be sure
+
+	card DuplicateMember
+		state
+			String member
+			Number member
+			
+		method m
+			member <- "hello"
+			
+	object Unrelated
+		state
+			String m
+			Number k <- 0
+		
+		ctor create
+			m <- "hello"
+			k <- 6
+			

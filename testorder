@@ -28,6 +28,8 @@ src/golden/structs/errors
 src/golden/unittests/errors
 src/golden/cascade/functionfail
 src/golden/cascade/nested
+src/golden/cascade/implmethodfail
+src/golden/cascade/duplicateMember
 src/golden/functions/comments
 src/golden/functions/simple/assignment
 src/golden/functions/simple/arithmetic

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructField;
@@ -52,6 +53,7 @@ public class TDAStructFieldParser implements TDAParsing {
 			errors.message(toks, "'id' is a reserved field name");
 			return new IgnoreNestedParser(errors);
 		}
+		ErrorMark m = errors.mark();
 		ReturnParser ret = new ReturnParser(errors);
 		if (!toks.hasMoreContent(errors)) {
 			if (fieldsType == FieldsType.WRAPS) {
@@ -76,7 +78,7 @@ public class TDAStructFieldParser implements TDAParsing {
 			}
 			TypeReference ft = type;
 			new TDAExpressionParser(errors, expr -> {
-				if (errors.hasErrors()) {
+				if (m.hasMoreNow()) {
 					ret.ignore();
 				} else {
 					ret.noNest(errors);

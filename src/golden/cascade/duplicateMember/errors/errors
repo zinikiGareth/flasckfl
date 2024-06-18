@@ -1,0 +1,2 @@
+duplicate.fl  7.7:    String  _ member
+                          cannot use member here as it conflicts with state member at duplicate.fl  8.7

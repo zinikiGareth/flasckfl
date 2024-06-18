@@ -148,7 +148,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 		scopeStack.add(0, scope);
 		this.scope = meth.name();
 		this.inside = meth;
-		if (currentlyImplementing != null && currentlyImplementing.actualType() != null) {
+		if (currentlyImplementing != null && currentlyImplementing.actualType() != null && !meth.isBroken()) {
 			ContractDecl cd = currentlyImplementing.actualType();
 			ContractMethodDecl cm = cd.getMethod(meth.name().name);
 			if (cm != null) {
