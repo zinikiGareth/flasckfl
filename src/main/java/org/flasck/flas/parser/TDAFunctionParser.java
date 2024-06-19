@@ -91,7 +91,8 @@ public class TDAFunctionParser extends BlockLocationTracker implements TDAParsin
 			return null;
 		}
 		if (!line.hasMoreContent(errors)) {
-			return null;
+			errors.message(line, "function definition requires expression");
+			return new IgnoreNestedParser(errors);
 		}
 		List<FunctionCaseDefn> fcds = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {

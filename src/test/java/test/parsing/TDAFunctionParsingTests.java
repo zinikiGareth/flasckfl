@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.FunctionCaseNameProvider;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionNameProvider;
+import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAFunctionGuardedEquationParser;
 import org.flasck.flas.parser.TDAFunctionParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -127,7 +128,7 @@ public class TDAFunctionParsingTests {
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder, null, null);
 		TDAParsing nested = parser.tryParsing(line);
-		assertNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test
