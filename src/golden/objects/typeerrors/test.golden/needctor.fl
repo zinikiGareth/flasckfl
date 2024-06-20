@@ -1,0 +1,6 @@
+It is a requirement that objects are created with constructors; you can't just initialize them using their name
+
+	object Foo
+		ctor needed
+		
+	f = Foo
