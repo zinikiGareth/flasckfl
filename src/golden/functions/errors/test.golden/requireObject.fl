@@ -1,0 +1,12 @@
+It is not valid to "require" a contract that is actually an object
+
+	object Fred
+		ctor makeFred
+	
+	object Bert
+		requires Fred f
+		
+		ctor makeBert
+		
+		method callF
+			<- f.hello

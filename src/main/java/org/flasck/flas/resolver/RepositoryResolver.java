@@ -461,7 +461,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 			processMemberOfType(expr, (NamedType) tnf.type(), var);
 		} else if (defn instanceof ObjectContract) {
 			ObjectContract oc = (ObjectContract) defn;
-			ContractDecl cd = (ContractDecl) oc.implementsType().namedDefn();
+			NamedType nd = oc.implementsType().namedDefn();
+			if (!(nd instanceof ContractDecl)) {
+				errors.message(expr.from.location(), "member must refer to a contract");
+				return;
+			}
+			ContractDecl cd = (ContractDecl) nd;
 			processMemberOfType(expr, cd, var);
 		} else if (defn instanceof RequiresContract) {
 			RequiresContract rc = (RequiresContract) defn;

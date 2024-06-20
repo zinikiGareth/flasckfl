@@ -10,6 +10,8 @@ parentheses.  8.14:   l = [ 1, 2, 3  _ )
                           mismatched parentheses: ) does not close [
 parentheses. 11.13:   e = fn (1 + 2 _ ]
                           mismatched parentheses: ] does not close (
+requireObjec 12.3:    <-  _ f.hello
+                          member must refer to a contract
 splitdefn.fl 15.0:     _ split (Cons[A] c) = 1
                           test.golden.split is defined multiple times: splitdefn.fl 13.0
 splitdefn.fl 24.0:     _ broken l = 1
