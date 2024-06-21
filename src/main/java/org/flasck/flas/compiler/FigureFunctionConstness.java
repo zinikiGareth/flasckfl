@@ -86,7 +86,7 @@ public class FigureFunctionConstness extends LeafAdapter {
 		if (f.hasArgs())
 			return new FunctionConstness("hasArgs");
 		if (f.hasState()) {
-			System.out.println("checking state for " + f.name().uniqueName());
+//			System.out.println("checking state for " + f.name().uniqueName());
 			traverser.visitLogic(f);
 			if (needsState)
 				return new FunctionConstness("needsState");
@@ -97,10 +97,10 @@ public class FigureFunctionConstness extends LeafAdapter {
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		if (var.defn() instanceof StructField) {
-			System.out.println("  depends on object field " + var.var);
+//			System.out.println("  depends on object field " + var.var);
 			needsState = true;
 		} else if (var.defn() instanceof LogicHolder) {
-			System.out.println("  has dependency on logic " + var.defn().name().uniqueName());
+//			System.out.println("  has dependency on logic " + var.defn().name().uniqueName());
 			depends.add(var.defn().name());
 		}
 	}
