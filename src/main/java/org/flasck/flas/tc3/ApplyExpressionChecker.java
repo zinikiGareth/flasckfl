@@ -94,6 +94,10 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			errors.message(pfn.location(), "cannot use a contract as a function");
 			nv.result(new ErrorType());
 			return;
+		} else if (fn instanceof ObjectDefn) {
+			errors.message(pfn.location(), "must use a ctor to create an object");
+			nv.result(new ErrorType());
+			return;
 		} else if (fn instanceof UnifiableType) {
 			UnifiableType ut = (UnifiableType)fn;
 			nv.result(ut.canBeAppliedTo(expr.location(), results));

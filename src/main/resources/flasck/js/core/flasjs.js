@@ -14,6 +14,10 @@ var FLError = class _FLError extends Error {
   _throw() {
     return true;
   }
+  _updateTemplate(_cxt) {
+    _cxt.log("error: " + this.message);
+    return this;
+  }
 };
 FLError.eval = function(_cxt, msg) {
   return new FLError(msg);
@@ -854,16 +858,15 @@ FLCurry.prototype.toString = function() {
 };
 
 // src/main/javascript/runtime/closure.js
+var closNum = 1;
 var FLClosure = function(obj, fn, args) {
   if (!fn)
     throw new Error("must define a function");
+  this.label = "Clos#" + ++closNum;
   this.obj = obj;
   this.fn = fn;
   args.splice(0, 0, null);
   this.args = args;
-};
-FLClosure.prototype.splitRWM = function(msgsTo) {
-  this.msgsTo = msgsTo;
 };
 FLClosure.prototype.eval = function(_cxt) {
   if (this.val)
@@ -883,18 +886,14 @@ FLClosure.prototype.eval = function(_cxt) {
     return new FLCurry(this.obj, this.fn, cnt, xcs);
   }
   this.val = this.fn.apply(this.obj, this.args.slice(0, cnt + 1));
-  if (typeof this.msgsTo !== "undefined") {
-    if (this.val instanceof ResponseWithMessages) {
-      _cxt.addAll(this.msgsTo, ResponseWithMessages.messages(_cxt, this.val));
-      this.val = ResponseWithMessages.response(_cxt, this.val);
-    } else if (this.val instanceof FLClosure) {
-      this.val.splitRWM(this.msgsTo);
-    }
+  var ret2 = this.val;
+  if (this.val instanceof ResponseWithMessages) {
+    this.val = ResponseWithMessages.response(_cxt, this.val);
   }
   if (cnt + 1 < this.args.length) {
-    this.val = new FLClosure(this.obj, this.val, this.args.slice(cnt + 1));
+    ret2 = this.val = new FLClosure(this.obj, this.val, this.args.slice(cnt + 1));
   }
-  return this.val;
+  return ret2;
 };
 FLClosure.prototype.apply = function(_, args) {
   const asfn = this.eval(args[0]);
@@ -1597,8 +1596,13 @@ FLContext.prototype.makeStatic = function(clz, meth) {
   return ret2;
 };
 FLContext.prototype.head = function(obj) {
-  while (obj instanceof FLClosure)
+  while (obj instanceof FLClosure) {
     obj = obj.eval(this);
+    if (obj instanceof ResponseWithMessages) {
+      this.env.queueMessages(this, ResponseWithMessages.messages(this, obj));
+      obj = ResponseWithMessages.response(this, obj);
+    }
+  }
   return obj;
 };
 FLContext.prototype.spine = function(obj) {
