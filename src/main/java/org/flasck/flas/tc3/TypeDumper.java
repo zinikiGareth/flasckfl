@@ -26,6 +26,9 @@ public class TypeDumper extends LeafAdapter {
 			pw.print("<<UNDEFINED>>");
 		else
 			pw.print(fn.type().signature());
+		if (fn.constNess() != null && fn.constNess().isConstant()) {
+			pw.print(" [const]");
+		}
 		pw.println();
 	}
 
@@ -39,6 +42,9 @@ public class TypeDumper extends LeafAdapter {
 			pw.print("<<UNDEFINED>>");
 		else
 			pw.print(om.type().signature());
+		if (om.constNess() != null && om.constNess().isConstant()) {
+			pw.print(" [const]");
+		}
 		pw.println();
 	}
 	
@@ -52,6 +58,9 @@ public class TypeDumper extends LeafAdapter {
 			pw.print("<<UNDEFINED>>");
 		else
 			pw.print(oc.type().signature());
+		if (oc.constNess() != null && oc.constNess().isConstant()) {
+			pw.print(" [const]");
+		}
 		pw.println();
 	}
 
@@ -68,6 +77,9 @@ public class TypeDumper extends LeafAdapter {
 			pw.print("<<UNDEFINED>>");
 		else
 			pw.print(tm.type().signature());
+		if (tm.constNess() != null && tm.constNess().isConstant()) {
+			pw.print(" [const]");
+		}
 		pw.println();
 	}
 }

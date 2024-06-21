@@ -1,5 +1,5 @@
-test.golden.expensiveOp :: test.golden.Result
+test.golden.expensiveOp :: test.golden.Result [const]
 test.golden.f :: Number->test.golden.Result
-test.golden.q :: test.golden.Pair
-test.golden.r :: test.golden.Result
-test.golden.s :: test.golden.PairB
+test.golden.q :: test.golden.Pair [const]
+test.golden.r :: test.golden.Result [const]
+test.golden.s :: test.golden.PairB [const]

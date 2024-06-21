@@ -1,9 +1,9 @@
-test.golden.a1 :: test.golden.StoreFnAsAny
-test.golden.a2 :: test.golden.StoreFnAsAny
+test.golden.a1 :: test.golden.StoreFnAsAny [const]
+test.golden.a2 :: test.golden.StoreFnAsAny [const]
 test.golden.f :: String->Number
-test.golden.l1 :: test.golden.StoreListTupleWithFnAsAny
+test.golden.l1 :: test.golden.StoreListTupleWithFnAsAny [const]
 test.golden.takesAny :: Any->Number
 test.golden.takesSome :: Any->Number
-test.golden.x :: test.golden.StoreFn
-test.golden.y :: test.golden.StoreListFn
-test.golden.z :: test.golden.StoreTupleFn
+test.golden.x :: test.golden.StoreFn [const]
+test.golden.y :: test.golden.StoreListFn [const]
+test.golden.z :: test.golden.StoreTupleFn [const]

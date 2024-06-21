@@ -402,11 +402,23 @@ public class FLASCompiler implements CompileUnit {
 
 		logger.info("lifting");
 		FunctionGroups ordering = lift();
+		
 		logger.info("analyzing patterns");
 		analyzePatterns();
 		if (errors.hasErrors())
 			return true;
 
+		logger.info("attempting to identify 'constant' functions");
+		// In this context, "constant" functions are ones that:
+		// have no args
+		// may "have" state, but do not use it
+		// may be passed contracts, but do not use them
+		// i.e. in reality they have no arguments
+		// Note, however, that this is transitive, since if they have state and reference another function,
+		//   it may depend on the state
+		FigureFunctionConstness ffc = new FigureFunctionConstness();
+		ffc.processAll(ordering);
+		
 		if (config.doTypeCheck) {
 			logger.info("typechecking");
 			doTypeChecking(ordering);

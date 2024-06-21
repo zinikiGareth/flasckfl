@@ -18,6 +18,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class StandaloneMethod implements RepositoryEntry, LogicHolder, TypeBinder, WithTypeSignature, Locatable {
 	public final ObjectMethod om;
+	private FunctionConstness constNess;
 
 	public StandaloneMethod(ObjectMethod om) {
 		this.om = om;
@@ -27,6 +28,21 @@ public class StandaloneMethod implements RepositoryEntry, LogicHolder, TypeBinde
 
 	public FunctionName name() {
 		return om.name();
+	}
+
+	@Override
+	public boolean hasArgs() {
+		return om.argCountWithoutHolder() > 0;
+	}
+	
+	@Override
+	public void setConstness(FunctionConstness fc) {
+		this.constNess = fc;
+	}
+	
+	@Override
+	public FunctionConstness constNess() {
+		return constNess;
 	}
 
 	@Override

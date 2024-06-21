@@ -1,6 +1,6 @@
-test.golden.TopHasState._ctor_create :: test.golden.TopHasState
+test.golden.TopHasState._ctor_create :: test.golden.TopHasState [const]
 test.golden.TopHasState.f :: Number->test.golden.TopHasState.f._1.NestedHandler
 test.golden.TopHasState.f._1.NestedHandler.boreMe :: List[Message]
 test.golden.TopHasState.f._1.NestedHandler.boreMe.g :: test.golden.TopHasState.f._1.NestedHandler->Number->Number->Number
 test.golden.TopHasState.f._1.NestedHandler.boreMeMore :: List[Message]
-test.golden.TopHasState.f._1.NestedHandler.boreMeMore.g :: test.golden.TopHasState.f._1.NestedHandler->Number
+test.golden.TopHasState.f._1.NestedHandler.boreMeMore.g :: test.golden.TopHasState.f._1.NestedHandler->Number [const]

@@ -1,12 +1,12 @@
 test.golden.Container._ctor_store :: test.golden.First->test.golden.Container
-test.golden.CtorUsesState._ctor_init :: test.golden.CtorUsesState
+test.golden.CtorUsesState._ctor_init :: test.golden.CtorUsesState [const]
 test.golden.CtorUsesState.next :: List[Message]
 test.golden.CtorUsesState.top :: Number
 test.golden.First._ctor_make :: test.golden.Other->test.golden.First
 test.golden.First.val :: Number
-test.golden.Init._ctor_create :: test.golden.Init
+test.golden.Init._ctor_create :: test.golden.Init [const]
 test.golden.Init.value :: String
 test.golden.InitArg._ctor_init :: String->test.golden.InitArg
 test.golden.InitArg.value :: String
 test.golden.OneArg._ctor_witharg :: String->test.golden.OneArg
-test.golden.Simple._ctor_init :: test.golden.Simple
+test.golden.Simple._ctor_init :: test.golden.Simple [const]

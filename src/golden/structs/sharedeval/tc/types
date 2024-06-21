@@ -1,2 +1,2 @@
-test.golden.ret :: test.golden.Shared
-test.golden.value :: test.golden.Value
+test.golden.ret :: test.golden.Shared [const]
+test.golden.value :: test.golden.Value [const]

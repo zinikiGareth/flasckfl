@@ -1,4 +1,4 @@
-test.golden.Inner._ctor_create :: test.golden.Inner
+test.golden.Inner._ctor_create :: test.golden.Inner [const]
 test.golden.Inner.number :: Number
-test.golden.Outer._ctor_fred :: test.golden.Outer
+test.golden.Outer._ctor_fred :: test.golden.Outer [const]
 test.golden.Outer.value :: Number

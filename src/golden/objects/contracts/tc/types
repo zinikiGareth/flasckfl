@@ -1,4 +1,4 @@
-test.golden.CallContract._ctor_init :: test.golden.CallContract
-test.golden.CallContract.doit :: List[Message]
+test.golden.CallContract._ctor_init :: test.golden.CallContract [const]
+test.golden.CallContract.doit :: List[Message] [const]
 test.golden.HoldContract._C1.init :: List[Message]
 test.golden.HoldContract._C1.run :: List[Message]

@@ -1,0 +1,9 @@
+test.golden.Container._ctor_holdIt :: test.golden.ToShare->test.golden.Container
+test.golden.Container.nested :: String
+test.golden.RunTest._ctor_setup :: test.golden.RunTest [const]
+test.golden.RunTest._ctor_setup.fred :: test.golden.RunTest->test.golden.Container
+test.golden.RunTest._ctor_setup.shareMe :: test.golden.RunTest->test.golden.ToShare [const]
+test.golden.RunTest.changeValue :: String->List[Message]
+test.golden.ToShare._ctor_makeMeOnce :: String->test.golden.ToShare
+test.golden.ToShare.andUpdate :: String->List[Message]
+test.golden.ToShare.export :: String

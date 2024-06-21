@@ -1,1 +1,1 @@
-test.golden.s :: String
+test.golden.s :: String [const]

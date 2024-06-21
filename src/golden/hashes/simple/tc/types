@@ -1,2 +1,2 @@
-test.golden.h :: Hash
-test.golden.q :: Any
+test.golden.h :: Hash [const]
+test.golden.q :: Any [const]

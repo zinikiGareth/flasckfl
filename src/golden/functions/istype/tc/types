@@ -1,4 +1,4 @@
 test.golden.f :: Any->Number
-test.golden.q :: Boolean
-test.golden.r :: Boolean
-test.golden.s :: Boolean
+test.golden.q :: Boolean [const]
+test.golden.r :: Boolean [const]
+test.golden.s :: Boolean [const]

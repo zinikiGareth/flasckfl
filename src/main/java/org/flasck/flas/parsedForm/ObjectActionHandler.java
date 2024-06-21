@@ -38,6 +38,7 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	private NestedVarReader nestedVars;
 	private boolean reportHolder;
 	private boolean dynamicType = false;
+	private FunctionConstness constNess;
 
 	public ObjectActionHandler(InputPosition location, FunctionName name, List<Pattern> args) {
 		this.location = location;
@@ -80,6 +81,11 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 		return name().compareTo(o.name());
 	}
 
+	@Override
+	public boolean hasArgs() {
+		return !args.isEmpty();
+	}
+	
 	public List<Pattern> args() {
 		return args;
 	}
@@ -100,6 +106,16 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 		return ret;
 	}
 	
+	@Override
+	public void setConstness(FunctionConstness fc) {
+		this.constNess = fc;
+	}
+	
+	@Override
+	public FunctionConstness constNess() {
+		return constNess;
+	}
+
 	@Override
 	public void guard(GuardedMessages gm) {
 		guards.add(gm);

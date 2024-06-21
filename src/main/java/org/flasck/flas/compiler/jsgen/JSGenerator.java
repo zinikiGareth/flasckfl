@@ -209,7 +209,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 			loadContainers(this.state, fn.name());
 		}
 		
-		if (!fn.hasState() && fn.argCountWithoutHolder() == 0) {
+		if (fn.constNess().isConstant()) {
 			this.state.cacheResult();
 			// for simple constants, we can cache them
 			this.meth.checkCached();

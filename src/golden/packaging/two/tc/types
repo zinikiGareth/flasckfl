@@ -1,2 +1,2 @@
-test.golden.y :: Number
-test.references.x :: Number
+test.golden.y :: Number [const]
+test.references.x :: Number [const]

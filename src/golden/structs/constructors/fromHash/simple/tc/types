@@ -1,4 +1,4 @@
-test.golden.n1 :: test.golden.NoneNeeded
-test.golden.n2 :: test.golden.NoneNeeded
-test.golden.o1 :: test.golden.OneNeeded
-test.golden.o2 :: test.golden.OneNeeded
+test.golden.n1 :: test.golden.NoneNeeded [const]
+test.golden.n2 :: test.golden.NoneNeeded [const]
+test.golden.o1 :: test.golden.OneNeeded [const]
+test.golden.o2 :: test.golden.OneNeeded [const]

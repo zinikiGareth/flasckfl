@@ -1,4 +1,4 @@
-test.golden.l0 :: Nil
-test.golden.l1 :: Cons[True]
-test.golden.l2 :: Cons[Number]
-test.golden.l3 :: Cons[String]
+test.golden.l0 :: Nil [const]
+test.golden.l1 :: Cons[True] [const]
+test.golden.l2 :: Cons[Number] [const]
+test.golden.l3 :: Cons[String] [const]

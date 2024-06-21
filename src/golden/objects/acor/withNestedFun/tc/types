@@ -1,3 +1,3 @@
-test.golden.NestedAcor._ctor_make :: test.golden.NestedAcor
+test.golden.NestedAcor._ctor_make :: test.golden.NestedAcor [const]
 test.golden.NestedAcor.nested :: Number
 test.golden.NestedAcor.nested._1.double :: test.golden.NestedAcor->Number->Number

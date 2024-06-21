@@ -124,7 +124,7 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 	
 	@Override
 	public String toString() {
-		return name().uniqueName() + "(" + args().size() + ")";
+		return "method " + name().uniqueName() + "(" + args().size() + ")";
 	}
 	
 	@Override

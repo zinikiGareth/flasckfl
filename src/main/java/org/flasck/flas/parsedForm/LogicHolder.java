@@ -12,14 +12,20 @@ import org.flasck.flas.repository.HSICases;
 
 public interface LogicHolder extends Locatable, Comparable<LogicHolder> {
 	FunctionName name();
-	HSITree hsiTree();
+	boolean isMyName(NameOfThing other);
+	boolean hasArgs();
+	boolean hasState();
+	StateHolder state();
+	void setConstness(FunctionConstness fc);
+	FunctionConstness constNess();
+
 	List<Slot> slots();
+	HSITree hsiTree();
 	HSICases hsiCases();
+
 	void nestedVars(NestedVarReader nestedVars);
 	NestedVarReader nestedVars();
-	boolean hasState();
-	boolean isMyName(NameOfThing other);
-	StateHolder state();
+	
 	boolean isObjAccessor();
 	boolean generate();
 }

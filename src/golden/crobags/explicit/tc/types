@@ -1,2 +1,2 @@
 test.golden.ExplicitCrobagTemplate._C0.prepare :: List[Message]
-test.golden.ExplicitCrobagTemplate._C0.prepare.ts :: test.golden.ExplicitCrobagTemplate._C0->Crobag
+test.golden.ExplicitCrobagTemplate._C0.prepare.ts :: test.golden.ExplicitCrobagTemplate._C0->Crobag [const]

@@ -23,6 +23,7 @@ import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionConstness;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -65,6 +66,7 @@ public class FunctionGenerationJS {
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
+		fn.setConstness(new FunctionConstness((String)null));
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(pos, intro, null, new NumericLiteral(pos, "42", 2));
 		fi.functionCase(fcd);
@@ -87,6 +89,7 @@ public class FunctionGenerationJS {
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
+		fn.setConstness(new FunctionConstness("hasArgs"));
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(pos, intro, null, new StringLiteral(pos, "hello"));
 		fi.functionCase(fcd);
@@ -133,6 +136,7 @@ public class FunctionGenerationJS {
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
+		fn.setConstness(new FunctionConstness("hasArgs"));
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
 		ex.bind(new VarPattern(pos, vnx));
@@ -162,6 +166,7 @@ public class FunctionGenerationJS {
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 2, null);
+		fn.setConstness(new FunctionConstness("hasArgs"));
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
 		ex.bind(new VarPattern(pos, vnx));
@@ -206,6 +211,7 @@ public class FunctionGenerationJS {
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
+		fn.setConstness(new FunctionConstness("hasArgs"));
 		FunctionIntro f1 = new FunctionIntro(name, new ArrayList<>());
 		{
 			FunctionCaseDefn fcd = new FunctionCaseDefn(pos, intro, null, new StringLiteral(pos, "hello"));
@@ -649,6 +655,7 @@ public class FunctionGenerationJS {
 		Traverser trav = new Traverser(gen).withHSI();
 		{
 			FunctionDefinition fn = new FunctionDefinition(nameX, 1, null);
+			fn.setConstness(new FunctionConstness("hasArgs"));
 			FunctionIntro fi = new FunctionIntro(nameX, new ArrayList<>());
 			FunctionCaseDefn fcd = new FunctionCaseDefn(pos, intro, null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
@@ -676,6 +683,7 @@ public class FunctionGenerationJS {
 		context.assertIsSatisfied();
 		{
 			FunctionDefinition fn = new FunctionDefinition(nameY, 1, null);
+			fn.setConstness(new FunctionConstness("hasArgs"));
 			FunctionIntro fi = new FunctionIntro(nameY, new ArrayList<>());
 			FunctionCaseDefn fcd = new FunctionCaseDefn(pos, intro, null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);

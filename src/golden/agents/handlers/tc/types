@@ -1,2 +1,2 @@
 test.golden.Orange.Handler.coming :: List[Message]
-test.golden.Orange._C1.init :: List[Message]
+test.golden.Orange._C1.init :: List[Message] [const]

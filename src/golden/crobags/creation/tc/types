@@ -1,1 +1,1 @@
-test.golden.Container._ctor_make :: test.golden.Container
+test.golden.Container._ctor_make :: test.golden.Container [const]

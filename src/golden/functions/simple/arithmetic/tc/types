@@ -1,4 +1,4 @@
-test.golden.six :: Number
-test.golden.twelve :: Number
-test.golden.twentyfour :: Number
-test.golden.useOther :: Number
+test.golden.six :: Number [const]
+test.golden.twelve :: Number [const]
+test.golden.twentyfour :: Number [const]
+test.golden.useOther :: Number [const]

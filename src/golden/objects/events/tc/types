@@ -1,2 +1,2 @@
-test.golden.EventHandler._ctor_create :: test.golden.EventHandler
+test.golden.EventHandler._ctor_create :: test.golden.EventHandler [const]
 test.golden.EventHandler.handle :: ClickEvent->List[Message]

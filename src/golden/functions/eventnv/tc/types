@@ -1,4 +1,4 @@
-test.golden.EvDeps._ctor_create :: test.golden.EvDeps
+test.golden.EvDeps._ctor_create :: test.golden.EvDeps [const]
 test.golden.EvDeps.findColumn :: test.golden.EvDeps->Number->Number
 test.golden.EvDeps.hccast :: test.golden.EvDeps->Any->Number
 test.golden.EvDeps.moveIt :: ClickEvent->List[Message]

@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionConstness;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -314,6 +315,7 @@ public class ExpressionGenerationJS {
 		StackVisitor sv = new StackVisitor();
 		new JSGenerator(null, jss, sv, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
+		fn.setConstness(new FunctionConstness((String)null));
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));

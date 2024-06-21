@@ -22,12 +22,18 @@ public class TupleMember implements Locatable, RepositoryEntry, LogicHolder, Com
 	private final FunctionName myName;
 	private NestedVarReader nestedVars;
 	private Type type;
+	private FunctionConstness constNess;
 
 	public TupleMember(InputPosition location, TupleAssignment ta, int which, FunctionName myName) {
 		this.location = location;
 		this.ta = ta;
 		this.which = which;
 		this.myName = myName;
+	}
+
+	@Override
+	public boolean hasArgs() {
+		return false;
 	}
 
 	@Override
@@ -51,6 +57,16 @@ public class TupleMember implements Locatable, RepositoryEntry, LogicHolder, Com
 	@Override
 	public int argCount() {
 		return 0; // should be able to have tuples in objects, would return 1
+	}
+
+	@Override
+	public void setConstness(FunctionConstness fc) {
+		this.constNess = fc;
+	}
+	
+	@Override
+	public FunctionConstness constNess() {
+		return constNess;
 	}
 
 	@Override

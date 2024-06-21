@@ -1,2 +1,2 @@
 test.golden.CallFunction.mapping :: test.golden.CallFunction->List[String]->String
-test.golden.henry :: String
+test.golden.henry :: String [const]

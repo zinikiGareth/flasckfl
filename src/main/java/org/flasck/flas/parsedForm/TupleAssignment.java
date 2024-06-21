@@ -25,6 +25,7 @@ public class TupleAssignment implements RepositoryEntry, LogicHolder, TypeBinder
 	private final NameOfThing scopePackage;
 	public final Expr expr;
 	private NestedVarReader nestedVars;
+	private FunctionConstness constNess;
 
 	// We used located name here, not unresolvedvar, because this is defining the things
 	public TupleAssignment(List<LocatedName> vars, FunctionName exprFnName, FunctionName scopePackage, Expr expr) {
@@ -34,6 +35,11 @@ public class TupleAssignment implements RepositoryEntry, LogicHolder, TypeBinder
 		this.expr = expr;
 	}
 
+	@Override
+	public boolean hasArgs() {
+		return false;
+	}
+	
 	@Override
 	public boolean generate() {
 		return true;
@@ -50,6 +56,16 @@ public class TupleAssignment implements RepositoryEntry, LogicHolder, TypeBinder
 	@Override
 	public int argCount() {
 		return 0; // should be able to have tuples in objects, would return 1
+	}
+
+	@Override
+	public void setConstness(FunctionConstness fc) {
+		this.constNess = fc;
+	}
+	
+	@Override
+	public FunctionConstness constNess() {
+		return constNess;
 	}
 
 	@Override

@@ -16,6 +16,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder, StateHolder, EventHolder, PolyHolder {
@@ -191,12 +192,12 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 
 	@Override
 	public int argCount() {
-		throw new NotImplementedException();
+		throw new CantHappenException("you can't call an object definition directly - you need to use a constructor");
 	}
 
 	@Override
 	public Type get(int pos) {
-		throw new NotImplementedException();
+		throw new CantHappenException("you can't call an object definition directly - you need to use a constructor");
 	}
 
 	@Override

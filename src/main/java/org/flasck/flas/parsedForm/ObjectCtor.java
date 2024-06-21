@@ -33,6 +33,11 @@ public class ObjectCtor extends ObjectActionHandler implements WithTypeSignature
 		}
 	}
 	
+	@Override
+	public boolean hasArgs() {
+		return argCount() > 0;
+	}
+	
 	public int argCountIncludingContracts() {
 		return argCount() + ((ObjectDefn)od).contracts.size();
 	}

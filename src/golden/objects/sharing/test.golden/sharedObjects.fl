@@ -1,0 +1,41 @@
+This is the object which should be created once and shared
+
+	object ToShare
+		state
+			String value
+			
+		ctor makeMeOnce (String s)
+			value <- s
+		
+		method andUpdate (String t)
+			value <- t
+			
+		acor export = value
+			
+To facilitate the testing, we will also have an object which takes the shared reference.
+
+	object Container
+		state
+			ToShare shared
+			
+		ctor holdIt (ToShare s)
+			shared <- s
+			
+		acor nested = shared.export
+
+And then we need another object to manage the whole process ...
+
+	object RunTest
+		state
+			Container container
+			ToShare myRef
+			
+		ctor setup
+			myRef <- shareMe
+			container <- fred
+				fred = Container.holdIt shareMe		
+				shareMe = ToShare.makeMeOnce "hello"
+
+		method changeValue (String s)
+			<- myRef.andUpdate s
+			

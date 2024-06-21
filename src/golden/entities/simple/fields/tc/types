@@ -1,1 +1,1 @@
-test.golden.ns :: test.golden.NameStruct
+test.golden.ns :: test.golden.NameStruct [const]

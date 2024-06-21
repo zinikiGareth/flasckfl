@@ -1,0 +1,14 @@
+Everywhere that a no-args function is declared, it will be represented as a closure and the evaluation
+of that closure should be shared between all references.
+
+This is obviously somewhat complicated, and probably requires a lot more testing than I have given it,
+but in particular, I came across a case where it was not working with object constructors, so this is a
+regression test for that.
+
+	test check that if we update one, we update both
+		data RunTest r <- RunTest.setup
+		invoke r.changeValue "changed"
+		assert (r.myRef.export)
+			"changed"
+		assert (r.container.nested)
+			"changed"

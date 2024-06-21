@@ -1,3 +1,4 @@
 mismatchedud  1.17:   data ObjA udd <-  _ ObjB.make
                           cannot store test.golden.ObjB in data test.golden.ObjA
-                          
+needctor.fl:  6.4:    f =  _ Foo
+                          must use a ctor to create an object

@@ -3,4 +3,4 @@ test.golden.doShuffle._2.len :: Cons[Number]->Number
 test.golden.doShuffle._2.others :: Cons[Number]->Cons[Number]->List[Number]
 test.golden.doShuffle._2.which :: Cons[Number]->Cons[Number]->Number
 test.golden.genlist :: Number->List[Number]
-test.golden.list :: List[Number]
+test.golden.list :: List[Number] [const]

@@ -1,8 +1,8 @@
-test.golden.AssignList._ctor_create :: test.golden.AssignList
+test.golden.AssignList._ctor_create :: test.golden.AssignList [const]
 test.golden.AssignList.hd :: Number
 test.golden.AssignList.update1 :: Number->List[Message]
 test.golden.AssignList.update1.first :: test.golden.AssignList->AssignItem[Number]
 test.golden.AssignList.update1.second :: test.golden.AssignList->AssignItem[Number]
-test.golden.AssignStruct._ctor_create :: test.golden.AssignStruct
+test.golden.AssignStruct._ctor_create :: test.golden.AssignStruct [const]
 test.golden.AssignStruct.update1 :: Number->List[Message]
 test.golden.AssignStruct.update1.fred :: test.golden.AssignStruct->Any->test.golden.Thing

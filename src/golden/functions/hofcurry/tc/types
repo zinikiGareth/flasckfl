@@ -1,4 +1,4 @@
 test.golden.add :: Number->Number->Number
-test.golden.fn :: List[Number]->List[Number]
+test.golden.fn :: List[Number]->List[Number] [const]
 test.golden.fn2 :: (Number->A)->List[A]
 test.golden.map :: (A->B)->List[A]->List[B]

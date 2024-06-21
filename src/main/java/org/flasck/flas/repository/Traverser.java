@@ -989,18 +989,22 @@ public class Traverser implements RepositoryVisitor {
 
 	private void traverseFnOrMethod(LogicHolder sd) {
 		if (wantHSI) {
-			List<Slot> slots = sd.slots();
-			((HSIVisitor)visitor).hsiArgs(slots);
-			hsiLogger.info("traversing HSI for " + sd.name().uniqueName());
-//			sd.hsiTree().dump("");
-			visitHSI(new VarMapping(), "", slots, sd.hsiCases(), null, new BackupPlan(), new DontConsiderAgain());
-			hsiLogger.info("finished HSI for " + sd.name().uniqueName());
+			visitHSI(sd);
 		} else {
 			visitLogic(sd);
 		} 
 	}
+
+	public void visitHSI(LogicHolder sd) {
+		List<Slot> slots = sd.slots();
+		((HSIVisitor)visitor).hsiArgs(slots);
+		hsiLogger.info("traversing HSI for " + sd.name().uniqueName());
+//			sd.hsiTree().dump("");
+		visitHSI(new VarMapping(), "", slots, sd.hsiCases(), null, new BackupPlan(), new DontConsiderAgain());
+		hsiLogger.info("finished HSI for " + sd.name().uniqueName());
+	}
 	
-	private void visitLogic(LogicHolder fn) {
+	public void visitLogic(LogicHolder fn) {
 		if (wantHSI)
 			throw new NotImplementedException("We should not call visitLogic from visitHSI");
 		

@@ -39,6 +39,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	private boolean isObjAccessor;
 	public boolean generate = true;
 	private List<Slot> slots;
+	private FunctionConstness constNess;
 
 	public FunctionDefinition(FunctionName name, int nargs, StateHolder holder) {
 		this.name = name;
@@ -83,6 +84,10 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 			return intros.get(0).location;
 	}
 
+	public boolean hasArgs() {
+		return argCountWithoutHolder() > 0;
+	}
+	
 	public int argCount() {
 		int ret = nargs;
 		if (reportHolder && holder != null)
@@ -120,7 +125,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 
 	@Override
 	public String toString() {
-		return name.uniqueName() + "(" + (holder != null?"+":"") + nargs + ")";
+		return "fn " + name.uniqueName() + "(" + (holder != null?"+":"") + nargs + ")";
 	}
 
 	@Override
@@ -184,6 +189,16 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 
 	public void reportHolderInArgCount() {
 		reportHolder = true;
+	}
+
+	@Override
+	public void setConstness(FunctionConstness fc) {
+		this.constNess = fc;
+	}
+	
+	@Override
+	public FunctionConstness constNess() {
+		return constNess;
 	}
 
 	public void restrict(AccessRestrictions r) {

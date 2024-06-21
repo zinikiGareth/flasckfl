@@ -1,3 +1,3 @@
 test.golden.first :: List[A]->A
-test.golden.x :: test.golden.PolyContainer[Number]
-test.golden.z :: Number
+test.golden.x :: test.golden.PolyContainer[Number] [const]
+test.golden.z :: Number [const]

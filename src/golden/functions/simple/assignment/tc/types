@@ -1,6 +1,6 @@
-test.golden.b :: True
-test.golden.li0 :: Nil
-test.golden.li1 :: Nil
-test.golden.s :: String
-test.golden.x :: Number
-test.golden.z :: Number
+test.golden.b :: True [const]
+test.golden.li0 :: Nil [const]
+test.golden.li1 :: Nil [const]
+test.golden.s :: String [const]
+test.golden.x :: Number [const]
+test.golden.z :: Number [const]

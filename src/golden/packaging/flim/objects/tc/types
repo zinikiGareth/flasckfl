@@ -1,4 +1,4 @@
-test.objects.Accumulator._ctor_makeMe :: test.objects.Accumulator
+test.objects.Accumulator._ctor_makeMe :: test.objects.Accumulator [const]
 test.objects.Accumulator.inc :: Number->List[Message]
 test.objects.Accumulator.info :: A
 test.objects.Accumulator.value :: Number->Number

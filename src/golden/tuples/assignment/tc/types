@@ -1,5 +1,5 @@
-test.golden.a :: Number
-test.golden.b :: Number
-test.golden.c :: String
-test.golden.d :: String
-test.golden.c.f :: (String,String)
+test.golden.a :: Number [const]
+test.golden.b :: Number [const]
+test.golden.c :: String [const]
+test.golden.d :: String [const]
+test.golden.c.f :: (String,String) [const]

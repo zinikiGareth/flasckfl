@@ -1,3 +1,3 @@
 test.golden.Expr3.gimme :: test.golden.Expr3->String->String
-test.golden.Expr4._ctor_ok :: test.golden.Expr4
+test.golden.Expr4._ctor_ok :: test.golden.Expr4 [const]
 test.golden.Expr4.gimme :: test.golden.Expr4->String->String->String

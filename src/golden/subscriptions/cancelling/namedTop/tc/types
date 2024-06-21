@@ -1,1 +1,1 @@
-test.golden.NamedTop._C1.subscribe :: List[Message]
+test.golden.NamedTop._C1.subscribe :: List[Message] [const]

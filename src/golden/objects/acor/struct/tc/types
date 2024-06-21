@@ -1,4 +1,4 @@
-test.golden.HasAcor._ctor_make :: test.golden.HasAcor
+test.golden.HasAcor._ctor_make :: test.golden.HasAcor [const]
 test.golden.HasAcor.msg :: test.golden.Args
 test.golden.HasAcor.top :: test.golden.Args
 test.golden.Use._ctor_doit :: test.golden.HasAcor->test.golden.Use

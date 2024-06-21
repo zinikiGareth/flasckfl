@@ -1,2 +1,2 @@
-test.golden.y :: Number
-x :: Number
+test.golden.y :: Number [const]
+x :: Number [const]
