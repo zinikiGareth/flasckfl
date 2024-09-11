@@ -39,7 +39,8 @@ public class OptionalDefinition extends Definition {
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
 		if (var != null) {
-			if (productionVisitor.getDictValue(var).equals(ne))
+			String val = productionVisitor.getDictValue(var);
+			if (val != null && val.equals(ne))
 				return;
 		}
 		productionVisitor.zeroOrOne(child);
