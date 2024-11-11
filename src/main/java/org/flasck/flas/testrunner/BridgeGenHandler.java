@@ -9,7 +9,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
-import org.ziniki.server.grizzly.GrizzlyTDAServer;
+import org.ziniki.server.TDAServer;
 import org.ziniki.servlet.tda.RequestProcessor;
 import org.ziniki.servlet.tda.Responder;
 import org.ziniki.ziwsh.intf.Param;
@@ -17,14 +17,14 @@ import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.utils.FileUtils;
 
 public class BridgeGenHandler implements RequestProcessor {
-	private final GrizzlyTDAServer server;
+	private final TDAServer server;
 	private final File moduleDir;
 	private final Iterable<PackageName> sources;
 	private final List<UnitTestCase> unittests;
 	private final List<SystemTest> systests;
 	private final List<String> modules;
 
-	public BridgeGenHandler(@Param("server") GrizzlyTDAServer server, @Param("moduleDir") File moduleDir, @Param("sources") Iterable<PackageName> sources, @Param("unitTests") List<UnitTestCase> unittests, @Param("systemTests") List<SystemTest> systests, @Param("modules") List<String> modules) {
+	public BridgeGenHandler(@Param("server") TDAServer server, @Param("moduleDir") File moduleDir, @Param("sources") Iterable<PackageName> sources, @Param("unitTests") List<UnitTestCase> unittests, @Param("systemTests") List<SystemTest> systests, @Param("modules") List<String> modules) {
 		this.server = server;
 		this.moduleDir = moduleDir;
 		this.sources = sources;

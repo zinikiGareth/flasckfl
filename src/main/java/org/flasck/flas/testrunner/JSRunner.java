@@ -24,6 +24,7 @@ import org.openqa.selenium.WebDriver.Navigation;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.ziniki.server.NewConnectionHandler;
+import org.ziniki.server.TDAServer;
 import org.ziniki.server.di.DehydratedHandler;
 import org.ziniki.server.di.Instantiator;
 import org.ziniki.server.di.MakeAHandler;
@@ -68,7 +69,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	private String specifiedTestName;
 	final LockingCounter counter = new LockingCounter();
 	private boolean haveflascklib;
-	private GrizzlyTDAServer server;
+	private TDAServer server;
 	
 	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates, ClassLoader cl) throws Exception {
 		super(config, repository);
