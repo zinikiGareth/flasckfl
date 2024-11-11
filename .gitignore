@@ -22,3 +22,5 @@ flimstore-tmp/
 html/
 parsetokens/
 reconstruct/
+/goldenbin/
+/testbin/

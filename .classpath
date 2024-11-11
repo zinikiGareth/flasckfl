@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="src" path="src/test/golden"/>
+	<classpathentry kind="src" output="goldenbin" path="src/test/golden"/>
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="src" path="src/main/resources"/>
-	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" output="testbin" path="src/test/java"/>
 	<classpathentry kind="src" path="/flasjvm"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/utils"/>
 	<classpathentry kind="src" path="/ziwsh-intf"/>
