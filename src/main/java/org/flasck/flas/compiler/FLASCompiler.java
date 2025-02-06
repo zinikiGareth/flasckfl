@@ -23,6 +23,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -747,7 +748,7 @@ public class FLASCompiler implements CompileUnit {
 				for (File s : config.inputs) {
 					pkgs.add(s.getName());
 				}
-				Map<String, ZipOutputStream> streams = new TreeMap<>();
+				Map<String, JarOutputStream> streams = new TreeMap<>();
 				for (ByteCodeCreator c : bce.all()) {
 					String clname = c.getCreatedName();
 					String pkg = null;
@@ -758,14 +759,15 @@ public class FLASCompiler implements CompileUnit {
 						}
 					}
 					if (isInPackage(clname, pkg) && !clname.contains("_st_") && !clname.contains("_ut_")) {
-						ZipOutputStream zos = streams.get(pkg);
+						JarOutputStream zos = streams.get(pkg);
 						if (zos == null) {
 							File f = new File(config.flimdir(), pkg + ".jar");
-							zos = new ZipOutputStream(new FileOutputStream(f));
+							zos = new JarOutputStream(new FileOutputStream(f));
 							streams.put(pkg, zos);
 						}
-						zos.putNextEntry(new ZipEntry(FileUtils.convertDottedToPath(clname).getPath() + ".class"));
-						zos.write(c.generate());
+						c.addToJar(zos);
+//						zos.putNextEntry(new ZipEntry(FileUtils.convertDottedToPath(clname).getPath() + ".class"));
+//						zos.write(c.generate());
 					}
 				}
 				for (ZipOutputStream zos : streams.values()) 

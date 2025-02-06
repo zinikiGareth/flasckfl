@@ -61,7 +61,10 @@ public class FlimVisitor extends LeafAdapter implements ModuleExtensible {
 	
 	@Override
 	public void visitTypeReference(TypeReference var, boolean expectPolys, int exprNargs) {
-		reference((RepositoryEntry)var.namedDefn());
+		if (var.defn() instanceof NamedType)
+			reference((RepositoryEntry)var.namedDefn());
+		else
+			showType(iw, var.defn());
 	}
 	
 	@Override

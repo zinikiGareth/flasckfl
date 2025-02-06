@@ -17,7 +17,6 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder, StateHolder, EventHolder, PolyHolder {
 	private StateDefinition state;
