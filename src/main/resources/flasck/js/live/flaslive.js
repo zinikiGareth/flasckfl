@@ -9,9 +9,6 @@ var JSEnv = function(broker) {
     debugmsg: console.log
   };
   CommonEnv.call(this, logger, broker);
-  if (typeof FlasckServices !== "undefined") {
-    FlasckServices.configure(this);
-  }
 };
 JSEnv.prototype = new CommonEnv();
 JSEnv.prototype.constructor = JSEnv;

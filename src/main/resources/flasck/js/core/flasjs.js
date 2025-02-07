@@ -656,6 +656,9 @@ RoutingEntry.prototype.route = function(path) {
 
 // src/main/javascript/runtime/appl/appl.js
 var Application = function(_cxt, topdiv, baseuri) {
+  if (!_cxt)
+    return;
+  this._env = _cxt.env;
   if (typeof topdiv == "string")
     this.topdiv = document.getElementById(topdiv);
   else
@@ -664,6 +667,19 @@ var Application = function(_cxt, topdiv, baseuri) {
   this.cards = {};
   this.params = {};
   this.currentRoute = null;
+  this.addResizeListener(_cxt.env);
+};
+Application.prototype.addResizeListener = function(env2) {
+  if (typeof window === "undefined")
+    return;
+  var appl = this;
+  window.addEventListener("resize", function(ev) {
+    var keys = Object.keys(appl.cards);
+    for (var i = 0; i < keys.length; i++) {
+      var card = appl.cards[keys[i]];
+      card._resizeDisplayElements(env2.newContext(), card._renderTree);
+    }
+  });
 };
 Application.prototype.baseUri = function(_cxt) {
   return this.baseuri;
@@ -2315,10 +2331,11 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
     if (isNaN(imgrat))
       return;
     if (vprat < imgrat) {
-      parent.style.height = ch;
-      img.style.height = ch;
+      parent.style.height = ch + "px";
+      img.style.height = ch + "px";
       parent.style.width = "auto";
       img.style.width = "auto";
+      parent.style.top = "0px";
       var newImgWid = ch * imgrat;
       var left = -(newImgWid * xp / 100 - cw / 2);
       if (left + newImgWid < cw) {
@@ -2326,13 +2343,13 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
         if (left > 0)
           left /= 2;
       }
-      parent.style.left = left;
+      parent.style.left = left + "px";
     } else {
-      parent.style.width = cw;
-      img.style.width = cw;
+      parent.style.width = cw + "px";
+      img.style.width = cw + "px";
       parent.style.height = "auto";
       img.style.height = "auto";
-      parent.style.left = 0;
+      parent.style.left = "0px";
       var newImgHt = cw / imgrat;
       var top = -(newImgHt * yp / 100 - ch / 2);
       if (top + newImgHt < ch) {
@@ -2340,7 +2357,7 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
         if (top > 0)
           top /= 2;
       }
-      parent.style.top = top;
+      parent.style.top = top + "px";
     }
   } else if (alg.startsWith("min-aspect-")) {
     parent.style.position = "relative";
@@ -2359,10 +2376,10 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
     var mp = Math.min(xp, yp);
     xr = xr * mp;
     yr = yr * mp;
-    img.style.width = xr;
-    img.style.height = yr;
-    img.style.left = xc - xr / 2;
-    img.style.top = yc - yr / 2;
+    img.style.width = xr + "px";
+    img.style.height = yr + "px";
+    img.style.left = xc - xr / 2 + "px";
+    img.style.top = yc - yr / 2 + "px";
   } else if (alg.startsWith("promote-box-")) {
     parent.style.position = "relative";
     var props = alg.replace("promote-box-", "");
@@ -2378,11 +2395,11 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
     }
     var md = Math.min(cw / ar, ch);
     var dw = md * ar * (1 - 2 * sm), dh = md * (1 - 2 * sm);
-    img.style.width = dw;
-    img.style.height = dh;
+    img.style.width = dw + "px";
+    img.style.height = dh + "px";
     if (sm > 0) {
-      img.style.borderTopWidth = img.style.borderBottomWidth = md * sm;
-      img.style.borderLeftWidth = img.style.borderRightWidth = md * ar * sm;
+      img.style.borderTopWidth = img.style.borderBottomWidth = md * sm + "px";
+      img.style.borderLeftWidth = img.style.borderRightWidth = md * ar * sm + "px";
     }
   } else if (alg.startsWith("text-")) {
     var props = alg.replace("text-", "");
@@ -2390,7 +2407,7 @@ FLCard.prototype._setSizeOf = function(_cxt, img, cw, ch, alg) {
     var parent = img.parentElement;
     var ps = Math.min(parent.clientWidth, parent.clientHeight);
     var sz = rs * ps;
-    parent.style.fontSize = sz;
+    parent.style.fontSize = sz + "px";
   } else {
     _cxt.log("do not know sizing algorithm " + alg);
   }
@@ -2518,7 +2535,7 @@ FLCard.prototype._updateLink = function(_cxt, rt, templateName, field, option, s
     rt[field].fromField = fromField;
   }
   var env2 = _cxt.env;
-  node.onclick = (ev) => window.appl.gotoRoute(env2.newContext(), linkRef);
+  node.onclick = (ev) => env2.appl.gotoRoute(env2.newContext(), linkRef);
   node.dataset.route = linkRef;
   node.innerText = linkTitle;
 };
@@ -3523,17 +3540,6 @@ CommonEnv.prototype.getSingleton = function(name) {
 CommonEnv.prototype.cacheSingleton = function(name, value) {
   this.singletons[name] = value;
 };
-if (typeof window !== "undefined") {
-  window.addEventListener("resize", function(ev) {
-    if (window.appl) {
-      var keys = Object.keys(window.appl.cards);
-      for (var i = 0; i < keys.length; i++) {
-        var card = window.appl.cards[keys[i]];
-        card._resizeDisplayElements(env.newContext(), card._renderTree);
-      }
-    }
-  });
-}
 
 // src/main/javascript/runtime/cstore.js
 import { NamedIdempotentHandler as NamedIdempotentHandler2, proxy } from "/js/ziwsh.js";
@@ -3583,7 +3589,8 @@ DispatcherInvoker.prototype.invoke = function(meth, args) {
   if (!cx2.subcontext) {
     cx2 = cx2.bindTo(hdlr);
   }
-  this.env.queueMessages(cx2, Send.eval(cx2, this.call, meth, pass, hdlr, hdlrName));
+  var resp = Send.eval(cx2, this.call, meth, pass, hdlr, hdlrName);
+  this.env.queueMessages(cx2, resp);
 };
 
 // src/main/javascript/runtime/entity.js
