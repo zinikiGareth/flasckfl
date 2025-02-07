@@ -30,7 +30,7 @@ public class Configuration {
 	public boolean generateJVM = true;
 	public boolean genapps = true;
 	public String html;
-	public String inclPrefix = "/";
+	public String inclPrefix = "";
 	PhaseTo upto = PhaseTo.COMPLETE;
 	File dumprepo = null;
 	public final List<File> inputs = new ArrayList<File>();
@@ -97,7 +97,7 @@ public class Configuration {
 					}
 					html = args[++i];
 				} else if (arg.equals("--incl-prefix")) {
-					if (!inclPrefix.equals("/")) {
+					if (!inclPrefix.equals("")) {
 						System.out.println("--incl-prefix can only be specified once");
 						error = true;
 					}
