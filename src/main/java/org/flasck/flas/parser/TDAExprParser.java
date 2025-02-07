@@ -103,8 +103,6 @@ public class TDAExprParser implements TDAParsing {
 					line.reset(mark);
 					errors.cancel(tok);
 					builder.done();
-					if (!errors.hasErrors())
-						errors.doneReducing();
 					return new IgnoreNestedParser(origErrors);
 				} else
 					builder.term(new Punctuator(tok.location, tok.text));

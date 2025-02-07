@@ -169,7 +169,6 @@ public class TDAParseTemplateElements {
 			opt = "-with-guard";
 		}
 		while (toks.hasMoreContent(errors)) {
-			int mark = toks.at();
 			ExprToken et = ExprToken.from(errors, toks);
 			if (et != null) {
 				lastLoc = et.location;
@@ -197,7 +196,7 @@ public class TDAParseTemplateElements {
 					}
 				} else if (et.type == ExprToken.PUNC) {
 					if (et.text.equals("(")) {
-						toks.reset(mark);
+						// then it's an expression, we can allow that ...
 						List<Expr> ret = new ArrayList<>();
 						Consumer<Expr> handler = new Consumer<Expr>() {
 							@Override
@@ -205,7 +204,6 @@ public class TDAParseTemplateElements {
 								ret.add(t);
 							}
 						};
-						// then it's an expression, we can allow that ...
 						TDAExpressionParser ep = new TDAExpressionParser(errors, handler);
 						ep.tryParsing(toks);
 						if (ret.size() != 1) {
@@ -213,6 +211,13 @@ public class TDAParseTemplateElements {
 							return null;
 						}
 						addTo.add(ret.get(0));
+						InputPosition loc = toks.realinfo();
+						ExprToken crb = ExprToken.from(errors, toks);
+						if (crb == null || crb.type != ExprToken.PUNC || !crb.text.equals(")")) {
+							errors.message(loc, ") expected");
+							return null;
+						}
+						errors.logReduction("paren-expression", et, crb);
 						continue;
 					}
 				}

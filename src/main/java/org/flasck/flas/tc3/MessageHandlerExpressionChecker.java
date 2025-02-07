@@ -47,47 +47,4 @@ public class MessageHandlerExpressionChecker extends LeafAdapter implements Resu
 		}
 		results.add(ty);
 	}
-	
-	/*
-	@Override
-	public void leaveHandleExpr(Expr expr, Expr handler) {
-		PosType pfn = results.remove(0);
-		Type fn = pfn.type;
-		int exp = 0;
-		if (fn instanceof ErrorType) {
-			nv.result(fn);
-			return;
-		} else if (fn instanceof UnifiableType) {
-			UnifiableType ut = (UnifiableType)fn;
-			nv.result(ut.canBeAppliedTo(expr.location(), results));
-			return;
-		} else {
-			exp = ((Apply)fn).argCount();
-			if (exp < results.size()) {
-				errors.message(pfn.pos, fn + " expects: " + fn.argCount() + " has: " + results.size());
-				nv.result(new ErrorType());
-				return;
-			}
-		}
-		PosType pai = results.remove(0);
-		Type ai = pai.type;
-		if (ai instanceof ErrorType) {
-			nv.result(ai);
-			return;
-		}
-		if (exp > 1) {
-			errors.message(pfn.location().locAtEnd().plus(1), "insufficient arguments");
-			nv.result(new ErrorType());
-			return;
-		}
-		Type fi = fn.get(0);
-		InputPosition loc = handler.location();
-		if (!fi.incorporates(loc, ai)) {
-			errors.message(loc, "handler should be " + fi.signature() + " not " + ai.signature());
-			nv.result(new ErrorType());
-			return;
-		}
-		nv.result(fn.get(1));
-	}
-	*/
 }

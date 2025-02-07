@@ -299,11 +299,18 @@ public class GrammarChecker {
 		GrammarStep mi = null;
 		SeqElement si = null;;
 		while ((mi != null || mit.hasNext()) && (si != null || sit.hasNext())) {
-			if (mi == null)
+			if (mi == null) {
 				mi = mit.next();
-			if (si == null)
+				logger.info("considering token from input: " + mi);
+			}
+			if (si == null) {
 				si = sit.next();
+				logger.info("next matching grammar rule is: " + si);
+			}
+			if (mi.location().lineNo == 8 && mi.location().off == 5)
+				logger.info("hello");
 			MatchResult mr = si.matchAgainst(mi);
+			logger.info("match result is: " + mr);
 			switch (mr) {
 			case SINGLE_MATCH_ADVANCE: {
 				// they matched and there was no repetition or anything; advance both
