@@ -161,7 +161,7 @@ public class CompilerAssembler implements AssemblyVisitor {
 		asm.endJs();
 		asm.endHead();
 		asm.beginInit();
-		asm.initializer(new CardInitializer() {
+		asm.initializer(config.modules, new CardInitializer() {
 			@Override
 			public Iterable<String> packages() {
 				return inits;
