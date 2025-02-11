@@ -1,9 +1,10 @@
 package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class VarName implements NameOfThing, Comparable<VarName> {
+public class VarName implements NameOfThing, Locatable, Comparable<VarName> {
 	public final InputPosition loc;
 	public final NameOfThing scope;
 	public final String var;
@@ -12,6 +13,11 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 		this.loc = loc;
 		this.scope = name;
 		this.var = var;
+	}
+	
+	@Override
+	public InputPosition location() {
+		return loc;
 	}
 	
 	@Override
@@ -79,7 +85,19 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 	public String javaPackageName() {
 		throw new org.zinutils.exceptions.NotImplementedException();
 	}
+
+	@Override
+	public int hashCode() {
+		return scope.hashCode() ^ var.hashCode();
+	}
 	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof VarName))
+			return false;
+		VarName o = (VarName) other;
+		return o.scope.equals(scope) && o.var.equals(var);
+	}
 	@Override
 	public String toString() {
 		return "VarName[" + uniqueName() + "]";

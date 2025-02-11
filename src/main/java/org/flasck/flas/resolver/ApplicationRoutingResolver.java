@@ -13,7 +13,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
-import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
+import org.flasck.flas.parsedForm.assembly.CardBinding;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
 
@@ -69,11 +69,11 @@ public class ApplicationRoutingResolver extends LeafAdapter {
 	public void leaveCardAssignment(CardBinding card) {
 		RepositoryEntry defn = (RepositoryEntry) card.cardType.namedDefn();
 		if (defn == null) // the card class could not be found, bind to something else
-			defn = new ParameterRepositoryEntry(card.location(), card.var.var); // this is obviously wrong, but there will be a type resolution error ...
+			defn = new ParameterRepositoryEntry(card.location(), card.name().var); // this is obviously wrong, but there will be a type resolution error ...
 		else if (!(defn instanceof CardDefinition))
 			errors.message(card.cardType.location(), card.cardType.name() + " is not a Card");
 			
-		scopes.get(0).defns.put(card.var.var, defn);
+		scopes.get(0).defns.put(card.name().var, defn);
 	}
 
 	public void unnest() {

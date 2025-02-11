@@ -17,6 +17,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.commonBase.names.UnitTestName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.ModuleExtensible;
 import org.flasck.flas.compiler.modules.TraversalProcessor;
 import org.flasck.flas.errors.ErrorMark;
@@ -67,7 +68,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
-import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
+import org.flasck.flas.parsedForm.assembly.CardBinding;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
@@ -588,7 +589,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver, ModuleE
 				expr.bind((RepositoryEntry) method, false);
 		} else if (nt instanceof ApplicationRouting) {
 			ApplicationRouting ar = (ApplicationRouting) nt;
-			RepositoryEntry card = ar.getCard(var);
+			VarName vn = new VarName(expr.location(), nt.name(), var);
+			RepositoryEntry card = ar.getCard(vn);
 			if (card == null) {
 				errors.message(expr.fld.location(), "there is no routing entry for " + var);
 			} else {

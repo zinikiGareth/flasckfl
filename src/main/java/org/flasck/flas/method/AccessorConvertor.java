@@ -38,7 +38,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
-import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
+import org.flasck.flas.parsedForm.assembly.CardBinding;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestIdentical;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;

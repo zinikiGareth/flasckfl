@@ -10,7 +10,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
-import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
+import org.flasck.flas.parsedForm.assembly.CardBinding;
 import org.flasck.flas.parsedForm.assembly.RoutingAction;
 import org.flasck.flas.parsedForm.assembly.RoutingActions;
 import org.flasck.flas.parsedForm.assembly.SubRouting;
@@ -57,7 +57,7 @@ public class ApplRoutingTable {
 			if (s2)
 				lw.println(",");
 			lw.print("{ ");
-			lw.print("name: '" + ca.var.var + "', ");
+			lw.print("name: '" + ca.name().var + "', ");
 			lw.print("card: " + ca.cardType.namedDefn().name().jsName());
 			lw.print(" }");
 			s2 = true;
@@ -163,7 +163,7 @@ public class ApplRoutingTable {
 		meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("cards"), J.OBJECT), meth.as(cards, J.OBJECT))).flush();
 		
 		for (CardBinding ca : r.assignments) {
-			IExpr mn = meth.makeNew(J.FLCARDASSIGNMENT, meth.stringConst(ca.var.var), meth.stringConst(ca.cardType.namedDefn().name().javaName()));
+			IExpr mn = meth.makeNew(J.FLCARDASSIGNMENT, meth.stringConst(ca.name().var), meth.stringConst(ca.cardType.namedDefn().name().javaName()));
 			meth.voidExpr(meth.callInterface("boolean", cards, "add", meth.as(mn, J.OBJECT))).flush();
 		}
 		genActions(meth, v, "enter", r.enter, rn);

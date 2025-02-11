@@ -94,7 +94,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
-import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
+import org.flasck.flas.parsedForm.assembly.CardBinding;
 import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
 import org.flasck.flas.parsedForm.assembly.RoutingAction;
 import org.flasck.flas.parsedForm.assembly.RoutingActions;

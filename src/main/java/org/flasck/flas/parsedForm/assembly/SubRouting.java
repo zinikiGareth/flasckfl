@@ -1,14 +1,17 @@
 package org.flasck.flas.parsedForm.assembly;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.parsedForm.assembly.ApplicationRouting.CardBinding;
 import org.flasck.flas.parser.assembly.MainRoutingGroupConsumer;
 import org.flasck.flas.parser.assembly.RoutingGroupConsumer;
 
@@ -23,12 +26,15 @@ public class SubRouting implements RoutingGroupConsumer, Locatable {
 	public RoutingActions exit;
 	public boolean requiresSecurity;
 	public final List<SubRouting> routes = new ArrayList<>();
+	private final Map<VarName, CardBinding> cards = new HashMap<>();
 	public final List<CardBinding> assignments = new ArrayList<>();
+	private final NameOfThing routeName;
 
-	public SubRouting(ErrorReporter errors, InputPosition pos, String path, RoutingGroupConsumer main) {
+	public SubRouting(ErrorReporter errors, InputPosition pos, String path, RoutingGroupConsumer main, NameOfThing routeName) {
 		this.errors = errors;
 		this.pos = pos;
 		this.path = path;
+		this.routeName = routeName;
 		if (main == null)
 			this.main = (MainRoutingGroupConsumer) this;
 		else if (main instanceof MainRoutingGroupConsumer)
@@ -42,8 +48,31 @@ public class SubRouting implements RoutingGroupConsumer, Locatable {
 	}
 
 	@Override
+	public NameOfThing name() {
+		return routeName;
+	}
+
+	@Override
+	public CardBinding nameCard(UnresolvedVar var, TypeReference cardType) {
+		String s = var.var;
+		NameOfThing foo = routeName;
+		VarName asVar = new VarName(var.location(), foo, s);
+		CardBinding ret = new CardBinding(routeName, asVar, cardType);
+		if (cards.containsKey(asVar)) {
+			errors.message(var.location(), "duplicate card binding of " + s);
+			return ret;
+		}
+		cards.put(asVar, ret);
+		return ret;
+	}
+
+	public CardBinding getCard(VarName var) {
+		return cards.get(var);
+	}
+
+	@Override
 	public void assignCard(UnresolvedVar var, TypeReference cardType) {
-		CardBinding cb = main.nameCard(var, cardType);
+		CardBinding cb = nameCard(var, cardType);
 		assignments.add(cb);
 	}
 

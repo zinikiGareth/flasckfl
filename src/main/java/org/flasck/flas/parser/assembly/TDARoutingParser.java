@@ -93,7 +93,7 @@ public class TDARoutingParser extends BlockLocationTracker implements TDAParsing
 				errors.message(toks, "junk at end of line");
 				return new IgnoreNestedParser(errors);
 			}
-			RoutingGroupConsumer group = new SubRouting(errors, pos, s, consumer);
+			RoutingGroupConsumer group = new SubRouting(errors, pos, s, consumer, new SubRouteName(consumer.name(), s)); // TODO: do we possibly need to modify the route path to become a name?
 			consumer.route(group);
 			errors.logReduction("fa-route-nested", kw.location, pos);
 			super.tellParent(kw.location);
