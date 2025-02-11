@@ -32,7 +32,7 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver, TestModule
 	protected static Logger debugLogger = LoggerFactory.getLogger("DebugLog");
 	static String patienceChild = System.getProperty("org.flasck.patience.child");
 	boolean wantTimeout = patienceChild == null || !patienceChild.equals("true");
-	private final JSRunner controller;
+	private final JSTestController controller;
 	private final ClassLoader classloader;
 	private final File root;
 	private final LockingCounter counter;
@@ -45,7 +45,7 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver, TestModule
 	private CountDownLatch shutdownCounter = new CountDownLatch(1);
 	private Iterable<JVMTestPlugin> plugins;
 
-	BrowserJSJavaBridge(JSRunner controller, ClassLoader classloader, File root, LockingCounter counter) {
+	BrowserJSJavaBridge(JSTestController controller, ClassLoader classloader, File root, LockingCounter counter) {
 		this.controller = controller;
 		this.classloader = classloader;
 		this.root = root;

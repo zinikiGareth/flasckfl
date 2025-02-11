@@ -4,7 +4,7 @@ var FLError = class _FLError extends Error {
     super(msg);
     this.name = "FLError";
   }
-  _compare(cx2, other) {
+  _compare(_cxt, other) {
     if (!(other instanceof _FLError))
       return false;
     if (other.message != this.message)
@@ -357,11 +357,13 @@ Route.parse = function(baseuri, table, path) {
   ret2.parts.push(new Segment("push", "/", table));
   var map = table;
   for (var s of route) {
-    map = map.route(s);
-    if (!map) {
+    var next = map.route(s);
+    if (!next) {
+      console.log("there is no entry in the routing table for", s, "in", next);
       break;
     }
-    ret2.parts.push(new Segment("push", s, map));
+    ret2.parts.push(new Segment("push", s, next));
+    map = next;
   }
   ret2.query = query;
   return ret2;
@@ -659,6 +661,7 @@ var Application = function(_cxt, topdiv, baseuri) {
   if (!_cxt)
     return;
   this._env = _cxt.env;
+  this._env.appl = this;
   if (typeof topdiv == "string")
     this.topdiv = document.getElementById(topdiv);
   else
@@ -684,6 +687,10 @@ Application.prototype.addResizeListener = function(env2) {
 Application.prototype.baseUri = function(_cxt) {
   return this.baseuri;
 };
+Application.prototype.relativeRoute = function(_cxt, path, allDone) {
+  var route = new URL(path, this.currentRoute);
+  this.gotoRoute(_cxt, route, allDone);
+};
 Application.prototype.gotoRoute = function(_cxt, route, allDone) {
   _cxt.log("going to route", route, "from", this.currentRoute);
   var goto = Route.parse(this.baseUri(), new RoutingEntry(this._routing()), route);
@@ -693,8 +700,10 @@ Application.prototype.gotoRoute = function(_cxt, route, allDone) {
   }
   var moveTo = goto.movingFrom(curr);
   _cxt.log("move to is", moveTo);
-  var event = new RouteEvent(moveTo, this, null, null, allDone);
-  _cxt.env.queueMessages(_cxt, event);
+  if (moveTo.head()) {
+    var event = new RouteEvent(moveTo, this, null, null, allDone);
+    _cxt.env.queueMessages(_cxt, event);
+  }
 };
 Application.prototype.handleSecurity = function(_cxt, ev) {
   if (!this.securityModule.requireLogin(_cxt, this, this.topdiv)) {
@@ -2535,7 +2544,7 @@ FLCard.prototype._updateLink = function(_cxt, rt, templateName, field, option, s
     rt[field].fromField = fromField;
   }
   var env2 = _cxt.env;
-  node.onclick = (ev) => env2.appl.gotoRoute(env2.newContext(), linkRef);
+  node.onclick = (ev) => env2.appl.relativeRoute(env2.newContext(), linkRef);
   node.dataset.route = linkRef;
   node.innerText = linkTitle;
 };

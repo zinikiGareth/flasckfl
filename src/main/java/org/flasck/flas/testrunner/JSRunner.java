@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
@@ -23,18 +24,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriver.Navigation;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.ziniki.server.NewConnectionHandler;
-import org.ziniki.server.TDAServer;
 import org.ziniki.server.di.DehydratedHandler;
 import org.ziniki.server.di.Instantiator;
 import org.ziniki.server.di.MakeAHandler;
-import org.ziniki.server.grizzly.GrizzlyTDAServer;
-import org.ziniki.server.grizzly.GrizzlyTDAWebSocketHandler;
-import org.ziniki.server.path.PathTree;
-import org.ziniki.server.path.SimplePathTree;
-import org.ziniki.server.tda.Transport;
-import org.ziniki.server.tda.WSReceiver;
-import org.ziniki.servlet.tda.RequestProcessor;
 import org.ziniki.servlet.tda.TDAConfiguration;
 import org.ziniki.ziwsh.intf.WSProcessor;
 import org.zinutils.exceptions.CantHappenException;
@@ -43,7 +35,7 @@ import org.zinutils.exceptions.WrappedException;
 import org.zinutils.sync.LockingCounter;
 import org.zinutils.utils.FileUtils;
 
-public class JSRunner extends CommonTestRunner<JSTestState> {
+public class JSRunner extends CommonTestRunner<JSTestState> implements JSTestController {
 	static String jsPortNum = System.getProperty("org.flasck.jsrunner.port");
 	static int jsPort = jsPortNum != null ? Integer.parseInt(jsPortNum) : 14040;
 	static String showOption = System.getProperty("org.ziniki.chrome.show");
@@ -55,11 +47,11 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	static String patienceChild = System.getProperty("org.flasck.patience.child");
 	boolean wantTimeout = patienceChild == null || !patienceChild.equals("true");
 	private final JSStorage jse;
-	private BrowserJSJavaBridge bridge = null;
 	private WebDriver wd = null;
 	private Navigation nav;
 	private List<String> testSteps;
 	private CountDownLatch cdl;
+	private CountDownLatch waitForBridge;
 	private File flasckPath;
 	private File basePath;
 	private String htmlUri;
@@ -69,7 +61,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	private String specifiedTestName;
 	final LockingCounter counter = new LockingCounter();
 	private boolean haveflascklib;
-	private TDAServer server;
+	private JSTestServer jsServer;
+	private BrowserJSJavaBridge bridge = null;
 	
 	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates, ClassLoader cl) throws Exception {
 		super(config, repository);
@@ -98,13 +91,47 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 
 		flasckPath = new File(new File(System.getProperty("user.dir")), "src/main/resources");
 		buildHTML(templates);
+		
+		jsServer = new JSTestServer(jsPort, basePath, flasckPath);
+		configureServer();
 	}
 	
+	private void configureServer() throws Exception {
+		jsServer.configure();
+		waitForBridge = new CountDownLatch(1);
+		Map<String, Object> items = new TreeMap<>();
+		{
+			Map<String, Object> map = new TreeMap<>();
+			map.put("class", BridgeGenHandler.class.getName());
+			map.put("server", jsServer.server());
+			map.put("moduleDir", config.moduleDir);
+			map.put("sources", jse.packageNames());
+			map.put("unitTests", jse.unitTests());
+			map.put("systemTests", jse.systemTests());
+			map.put("modules", config.modules);
+			
+			jsServer.addWebTree("/gen/*", new DehydratedHandler<>(new Instantiator("gen", map), items));
+		}
+		jsServer.addWSTree("/bridge", new MakeAHandler<WSProcessor>() {
+			@Override
+			public WSProcessor instantiate(TDAConfiguration c) throws Exception {
+				BrowserJSJavaBridge bridge = new BrowserJSJavaBridge(JSRunner.this, classloader, config.projectDir, counter);
+				JSRunner.this.bridge = bridge;
+				waitForBridge.countDown();
+				return bridge;
+			}
+		});
+
+	}
+
 	public void launch() throws Exception {
-		if (server == null) {
-			startServer();
+		if (!jsServer.isRunning()) {
+			jsServer.go();
 			startDriver();
 			visitUri(htmlUri);
+			if (!waitForBridge.await(10, TimeUnit.SECONDS)) {
+				throw new TimeoutException("bridge not established");
+			}
 		}
 	}
 
@@ -117,50 +144,6 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		cdl.countDown();
 	}
 	
-	private void startServer() throws Exception {
-		server = new GrizzlyTDAServer(jsPort);
-		PathTree<RequestProcessor> tree = new SimplePathTree<>();
-		Map<String, Object> items = new TreeMap<>();
-		{
-			Map<String, Object> map = new TreeMap<>();
-			map.put("class", BridgeGenHandler.class.getName());
-			map.put("server", server);
-			map.put("moduleDir", config.moduleDir);
-			map.put("sources", jse.packageNames());
-			map.put("unitTests", jse.unitTests());
-			map.put("systemTests", jse.systemTests());
-			map.put("modules", config.modules);
-			
-			tree.add("/gen/*", new DehydratedHandler<>(new Instantiator("gen", map), items));
-		}
-		{
-			Map<String, Object> map = new TreeMap<>();
-			map.put("class", RunTestHandler.class.getName());
-			map.put("path", basePath);
-			map.put("flasck", flasckPath);
-
-			tree.add("/test/*", new DehydratedHandler<>(new Instantiator("test", map), items));
-		}
-		server.httpMappingTree(tree);
-		PathTree<WSProcessor> wstree = new SimplePathTree<>();
-		wstree.add("/bridge", new MakeAHandler<WSProcessor>() {
-			@Override
-			public WSProcessor instantiate(TDAConfiguration c) throws Exception {
-				BrowserJSJavaBridge bridge = new BrowserJSJavaBridge(JSRunner.this, classloader, config.projectDir, counter);
-				JSRunner.this.bridge = bridge;
-				return bridge;
-			}
-		});
-		NewConnectionHandler<? extends WSReceiver> handler = new NewConnectionHandler<WSReceiver>() {
-			@Override
-			public void newConnection(Transport transport, WSReceiver handler) {
-				transport.addReceiver(handler);
-			}
-		};
-		server.wsMappingTree(new GrizzlyTDAWebSocketHandler(), wstree, handler);
-		server.start();
-	}
-
 	public void startDriver() {
 		ChromeOptions options = new ChromeOptions();
 		if (headless) {
@@ -179,8 +162,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 		if (wantTimeout) {
 			boolean isReady = cdl.await(25, TimeUnit.SECONDS);
 			if (!isReady) {
-				this.server.stop();
-				this.server = null;
+				jsServer.stop();
+				jsServer = null;
 				throw new CantHappenException("the test server did not become available");
 			}
 		} else {
@@ -392,8 +375,8 @@ public class JSRunner extends CommonTestRunner<JSTestState> {
 	}
 
 	public void shutdown() {
-		if (server != null) {
-			server.stop(1, TimeUnit.SECONDS);
+		if (jsServer != null) {
+			jsServer.stop();
 		}
 		if (wd != null) {
 			wd.close();
