@@ -289,6 +289,9 @@ var Segment = function(action, segment, map) {
   this.segment = segment;
   this.entry = map;
 };
+Segment.prototype.isdir = function() {
+  return Object.keys(this.entry.namedPaths).length > 0 || this.entry.paramRoute != null;
+};
 Segment.prototype.toString = function() {
   return this.action + "->" + this.segment;
 };
@@ -451,7 +454,6 @@ RouteEvent.prototype.dispatch = function(cxt) {
     this.queueNextAction(cxt);
 };
 RouteEvent.prototype.processDownAction = function(cxt) {
-  cxt.log("processing down event for", this.route.pos, "is", this.route.head().action, "action", this.action, "#", this.posn);
   switch (this.action) {
     case "param": {
       var p = this.route.head().entry.param;
@@ -503,7 +505,6 @@ RouteEvent.prototype.processDownAction = function(cxt) {
   }
 };
 RouteEvent.prototype.processUpAction = function(cxt) {
-  cxt.log("processing up event for", this.route.pos, "is", this.route.head().action, "action", this.action, "#", this.posn);
   switch (this.action) {
     case "param":
     case "title":
@@ -531,7 +532,6 @@ RouteEvent.prototype.processUpAction = function(cxt) {
   }
 };
 RouteEvent.prototype.processAtAction = function(cxt) {
-  cxt.log("processing at event for", this.route.pos, "is", this.route.head().action, "action", this.action, "#", this.posn);
   switch (this.action) {
     case "param":
     case "title":
@@ -574,7 +574,11 @@ RouteEvent.prototype.alldone = function(cxt) {
   for (var c of this.state.newcards) {
     this.state.appl.readyCard(cxt, c);
   }
-  this.state.appl.complete(cxt, this.route.claimedRoute);
+  var rn = this.route.claimedRoute;
+  if (!rn.pathname.endsWith("/") && this.route.parts[this.route.parts.length - 1].isdir()) {
+    rn.pathname += "/";
+  }
+  this.state.appl.complete(cxt, rn);
   if (this.state.allDone)
     this.state.allDone();
 };

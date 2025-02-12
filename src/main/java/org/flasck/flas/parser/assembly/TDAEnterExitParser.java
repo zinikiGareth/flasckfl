@@ -50,6 +50,7 @@ public class TDAEnterExitParser extends BlockLocationTracker implements TDAParsi
 			ExprToken apply = tok;
 			TypeReference ctr;
 			TypeNameToken tn = TypeNameToken.qualified(errors, toks);
+			boolean checkLifecycle = false;
 			if (tn != null) {
 				tok = ExprToken.from(errors, toks);
 				if (tok == null || !".".equals(tok.text)) {
@@ -61,6 +62,7 @@ public class TDAEnterExitParser extends BlockLocationTracker implements TDAParsi
 				errors.logReduction("assembly-route-with-contract", apply, ctr);
 			} else {
 				ctr = new TypeReference(card.location(), "Lifecycle", new ArrayList<>());
+				checkLifecycle = true;
 			}
 			List<Expr> exprs = new ArrayList<>();
 			new TDAExpressionParser(errors, e -> {
@@ -80,6 +82,26 @@ public class TDAEnterExitParser extends BlockLocationTracker implements TDAParsi
 					exprs.add((Expr) o);
 			} else
 				throw new NotImplementedException();
+			if (checkLifecycle) {
+				switch (uv.var) {
+				case "init":
+				case "load":
+				case "query":
+				case "nest":
+				case "unnest":
+					// these are all fine
+					break;
+				case "state":
+				case "ready":
+				case "closing":
+					// I don't think it's valid to call these from FA, but if it is, move them up
+				default:
+					// certainly anything that is not a lifecycle method is not OK
+					errors.message(uv.location, "there is no valid method " + uv.var + " on " + card.var);
+					return new NoNestingParser(errors);
+				}
+
+			}
 			consumer.method(card, ctr, uv.var, exprs);
 			errors.logReduction("fa-invoke"+opt, card.location, have.location());
 			super.tellParent(card.location);

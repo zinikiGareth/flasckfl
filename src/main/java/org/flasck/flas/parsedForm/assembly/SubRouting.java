@@ -29,18 +29,20 @@ public class SubRouting implements RoutingGroupConsumer, Locatable {
 	private final Map<VarName, CardBinding> cards = new HashMap<>();
 	public final List<CardBinding> assignments = new ArrayList<>();
 	private final NameOfThing routeName;
+	private final RoutingGroupConsumer parent;
 
-	public SubRouting(ErrorReporter errors, InputPosition pos, String path, RoutingGroupConsumer main, NameOfThing routeName) {
+	public SubRouting(ErrorReporter errors, InputPosition pos, String path, RoutingGroupConsumer parent, NameOfThing routeName) {
 		this.errors = errors;
 		this.pos = pos;
 		this.path = path;
 		this.routeName = routeName;
-		if (main == null)
+		this.parent = parent;
+		if (parent == null)
 			this.main = (MainRoutingGroupConsumer) this;
-		else if (main instanceof MainRoutingGroupConsumer)
-			this.main = (MainRoutingGroupConsumer) main;
+		else if (parent instanceof MainRoutingGroupConsumer)
+			this.main = (MainRoutingGroupConsumer) parent;
 		else
-			this.main = ((SubRouting)main).main;
+			this.main = ((SubRouting) parent).main;
 	}
 
 	public InputPosition location() {
@@ -55,11 +57,13 @@ public class SubRouting implements RoutingGroupConsumer, Locatable {
 	@Override
 	public CardBinding nameCard(UnresolvedVar var, TypeReference cardType) {
 		String s = var.var;
-		NameOfThing foo = routeName;
-		VarName asVar = new VarName(var.location(), foo, s);
+		VarName asVar = new VarName(var.location(), routeName, s);
 		CardBinding ret = new CardBinding(routeName, asVar, cardType);
 		if (cards.containsKey(asVar)) {
 			errors.message(var.location(), "duplicate card binding of " + s);
+			return ret;
+		} else if (parent != null && parent.cardDefnInScope(s)) {
+			errors.message(var.location(), "nested card binding of " + s);
 			return ret;
 		}
 		cards.put(asVar, ret);
@@ -68,6 +72,16 @@ public class SubRouting implements RoutingGroupConsumer, Locatable {
 
 	public CardBinding getCard(VarName var) {
 		return cards.get(var);
+	}
+
+	@Override
+	public boolean cardDefnInScope(String s) {
+		VarName asVar = new VarName(pos, routeName, s);
+		if (cards.containsKey(asVar))
+			return true;
+		if (parent == null)
+			return false;
+		return parent.cardDefnInScope(s);
 	}
 
 	@Override
@@ -119,7 +133,7 @@ public class SubRouting implements RoutingGroupConsumer, Locatable {
 
 	@Override
 	public void route(RoutingGroupConsumer group) {
-		routes.add((SubRouting)group);
+		routes.add((SubRouting) group);
 	}
 
 	public boolean hasTitle() {

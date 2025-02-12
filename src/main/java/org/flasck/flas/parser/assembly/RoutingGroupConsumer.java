@@ -17,4 +17,5 @@ public interface RoutingGroupConsumer {
 	void route(RoutingGroupConsumer group);
 	void isSecure();
 	NameOfThing name();
+	boolean cardDefnInScope(String s);
 }
