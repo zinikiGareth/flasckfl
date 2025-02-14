@@ -693,6 +693,7 @@ Application.prototype.baseUri = function(_cxt) {
 };
 Application.prototype.relativeRoute = function(_cxt, path, allDone) {
   var route = new URL(path, this.currentRoute);
+  _cxt.env.addHistory({}, null, route);
   this.gotoRoute(_cxt, route, allDone);
 };
 Application.prototype.gotoRoute = function(_cxt, route, allDone) {
@@ -758,7 +759,7 @@ Application.prototype.setTitle = function(_cxt, title) {
 Application.prototype.complete = function(_cxt, route) {
   this.currentRoute = route;
   _cxt.env.queueMessages(_cxt, new UpdateDisplay(_cxt, this));
-  _cxt.addHistory({}, this.title, this.currentRoute);
+  _cxt.replaceRoute(this.currentRoute);
 };
 Application.prototype.bindParam = function(_cxt, param, value) {
   this.params[param] = value;
@@ -1860,6 +1861,9 @@ FLContext.prototype.log = function(...args) {
 };
 FLContext.prototype.addHistory = function(state, title, url) {
   this.env.addHistory(state, title, url);
+};
+FLContext.prototype.replaceRoute = function(url) {
+  this.env.replaceRoute(url);
 };
 FLContext.prototype._bindNamedHandler = function(nh) {
   if (!this.subcontext) {

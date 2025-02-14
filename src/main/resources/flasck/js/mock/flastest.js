@@ -667,6 +667,8 @@ UTRunner.prototype.module = function(mod) {
 };
 UTRunner.prototype.addHistory = function(state, title, url) {
 };
+UTRunner.prototype.replaceRoute = function(url) {
+};
 
 // src/main/javascript/unittest/stsecurity.js
 function STSecurityModule() {
