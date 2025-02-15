@@ -775,6 +775,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	@Override
 	public void leaveAgentDefn(AgentDefinition s) {
 		agentCreator.constructor().returnVoid();
+		createDestroyMethod();
 		agentCreator = null;
 	}
 	
@@ -822,6 +823,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	@Override
 	public void leaveCardDefn(CardDefinition s) {
 		agentCreator.constructor().returnVoid();
+		createDestroyMethod();
 		agentCreator = null;
 		templateCreator = null;
 		containerIdx = null;
@@ -830,9 +832,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 	@Override
 	public void leaveServiceDefn(ServiceDefinition s) {
 		agentCreator.constructor().returnVoid();
+		createDestroyMethod();
 		agentCreator = null;
 		templateCreator = null;
 		containerIdx = null;
+	}
+
+	private void createDestroyMethod() {
+		JSMethodCreator meth = agentCreator.createMethod("_destroy", true);
+		meth.argument(J.FLEVALCONTEXT, "_cxt");
+		meth.returnsType("void");
+		meth.callMethod("void", new JSThis(), "_close");
+		meth.returnVoid();
 	}
 
 	@Override

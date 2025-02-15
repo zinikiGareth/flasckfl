@@ -233,6 +233,9 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 
 	@Override
 	public IExpr cxt() {
+		if (cxt == null) {
+			throw new CantHappenException("cxt should not be null");
+		}
 		return cxt;
 	}
 	

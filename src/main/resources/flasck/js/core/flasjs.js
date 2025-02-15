@@ -775,6 +775,7 @@ Application.prototype.createCard = function(_cxt, ci) {
 Application.prototype.destroyCard = function(_cxt, ci) {
   var card = this.cards[ci.name];
   card.destroyed = true;
+  card._destroy(_cxt);
   card._updateDisplay(_cxt, card._renderTree);
 };
 Application.prototype.readyCard = function(_cxt, name) {
@@ -2736,6 +2737,9 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
   if (!_renderTree)
     return;
   value = _cxt.full(value);
+  if (value instanceof FLCard && value.destroyed) {
+    value = null;
+  }
   var div = document.getElementById(_renderTree._id);
   const node = div.querySelector("[data-flas-punnet='" + field + "']");
   if (!node.id) {
@@ -3045,6 +3049,7 @@ FLCard.prototype._diffLists = function(_cxt, rtc, list) {
   return ret2;
 };
 FLCard.prototype._close = function(cx2) {
+  cx2.log("closing card", this);
   cx2.unsubscribeAll(this);
 };
 

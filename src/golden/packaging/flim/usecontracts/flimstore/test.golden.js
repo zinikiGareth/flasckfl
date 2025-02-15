@@ -32,6 +32,13 @@ test__golden.Mumble._contract = function(_cxt, _ctr) {
 
 test__golden.Mumble._contract.nfargs = function() { return 1; }
 
+test__golden.Mumble.prototype._destroy = function(_cxt) {
+  this._close(_cxt);
+  return ;
+}
+
+test__golden.Mumble.prototype._destroy.nfargs = function() { return 0; }
+
 test__golden.Mumble._C1 = function(_cxt, _incard) {
   this._card = _incard;
   return ;
