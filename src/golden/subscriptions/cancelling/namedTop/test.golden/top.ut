@@ -1,37 +1,45 @@
 Check that if a top-level method can instantiate a named subscription and that,
 once created, it can be cancelled be repeating the process.
 
-	test a named subscription is cancelled when called twice
+	test a named subscription is cancelled when the method reassigns the named subscription
+	
+HelpMe is the "service" which we are going to subscribe to
 		data HelpMe h
-		data NamedTop c
 		
+NamedTop is a card which assigns the subscription from HelpMe.help to a var "top"
+		data NamedTop c
+
+We expect h.help to be called when we invoke c.subscribe.  Capture this in $first$.		
 		expect h help -> _first
 		contract c Top subscribe
 
+Repeat the process and capture $second$.  We expect $first$ to be cancelled.
 		expect h help -> _second
 		expect <~ first
 		contract c Top subscribe
 
 	test an error occurs if a named subscription is cancelled without the expectation
+	
+Set up the test in the same way
 		data HelpMe h
 		data NamedTop c
 		
 		expect h help -> _first
 		contract c Top subscribe
 
-It is an error that the first of these expectations is not specified;
-the second doesn't happen because the first explodes first		
-(Could we make that a separate exploding test?)
+Now test that an error occurs because we have not specified that $first$ will be cancelled. 
 //		expect <~ first
-//		expect h help -> _second
 		contract c Top subscribe
 		
 	test subscriptions are cancelled when the card goes away
+	
+Do exactly the same setup
 		data HelpMe h
 		data NamedTop c
 		
 		expect h help -> _first
 		contract c Top subscribe
 		
+Expect the subscription to be cancelled; then close the card
 		expect <~ first
 		close c		

@@ -1,8 +1,8 @@
-JVM PASS a named subscription is cancelled when called twice
+JVM PASS a named subscription is cancelled when the method reassigns the named subscription
 JVM FAIL an error occurs if a named subscription is cancelled without the expectation
   cancelled first but it was not expected
 JVM PASS subscriptions are cancelled when the card goes away
-JS PASS a named subscription is cancelled when called twice
+JS PASS a named subscription is cancelled when the method reassigns the named subscription
 JS FAIL an error occurs if a named subscription is cancelled without the expectation
   cancelled first but it was not expected
 JS PASS subscriptions are cancelled when the card goes away
