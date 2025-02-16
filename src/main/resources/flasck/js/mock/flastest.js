@@ -348,7 +348,7 @@ UTRunner.prototype.close = function(_cxt, dest) {
   if (dest instanceof MockCard) {
     dest = dest.card;
   }
-  dest._close(_cxt);
+  dest._destroy(_cxt);
   this.updateAllCards(_cxt);
 };
 UTRunner.prototype.invoke = function(_cxt, inv) {
@@ -856,6 +856,33 @@ WSBridge.prototype.unlock = function(msg) {
 function exposeTests(into) {
   into.bridge = new WSBridge("localhost", 14040);
   into.runner = into.bridge.runner;
+  into.unittest = async function(holder, which) {
+    into.testing = {};
+    var imptest = await import("/js/" + holder + ".js");
+    var elt = holder.replaceAll(".", "__");
+    var ut = imptest[elt];
+    if (typeof which === "undefined") {
+      for (var t of Object.keys(ut)) {
+        if (t.startsWith("_ut")) {
+          console.log(" * " + t);
+        }
+      }
+      return;
+    }
+    if (which.startsWith && which.startsWith("_ut")) {
+    } else {
+      which = "_ut" + which;
+    }
+    var utc = ut[which];
+    var cxt = into.runner.newContext();
+    into.testing.test = new utc(into.runner, cxt);
+    into.bridge.currentTest = into.testing.test;
+    into.runner.clear();
+    into.testing.steps = into.testing.test.dotest(cxt);
+    for (var s of into.testing.steps) {
+      console.log(" * " + s);
+    }
+  };
   into.systest = async function(name, ...modules) {
     into.testing = {};
     var imptest = await import("/js/" + name + ".js");
@@ -870,32 +897,17 @@ function exposeTests(into) {
       installer(into.bridge);
     }
     into.runner.clear();
-    into.testing.methods = figureMethods(into.testing.test);
+    into.testing.methods = figureSystemMethods(into.testing.test);
   };
   into.runto = function(tostep) {
-    if (into.testing.amAt >= into.testing.methods.length) {
-      console.log("test complete; restart to rerun");
-      return;
+    if (into.testing.steps) {
+      unitRun(into.bridge, into.testing, tostep);
+    } else {
+      systemRun(into.bridge, into.testing, tostep);
     }
-    var untilStep = figureStep(into.testing.methods, tostep);
-    if (untilStep == null) {
-      return;
-    }
-    if (!into.testing.amAt) {
-      into.testing.amAt = 0;
-    }
-    if (into.testing.amAt > untilStep) {
-      console.log("cannot go back in time; restart test to do that; already at", into.testing.methods[into.testing.amAt]);
-      return;
-    }
-    var steps = [];
-    while (into.testing.amAt <= untilStep) {
-      steps.push(into.testing.methods[into.testing.amAt++]);
-    }
-    into.bridge.send({ action: "steps", steps });
   };
 }
-function figureMethods(inTest) {
+function figureSystemMethods(inTest) {
   var methods = Object.keys(Object.getPrototypeOf(inTest)).sort();
   var ret = [];
   for (var s of methods) {
@@ -906,7 +918,57 @@ function figureMethods(inTest) {
   }
   return ret;
 }
-function figureStep(steps, nickname) {
+function unitRun(bridge, te, tostep) {
+  if (te.amAt >= te.steps.length) {
+    console.log("test complete; restart to rerun");
+    return;
+  }
+  var untilStep = figureUnitStep(te.steps, tostep);
+  if (untilStep == null) {
+    return;
+  }
+  if (!te.amAt) {
+    te.amAt = 0;
+  }
+  if (te.amAt > untilStep) {
+    console.log("cannot go back in time; restart test to do that; already at", te.steps[te.amAt]);
+    return;
+  }
+  var steps = [];
+  while (te.amAt <= untilStep && te.amAt < te.steps.length) {
+    steps.push(te.steps[te.amAt++]);
+  }
+  bridge.send({ action: "steps", steps });
+}
+function systemRun(bridge, te, tostep) {
+  if (te.amAt >= te.methods.length) {
+    console.log("test complete; restart to rerun");
+    return;
+  }
+  var untilStep = figureSystemStep(te.methods, tostep);
+  if (untilStep == null) {
+    return;
+  }
+  if (!te.amAt) {
+    te.amAt = 0;
+  }
+  if (te.amAt > untilStep) {
+    console.log("cannot go back in time; restart test to do that; already at", te.methods[te.amAt]);
+    return;
+  }
+  var steps = [];
+  while (te.amAt <= untilStep) {
+    steps.push(te.methods[te.amAt++]);
+  }
+  bridge.send({ action: "steps", steps });
+}
+function figureUnitStep(steps, step) {
+  if (typeof step === "undefined") {
+    return steps.length - 1;
+  }
+  return Number(step) - 1;
+}
+function figureSystemStep(steps, nickname) {
   var stepName = null;
   var endOf = null;
   var mg = null;

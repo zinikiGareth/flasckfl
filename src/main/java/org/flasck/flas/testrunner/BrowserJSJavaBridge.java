@@ -45,7 +45,7 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver, TestModule
 	private CountDownLatch shutdownCounter = new CountDownLatch(1);
 	private Iterable<JVMTestPlugin> plugins;
 
-	BrowserJSJavaBridge(JSTestController controller, ClassLoader classloader, File root, LockingCounter counter) {
+	public BrowserJSJavaBridge(JSTestController controller, ClassLoader classloader, File root, LockingCounter counter) {
 		this.controller = controller;
 		this.classloader = classloader;
 		this.root = root;
