@@ -15,8 +15,9 @@ public class TestStepNamer implements UnitDataNamer {
 	}
 
 	@Override
-	public VarName introductionName(InputPosition location, String text) {
-		return new VarName(location, name, text);
+	public VarName introductionName(InputPosition location, String text, boolean pkgLevel) {
+		NameOfThing scope = pkgLevel ? name.packageName() : name;
+		return new VarName(location, scope, text);
 	}
 
 	@Override

@@ -466,7 +466,7 @@ public class TestStepParser extends BlockLocationTracker implements TDAParsing {
 				return new IgnoreNestedParser(errors);
 			}
 			lastLoc = name.location;
-			IntroduceVar iv = new IntroduceVar(name.location, namer, name.text.substring(1));
+			IntroduceVar iv = new IntroduceVar(name.location, namer, name.text.substring(1), false);
 			((IntroductionConsumer)topLevel).newIntroduction(errors, iv);
 			handler = iv;
 			errors.logReduction("unit-expect-introduce-handler", arrow, name);

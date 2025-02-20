@@ -24,10 +24,10 @@ public class IntroduceVar implements Expr, RepositoryEntry {
 	private final VarName name;
 	private Type introducedAs;
 
-	public IntroduceVar(InputPosition location, IntroduceNamer namer, String var) {
+	public IntroduceVar(InputPosition location, IntroduceNamer namer, String var, boolean pkgScope) {
 		this.location = location;
 		this.var = var;
-		this.name = namer.introductionName(location, var);
+		this.name = namer.introductionName(location, var, pkgScope);
 	}
 
 	@Override

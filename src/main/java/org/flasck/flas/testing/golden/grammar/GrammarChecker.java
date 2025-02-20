@@ -307,8 +307,6 @@ public class GrammarChecker {
 				si = sit.next();
 				logger.info("next matching grammar rule is: " + si);
 			}
-			if (mi.location().lineNo == 8 && mi.location().off == 5)
-				logger.info("hello");
 			MatchResult mr = si.matchAgainst(mi);
 			logger.info("match result is: " + mr);
 			switch (mr) {

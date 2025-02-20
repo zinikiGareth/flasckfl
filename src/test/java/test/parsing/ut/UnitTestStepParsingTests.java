@@ -240,7 +240,7 @@ public class UnitTestStepParsingTests {
 	public void testWeCanHandleAnExpectationStepWithIntroductionButNoArgs() {
 		VarName vn = new VarName(pos, null, "handler");
 		context.checking(new Expectations() {{
-			oneOf(namer).introductionName(with(any(InputPosition.class)), with("handler")); will(returnValue(vn));
+			oneOf(namer).introductionName(with(any(InputPosition.class)), with("handler"), with(false)); will(returnValue(vn));
 			oneOf(topLevel).newIntroduction(with(any(ErrorReporter.class)), with(IntroduceVarMatcher.called("handler")));
 			oneOf(builder).expect((UnresolvedVar)with(ExprMatcher.unresolved("svc")),
 					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
@@ -259,7 +259,7 @@ public class UnitTestStepParsingTests {
 	public void testWeCanHandleAnExpectationStepWithIntroduction() {
 		VarName vn = new VarName(pos, null, "handler");
 		context.checking(new Expectations() {{
-			oneOf(namer).introductionName(with(any(InputPosition.class)), with("handler")); will(returnValue(vn));
+			oneOf(namer).introductionName(with(any(InputPosition.class)), with("handler"), with(false)); will(returnValue(vn));
 			oneOf(topLevel).newIntroduction(with(any(ErrorReporter.class)), with(IntroduceVarMatcher.called("handler")));
 			oneOf(builder).expect((UnresolvedVar)with(ExprMatcher.unresolved("svc")),
 					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
