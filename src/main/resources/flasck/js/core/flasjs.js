@@ -2839,7 +2839,31 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
       crt.children.splice(value.length);
     } else if (sw.op === "disaster") {
       var rts = crt.children;
-      debugger;
+      var map = {};
+      while (node.firstElementChild) {
+        var nd = node.removeChild(node.firstElementChild);
+        var rtc = rts.shift();
+        map[nd.id] = { nd, rtc };
+      }
+      console.log("disaster map", sw.mapping, map);
+      for (var i = 0; i < value.length; i++) {
+        if (sw.mapping[i]) {
+          var tmp = map[sw.mapping[i]];
+          node.appendChild(tmp.nd);
+          rts.push(tmp.rtc);
+          delete map[sw.mapping[i]];
+        } else {
+          var e = value[i];
+          var rt = { value: e };
+          var inid = _cxt.nextDocumentId();
+          rts.push(rt);
+          const pe = document.createElement("div");
+          pe.setAttribute("id", inid);
+          node.appendChild(pe);
+          e._renderInto(_cxt, pe);
+          fn.call(this, _cxt, rt, node, null, e);
+        }
+      }
     } else {
       throw new Error("cannot handle punnet change: " + sw.op);
     }
