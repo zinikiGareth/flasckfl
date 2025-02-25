@@ -564,6 +564,12 @@ UTRunner.prototype.matchHref = function(_cxt, target, zone, expected) {
   if (actual != abs)
     throw new Error("MATCH\n  expected: " + abs + "\n  actual:   " + actual);
 };
+UTRunner.prototype.matchRoute = function(_cxt, expected) {
+  console.log("matching route with", this._currentRoute, expected);
+  if (this._currentRoute.pathname !== expected) {
+    throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + this._currentRoute.pathname);
+  }
+};
 UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected) {
   var matchOn = this.findMockFor(target);
   if (!matchOn)
@@ -695,8 +701,10 @@ UTRunner.prototype.module = function(mod) {
   return m;
 };
 UTRunner.prototype.addHistory = function(state, title, url) {
+  this._currentRoute = url;
 };
 UTRunner.prototype.replaceRoute = function(url) {
+  this._currentRoute = url;
 };
 
 // src/main/javascript/unittest/stsecurity.js

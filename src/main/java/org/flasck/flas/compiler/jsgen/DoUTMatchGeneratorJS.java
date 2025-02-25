@@ -64,12 +64,15 @@ public class DoUTMatchGeneratorJS extends LeafAdapter implements ResultAware {
 		case "href":
 			block.assertable(runner, "matchHref", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.string(freeText));
 			break;
+		case "route":
+			block.assertable(runner, "matchRoute", block.string(freeText));
+			break;
 		default: {
 			for (MatchGeneratorModule mod : modules) {
 				if (mod.generateMatch(runner, block, args.get(0), m, freeText))
 					break theswitch;
 			}
-			throw new HaventConsideredThisException("cannot handle match " + m);
+			throw new HaventConsideredThisException("cannot handle match " + m.what.item());
 		}
 		}
 		sv.result(null);

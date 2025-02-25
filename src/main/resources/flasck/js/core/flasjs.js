@@ -331,7 +331,7 @@ Route.parse = function(baseuri, table, path) {
   var query = new URLSearchParams(path.search);
   if (path.hash) {
     path = path.hash.replace(/^#/, "");
-  } else if (baseuri) {
+  } else if (baseuri || typeof baseuri === "string") {
     var buu = baseuri;
     if (typeof buu == "string") {
       try {
@@ -359,15 +359,22 @@ Route.parse = function(baseuri, table, path) {
   ret2.claimedRoute = claimedRoute;
   ret2.parts.push(new Segment("push", "/", table));
   var map = table;
+  var tmp = "/";
   for (var s of route) {
     var next = map.route(s);
     if (!next) {
       console.log("there is no entry in the routing table for", s, "in", next);
+      debugger;
       break;
     }
+    if (tmp.length > 1) {
+      tmp += "/";
+    }
+    tmp += s;
     ret2.parts.push(new Segment("push", s, next));
     map = next;
   }
+  ret2.claimedRoute.pathname = tmp;
   ret2.query = query;
   return ret2;
 };
@@ -2825,12 +2832,14 @@ FLCard.prototype._updatePunnet = function(_cxt, _renderTree, field, value, fn) {
           node.insertBefore(node.lastElementChild, node.children[ai.where]);
       }
     } else if (sw.op === "removefromend") {
-      debugger;
       for (var i = value.length; i < crt.children.length; i++) {
         var child = crt.children[i];
         node.removeChild(child.value._containedIn);
       }
       crt.children.splice(value.length);
+    } else if (sw.op === "disaster") {
+      var rts = crt.children;
+      debugger;
     } else {
       throw new Error("cannot handle punnet change: " + sw.op);
     }

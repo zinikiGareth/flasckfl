@@ -52,6 +52,8 @@ public class JSAssertion implements IVForm {
 				as.add(jvm.argAs(e, JavaType.string));
 			else if (("matchImageUri".equals(meth) || "matchHref".equals(meth)) && ai == 2)
 				as.add(jvm.argAs(e, JavaType.string));
+			else if ("matchRoute".equals(meth) && ai == 0)
+				as.add(jvm.argAs(e, JavaType.string));
 			else if ("matchScroll".equals(meth) && ai == 3)
 				as.add(jvm.argAs(e, new JavaType(Double.class.getName())));
 			else if ("shove".equals(meth) && ai == 1)
