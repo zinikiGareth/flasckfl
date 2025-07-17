@@ -36,14 +36,14 @@ public class Root implements CardDataListener {
 		this.uri = uri;
 		this.root = new File(uri.getPath());
 	}
-	
+
 	public void configure(File flasHome) {
 		logger.info("configuring " + root + " with flas home " + flasHome);
 		Configuration config = new Configuration(errors, new String[] {});
 		config.projectDir = this.root;
 		config.includeFrom.add(new File(flasHome, "flim"));
 		config.includeFrom.add(new File(flasHome, "userflim"));
-        Repository repository = new Repository();
+		Repository repository = new Repository();
 		compiler = new FLASCompiler(config, errors, repository, this);
 		compiler.taskQueue(taskQ);
 		taskQ.loadFLIM(uri, compiler);
@@ -54,7 +54,7 @@ public class Root implements CardDataListener {
 			compiler.setCardsFolder(null);
 		else
 			compiler.setCardsFolder(new File(root, cardsFolder));
-		
+
 		// and force a rebuild of Stage 2
 		taskQ.readyWhenYouAre(uri, compiler);
 	}
@@ -76,11 +76,12 @@ public class Root implements CardDataListener {
 			taskQ.submit(new CompileTask(compiler, uri.resolve(f.getPath()), null));
 		}
 	}
+
 	public void dispatch(URI uri, String text) {
-    	if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath())))) {
-    		logger.info("Submitting file for compilation for " + uri);
-    		taskQ.submit(new CompileTask(compiler, uri, text));
-    	}
+		if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath())))) {
+			logger.info("Submitting file for compilation for " + uri);
+			taskQ.submit(new CompileTask(compiler, uri, text));
+		}
 	}
 
 	@Override
@@ -95,7 +96,7 @@ public class Root implements CardDataListener {
 			cards.add(card, fields);
 		}
 		JsonObject send = new JsonObject();
-		send.addProperty("uri", uri.toString().replaceAll("/*$",""));
+		send.addProperty("uri", uri.toString().replaceAll("/*$", ""));
 		send.add("cards", cards);
 		client.sendCardInfo(send);
 	}
