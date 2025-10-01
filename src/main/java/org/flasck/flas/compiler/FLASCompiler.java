@@ -79,6 +79,7 @@ import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.ConcreteMetaData;
 import org.ziniki.splitter.SplitMetaData;
 import org.ziniki.splitter.Splitter;
+import org.ziniki.splitter.lexer.LexerSplitter;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -114,7 +115,8 @@ public class FLASCompiler implements CompileUnit {
 		this.errors = errors;
 		this.repository = repository;
 		if (this.config.usesplitter) {
-			this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
+//			this.splitter = new org.ziniki.splitter.jsoup.Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
+			this.splitter = new LexerSplitter(x -> errors.message(new InputPosition(x.file, x.lineNo, x.linePosition, null, x.text), x.message));
 		} else
 			this.splitter = null;
 		this.modules = ServiceLoader.load(ParserModule.class);
