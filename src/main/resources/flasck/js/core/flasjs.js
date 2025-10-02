@@ -364,7 +364,6 @@ Route.parse = function(baseuri, table, path) {
     var next = map.route(s);
     if (!next) {
       console.log("there is no entry in the routing table for", s, "in", next);
-      debugger;
       break;
     }
     if (tmp.length > 1) {
