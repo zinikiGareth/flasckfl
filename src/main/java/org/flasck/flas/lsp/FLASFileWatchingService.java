@@ -28,7 +28,7 @@ public class FLASFileWatchingService implements TextDocumentService {
 	public void didOpen(DidOpenTextDocumentParams params) {
     	URI uri = parseURI(params.getTextDocument().getUri());
     	if (uri == null) {
-    		logger.warn("no uri specified");
+    		logger.warn("no uri specified in open");
     		return;
     	}
     	String text = params.getTextDocument().getText();
@@ -40,7 +40,7 @@ public class FLASFileWatchingService implements TextDocumentService {
 	public void didChange(DidChangeTextDocumentParams params) {
     	URI uri = parseURI(params.getTextDocument().getUri());
     	if (uri == null) {
-    		logger.warn("no uri specified");
+    		logger.warn("no uri specified in change");
     		return;
     	}
     	logger.info("saw change to " + uri);
@@ -61,8 +61,12 @@ public class FLASFileWatchingService implements TextDocumentService {
 
 	@Override
 	public void didSave(DidSaveTextDocumentParams params) {
-		// TODO Auto-generated method stub
-		
+    	URI uri = parseURI(params.getTextDocument().getUri());
+    	if (uri == null) {
+    		logger.warn("no uri specified in save");
+    		return;
+    	}
+    	logger.info("saw save of " + uri);
 	}
 
 	@Override

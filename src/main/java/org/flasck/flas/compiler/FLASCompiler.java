@@ -116,7 +116,7 @@ public class FLASCompiler implements CompileUnit {
 		this.repository = repository;
 		if (this.config.usesplitter) {
 //			this.splitter = new org.ziniki.splitter.jsoup.Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
-			this.splitter = new LexerSplitter(x -> errors.message(new InputPosition(x.file, x.lineNo, x.linePosition, null, x.text), x.message));
+			this.splitter = new LexerSplitter(x -> errors.message(new InputPosition(x.file, x.lineNo, x.linePosition, null, x.text), x.message), x->errors.logMessage(x));
 		} else
 			this.splitter = null;
 		this.modules = ServiceLoader.load(ParserModule.class);

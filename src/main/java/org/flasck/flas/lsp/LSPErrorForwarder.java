@@ -44,7 +44,7 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 	@Override
 	public ErrorReporter message(FLASError e) {
 		if (handler == null) {
-			logger.info("message arrived with no handler: " + e);
+			logger.warn("message arrived with no handler: " + e);
 		} else {
 			handler.handle(e);
 		}
