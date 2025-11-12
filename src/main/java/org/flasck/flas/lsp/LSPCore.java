@@ -1,6 +1,5 @@
 package org.flasck.flas.lsp;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -12,19 +11,20 @@ import org.flasck.flas.compiler.TaskQueue;
 import org.flasck.flas.errors.ErrorReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.hfs.HierarchicalFileSystem;
 
 public class LSPCore {
 	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
 	private final ErrorReporter errors;
-	private final File flasHome;
+	private final HierarchicalFileSystem hfs;
 	private final TaskQueue taskQ;
 	private final Map<String, Root> roots = new TreeMap<>();
 	private String cardsFolder;
 	private boolean readyToNotify;
 
-	public LSPCore(ErrorReporter errors, File flasHome) {
+	public LSPCore(ErrorReporter errors, HierarchicalFileSystem hfs) {
 		this.errors = errors;
-		this.flasHome = flasHome;
+		this.hfs = hfs;
 		this.taskQ = new LSPTaskQueue();
 	}
 
@@ -40,7 +40,7 @@ public class LSPCore {
 				}
 				errors.logMessage("opening root " + root.root);
 				roots.put(root.root.getPath(), root);
-				root.configure(flasHome);
+				root.configure(hfs);
 				root.setCardsFolder(cardsFolder);
 			}
 		} catch (URISyntaxException ex) {

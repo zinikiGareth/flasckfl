@@ -1,6 +1,5 @@
 package org.flasck.flas.lsp;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -14,6 +13,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.hfs.HierarchicalFileSystem;
 
 public class FLASLanguageServer implements LanguageServer {
 	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
@@ -22,9 +22,9 @@ public class FLASLanguageServer implements LanguageServer {
 	private FLASLanguageClient client;
 	private LSPErrorForwarder errors;
 
-	public FLASLanguageServer(File flasHome) {
+	public FLASLanguageServer(HierarchicalFileSystem hfs) {
 		errors = new LSPErrorForwarder();
-		this.core = new LSPCore(errors, flasHome);
+		this.core = new LSPCore(errors, hfs);
 		this.watchingService = new FLASFileWatchingService(core.errors(), core);
 	}
 

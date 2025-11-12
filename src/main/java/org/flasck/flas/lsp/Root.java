@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.MetaEntry;
 import org.ziniki.splitter.SplitMetaData;
+import org.zinutils.hfs.HierarchicalFileSystem;
 import org.zinutils.utils.FileUtils;
 
 import com.google.gson.JsonObject;
@@ -37,12 +38,12 @@ public class Root implements CardDataListener {
 		this.root = new File(uri.getPath());
 	}
 
-	public void configure(File flasHome) {
-		logger.info("configuring " + root + " with flas home " + flasHome);
+	public void configure(HierarchicalFileSystem hfs) {
+		logger.info("configuring " + root + " with hfs " + hfs);
 		Configuration config = new Configuration(errors, new String[] {});
 		config.projectDir = this.root;
-		config.includeFrom.add(new File(flasHome, "flim"));
-		config.includeFrom.add(new File(flasHome, "userflim"));
+//		config.includeFrom.add(new File(flasHome, "flim"));
+//		config.includeFrom.add(new File(flasHome, "userflim"));
 		Repository repository = new Repository();
 		compiler = new FLASCompiler(config, errors, repository, this);
 		compiler.taskQueue(taskQ);

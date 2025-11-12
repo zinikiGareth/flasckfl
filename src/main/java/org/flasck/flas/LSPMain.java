@@ -13,6 +13,7 @@ import org.flasck.flas.lsp.FLASLanguageClient;
 import org.flasck.flas.lsp.FLASLanguageServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.hfs.HierarchicalFileSystemLocalFS;
 
 /** The Language Server main class */
 public class LSPMain {
@@ -44,7 +45,7 @@ public class LSPMain {
 	}
 
 	private static void launchServer(File flasHome, InputStream in, OutputStream out) {
-        FLASLanguageServer server = new FLASLanguageServer(flasHome);
+        FLASLanguageServer server = new FLASLanguageServer(new HierarchicalFileSystemLocalFS());
         Launcher<FLASLanguageClient> launcher = createServerLauncher(server, in, out);
 
         FLASLanguageClient client = launcher.getRemoteProxy();
