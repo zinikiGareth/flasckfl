@@ -34,8 +34,10 @@ public class LSPCore {
 			synchronized (roots) {
 				URI uri = new URI(rootUri + "/");
 				Root root = new Root(client, errors, taskQ, uri);
-				if (roots.containsKey(root.root.getPath()))
+				if (roots.containsKey(root.root.getPath())) {
+					logger.warn("ignoring duplicate project " + root.root.getPath());
 					return;
+				}
 				errors.logMessage("opening root " + root.root);
 				roots.put(root.root.getPath(), root);
 				root.configure(flasHome);
@@ -87,5 +89,9 @@ public class LSPCore {
 
 	public ErrorReporter errors() {
 		return errors;
+	}
+
+	public void waitForTaskQueueToDrain() throws InterruptedException {
+		taskQ.waitToDrain();
 	}
 }

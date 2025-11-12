@@ -8,4 +8,5 @@ public interface TaskQueue {
 	void submit(CompileTask task);
 	void readyWhenYouAre(URI uri, CompileUnit stage2);
 	void loadFLIM(URI uri, FLASCompiler compiler);
+	void waitToDrain() throws InterruptedException;
 }

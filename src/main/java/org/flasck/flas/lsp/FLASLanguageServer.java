@@ -56,9 +56,18 @@ public class FLASLanguageServer implements LanguageServer {
 	public WorkspaceService getWorkspaceService() {
 		return new FLASWorkspaceService(core);
 	}
+	
+	public void waitForTaskQueueToDrain() throws InterruptedException {
+		core.waitForTaskQueueToDrain();
+	}
 
 	@Override
 	public CompletableFuture<Object> shutdown() {
+		try {
+			waitForTaskQueueToDrain();
+		} catch (InterruptedException ex) {
+			logger.info("caught interrupted exception");
+		}
 		logger.info("SHUTDOWN");
         return CompletableFuture.completedFuture(null);
 	}

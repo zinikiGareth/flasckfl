@@ -1,7 +1,5 @@
 package test.lsp;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +12,18 @@ import org.flasck.flas.lsp.FLASLanguageClient;
 import org.flasck.flas.lsp.FLASLanguageServer;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TestInitialLoading {
-	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	protected Synchroniser synchronizer = new Synchroniser();
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery() {{
+		setThreadingPolicy(synchronizer);
+	}};
 	
 	@Test
-	public void loadingAnEmptyWorkspace() {
+	public void loadingAnEmptyWorkspace() throws InterruptedException {
 		File flasHome = null;
 		FLASLanguageServer server = new FLASLanguageServer(flasHome);
 		FLASLanguageClient client = context.mock(FLASLanguageClient.class);
@@ -31,10 +33,11 @@ public class TestInitialLoading {
 		List<WorkspaceFolder> wfs = new ArrayList<WorkspaceFolder>();
 		params.setWorkspaceFolders(wfs);
 		server.initialize(params);
+		server.waitForTaskQueueToDrain();
 	}
 
 	@Test
-	public void loadingAnWorkspaceWithOneProject() {
+	public void loadingAnWorkspaceWithOneProject() throws InterruptedException {
 		File flasHome = null;
 		FLASLanguageServer server = new FLASLanguageServer(flasHome);
 		FLASLanguageClient client = context.mock(FLASLanguageClient.class);
@@ -50,5 +53,6 @@ public class TestInitialLoading {
 		wfs.add(new WorkspaceFolder("file:///fred/bert", "bert"));
 		params.setWorkspaceFolders(wfs);
 		server.initialize(params);
+		server.waitForTaskQueueToDrain();
 	}
 }

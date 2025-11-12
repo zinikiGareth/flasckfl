@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class LSPTaskQueue implements TaskQueue {
 	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
 	private final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<Runnable>();
-	private final Executor exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, tasks);
+	private final ExecutorService exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, tasks);
 	private final Set<CompileUnit> units = new HashSet<>();
 
 	public LSPTaskQueue() {
@@ -61,4 +61,9 @@ public class LSPTaskQueue implements TaskQueue {
 		}
 	}
 
+	@Override
+	public void waitToDrain() throws InterruptedException {
+		exec.shutdown();
+		exec.awaitTermination(5, TimeUnit.SECONDS);
+	}
 }
