@@ -3,16 +3,19 @@ package org.flasck.flas.lsp;
 import java.net.URI;
 
 import org.flasck.flas.compiler.CompileUnit;
+import org.flasck.flas.errors.ErrorReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CompileTask implements Runnable {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private final CompileUnit compiler;
+	private final ErrorReporter errors;
 	private final URI uri;
 	private final String text;
 
-	public CompileTask(CompileUnit compiler, URI uri, String text) {
+	public CompileTask(ErrorReporter errors, CompileUnit compiler, URI uri, String text) {
+		this.errors = errors;
 		this.compiler = compiler;
 		this.uri = uri;
 		this.text = text;
@@ -34,6 +37,7 @@ public class CompileTask implements Runnable {
 			compiler.parse(uri, text);
 		} catch (Throwable t) {
 			logger.error("Exception processing " + uri, t);
+			errors.logMessage("Exception processing " + uri + ": " + t);
 		}
 	}
 	

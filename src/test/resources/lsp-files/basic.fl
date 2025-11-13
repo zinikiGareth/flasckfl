@@ -1,0 +1,3 @@
+This is a very simple file that should compile without any dependencies (e.g. builtins)
+
+	basic = 44

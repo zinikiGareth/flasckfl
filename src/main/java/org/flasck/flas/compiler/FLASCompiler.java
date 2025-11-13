@@ -42,6 +42,7 @@ import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.lifting.RepositoryLifter;
+import org.flasck.flas.lsp.Root;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
@@ -71,7 +72,6 @@ import org.flasck.flas.testrunner.TestResultWriter;
 import org.flasck.jvm.J;
 import org.flasck.jvm.assembly.FLASAssembler;
 import org.flasck.jvm.ziniki.ContentObject;
-import org.flasck.jvm.ziniki.FileContentObject;
 import org.flasck.jvm.ziniki.MemoryContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
@@ -106,10 +106,10 @@ public class FLASCompiler implements CompileUnit {
 	private Map<EventHolder, EventTargetZones> eventMap;
 	private ByteCodeEnvironment bce;
 	private JSUploader uploader;
-	private CardDataListener cardDataListener;
+	private Root hfsRoot;
 	private Map<URI, String> textCache = new TreeMap<>();
 
-	public FLASCompiler(Configuration config, ErrorReporter errors, Repository repository, CardDataListener cardDataListener) {
+	public FLASCompiler(Configuration config, ErrorReporter errors, Repository repository, Root root) {
 		logger.info("initializing FLASCompiler");
 		this.config = config;
 		this.errors = errors;
@@ -121,7 +121,7 @@ public class FLASCompiler implements CompileUnit {
 			this.splitter = null;
 		this.modules = ServiceLoader.load(ParserModule.class);
 		this.completeModules = ServiceLoader.load(CompilerComplete.class);
-		this.cardDataListener = cardDataListener;
+		this.hfsRoot = root;
 	}
 	
 	public BCEClassLoader classLoader() {
@@ -208,8 +208,8 @@ public class FLASCompiler implements CompileUnit {
 	public void splitWeb(File dir) {
 		try {
 			SplitMetaData md = splitter.split(dir);
-			if (cardDataListener != null)
-				cardDataListener.provideWebData(md);
+			if (hfsRoot != null)
+				hfsRoot.provideWebData(md);
 			repository.webData(md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + dir);
@@ -321,8 +321,9 @@ public class FLASCompiler implements CompileUnit {
 		if (text != null) {
 			textCache.put(uri, text);
 			co = new MemoryContentObject(file, text.getBytes());
-		} else
-			co = new FileContentObject(file);
+		} else {
+			co = hfsRoot.fileCO(uri);
+		}
 		if (type == null) {
 			errors.logMessage("could not compile " + inPkg + "/" + file);
 			return;

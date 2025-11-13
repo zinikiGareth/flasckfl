@@ -1,5 +1,6 @@
 package org.flasck.flas.lsp;
 
+import java.io.File;
 import java.net.URI;
 import java.util.TreeSet;
 
@@ -9,6 +10,8 @@ import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.TaskQueue;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.Repository;
+import org.flasck.jvm.ziniki.ContentObject;
+import org.flasck.jvm.ziniki.FileContentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
@@ -75,20 +78,20 @@ public class Root implements CardDataListener {
 			}
 		}
 		for (HFSFile f : files) {
-			errors.logMessage("gathered " + f);
+			errors.logMessage("gathered " + f.getName());
 		}
 	}
 
 	public void compileAll() {
 		for (HFSFile f : files) {
-			taskQ.submit(new CompileTask(compiler, uri.resolve(f.getPath()), null));
+			taskQ.submit(new CompileTask(errors, compiler, uri.resolve(f.getPath()), null));
 		}
 	}
 
 	public void dispatch(URI uri, String text) {
 		if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath())))) {
 			logger.info("Submitting file for compilation for " + uri);
-			taskQ.submit(new CompileTask(compiler, uri, text));
+			taskQ.submit(new CompileTask(errors, compiler, uri, text));
 		}
 	}
 
@@ -107,5 +110,12 @@ public class Root implements CardDataListener {
 		send.addProperty("uri", uri.toString().replaceAll("/*$", ""));
 		send.add("cards", cards);
 		client.sendCardInfo(send);
+	}
+
+	public ContentObject fileCO(URI uri) {
+		String path = uri.getPath();
+		path = path.replace(this.uri.getPath(), "");
+		File f = new File(path);
+		return new FileContentObject(root.getFileContents(f));
 	}
 }
