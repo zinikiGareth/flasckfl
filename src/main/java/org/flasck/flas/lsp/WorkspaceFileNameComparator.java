@@ -1,15 +1,15 @@
 package org.flasck.flas.lsp;
 
-import java.io.File;
+import java.util.Comparator;
 
-import org.zinutils.utils.FileNameComparator;
+import org.zinutils.hfs.HFSPath;
 import org.zinutils.utils.FileUtils;
 
-public class WorkspaceFileNameComparator extends FileNameComparator {
+public class WorkspaceFileNameComparator implements Comparator<HFSPath> {
 	private final static String[] extensions = new String[] { ".fl", ".ut", ".st", ".fa", ".html" };
 	
 	@Override
-	public int compare(File o1, File o2) {
+	public int compare(HFSPath o1, HFSPath o2) {
 		int e1 = find(FileUtils.extension(o1.getName()));
 		int e2 = find(FileUtils.extension(o2.getName()));
 		int ret = Integer.compare(e1, e2);

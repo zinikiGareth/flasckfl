@@ -1,6 +1,5 @@
 package org.flasck.flas.lsp;
 
-import java.io.File;
 import java.net.URI;
 import java.util.TreeSet;
 
@@ -15,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.MetaEntry;
 import org.ziniki.splitter.SplitMetaData;
+import org.zinutils.hfs.HFSFile;
+import org.zinutils.hfs.HFSFolder;
 import org.zinutils.hfs.HierarchicalFileSystem;
 import org.zinutils.utils.FileUtils;
 
@@ -25,23 +26,27 @@ public class Root implements CardDataListener {
 	private final FLASLanguageClient client;
 	private final ErrorReporter errors;
 	private final TaskQueue taskQ;
-	public final URI uri;
-	public final File root;
-	private final TreeSet<File> files = new TreeSet<File>(new WorkspaceFileNameComparator());
+	private final URI uri;
+	private final HFSFolder root;
+	private final TreeSet<HFSFile> files = new TreeSet<HFSFile>(new WorkspaceFileNameComparator());
 	private FLASCompiler compiler;
 
-	public Root(FLASLanguageClient client, ErrorReporter errors, TaskQueue taskQ, URI uri) {
+	public Root(FLASLanguageClient client, ErrorReporter errors, TaskQueue taskQ, HierarchicalFileSystem hfs, URI uri) {
 		this.client = client;
 		this.errors = errors;
 		this.taskQ = taskQ;
 		this.uri = uri;
-		this.root = new File(uri.getPath());
+		this.root = hfs.root(uri);
+	}
+	
+	public String getPath() {
+		return uri.getPath();
 	}
 
 	public void configure(HierarchicalFileSystem hfs) {
 		logger.info("configuring " + root + " with hfs " + hfs);
 		Configuration config = new Configuration(errors, new String[] {});
-		config.projectDir = this.root;
+//		config.projectDir = this.root;
 //		config.includeFrom.add(new File(flasHome, "flim"));
 //		config.includeFrom.add(new File(flasHome, "userflim"));
 		Repository repository = new Repository();
@@ -51,29 +56,31 @@ public class Root implements CardDataListener {
 	}
 
 	public void setCardsFolder(String cardsFolder) {
+		/*
 		if (cardsFolder == null)
 			compiler.setCardsFolder(null);
 		else
 			compiler.setCardsFolder(new File(root, cardsFolder));
-
+*/
+		logger.error("SETTING CARDS FOLDER - deprecated?");
 		// and force a rebuild of Stage 2
 		taskQ.readyWhenYouAre(uri, compiler);
 	}
 
 	public void gatherFiles() {
 		files.clear();
-		for (File f : FileUtils.findFilesUnderMatching(root, "*")) {
+		for (HFSFile f : root.findFilesUnderMatching("*")) {
 			if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((f.getName())))) {
 				files.add(f);
 			}
 		}
-		for (File f : files) {
+		for (HFSFile f : files) {
 			errors.logMessage("gathered " + f);
 		}
 	}
 
 	public void compileAll() {
-		for (File f : files) {
+		for (HFSFile f : files) {
 			taskQ.submit(new CompileTask(compiler, uri.resolve(f.getPath()), null));
 		}
 	}

@@ -21,11 +21,13 @@ public class FLASLanguageServer implements LanguageServer {
 	private final LSPCore core;
 	private FLASLanguageClient client;
 	private LSPErrorForwarder errors;
+	private FLASWorkspaceService flasWorkspaceService;
 
 	public FLASLanguageServer(HierarchicalFileSystem hfs) {
 		errors = new LSPErrorForwarder();
 		this.core = new LSPCore(errors, hfs);
 		this.watchingService = new FLASFileWatchingService(core.errors(), core);
+		this.flasWorkspaceService = new FLASWorkspaceService(core);
 	}
 
 	public void provide(FLASLanguageClient client) {
@@ -54,7 +56,7 @@ public class FLASLanguageServer implements LanguageServer {
 
 	@Override
 	public WorkspaceService getWorkspaceService() {
-		return new FLASWorkspaceService(core);
+		return flasWorkspaceService;
 	}
 	
 	public void waitForTaskQueueToDrain() throws InterruptedException {

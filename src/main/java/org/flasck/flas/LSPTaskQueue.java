@@ -37,7 +37,7 @@ public class LSPTaskQueue implements TaskQueue {
 	
 	@Override
 	public void submit(CompileTask ct) {
-		if (ct != null && !tasks.contains(ct)) { // don't add things multiple times
+		if (ct != null) {
 			exec.execute(ct);
 		}
 	}

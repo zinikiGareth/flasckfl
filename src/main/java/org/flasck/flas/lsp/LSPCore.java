@@ -33,13 +33,13 @@ public class LSPCore {
 		try {
 			synchronized (roots) {
 				URI uri = new URI(rootUri + "/");
-				Root root = new Root(client, errors, taskQ, uri);
-				if (roots.containsKey(root.root.getPath())) {
-					logger.warn("ignoring duplicate project " + root.root.getPath());
+				Root root = new Root(client, errors, taskQ, hfs, uri);
+				if (roots.containsKey(root.getPath())) {
+					logger.warn("ignoring duplicate project " + root.getPath());
 					return;
 				}
-				errors.logMessage("opening root " + root.root);
-				roots.put(root.root.getPath(), root);
+				errors.logMessage("opening root " + root.getPath());
+				roots.put(root.getPath(), root);
 				root.configure(hfs);
 				root.setCardsFolder(cardsFolder);
 			}
