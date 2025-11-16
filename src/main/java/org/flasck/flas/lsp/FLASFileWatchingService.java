@@ -44,7 +44,9 @@ public class FLASFileWatchingService implements TextDocumentService {
     		return;
     	}
     	logger.info("saw change to " + uri);
-    	if (!WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath()))))
+    	String ext = FileUtils.extension((uri.getPath()));
+    	if (!FLASFileNameComparator.isValidExtension(ext) &&
+    		!UIFileNameComparator.isValidExtension(ext))
     		return;
         for (TextDocumentContentChangeEvent changeEvent : params.getContentChanges()) {
             // Will be full update because we specified that is all we support

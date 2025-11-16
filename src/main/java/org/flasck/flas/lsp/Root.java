@@ -31,7 +31,8 @@ public class Root implements CardDataListener {
 	private final TaskQueue taskQ;
 	private final URI uri;
 	private final HFSFolder root;
-	private final TreeSet<HFSFile> files = new TreeSet<HFSFile>(new WorkspaceFileNameComparator());
+	private final TreeSet<HFSFile> flasfiles = new TreeSet<HFSFile>(new FLASFileNameComparator());
+	private final TreeSet<HFSFile> uifiles = new TreeSet<HFSFile>(new FLASFileNameComparator());
 	private FLASCompiler compiler;
 
 	public Root(FLASLanguageClient client, ErrorReporter errors, TaskQueue taskQ, HierarchicalFileSystem hfs, URI uri) {
@@ -71,25 +72,31 @@ public class Root implements CardDataListener {
 	}
 
 	public void gatherFiles() {
-		files.clear();
+		flasfiles.clear();
 		for (HFSFile f : root.findFilesUnderMatching("*")) {
-			if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((f.getName())))) {
-				files.add(f);
+			if (FLASFileNameComparator.isValidExtension(FileUtils.extension((f.getName())))) {
+				flasfiles.add(f);
+			}
+			if (UIFileNameComparator.isValidExtension(FileUtils.extension((f.getName())))) {
+				uifiles.add(f);
 			}
 		}
-		for (HFSFile f : files) {
+		for (HFSFile f : flasfiles) {
+			errors.logMessage("gathered " + f.getName());
+		}
+		for (HFSFile f : uifiles) {
 			errors.logMessage("gathered " + f.getName());
 		}
 	}
 
 	public void compileAll() {
-		for (HFSFile f : files) {
+		for (HFSFile f : flasfiles) {
 			taskQ.submit(new CompileTask(errors, compiler, uri.resolve(f.getPath()), null));
 		}
 	}
 
 	public void dispatch(URI uri, String text) {
-		if (WorkspaceFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath())))) {
+		if (FLASFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath())))) {
 			logger.info("Submitting file for compilation for " + uri);
 			taskQ.submit(new CompileTask(errors, compiler, uri, text));
 		}

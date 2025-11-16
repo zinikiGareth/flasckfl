@@ -125,19 +125,13 @@ public class TestInitialLoading {
 
 		MessageParams mp = new MessageParams(MessageType.Log, "opening root /fred/bert/");
 		MessageParams gmp = new MessageParams(MessageType.Log, "gathered index.html");
-//		MessageParams c1mp = new MessageParams(MessageType.Log, "compiling basic.fl in org.zinutils.main");
 		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
-//		PublishDiagnosticsParams p1dp = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/basic.fl", new ArrayList<>());
 		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/", new ArrayList<>());
-//		PublishDiagnosticsParams pdp2 = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/", new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(client).logMessage(mp);
 			oneOf(client).logMessage(gmp);
-//			oneOf(client).logMessage(c1mp);
 			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("started"));
 			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); then(finished.is("done"));
-//			oneOf(client).publishDiagnostics(pdp2); when(finished.is("next")); then(finished.is("done"));
-//			oneOf(client).publishDiagnostics(p1dp);
 		}});
 		
 		InitializeParams params = new InitializeParams();
