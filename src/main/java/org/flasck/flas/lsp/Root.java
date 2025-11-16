@@ -123,6 +123,6 @@ public class Root implements CardDataListener {
 		String path = uri.getPath();
 		path = path.replace(this.uri.getPath(), "");
 		File f = new File(path);
-		return new FileContentObject(root.getFileContents(f));
+		return new FileContentObject(uri.getPath(), f.getName(), root.getFileContents(f));
 	}
 }

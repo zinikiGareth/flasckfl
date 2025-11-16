@@ -48,7 +48,7 @@ public class TestInitialLoading {
 	}
 
 	@Test
-	public void loadingAnWorkspaceWithOneEmptyProject() throws InterruptedException, URISyntaxException {
+	public void loadingAWorkspaceWithOneEmptyProject() throws InterruptedException, URISyntaxException {
 		hfs.provideFolder(new FakeHFSFolder(new URI("file:///fred/bert/")));
 		FLASLanguageServer server = new FLASLanguageServer(hfs);
 		FLASLanguageClient client = context.mock(FLASLanguageClient.class);
@@ -75,7 +75,7 @@ public class TestInitialLoading {
 	}
 
 	@Test
-	public void loadingAnWorkspaceWithOneProjectWithASingleFLFile() throws InterruptedException, URISyntaxException {
+	public void loadingAWorkspaceWithOneProjectWithASingleFLFile() throws InterruptedException, URISyntaxException {
 		States finished = context.states("finished").startsAs("waiting");
 		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
 		hff.subfolder("flas").subfolder("org.zinutils.main").provideFile("basic.fl", new File("src/test/resources/lsp-files/basic.fl"));
@@ -114,7 +114,7 @@ public class TestInitialLoading {
 	}
 
 	@Test
-	public void loadingAnWorkspaceWithOneProjectWithASingleHTMLFile() throws InterruptedException, URISyntaxException {
+	public void loadingAWorkspaceWithOneProjectWithASingleHTMLFile() throws InterruptedException, URISyntaxException {
 		States finished = context.states("finished").startsAs("waiting");
 		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
 		hff.subfolder("ui").provideFile("index.html", new File("src/test/resources/lsp-files/index.html"));
@@ -132,6 +132,80 @@ public class TestInitialLoading {
 			oneOf(client).logMessage(gmp);
 			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("started"));
 			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); then(finished.is("done"));
+		}});
+		
+		InitializeParams params = new InitializeParams();
+		List<WorkspaceFolder> wfs = new ArrayList<WorkspaceFolder>();
+		wfs.add(new WorkspaceFolder("file:///fred/bert", "bert"));
+		params.setWorkspaceFolders(wfs);
+		server.initialize(params);
+
+		server.getWorkspaceService().executeCommand(new ExecuteCommandParams("flas/readyForNotifications", new ArrayList<>()));
+		
+		synchronizer.waitUntil(finished.is("done"), 1000);
+		server.waitForTaskQueueToDrain();
+	}
+
+	@Test
+	public void anErrorOccursWhenYouHaveACardWithNoUI() throws InterruptedException, URISyntaxException {
+		States finished = context.states("finished").startsAs("waiting");
+		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
+		hff.subfolder("flas").subfolder("org.zinutils.main").provideFile("main.fl", new File("src/test/resources/lsp-files/hello.fl"));
+		hfs.provideFolder(hff);
+		FLASLanguageServer server = new FLASLanguageServer(hfs);
+		FLASLanguageClient client = context.mock(FLASLanguageClient.class);
+		server.provide(client);
+
+		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
+		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/", new ArrayList<>());
+		PublishDiagnosticsParams p1dp = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/main.fl", new ArrayList<>());
+		PublishDiagnosticsParams pdp2 = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/", new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(client).logMessage(with(any(MessageParams.class)));
+			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("started"));
+			oneOf(client).publishDiagnostics(p1dp);
+			oneOf(client).publishDiagnostics(with(
+					PDPMatcher
+						.uri("file:/fred/bert/flas/org.zinutils.main/main.fl")
+						.diagnostic(1, 11, 16, "there is no web template defined for hello")
+			));
+			oneOf(client).publishDiagnostics(pdp1); 
+			oneOf(client).publishDiagnostics(pdp2); when(finished.is("started")); then(finished.is("done"));
+		}});
+		
+		InitializeParams params = new InitializeParams();
+		List<WorkspaceFolder> wfs = new ArrayList<WorkspaceFolder>();
+		wfs.add(new WorkspaceFolder("file:///fred/bert", "bert"));
+		params.setWorkspaceFolders(wfs);
+		server.initialize(params);
+
+		server.getWorkspaceService().executeCommand(new ExecuteCommandParams("flas/readyForNotifications", new ArrayList<>()));
+		
+		synchronizer.waitUntil(finished.is("done"), 1000);
+		server.waitForTaskQueueToDrain();
+	}
+
+//	@Test
+	public void loadingAWorkspaceWithOneProjectWithACard() throws InterruptedException, URISyntaxException {
+		States finished = context.states("finished").startsAs("waiting");
+		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
+		hff.subfolder("flas").subfolder("org.zinutils.main").provideFile("main.fl", new File("src/test/resources/lsp-files/hello.fl"));
+		hff.subfolder("ui").provideFile("index.html", new File("src/test/resources/lsp-files/card.html"));
+		hfs.provideFolder(hff);
+		FLASLanguageServer server = new FLASLanguageServer(hfs);
+		FLASLanguageClient client = context.mock(FLASLanguageClient.class);
+		server.provide(client);
+
+		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
+		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/", new ArrayList<>());
+		PublishDiagnosticsParams p1dp = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/main.fl", new ArrayList<>());
+		PublishDiagnosticsParams pdp2 = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/", new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(client).logMessage(with(any(MessageParams.class)));
+			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("started"));
+			oneOf(client).publishDiagnostics(p1dp);
+			oneOf(client).publishDiagnostics(pdp2);
+			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); // then(finished.is("done"));
 		}});
 		
 		InitializeParams params = new InitializeParams();
