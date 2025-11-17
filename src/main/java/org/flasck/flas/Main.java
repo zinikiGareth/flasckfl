@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.slf4j.impl.StaticLoggerBinder;
+import org.zinutils.hfs.FileHFSFolder;
 import org.zinutils.streamedlogger.api.Level;
 
 public class Main {
@@ -126,7 +127,7 @@ public class Main {
 				continue;
 			}
 			if (web.isDirectory()) {
-				compiler.splitWeb(web);
+				compiler.splitWeb(new FileHFSFolder(web));
 			} else { // assume it is a zip
 				compiler.splitWeb(new FileContentObject(web));
 			}

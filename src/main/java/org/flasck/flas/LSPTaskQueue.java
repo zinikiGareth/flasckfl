@@ -10,7 +10,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.flasck.flas.compiler.CompileUnit;
-import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.TaskQueue;
 import org.flasck.flas.lsp.CompileTask;
 import org.slf4j.Logger;
@@ -26,7 +25,7 @@ public class LSPTaskQueue implements TaskQueue {
 	}
 	
 	@Override
-	public void loadFLIM(URI uri, FLASCompiler compiler) {
+	public void loadFLIM(URI uri, CompileUnit compiler) {
 		exec.execute(new Runnable() {
 			@Override
 			public void run() {

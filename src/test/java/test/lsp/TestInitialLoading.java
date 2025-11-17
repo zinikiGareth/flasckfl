@@ -185,7 +185,7 @@ public class TestInitialLoading {
 		server.waitForTaskQueueToDrain();
 	}
 
-//	@Test
+	@Test
 	public void loadingAWorkspaceWithOneProjectWithACard() throws InterruptedException, URISyntaxException {
 		States finished = context.states("finished").startsAs("waiting");
 		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));

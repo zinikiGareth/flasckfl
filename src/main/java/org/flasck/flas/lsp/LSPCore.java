@@ -19,7 +19,6 @@ public class LSPCore {
 	private final HierarchicalFileSystem hfs;
 	private final TaskQueue taskQ;
 	private final Map<String, Root> roots = new TreeMap<>();
-	private String cardsFolder;
 	private boolean readyToNotify;
 
 	public LSPCore(ErrorReporter errors, HierarchicalFileSystem hfs) {
@@ -41,7 +40,6 @@ public class LSPCore {
 				errors.logMessage("opening root " + root.getPath());
 				roots.put(root.getPath(), root);
 				root.configure(hfs);
-				root.setCardsFolder(cardsFolder);
 			}
 		} catch (URISyntaxException ex) {
 			errors.logMessage("could not open " + rootUri);
@@ -78,15 +76,6 @@ public class LSPCore {
 		}
 	}
 	
-	public void setCardsFolder(String cardsFolder) {
-		logger.info("setting cards folder to " + cardsFolder);
-		this.cardsFolder = cardsFolder;
-		synchronized (roots) {
-			for (Root r : roots.values())
-				r.setCardsFolder(cardsFolder);
-		}
-	}
-
 	public ErrorReporter errors() {
 		return errors;
 	}

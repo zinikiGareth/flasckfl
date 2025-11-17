@@ -6,6 +6,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.CardDataListener;
+import org.flasck.flas.compiler.CompileUnit;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.TaskQueue;
 import org.flasck.flas.errors.ErrorReporter;
@@ -31,9 +32,11 @@ public class Root implements CardDataListener {
 	private final TaskQueue taskQ;
 	private final URI uri;
 	private final HFSFolder root;
-	private final TreeSet<HFSFile> flasfiles = new TreeSet<HFSFile>(new FLASFileNameComparator());
-	private final TreeSet<HFSFile> uifiles = new TreeSet<HFSFile>(new FLASFileNameComparator());
-	private FLASCompiler compiler;
+	private final TreeSet<HFSFile> flasfiles = new TreeSet<>(new FLASFileNameComparator());
+	private final TreeSet<HFSFile> uifiles = new TreeSet<>(new UIFileNameComparator());
+	private final TreeSet<HFSFolder> flasfolders = new TreeSet<>(new FLASFileNameComparator());
+	private HFSFolder uifolder = null;
+	private CompileUnit compiler;
 
 	public Root(FLASLanguageClient client, ErrorReporter errors, TaskQueue taskQ, HierarchicalFileSystem hfs, URI uri) {
 		this.client = client;
@@ -41,6 +44,10 @@ public class Root implements CardDataListener {
 		this.taskQ = taskQ;
 		this.uri = uri;
 		this.root = hfs.root(uri);
+	}
+	
+	public void useCompiler(CompileUnit c) {
+		this.compiler = c;
 	}
 	
 	public String getPath() {
@@ -59,18 +66,6 @@ public class Root implements CardDataListener {
 		taskQ.loadFLIM(uri, compiler);
 	}
 
-	public void setCardsFolder(String cardsFolder) {
-		/*
-		if (cardsFolder == null)
-			compiler.setCardsFolder(null);
-		else
-			compiler.setCardsFolder(new File(root, cardsFolder));
-*/
-		logger.error("SETTING CARDS FOLDER - deprecated?");
-		// and force a rebuild of Stage 2
-		taskQ.readyWhenYouAre(uri, compiler);
-	}
-
 	public void gatherFiles() {
 		flasfiles.clear();
 		for (HFSFile f : root.findFilesUnderMatching("*")) {
@@ -87,8 +82,29 @@ public class Root implements CardDataListener {
 		for (HFSFile f : uifiles) {
 			errors.logMessage("gathered " + f.getName());
 		}
+		figureFolders();
+		for (HFSFolder f : flasfolders) {
+			logger.info("determined flas dir " + f.getPath());
+		}
+		if (uifolder != null) {
+			logger.info("determined ui folder to be " + uifolder.getPath());
+			compiler.setCardsFolder(uifolder);
+		}
 	}
 
+	private void figureFolders() {
+		flasfolders.clear();
+		for (HFSFile f : flasfiles) {
+			logger.info("have file " + f.getPath());
+			flasfolders.add(f.getFolder());
+		}
+		uifolder = null;
+		for (HFSFile f : uifiles) {
+			logger.info("have file " + f.getPath());
+			uifolder = f.getFolder();
+		}
+	}
+	
 	public void compileAll() {
 		for (HFSFile f : flasfiles) {
 			taskQ.submit(new CompileTask(errors, compiler, uri.resolve(f.getPath()), null));

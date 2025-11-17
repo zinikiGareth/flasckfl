@@ -87,6 +87,7 @@ import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.NoSuchDirectoryException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
+import org.zinutils.hfs.HFSFolder;
 import org.zinutils.utils.FileUtils;
 
 public class FLASCompiler implements CompileUnit {
@@ -99,7 +100,7 @@ public class FLASCompiler implements CompileUnit {
 	private final ServiceLoader<CompilerComplete> completeModules;
 	private final List<URI> brokenUris = new ArrayList<>();
 	private TaskQueue tasks;
-	private File cardsFolder;
+	private HFSFolder cardsFolder;
 	// TODO: it feels to me that these should be in the REPO, not on the compiler itself
 	private DirectedAcyclicGraph<String> pkgs;
 	private JSEnvironment jse;
@@ -136,7 +137,7 @@ public class FLASCompiler implements CompileUnit {
 		this.tasks = tasks;
 	}
 
-	public void setCardsFolder(File cardsFolder) {
+	public void setCardsFolder(HFSFolder cardsFolder) {
 		this.cardsFolder = cardsFolder;
 	}
 
@@ -205,14 +206,15 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
-	public void splitWeb(File dir) {
+	public void splitWeb(HFSFolder cardsFolder) {
 		try {
-			SplitMetaData md = splitter.split(dir);
-			if (hfsRoot != null)
+			SplitMetaData md = splitter.split(cardsFolder);
+			if (hfsRoot != null) {
 				hfsRoot.provideWebData(md);
+			}
 			repository.webData(md);
 		} catch (IOException ex) {
-			errors.message((InputPosition) null, "error splitting: " + dir);
+			errors.message((InputPosition) null, "error splitting: " + cardsFolder);
 		}
 	}
 
@@ -374,7 +376,7 @@ public class FLASCompiler implements CompileUnit {
 		if (!errors.getAllBrokenURIs().isEmpty())
 			return;
 
-		if (cardsFolder != null && cardsFolder.isDirectory()) {
+		if (cardsFolder != null) {
 			splitWeb(cardsFolder);
 		}
 

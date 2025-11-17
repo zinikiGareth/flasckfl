@@ -10,8 +10,6 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
-
 public class FLASWorkspaceService implements WorkspaceService {
 	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
 	private final LSPCore core;
@@ -22,9 +20,7 @@ public class FLASWorkspaceService implements WorkspaceService {
 
 	@Override
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
-		JsonObject settings = (JsonObject) params.getSettings();
-		String cardsFolder = settings.get("FLAS").getAsJsonObject().get("lookForCardsInFolder").getAsString();
-		core.setCardsFolder(cardsFolder);
+//		JsonObject settings = (JsonObject) params.getSettings();
 	}
 
 	@Override
@@ -52,6 +48,4 @@ public class FLASWorkspaceService implements WorkspaceService {
 		logger.info("CHANGE WATCHED FOLDERS");
 		WorkspaceService.super.didChangeWorkspaceFolders(params);
 	}
-	
-	
 }

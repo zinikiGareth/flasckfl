@@ -7,6 +7,6 @@ import org.flasck.flas.lsp.CompileTask;
 public interface TaskQueue {
 	void submit(CompileTask task);
 	void readyWhenYouAre(URI uri, CompileUnit stage2);
-	void loadFLIM(URI uri, FLASCompiler compiler);
+	void loadFLIM(URI uri, CompileUnit compiler);
 	void waitToDrain() throws InterruptedException;
 }
