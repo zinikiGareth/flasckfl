@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.zinutils.hfs.FakeHFSFolder;
 import org.zinutils.hfs.FakeHierarchicalFileSystem;
 
+import com.google.gson.JsonObject;
+
 public class TestInitialLoading {
 	protected Synchroniser synchronizer = new Synchroniser();
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery() {{
@@ -60,7 +62,7 @@ public class TestInitialLoading {
 		context.checking(new Expectations() {{
 			oneOf(client).logMessage(mp);
 			oneOf(client).publishDiagnostics(pdp);
-			oneOf(client).publishDiagnostics(pdp1);
+//			oneOf(client).publishDiagnostics(pdp1);
 		}});
 		
 		InitializeParams params = new InitializeParams();
@@ -96,8 +98,8 @@ public class TestInitialLoading {
 			oneOf(client).logMessage(gmp);
 			oneOf(client).logMessage(c1mp);
 			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("started"));
-			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); then(finished.is("next"));
-			oneOf(client).publishDiagnostics(pdp2); when(finished.is("next")); then(finished.is("done"));
+//			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); then(finished.is("next"));
+			oneOf(client).publishDiagnostics(pdp2); when(finished.is("started")); then(finished.is("done"));
 			oneOf(client).publishDiagnostics(p1dp);
 		}});
 		
@@ -130,8 +132,8 @@ public class TestInitialLoading {
 		context.checking(new Expectations() {{
 			oneOf(client).logMessage(mp);
 			oneOf(client).logMessage(gmp);
-			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("started"));
-			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); then(finished.is("done"));
+			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("done"));
+//			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); then(finished.is("done"));
 		}});
 		
 		InitializeParams params = new InitializeParams();
@@ -169,7 +171,7 @@ public class TestInitialLoading {
 						.uri("file:/fred/bert/flas/org.zinutils.main/main.fl")
 						.diagnostic(1, 11, 16, "there is no web template defined for hello")
 			));
-			oneOf(client).publishDiagnostics(pdp1); 
+//			oneOf(client).publishDiagnostics(pdp1); 
 			oneOf(client).publishDiagnostics(pdp2); when(finished.is("started")); then(finished.is("done"));
 		}});
 		
@@ -204,8 +206,9 @@ public class TestInitialLoading {
 			allowing(client).logMessage(with(any(MessageParams.class)));
 			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("started"));
 			oneOf(client).publishDiagnostics(p1dp);
-			oneOf(client).publishDiagnostics(pdp2);
-			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); // then(finished.is("done"));
+//			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); // then(finished.is("done"));
+			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert").info("hello", new JsonObject())));
+			oneOf(client).publishDiagnostics(pdp2); then(finished.is("done"));
 		}});
 		
 		InitializeParams params = new InitializeParams();
