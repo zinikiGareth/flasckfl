@@ -1,7 +1,7 @@
 package org.flasck.flas.lsp;
 
 public class UIFileNameComparator extends WorkspaceFileNameComparator {
-	private final static String[] ui = new String[] { ".html" };
+	private final static String[] ui = new String[] { ".html", ".css" };
 	
 	public UIFileNameComparator() {
 		super(ui);

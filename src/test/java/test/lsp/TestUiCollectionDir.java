@@ -24,7 +24,6 @@ public class TestUiCollectionDir {
 	@Test
 	public void noFilesMeansNoUIDir() throws URISyntaxException {
 		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
-//		hff.subfolder("ui").provideFile("index.html", new File("src/test/resources/lsp-files/index.html"));
 		hfs.provideFolder(hff);
 
 		URI uri = new URI("file:/fred/bert/");
@@ -40,6 +39,40 @@ public class TestUiCollectionDir {
 		}});
 		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
 		hff.subfolder("ui").provideFile("index.html", new File("src/test/resources/lsp-files/index.html"));
+		hfs.provideFolder(hff);
+
+		URI uri = new URI("file:/fred/bert/");
+		Root r = new Root(null, errors, null, hfs, uri);
+		r.useCompiler(compiler);
+		r.gatherFiles();
+	}
+
+	@Test
+	public void twoFilesInTheSameDirStillMeansParentUIDir() throws URISyntaxException {
+		context.checking(new Expectations() {{
+			allowing(errors).logMessage(with(any(String.class)));
+			oneOf(compiler).setCardsFolder(with(HFSFolderMatcher.uri(new URI("file:/fred/bert/ui/"))));
+		}});
+		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
+		hff.subfolder("ui").provideFile("index.html", new File("src/test/resources/lsp-files/index.html"));
+		hff.subfolder("ui").provideFile("cards.html", new File("src/test/resources/lsp-files/card.html"));
+		hfs.provideFolder(hff);
+
+		URI uri = new URI("file:/fred/bert/");
+		Root r = new Root(null, errors, null, hfs, uri);
+		r.useCompiler(compiler);
+		r.gatherFiles();
+	}
+
+	@Test
+	public void twoFilesInTwoSubdirsMeansCommonParentUIDir() throws URISyntaxException {
+		context.checking(new Expectations() {{
+			allowing(errors).logMessage(with(any(String.class)));
+			oneOf(compiler).setCardsFolder(with(HFSFolderMatcher.uri(new URI("file:/fred/bert/ui/"))));
+		}});
+		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
+		hff.subfolder("ui").subfolder("html").provideFile("index.html", new File("src/test/resources/lsp-files/index.html"));
+		hff.subfolder("ui").subfolder("css").provideFile("web.css", new File("src/test/resources/lsp-files/web.css"));
 		hfs.provideFolder(hff);
 
 		URI uri = new URI("file:/fred/bert/");

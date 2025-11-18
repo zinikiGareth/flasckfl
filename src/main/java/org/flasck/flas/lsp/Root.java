@@ -101,7 +101,21 @@ public class Root implements CardDataListener {
 		uifolder = null;
 		for (HFSFile f : uifiles) {
 			logger.info("have file " + f.getPath());
-			uifolder = f.getFolder();
+			HFSFolder tmp = f.getFolder();
+			if (uifolder == null) {
+				uifolder = tmp;
+			} else if (uifolder.equals(tmp)) {
+				;
+			} else {
+				logger.info("huh");
+				while (!uifolder.equals(tmp)) {
+					if (uifolder.getPath().getPath().length() > tmp.getPath().getPath().length()) {
+						uifolder = uifolder.getFolder();
+					} else {
+						tmp = tmp.getFolder();
+					}
+				}
+			}
 		}
 	}
 	
