@@ -10,4 +10,5 @@ public interface CompileUnit {
 	public void taskQueue(TaskQueue taskQ);
 	public void lspLoadFLIM(URI uri);
 	public void setCardsFolder(HFSFolder uifolder);
+	public void splitWeb(HFSFolder cardsFolder);
 }

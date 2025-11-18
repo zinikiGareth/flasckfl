@@ -11,6 +11,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.zinutils.hfs.HFSFolder;
 
 public interface ErrorReporter {
 	void track(File f);
@@ -28,9 +29,10 @@ public interface ErrorReporter {
 	void showFromMark(ErrorMark mark, Writer pw, int ind);
 
 	// LSP related features
+	default void beginSplitterPhase(URI uifolder) {}
 	default void beginPhase1(URI uri) {}
+	default void beginPhase2(URI uri) {}
 	default void doneProcessing(List<URI> broken) {}
 	default List<URI> getAllBrokenURIs() { return new ArrayList<>(); }
-	default void logMessage(String s) { }
-	default void beginPhase2(URI uri) { }
+	default void logMessage(String s) {}
 }

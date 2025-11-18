@@ -120,6 +120,9 @@ public class Root implements CardDataListener {
 	}
 	
 	public void compileAll() {
+		if (uifolder != null) {
+			taskQ.submit(new SplitWebTask(errors, compiler, uifolder));
+		}
 		for (HFSFile f : flasfiles) {
 			taskQ.submit(new CompileTask(errors, compiler, uri.resolve(f.getPath()), null));
 		}

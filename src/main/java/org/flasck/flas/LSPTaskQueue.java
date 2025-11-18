@@ -35,7 +35,7 @@ public class LSPTaskQueue implements TaskQueue {
 	}
 	
 	@Override
-	public void submit(CompileTask ct) {
+	public void submit(Runnable ct) {
 		if (ct != null) {
 			exec.execute(ct);
 		}
