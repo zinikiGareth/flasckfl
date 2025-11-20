@@ -125,7 +125,12 @@ public class Root implements CardDataListener {
 	}
 
 	public void dispatch(URI uri, String text) {
-		if (FLASFileNameComparator.isValidExtension(FileUtils.extension((uri.getPath())))) {
+		String ext = FileUtils.extension((uri.getPath()));
+		if (ext.equals(".html")) {
+			logger.info("Submitting file for splitting for " + uri);
+			taskQ.submit(new SplitWebTask(errors, compiler, uifolder, uri, text));
+		}
+		if (FLASFileNameComparator.isValidExtension(ext)) {
 			logger.info("Submitting file for compilation for " + uri);
 			taskQ.submit(new CompileTask(errors, compiler, uri, text));
 		}

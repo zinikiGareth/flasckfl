@@ -32,7 +32,7 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 
 	public void beginSplitterPhase(URI uri) {
 		logger.info("beginning splitter processing for " + uri);
-		handler = new Phase2Handler(client, uri);
+		handler = new SplitterHandler(client, uri);
 	}
 	
 	public void beginPhase1(URI uri) {

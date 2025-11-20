@@ -28,7 +28,8 @@ public interface ErrorReporter {
 	void showFromMark(ErrorMark mark, Writer pw, int ind);
 
 	// LSP related features
-	default void beginSplitterPhase(URI uifolder) {}
+	default void processingFile(URI file) {}
+	default void beginSplitterPhase(URI uri) {}
 	default void beginPhase1(URI uri) {}
 	default void beginPhase2(URI uri) {}
 	default void doneProcessing(List<URI> broken) {}

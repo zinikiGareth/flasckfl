@@ -9,6 +9,6 @@ public interface CompileUnit {
 	public void attemptRest(URI uri);
 	public void taskQueue(TaskQueue taskQ);
 	public void lspLoadFLIM(URI uri);
-//	public void setCardsFolder(HFSFolder uifolder);
 	public void splitWeb(HFSFolder cardsFolder);
+	public void splitWebFile(String name, String text);
 }

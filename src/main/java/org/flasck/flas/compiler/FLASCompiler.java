@@ -116,7 +116,11 @@ public class FLASCompiler implements CompileUnit {
 		this.repository = repository;
 		if (this.config.usesplitter) {
 //			this.splitter = new org.ziniki.splitter.jsoup.Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
-			this.splitter = new LexerSplitter(x -> errors.message(new InputPosition(x.file, x.lineNo, x.linePosition, null, x.text).copySetEnd(x.endpos), x.message), x->errors.logMessage(x));
+			this.splitter = new LexerSplitter(
+				file -> errors.processingFile(URI.create("file:/" + file)),
+				x -> errors.message(new InputPosition(x.file, x.lineNo, x.linePosition, null, x.text).copySetEnd(x.endpos), x.message),
+				x -> errors.logMessage(x)
+			);
 		} else
 			this.splitter = null;
 		this.modules = ServiceLoader.load(ParserModule.class);
@@ -223,6 +227,19 @@ public class FLASCompiler implements CompileUnit {
 			repository.webData(md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + co.key());
+		}
+	}
+
+	public void splitWebFile(String name, String text) {
+		try {
+			errors.beginSplitterPhase(URI.create("file:/fred/bert/ui/" + name));
+			ConcreteMetaData cmd = new ConcreteMetaData();
+			splitter.splitOneFile(cmd, name, text);
+			errors.doneProcessing(brokenUris);
+//			((ConcreteMetaData) md).stream(tmp);
+//			repository.webData(md);
+		} catch (IOException ex) {
+			errors.message((InputPosition) null, "error splitting text file");
 		}
 	}
 

@@ -1,5 +1,6 @@
 package org.flasck.flas.lsp;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,20 +14,33 @@ public class SplitWebTask implements Runnable {
 	private ErrorReporter errors;
 	private CompileUnit compiler;
 	private HFSFolder uifolder;
+	private URI uri;
+	private String text;
 
 	public SplitWebTask(ErrorReporter errors, CompileUnit compiler, HFSFolder uifolder) {
 		this.errors = errors;
 		this.compiler = compiler;
 		this.uifolder = uifolder;
-		// TODO Auto-generated constructor stub
+	}
+
+	public SplitWebTask(ErrorReporter errors, CompileUnit compiler, HFSFolder uifolder, URI uri, String text) {
+		this.errors = errors;
+		this.compiler = compiler;
+		this.uifolder = uifolder;
+		this.uri = uri;
+		this.text = text;
 	}
 
 	@Override
 	public void run() {
-		errors.beginSplitterPhase(uifolder.getPath());
-		compiler.splitWeb(uifolder);
-		List<URI> broken = new ArrayList<>();
-		errors.doneProcessing(broken);
+		if (uri != null) {
+			compiler.splitWebFile(new File(uri.getPath()).getName(), text);
+		} else {
+			errors.beginPhase2(uifolder.getPath());
+			compiler.splitWeb(uifolder);
+            List<URI> broken = new ArrayList<>();
+            errors.doneProcessing(broken);
+		}
 	}
 
 }
