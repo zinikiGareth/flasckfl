@@ -2,7 +2,6 @@ package org.flasck.flas.lsp;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.lsp4j.Diagnostic;

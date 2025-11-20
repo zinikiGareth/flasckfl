@@ -9,7 +9,6 @@ import java.util.List;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.flasck.flas.lsp.FLASLanguageClient;
@@ -23,8 +22,6 @@ import org.junit.Test;
 import org.zinutils.hfs.FakeHFSFolder;
 import org.zinutils.hfs.FakeHierarchicalFileSystem;
 
-import com.google.gson.JsonObject;
-
 public class ErrorReportingTests {
 	protected Synchroniser synchronizer = new Synchroniser();
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery() {{
@@ -34,7 +31,7 @@ public class ErrorReportingTests {
 	FakeHierarchicalFileSystem hfs = new FakeHierarchicalFileSystem();
 
 	@Test
-	public void testInvalidCardDefintionTypeIsReported() throws URISyntaxException, InterruptedException {
+	public void testInvalidCardDefinitionTypeIsReported() throws URISyntaxException, InterruptedException {
 		States finished = context.states("finished").startsAs("waiting");
 		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
 		hff.subfolder("ui").provideFile("index.html", new File("src/test/resources/lsp-files/invalidCardType.html"));

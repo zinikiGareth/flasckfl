@@ -13,7 +13,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.hfs.FakeHFSFolder;
 import org.zinutils.hfs.FakeHierarchicalFileSystem;
-import org.zinutils.hfs.HFSFolderMatcher;
 
 public class TestUiCollectionDir {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -35,7 +34,6 @@ public class TestUiCollectionDir {
 	public void oneFileMeansParentUIDir() throws URISyntaxException {
 		context.checking(new Expectations() {{
 			allowing(errors).logMessage(with(any(String.class)));
-			oneOf(compiler).setCardsFolder(with(HFSFolderMatcher.uri(new URI("file:/fred/bert/ui/"))));
 		}});
 		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
 		hff.subfolder("ui").provideFile("index.html", new File("src/test/resources/lsp-files/index.html"));
@@ -51,7 +49,6 @@ public class TestUiCollectionDir {
 	public void twoFilesInTheSameDirStillMeansParentUIDir() throws URISyntaxException {
 		context.checking(new Expectations() {{
 			allowing(errors).logMessage(with(any(String.class)));
-			oneOf(compiler).setCardsFolder(with(HFSFolderMatcher.uri(new URI("file:/fred/bert/ui/"))));
 		}});
 		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
 		hff.subfolder("ui").provideFile("index.html", new File("src/test/resources/lsp-files/index.html"));
@@ -68,7 +65,6 @@ public class TestUiCollectionDir {
 	public void twoFilesInTwoSubdirsMeansCommonParentUIDir() throws URISyntaxException {
 		context.checking(new Expectations() {{
 			allowing(errors).logMessage(with(any(String.class)));
-			oneOf(compiler).setCardsFolder(with(HFSFolderMatcher.uri(new URI("file:/fred/bert/ui/"))));
 		}});
 		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
 		hff.subfolder("ui").subfolder("html").provideFile("index.html", new File("src/test/resources/lsp-files/index.html"));

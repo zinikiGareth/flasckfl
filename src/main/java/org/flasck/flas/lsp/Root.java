@@ -55,7 +55,7 @@ public class Root implements CardDataListener {
 	}
 
 	public void configure(HierarchicalFileSystem hfs) {
-		logger.info("configuring " + root + " with hfs " + hfs);
+		logger.info("configuring " + root.getPath() + " with hfs " + hfs.getClass());
 		Configuration config = new Configuration(errors, new String[] {});
 //		config.projectDir = this.root;
 //		config.includeFrom.add(new File(flasHome, "flim"));

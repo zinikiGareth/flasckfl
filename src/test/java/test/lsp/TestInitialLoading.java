@@ -58,11 +58,9 @@ public class TestInitialLoading {
 
 		MessageParams mp = new MessageParams(MessageType.Log, "opening root /fred/bert/");
 		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
-		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/", new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(client).logMessage(mp);
 			oneOf(client).publishDiagnostics(pdp);
-//			oneOf(client).publishDiagnostics(pdp1);
 		}});
 		
 		InitializeParams params = new InitializeParams();
@@ -91,14 +89,12 @@ public class TestInitialLoading {
 		MessageParams c1mp = new MessageParams(MessageType.Log, "compiling basic.fl in org.zinutils.main");
 		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
 		PublishDiagnosticsParams p1dp = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/basic.fl", new ArrayList<>());
-		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/", new ArrayList<>());
 		PublishDiagnosticsParams pdp2 = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/", new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(client).logMessage(mp);
 			oneOf(client).logMessage(gmp);
 			oneOf(client).logMessage(c1mp);
 			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("started"));
-//			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); then(finished.is("next"));
 			oneOf(client).publishDiagnostics(pdp2); when(finished.is("started")); then(finished.is("done"));
 			oneOf(client).publishDiagnostics(p1dp);
 		}});
@@ -127,13 +123,16 @@ public class TestInitialLoading {
 
 		MessageParams mp = new MessageParams(MessageType.Log, "opening root /fred/bert/");
 		MessageParams gmp = new MessageParams(MessageType.Log, "gathered index.html");
+		MessageParams amp = new MessageParams(MessageType.Log, "analyzing file file:/fred/bert/ui/index.html");
 		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
-		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/", new ArrayList<>());
+		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/ui/", new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(client).logMessage(mp);
 			oneOf(client).logMessage(gmp);
-			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("done"));
-//			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); then(finished.is("done"));
+			oneOf(client).logMessage(amp);
+			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert")));
+			oneOf(client).publishDiagnostics(pdp); 
+			oneOf(client).publishDiagnostics(pdp1); then(finished.is("done"));
 		}});
 		
 		InitializeParams params = new InitializeParams();
@@ -159,7 +158,6 @@ public class TestInitialLoading {
 		server.provide(client);
 
 		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
-		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/", new ArrayList<>());
 		PublishDiagnosticsParams p1dp = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/main.fl", new ArrayList<>());
 		PublishDiagnosticsParams pdp2 = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/", new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -171,7 +169,6 @@ public class TestInitialLoading {
 						.uri("file:/fred/bert/flas/org.zinutils.main/main.fl")
 						.diagnostic(1, 11, 16, "there is no web template defined for hello")
 			));
-//			oneOf(client).publishDiagnostics(pdp1); 
 			oneOf(client).publishDiagnostics(pdp2); when(finished.is("started")); then(finished.is("done"));
 		}});
 		

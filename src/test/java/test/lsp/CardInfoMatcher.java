@@ -8,7 +8,6 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.zinutils.exceptions.NotImplementedException;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class CardInfoMatcher extends TypeSafeMatcher<JsonObject> {
