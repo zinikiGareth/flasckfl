@@ -41,11 +41,13 @@ public class ErrorReportingTests {
 		server.provide(client);
 
 		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
+		PublishDiagnosticsParams pdpui = new PublishDiagnosticsParams("file:/fred/bert/ui/", new ArrayList<>());
 		context.checking(new Expectations() {{
 			allowing(client).logMessage(with(any(MessageParams.class)));
 			oneOf(client).publishDiagnostics(pdp);
-			oneOf(client).publishDiagnostics(with(PDPMatcher.uri("file:/fred/bert/ui/").diagnostic(6, 8, -1, "invalid flas- id tag: invalid"))); when(finished.is("waiting")); then(finished.is("done"));
 			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert")));
+			oneOf(client).publishDiagnostics(with(PDPMatcher.uri("file:/fred/bert/ui/index.html").diagnostic(6, 17, 34, "invalid flas- id tag: invalid")));
+			oneOf(client).publishDiagnostics(pdpui); then(finished.is("done"));
 		}});
 		
 		InitializeParams params = new InitializeParams();

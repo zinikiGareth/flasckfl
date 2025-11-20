@@ -45,6 +45,11 @@ public class PDPMatcher extends TypeSafeMatcher<PublishDiagnosticsParams> {
 			}
 			return true;
 		}
+		
+		@Override
+		public String toString() {
+			return line + ":" + from + "-" + to + ": " + message;
+		}
 	}
 
 	private String matchUri;
@@ -54,6 +59,7 @@ public class PDPMatcher extends TypeSafeMatcher<PublishDiagnosticsParams> {
 	public void describeTo(Description arg0) {
 		arg0.appendText("PublishDiagnostics[");
 		arg0.appendValue(matchUri);
+		arg0.appendValue(diagnostics);
 		arg0.appendText("]");
 	}
 

@@ -196,14 +196,14 @@ public class TestInitialLoading {
 		server.provide(client);
 
 		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
-		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/", new ArrayList<>());
+		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/ui/", new ArrayList<>());
 		PublishDiagnosticsParams p1dp = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/main.fl", new ArrayList<>());
 		PublishDiagnosticsParams pdp2 = new PublishDiagnosticsParams("file:/fred/bert/flas/org.zinutils.main/", new ArrayList<>());
 		context.checking(new Expectations() {{
 			allowing(client).logMessage(with(any(MessageParams.class)));
 			oneOf(client).publishDiagnostics(pdp); when(finished.is("waiting")); then(finished.is("started"));
 			oneOf(client).publishDiagnostics(p1dp);
-//			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); // then(finished.is("done"));
+			oneOf(client).publishDiagnostics(pdp1); when(finished.is("started")); // then(finished.is("done"));
 			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert").info("hello", new JsonObject())));
 			oneOf(client).publishDiagnostics(pdp2); then(finished.is("done"));
 		}});

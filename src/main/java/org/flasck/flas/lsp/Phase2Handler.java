@@ -39,7 +39,7 @@ public class Phase2Handler extends DiagnosticHandler implements LSPErrorHandler 
 		for (URI uri : diagnostics.keySet()) {
 			List<Diagnostic> report = diagnostics.get(uri);
 			if (!report.isEmpty()) {
-				logger.info("reporting phase 2 diagnostics for " + uri);
+				logger.info("reporting phase 2 diagnostics for " + uri + ": " + report.size());
 				broken.add(uri);
 				synchronized (client) {
 					client.publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), report));
