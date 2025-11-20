@@ -11,7 +11,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.grammar.tracking.LoggableToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.zinutils.hfs.HFSFolder;
 
 public interface ErrorReporter {
 	void track(File f);

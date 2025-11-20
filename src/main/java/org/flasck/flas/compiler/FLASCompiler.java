@@ -100,7 +100,6 @@ public class FLASCompiler implements CompileUnit {
 	private final ServiceLoader<CompilerComplete> completeModules;
 	private final List<URI> brokenUris = new ArrayList<>();
 	private TaskQueue tasks;
-	private HFSFolder cardsFolder;
 	// TODO: it feels to me that these should be in the REPO, not on the compiler itself
 	private DirectedAcyclicGraph<String> pkgs;
 	private JSEnvironment jse;
@@ -135,10 +134,6 @@ public class FLASCompiler implements CompileUnit {
 
 	public void taskQueue(TaskQueue tasks) {
 		this.tasks = tasks;
-	}
-
-	public void setCardsFolder(HFSFolder cardsFolder) {
-		this.cardsFolder = cardsFolder;
 	}
 
 	public void lspLoadFLIM(URI uri) {
@@ -375,10 +370,6 @@ public class FLASCompiler implements CompileUnit {
 		// If some are still broken, we cannot proceed
 		if (!errors.getAllBrokenURIs().isEmpty())
 			return;
-
-		if (cardsFolder != null) {
-			splitWeb(cardsFolder);
-		}
 
 		// do the rest of the compilation
 		errors.beginPhase2(uri);

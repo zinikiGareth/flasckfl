@@ -86,10 +86,6 @@ public class Root implements CardDataListener {
 		for (HFSFolder f : flasfolders) {
 			logger.info("determined flas dir " + f.getPath());
 		}
-		if (uifolder != null) {
-			logger.info("determined ui folder to be " + uifolder.getPath());
-			compiler.setCardsFolder(uifolder);
-		}
 	}
 
 	private void figureFolders() {

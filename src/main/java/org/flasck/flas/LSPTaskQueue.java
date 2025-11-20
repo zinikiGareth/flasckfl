@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.flasck.flas.compiler.CompileUnit;
 import org.flasck.flas.compiler.TaskQueue;
-import org.flasck.flas.lsp.CompileTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
