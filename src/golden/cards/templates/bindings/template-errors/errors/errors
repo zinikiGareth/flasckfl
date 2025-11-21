@@ -1,4 +1,4 @@
-index.html:   9.0:     _ <div id='flas-style-dupl'>
+index.html:   9.9:    <div id=' _ flas-style-dupl'>
                           duplicate field in 'cards/label': dupl
-index.html:  12.0:     _ <div id='flas-card-dupli'>
+index.html:  12.9:    <div id=' _ flas-card-dupli'>
                           duplicate entry name dupli

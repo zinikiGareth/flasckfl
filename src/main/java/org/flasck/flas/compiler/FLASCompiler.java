@@ -217,7 +217,7 @@ public class FLASCompiler implements CompileUnit {
 			for (HFSFile f : cardsFolder.findFilesUnderMatching("*")) {
 				if (f.getName().endsWith(".html")) {
 					errors.beginSplitterPhase(f.getPath());
-					splitter.splitOneFile(md, f.getName(), f.getContents());
+					splitter.splitOneFile(md, f.getName(), f.getContents(), zos);
 					errors.doneProcessing(brokenUris);
 				} else {
 					zos.putNextEntry(new ZipEntry(f.getName()));
@@ -225,6 +225,7 @@ public class FLASCompiler implements CompileUnit {
 				}
 				zos.closeEntry();
 			}
+			zos.close();
 
 			if (hfsRoot != null) {
 				hfsRoot.provideWebData(md);
@@ -265,7 +266,7 @@ public class FLASCompiler implements CompileUnit {
 		try {
 			errors.beginSplitterPhase(uri);
 			ConcreteMetaData cmd = new ConcreteMetaData();
-			splitter.splitOneFile(cmd, new File(uri.getPath()).getName(), text);
+			splitter.splitOneFile(cmd, new File(uri.getPath()).getName(), text, null);
 			errors.doneProcessing(brokenUris);
 //			((ConcreteMetaData) md).stream(tmp);
 //			repository.webData(md);
