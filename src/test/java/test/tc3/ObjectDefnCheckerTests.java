@@ -1,5 +1,6 @@
 package test.tc3;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -26,7 +27,8 @@ public class ObjectDefnCheckerTests {
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private String fnCxt = "test.repo.f";
 	

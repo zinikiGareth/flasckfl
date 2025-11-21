@@ -1,5 +1,6 @@
 package test.flas.generator.js;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -31,7 +32,8 @@ public class GuardGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
 	private RepositoryVisitor v = context.mock(RepositoryVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	JSFunctionState state = context.mock(JSFunctionState.class);
 	private final FunctionIntro intro = null;

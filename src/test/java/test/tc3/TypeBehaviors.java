@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -15,7 +17,8 @@ import org.flasck.flas.tc3.Primitive;
 import org.junit.Test;
 
 public class TypeBehaviors {
-	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, null, "<<builtin>>");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private static PackageName pkg = new PackageName("hello");
 
 	@Test(expected=RuntimeException.class)

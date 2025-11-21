@@ -1,5 +1,7 @@
 package test.blocker;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.BlockConsumer;
@@ -20,9 +22,9 @@ public class BlockerTests {
 	private BlockConsumer consumer;
 	private Blocker blocker;
 	private int lineNo = 1;
-	private InputPosition pos = new InputPosition("-", lineNo, 0, new Indent(1, 0), "at");
-	private InputPosition pos3 = new InputPosition("-", 3, 0, new Indent(1, 0), "at");
-	private InputPosition pos5 = new InputPosition("-", 5, 0, new Indent(1, 0), "at");
+	private InputPosition pos = new InputPosition(URI.create("file:/test"), lineNo, 0, new Indent(1, 0), "at");
+	private InputPosition pos3 = new InputPosition(URI.create("file:/test"), 3, 0, new Indent(1, 0), "at");
+	private InputPosition pos5 = new InputPosition(URI.create("file:/test"), 5, 0, new Indent(1, 0), "at");
 
 	@Before
 	public void setup() {
@@ -31,8 +33,10 @@ public class BlockerTests {
 		context.checking(new Expectations() {{
 			allowing(consumer).flush();
 			allowing(errors).logParsingToken(with(any(LoggableToken.class))); will(ReturnInvoker.arg(0));
+			oneOf(consumer).newFile();
 		}});
 		blocker = new Blocker(errors, consumer);
+		blocker.newFile(URI.create("file:/test"));
 	}
 	
 	@Test
@@ -118,17 +122,15 @@ public class BlockerTests {
 	@Test
 	public void indentingRestartsAfterNewFile() {
 		context.checking(new Expectations() {{
-			oneOf(consumer).newFile();
 			oneOf(consumer).line(with(1), with(LineMatcher.match("level1")));
 			oneOf(consumer).line(with(2), with(LineMatcher.match("level2")));
 			oneOf(consumer).newFile();
 			oneOf(consumer).line(with(1), with(LineMatcher.match("level1 again")));
 		}});
-		blocker.newFile();
 		line("\tlevel1");
 		line("\t\tlevel2");
 		blocker.flush();
-		blocker.newFile();
+		blocker.newFile(URI.create("file:/test2"));
 		line("\tlevel1 again");
 		blocker.flush();
 	}
@@ -136,20 +138,18 @@ public class BlockerTests {
 	@Test
 	public void indentingRestartsAfterNewFileAtTopLevel() {
 		context.checking(new Expectations() {{
-			oneOf(consumer).newFile();
 			oneOf(consumer).line(with(1), with(LineMatcher.match("level1")));
 			oneOf(consumer).newFile();
 			oneOf(consumer).line(with(1), with(LineMatcher.match("level1 again")));
 		}});
-		blocker.newFile();
 		line("\tlevel1");
 		blocker.flush();
-		blocker.newFile();
+		blocker.newFile(URI.create("file:/test2"));
 		line("\tlevel1 again");
 		blocker.flush();
 	}
 	
 	private void line(String line) {
-		blocker.present("-", lineNo++, line);
+		blocker.present(lineNo++, line);
 	}
 }

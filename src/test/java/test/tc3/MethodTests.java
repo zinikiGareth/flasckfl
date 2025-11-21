@@ -1,5 +1,6 @@
 package test.tc3;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -63,7 +64,8 @@ public class MethodTests {
 	public interface RAV extends ResultAware, RepositoryVisitor {	}
 
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private final InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName poly = new PackageName(true);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final StringLiteral str = new StringLiteral(pos, "yoyo");

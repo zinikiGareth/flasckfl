@@ -1,5 +1,6 @@
 package test.unittests;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -34,7 +35,8 @@ public class UnitDataDeclTypesTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 //	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final SolidName nested = new SolidName(pkg, "Nested");
 	private final RepositoryReader rr = context.mock(RepositoryReader.class);

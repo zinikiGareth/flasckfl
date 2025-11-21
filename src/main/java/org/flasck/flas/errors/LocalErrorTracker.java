@@ -1,7 +1,7 @@
 package org.flasck.flas.errors;
 
-import java.io.File;
 import java.io.Writer;
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -83,8 +83,8 @@ public class LocalErrorTracker implements ErrorReporter {
 		};
 	}
 
-	public void track(File f) {
-		other.track(f);
+	public void track(URI uri) {
+		other.track(uri);
 	}
 
 	@Override

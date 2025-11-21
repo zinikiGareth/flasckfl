@@ -2,6 +2,7 @@ package test.tc3;
 
 import static org.junit.Assert.*;
 
+import java.net.URI;
 import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -13,7 +14,8 @@ import org.flasck.flas.tc3.PolyInstance;
 import org.junit.Test;
 
 public class PolyInstanceTests {
-	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, null, "<<builtin>>");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private static PackageName poly = new PackageName(true);
 
 	@Test

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
@@ -48,7 +50,8 @@ public class UnitTestTopLevelParsingTests {
 	private UnitTestDefinitionConsumer builder = context.mock(UnitTestDefinitionConsumer.class);
 	private UnitDataFieldConsumer udc = context.mock(UnitDataFieldConsumer.class);
 	private final PackageName pkg = new PackageName("test.pkg._ut_file");
-	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private FunctionScopeUnitConsumer topLevel = context.mock(FunctionScopeUnitConsumer.class);
 
 	@Before
@@ -170,7 +173,7 @@ public class UnitTestTopLevelParsingTests {
 
 	public static ContinuedLine cline(String string) {
 		ContinuedLine ret = new ContinuedLine();
-		ret.lines.add(new SingleLine("fred", 1, new Indent(1,0), string));
+		ret.lines.add(new SingleLine(URI.create("file:/fred"), 1, new Indent(1,0), string));
 		return ret;
 	}
 }

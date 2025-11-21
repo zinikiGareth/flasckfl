@@ -55,7 +55,7 @@ public class TDANester implements BlockConsumer {
 		// so create a new location past the end of the file, indent 0
 		
 		if (lastloc != null)
-			lastloc = new InputPosition(lastloc.file, lastloc.lineNo+1, 0, new Indent(0, 0), "");
+			lastloc = new InputPosition(lastloc.getUri(), lastloc.lineNo+1, 0, new Indent(0, 0), "");
 		
 		while (stack.size() > 0) {
 			pop();

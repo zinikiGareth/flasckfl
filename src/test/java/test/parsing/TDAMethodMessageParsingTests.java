@@ -2,6 +2,8 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
@@ -31,7 +33,8 @@ public class TDAMethodMessageParsingTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errorsMock);
 	private MethodMessagesConsumer builder = context.mock(MethodMessagesConsumer.class);
 	private LastOneOnlyNestedParser nestedFunctionScope = context.mock(LastOneOnlyNestedParser.class);
-	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 10, 0, null, "hello");
 
 	@Before
 	public void setup() {
@@ -47,7 +50,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void weCanInvokeSendOnAServiceWithoutAnyArguments() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot")), null).location("fred", 1, 0, 2)));
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot")), null).location(fred, 1, 0, 2)));
 			oneOf(builder).done();
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null, null);
@@ -61,7 +64,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void weCanInvokeSendOnAServiceWithOneArgument() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("get")), ExprMatcher.string("hello")), null).location("fred", 1, 0, 2)));
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("get")), ExprMatcher.string("hello")), null).location(fred, 1, 0, 2)));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.get 'hello'"));
@@ -82,7 +85,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void weCanAssignToAStateMemberByName() {
 		context.checking(new Expectations() {{
-			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x").with(ExprMatcher.number(42)).location("fred", 1, 0, 1)));
+			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x").with(ExprMatcher.number(42)).location(fred, 1, 0, 1)));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("x <- 42"));
@@ -92,7 +95,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void weCanAssignToANestedMemberByPath() {
 		context.checking(new Expectations() {{
-			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x", "y").with(ExprMatcher.number(42)).location("fred", 1, 0, 1)));
+			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x", "y").with(ExprMatcher.number(42)).location(fred, 1, 0, 1)));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope, null, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("x.y <- 42"));

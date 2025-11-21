@@ -1,6 +1,5 @@
 package org.flasck.flas.parser;
 
-import java.io.File;
 import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
@@ -67,8 +66,8 @@ public class ExprReducerErrors implements ErrorReporter {
 		this.reduceToOne = reduceToOne;
 	}
 
-	public void track(File f) {
-		errors.track(f);
+	public void track(URI uri) {
+		errors.track(uri);
 	}
 
 	public <T extends LoggableToken> T logParsingToken(T token) {

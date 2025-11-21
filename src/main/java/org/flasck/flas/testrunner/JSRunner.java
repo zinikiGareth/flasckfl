@@ -359,7 +359,7 @@ public class JSRunner extends CommonTestRunner<JSTestState> implements JSTestCon
 	private String fcoFileName(ContentObject co) {
 		String path = co.url();
 		if (co instanceof FileContentObject) {
-			path = path.replace("file://", "");
+			path = path.replace("file://", "").replace("file:", "");
 			if (path.startsWith(flasckPath.toString()))
 				path = path.replace(flasckPath.toString() + "/", "");
 			else if (path.startsWith(basePath.toString())) {

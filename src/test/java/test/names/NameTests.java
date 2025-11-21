@@ -2,6 +2,8 @@ package test.names;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -12,7 +14,8 @@ import org.flasck.jvm.J;
 import org.junit.Test;
 
 public class NameTests {
-	InputPosition pos = new InputPosition("", -1, 0, null, "");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	PackageName pkg = new PackageName("demo.ziniki");
 	SolidName account = new SolidName(pkg, "Account");
 	HandlerName hdlr = new HandlerName(pkg, "BaseHandler");

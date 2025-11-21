@@ -79,7 +79,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	private static final Logger logger = LoggerFactory.getLogger("Repository");
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
-	private final Map<String, ConcreteMetaData> webs = new TreeMap<>();
+	private final Map<URI, ConcreteMetaData> webs = new TreeMap<>();
 	private final Map<URI, List<String>> uriDefines = new TreeMap<>();
 	private final Map<String, List<String>> flimDefines = new TreeMap<>();
 	private List<String> currentDefines;
@@ -400,7 +400,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			pw.print(x.getKey() + " = ");
 			x.getValue().dumpTo(pw);
 		}
-		for (Entry<String, ConcreteMetaData> e : webs.entrySet()) {
+		for (Entry<URI, ConcreteMetaData> e : webs.entrySet()) {
 			pw.println("have webdata " + e.getKey() + ": " + e.getValue());
 		}
 		pw.flush();
@@ -577,29 +577,29 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.traverse(this, asm);
 	}
 
-
-	public void webData(String url, ConcreteMetaData md) {
-		webs.put(url, md);
-	}
-
 	public ConcreteMetaData ensureWebData(URI uri) {
-		ConcreteMetaData ret = webs.get(uri.toString());
+		ConcreteMetaData ret = webs.get(uri);
 		if (ret == null) {
 			ret = new ConcreteMetaData();
-			webs.put(uri.toString(), ret);
+			webs.put(uri, ret);
+		} else {
+			ret.clear();
 		}
 		return ret;
 	}
 
 	@Override
 	public CardData findWeb(String baseName) {
-		for (SplitMetaData web : webs.values()) {
+		for (Entry<URI, ConcreteMetaData> web : webs.entrySet()) {
 			try {
-				return web.forCard(baseName);
+				logger.info("looking for " + baseName + " in " + web.getKey());
+				return web.getValue().forCard(baseName);
 			} catch (NoMetaDataException ex) {
 				; // it wasn't there ...
+				logger.info("... not there");
 			}
 		}
+		logger.error("could not find " + baseName + " in " + webs.keySet());
 		return null;
 	}
 

@@ -2,6 +2,8 @@ package test.patterns;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -14,7 +16,8 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.junit.Test;
 
 public class SlotScoring {
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 

@@ -1,9 +1,14 @@
 package org.flasck.flas.blockForm;
 
+import java.io.File;
+import java.net.URI;
+
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Justification;
 
 public class InputPosition implements Comparable<InputPosition> {
+	private final URI uri;
 	public final String file;
 	public final int lineNo;
 	public final int off;
@@ -12,12 +17,20 @@ public class InputPosition implements Comparable<InputPosition> {
 	private int endPos = -1;
 	private boolean isFakeToken;
 
-	public InputPosition(String file, int lineNo, int off, Indent ind, String text) {
-		this.file = file;
+	public InputPosition(URI uri, int lineNo, int off, Indent ind, String text) {
+		this.uri = uri;
+		this.file = new File(uri.getPath()).getName();
 		this.lineNo = lineNo;
 		this.off = off;
 		this.indent = ind;
 		this.text = text;
+	}
+	
+	public URI getUri() {
+		if (uri == null) {
+			throw new CantHappenException("uri is null");
+		}
+		return uri;
 	}
 
 	public void endAt(int end) {
@@ -27,7 +40,7 @@ public class InputPosition implements Comparable<InputPosition> {
 	}
 
 	public InputPosition copySetEnd(int at) {
-		InputPosition ret = new InputPosition(file, lineNo, off, indent, text);
+		InputPosition ret = new InputPosition(uri, lineNo, off, indent, text);
 		ret.endAt(at);
 		ret.isFakeToken = isFakeToken;
 		return ret;
@@ -92,10 +105,10 @@ public class InputPosition implements Comparable<InputPosition> {
 	}
 
 	public InputPosition locAtEnd() {
-		return new InputPosition(file, lineNo, endPos, indent, text);
+		return new InputPosition(uri, lineNo, endPos, indent, text);
 	}
 
 	public InputPosition plus(int i) {
-		return new InputPosition(file, lineNo, off+i, indent, text);
+		return new InputPosition(uri, lineNo, off+i, indent, text);
 	}
 }

@@ -2,6 +2,7 @@ package test.parsing.ut;
 
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -50,7 +51,8 @@ public class UnitTestStepParsingTests {
 	private UnitTestDefinitionConsumer topLevel = context.mock(UnitTestDefinitionConsumer.class);
 	private UnitTestStepConsumer builder = context.mock(UnitTestStepConsumer.class);
 	private final PackageName pkg = new PackageName("test.pkg._ut_file");
-	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 
 	@Before
 	public void ignoreParserLogging() {
@@ -467,12 +469,11 @@ public class UnitTestStepParsingTests {
 		utp.scopeComplete(pos);
 	}
 	
-	
 	@Test
 	public void testErrorsTurnUpInTheRightPlace() {
 		final Tokenizable line = UnitTestTopLevelParsingTests.line("assert (f ['hello', world'])");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(new InputPosition("fred", 1, 25, null, ""), "unterminated string");
+			oneOf(errors).message(new InputPosition(fred, 1, 25, null, ""), "unterminated string");
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel, null);
 		TDAParsing nested = utp.tryParsing(line);

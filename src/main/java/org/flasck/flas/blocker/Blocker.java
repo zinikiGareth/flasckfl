@@ -1,10 +1,13 @@
 package org.flasck.flas.blocker;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
 import org.flasck.flas.errors.ErrorReporter;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.UtilException;
 
 public class Blocker {
@@ -12,28 +15,33 @@ public class Blocker {
 	private final BlockConsumer consumer;
 	private ContinuedLine currline;
 	private int currLevel = 0;
+	private URI currentUri;
 	
 	public Blocker(ErrorReporter errors, BlockConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
 	}
 
-	public void newFile() {
+	public void newFile(URI uri) {
+		if (uri == null) {
+			throw new CantHappenException("uri is null");
+		}
+		this.currentUri = uri;
 		consumer.newFile();
 	}
 	
-	public void present(String file, int lineNumber, String text) {
+	public void present(int lineNumber, String text) {
 		try {
-			consume(file, lineNumber, text);
+			consume(lineNumber, text);
 		} catch (BlockerException ex) {
-			errors.message(new InputPosition(file, lineNumber, getIndent(text).tabs, null, text), ex.getMessage());
+			errors.message(new InputPosition(currentUri, lineNumber, getIndent(text).tabs, null, text), ex.getMessage());
 		}
 	}
 
-	private void consume(String file, int lineNumber, String text) {
+	private void consume(int lineNumber, String text) {
 		Indent ind = getIndent(text);
 		text = text.trim();
-		InputPosition pos = new InputPosition(file, lineNumber, 0, ind, text);
+		InputPosition pos = new InputPosition(currentUri, lineNumber, 0, ind, text);
 		if (ind == null || (ind.tabs == 0 && ind.spaces == 0) || text.startsWith("//")) {
 			consumer.comment(pos, text);
 		} else if (ind.tabs == 0 && ind.spaces != 0) {
@@ -41,13 +49,13 @@ public class Blocker {
 			errors.message(pos, "line cannot start with spaces");
 		} else if (ind.tabs == currLevel  && ind.spaces > 0) {
 			// this is a continuation line
-			currline.lines.add(new SingleLine(file, lineNumber, ind, text));
+			currline.lines.add(new SingleLine(currentUri, lineNumber, ind, text));
 		} else if (ind.tabs <= currLevel+1 && ind.spaces == 0) {
 			// a new line either at some valid level of scoping (less, same, just one more)
 			if (currline != null)
 				consumer.line(currLevel, currline);
 			currline = new ContinuedLine();
-			currline.lines.add(new SingleLine(file, lineNumber, ind, text));
+			currline.lines.add(new SingleLine(currentUri, lineNumber, ind, text));
 			currLevel = ind.tabs;
 		} else if (ind.tabs > currLevel+1) {
 			errors.message(pos, "invalid indent");

@@ -1,5 +1,6 @@
 package test.tc3;
 
+import java.net.URI;
 import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -25,7 +26,8 @@ import org.junit.Test;
 
 public class ListBuilding {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private CurrentTCState state = context.mock(CurrentTCState.class);

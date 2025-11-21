@@ -1,5 +1,7 @@
 package test.tc3;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -24,7 +26,8 @@ public class StateCreation {
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final StackVisitor nv = new StackVisitor();
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
 	private FunctionName fn = FunctionName.function(pos, null, "f");
 

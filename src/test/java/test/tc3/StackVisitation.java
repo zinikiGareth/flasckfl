@@ -2,6 +2,7 @@ package test.tc3;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -69,7 +70,8 @@ import org.zinutils.support.jmock.CaptureAction;
 
 public class StackVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private static PackageName poly = new PackageName(true);
 	private final PackageName pkg = new PackageName("test.repo");
 	private ErrorReporter errors = context.mock(ErrorReporter.class);

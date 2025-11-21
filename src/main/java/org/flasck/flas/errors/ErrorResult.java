@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -121,15 +122,17 @@ public class ErrorResult extends FatErrorAPI implements ErrorReporter, Iterable<
 	}
 	
 	@Override
-	public void track(File f) {
-		System.out.println("    " + f.getName());
+	public void track(URI uri) {
+		String name = new File(uri.getPath()).getName();
+		System.out.println("    " + name);
 		if (tokenStream != null) {
 			tokenStream.close();
 			tokenStream = null;
 		}
 		try {
-			if (saveParsingTokens != null)
-				tokenStream = new PrintWriter(new File(saveParsingTokens, f.getName()));
+			if (saveParsingTokens != null) {
+				tokenStream = new PrintWriter(new File(saveParsingTokens, name));
+			}
 		} catch (FileNotFoundException ex) {
 			System.err.println("could not open " + saveParsingTokens);
 			tokenStream = null;

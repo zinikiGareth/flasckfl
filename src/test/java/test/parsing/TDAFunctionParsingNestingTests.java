@@ -2,6 +2,7 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -33,7 +34,8 @@ public class TDAFunctionParsingNestingTests {
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private TopLevelNamer functionNamer = new PackageNamer("test.pkg");
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private TDAParsing parser;
 
 	@Before

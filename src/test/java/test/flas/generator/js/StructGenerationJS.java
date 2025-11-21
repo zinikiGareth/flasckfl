@@ -1,5 +1,6 @@
 package test.flas.generator.js;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -33,7 +34,8 @@ import org.zinutils.bytecode.JavaInfo.Access;
 
 public class StructGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final JSStorage jss = context.mock(JSStorage.class);
 

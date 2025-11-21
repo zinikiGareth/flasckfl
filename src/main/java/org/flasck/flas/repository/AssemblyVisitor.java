@@ -16,7 +16,7 @@ public interface AssemblyVisitor {
 	void includePackageFile(ContentObject co);
 	void visitPackage(String pkg);
 	void uploadJar(ByteCodeEnvironment bce, String s);
-	void visitCardTemplate(String cardName, InputStream is, long length) throws IOException;
+	void visitCardTemplate(String cardName, InputStream is) throws IOException;
 	void visitCSS(String name, ZipInputStream zis, long length) throws IOException;
 	void visitResource(String name, ZipInputStream zis) throws IOException;
 	void traversalDone() throws Exception;

@@ -55,7 +55,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		try {
 			for (String cardName : w) {
 				CardData cd = w.forCard(cardName);
-				visitCardTemplate(cd.id(), new ByteArrayInputStream(cd.template().getBytes()), w.getLength(cd.id() + ".html"));
+				visitCardTemplate(cd.id(), new ByteArrayInputStream(cd.template().getBytes()));
 			}
 		} catch (Exception ex) {
 			logger.error("Error uploading", ex);
@@ -109,8 +109,8 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	}
 
 	@Override
-	public void visitCardTemplate(String name, InputStream zis, long length) throws IOException {
-		v.visitCardTemplate(name, zis, length);
+	public void visitCardTemplate(String name, InputStream zis) throws IOException {
+		v.visitCardTemplate(name, zis);
 	}
 
 	public void visitCSS(String name, ZipInputStream zis, long length) throws IOException {

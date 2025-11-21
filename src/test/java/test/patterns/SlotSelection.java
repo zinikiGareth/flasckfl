@@ -2,6 +2,7 @@ package test.patterns;
 
 import static org.junit.Assert.*;
 
+import java.net.URI;
 import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -17,7 +18,8 @@ import org.flasck.flas.repository.Traverser;
 import org.junit.Test;
 
 public class SlotSelection {
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 

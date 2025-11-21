@@ -2,6 +2,8 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Locatable;
@@ -35,7 +37,8 @@ public class TDAMethodGuardsTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errorsMock);
 	private GM builder = context.mock(GM.class);
 	private LastOneOnlyNestedParser nestedFunctionScope = context.mock(LastOneOnlyNestedParser.class);
-	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 10, 0, null, "hello");
 
 	@Before
 	public void setup() {
@@ -53,7 +56,7 @@ public class TDAMethodGuardsTests {
 	@Test
 	public void weDontNeedToUseGuards() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot")), null).location("fred", 1, 0, 2)));
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot")), null).location(fred, 1, 0, 2)));
 			oneOf(builder).done();
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
@@ -96,7 +99,7 @@ public class TDAMethodGuardsTests {
 	@Test
 	public void theFirstMessageCommitsUsToMessages() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot")), null).location("fred", 1, 0, 2)));
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot")), null).location(fred, 1, 0, 2)));
 		}});
 		TDAMethodGuardParser parser = new TDAMethodGuardParser(tracker, builder, nestedFunctionScope, null);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("<- data.fetchRoot"));

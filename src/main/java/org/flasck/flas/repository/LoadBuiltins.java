@@ -1,5 +1,6 @@
 package org.flasck.flas.repository;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ServiceLoader;
@@ -39,7 +40,7 @@ import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
-	public static final InputPosition pos = new InputPosition("BuiltIn", 1, 0, null, "<<builtin>>");
+	public static final InputPosition pos = new InputPosition(URI.create("builtin:/"), 1, 0, null, "<<builtin>>");
 	public static final PackageName builtinPkg = new PackageName(true);
 	
 	/* "Primitive" types */

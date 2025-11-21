@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
@@ -35,7 +37,9 @@ public class TDAContractIntroParsingTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
-	
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 10, 0, null, null);
+
 	@Before
 	public void ignoreParserLogging() {
 		context.checking(new Expectations() {{
@@ -93,7 +97,7 @@ public class TDAContractIntroParsingTests {
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract Data"));
 		nested.tryParsing(TestSupport.tokline("foo"));
-		nested.scopeComplete(new InputPosition("-", 10, 0, null, "hello"));
+		nested.scopeComplete(pos);
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(1, cd.methods.size());
 	}
@@ -109,7 +113,7 @@ public class TDAContractIntroParsingTests {
 		TDAParsing nested = parser.tryParsing(TestSupport.tokline("contract Data"));
 		nested.tryParsing(TestSupport.tokline("foo"));
 		nested.tryParsing(TestSupport.tokline("bar"));
-		nested.scopeComplete(new InputPosition("-", 10, 0, null, "hello"));
+		nested.scopeComplete(pos);
 		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(2, cd.methods.size());
 	}

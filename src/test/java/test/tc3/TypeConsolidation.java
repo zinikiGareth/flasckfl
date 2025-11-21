@@ -1,5 +1,6 @@
 package test.tc3;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -32,7 +33,8 @@ public class TypeConsolidation {
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final NestedVisitor nv = context.mock(NestedVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	FunctionName nameF = FunctionName.function(pos, null, "f");
 	FunctionDefinition f = new FunctionDefinition(nameF, 0, null);
 	FunctionIntro fi = new FunctionIntro(f.name(), new ArrayList<Pattern>());

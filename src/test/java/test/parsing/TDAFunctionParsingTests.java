@@ -4,6 +4,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -42,7 +44,8 @@ public class TDAFunctionParsingTests {
 	private FunctionCaseNameProvider caseNamer = context.mock(FunctionCaseNameProvider.class, "caseNamer");
 	private FunctionIntroConsumer intro = context.mock(FunctionIntroConsumer.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private PackageName pkg = new PackageName("test.pkg");
 
 	@Before

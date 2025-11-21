@@ -1,5 +1,6 @@
 package test.tc3;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -34,7 +35,8 @@ import org.junit.Test;
 // To do what they purport to do, you need to cut into the pattern analyzer and see the type constraints that come out using visitInTheTCWay ...
 public class PatternsProduceTypes {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);

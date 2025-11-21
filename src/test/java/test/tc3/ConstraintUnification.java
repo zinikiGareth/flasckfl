@@ -3,6 +3,7 @@ package test.tc3;
 import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -30,7 +31,8 @@ import org.junit.Test;
 public class ConstraintUnification {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private static PackageName poly = new PackageName(true);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private CurrentTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);

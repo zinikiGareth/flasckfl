@@ -1,5 +1,7 @@
 package org.flasck.flas.testsupport.matchers;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
@@ -324,8 +326,8 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 		};
 	}
 
-	public ExprMatcher location(String file, int line, int off, int end) {
-		pos = new InputPosition(file, line, off, null, "");
+	public ExprMatcher location(URI uri, int line, int off, int end) {
+		pos = new InputPosition(uri, line, off, null, "");
 		pos.endAt(end);
 		return this;
 	}

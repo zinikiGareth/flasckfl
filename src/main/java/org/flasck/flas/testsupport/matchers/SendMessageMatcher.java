@@ -1,5 +1,7 @@
 package org.flasck.flas.testsupport.matchers;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.hamcrest.Description;
@@ -49,8 +51,8 @@ public abstract class SendMessageMatcher extends TypeSafeMatcher<SendMessage> {
 		};
 	}
 
-	public SendMessageMatcher location(String file, int line, int off, int end) {
-		pos = new InputPosition(file, line, off, null, "");
+	public SendMessageMatcher location(URI uri, int line, int off, int end) {
+		pos = new InputPosition(uri, line, off, null, "");
 		pos.endAt(end);
 		return this;
 	}

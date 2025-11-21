@@ -3,7 +3,8 @@ package test.parsing;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.flasck.flas.blockForm.Indent;
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
@@ -35,6 +36,8 @@ public class TDAObjectIntroParsingTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 
 	@Before
 	public void ignoreParserLogging() {
@@ -65,7 +68,7 @@ public class TDAObjectIntroParsingTests {
 		assertTrue(TDAParsingWithAction.is(nested, TDAMultiParser.class));
 		nested.tryParsing(TestSupport.tokline("ctor obligatory"));
 		nested.tryParsing(TestSupport.tokline("f = 42"));
-		nested.scopeComplete(new InputPosition("fred", 3, 0, new Indent(0, 0), null));
+		nested.scopeComplete(pos);
 	}
 	
 	@Test

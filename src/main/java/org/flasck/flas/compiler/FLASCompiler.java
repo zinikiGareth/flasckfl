@@ -120,7 +120,7 @@ public class FLASCompiler implements CompileUnit {
 //			this.splitter = new org.ziniki.splitter.jsoup.Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
 			this.splitter = new LexerSplitter(file -> errors.processingFile(URI.create("file:/" + file)),
 					x -> errors.message(
-							new InputPosition(x.file, x.lineNo, x.linePosition, null, x.text).copySetEnd(x.endpos),
+							new InputPosition(x.uri, x.lineNo, x.linePosition, null, x.text).copySetEnd(x.endpos),
 							x.message),
 					x -> errors.logMessage(x));
 		} else
@@ -209,19 +209,19 @@ public class FLASCompiler implements CompileUnit {
 
 	public void splitWeb(HFSFolder cardsFolder) {
 		try {
-			ConcreteMetaData md = repository.ensureWebData(cardsFolder.getPath());
 
 			for (HFSFile f : cardsFolder.findFilesUnderMatching("*")) {
 				if (f.getName().endsWith(".html")) {
+					ConcreteMetaData md = repository.ensureWebData(f.getPath());
 					errors.beginSplitterPhase(f.getPath());
-					splitter.splitOneFile(md, f.getName(), f.getContents());
+					splitter.splitOneFile(md, f.getPath(), f.getContents());
 					errors.doneProcessing(brokenUris);
+					if (hfsRoot != null) {
+						hfsRoot.provideWebData(md);
+					}
 				}
 			}
 
-			if (hfsRoot != null) {
-				hfsRoot.provideWebData(md);
-			}
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + cardsFolder);
 		}
@@ -234,7 +234,7 @@ public class FLASCompiler implements CompileUnit {
 			ZipEntry ze;
 			while ((ze = zis.getNextEntry()) != null) {
 				if (ze.getName().endsWith(".html")) {
-					splitter.splitStream(md, zis, new File(ze.getName()).getName());
+					splitter.splitStream(md, zis, URI.create("file:/" + ze.getName()));
 				}
 			}
 		} catch (IOException ex) {
@@ -246,7 +246,11 @@ public class FLASCompiler implements CompileUnit {
 		try {
 			errors.beginSplitterPhase(uri);
 			ConcreteMetaData cmd = repository.ensureWebData(uri);
-			splitter.splitOneFile(cmd, new File(uri.getPath()).getName(), text);
+			splitter.splitOneFile(cmd, uri, text);
+			if (hfsRoot != null) {
+				hfsRoot.provideWebData(cmd);
+			}
+			tasks.readyWhenYouAre(uri, this);
 			errors.doneProcessing(brokenUris);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting text file");
@@ -261,21 +265,21 @@ public class FLASCompiler implements CompileUnit {
 		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer) repository, modules);
 		logger.info("parsing fl");
 		for (ContentObject f : sources.sources()) {
-			File fi = new File(f.key());
-			if (!validateFileName(fi))
+			URI uri = URI.create(f.url());
+			if (!validateFileName(uri))
 				continue;
-			errors.track(fi);
+			errors.track(uri);
 			flp.process(f);
 		}
 		logger.info("parsing ut");
 		for (ContentObject f : sources.unitTests()) {
-			File fi = new File(f.key());
-			if (!validateFileName(fi))
+			URI uri = URI.create(f.url());
+			if (!validateFileName(uri))
 				continue;
-			errors.track(fi);
-			String file = FileUtils.dropExtension(fi.getName());
+			errors.track(uri);
+			String file = FileUtils.dropExtension(new File(uri.getPath()).getName());
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
-			UnitTestPackage utp = new UnitTestPackage(new InputPosition(file, 1, 0, null, ""), utfn);
+			UnitTestPackage utp = new UnitTestPackage(new InputPosition(uri, 1, 0, null, ""), utfn);
 			repository.unitTestPackage(errors, utp);
 			ParsingPhase parser = new ParsingPhase(errors, utfn, new ConsumeDefinitions(errors, repository, utp));
 			parser.process(f);
@@ -283,19 +287,19 @@ public class FLASCompiler implements CompileUnit {
 		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
 		logger.info("parsing fa");
 		for (ContentObject f : sources.assemblies()) {
-			File fi = new File(f.key());
-			if (!validateFileName(fi))
+			URI uri = URI.create(f.url());
+			if (!validateFileName(uri))
 				continue;
-			errors.track(fi);
+			errors.track(uri);
 			fap.process(f);
 		}
 		logger.info("parsing st");
 		for (ContentObject f : sources.systemTests()) {
-			File fi = new File(f.key());
-			if (!validateFileName(fi))
+			URI uri = URI.create(f.url());
+			if (!validateFileName(uri))
 				continue;
-			errors.track(fi);
-			String file = FileUtils.dropExtension(fi.getName());
+			errors.track(uri);
+			String file = FileUtils.dropExtension(new File(uri.getPath()).getName());
 			PackageName stfn = new PackageName(new PackageName(inPkg), "_st_" + file);
 			SystemTest st = new SystemTest(stfn);
 			repository.systemTest(errors, st);
@@ -304,10 +308,10 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
-	private boolean validateFileName(File fi) {
-		String n = fi.getName();
+	private boolean validateFileName(URI uri) {
+		String n = new File(uri.getPath()).getName();
 		if (!assertValidName(n)) {
-			errors.message(new InputPosition(n, 0, 0, null, null), "illegal characters in file name");
+			errors.message(new InputPosition(uri, 0, 0, null, null), "illegal characters in file name");
 			return false;
 		} else
 			return true;

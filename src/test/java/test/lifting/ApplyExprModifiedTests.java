@@ -1,5 +1,6 @@
 package test.lifting;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,8 @@ import org.junit.Test;
 
 public class ApplyExprModifiedTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	InputPosition pos = new InputPosition("-", 1, 0, null, null);
+	private URI fred = URI.create("file:/fred");
+	InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	PackageName pkg = new PackageName("test.foo");
 	HSIVisitor hsi = context.mock(HSIVisitor.class);
 

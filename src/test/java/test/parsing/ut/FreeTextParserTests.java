@@ -2,6 +2,8 @@ package test.parsing.ut;
 
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.LocalErrorTracker;
@@ -26,7 +28,8 @@ public class FreeTextParserTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	@SuppressWarnings("unchecked")
 	private LocatableConsumer<FreeTextToken> handler = context.mock(LocatableConsumer.class);
-	private InputPosition pos = new InputPosition("fred", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private KeywordToken kw = new KeywordToken(pos, "match", 5);
 	private LocationTracker locTracker = context.mock(LocationTracker.class);
 

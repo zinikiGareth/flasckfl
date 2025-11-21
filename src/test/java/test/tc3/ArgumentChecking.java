@@ -1,5 +1,7 @@
 package test.tc3;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
@@ -18,7 +20,8 @@ public class ArgumentChecking {
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private UnifiableType ut = context.mock(UnifiableType.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private FunctionName fn = FunctionName.function(pos, null, "f");
 	private String fnCxt = "f";
 	private SlotChecker tc = new SlotChecker(nv, fn, state, ut);

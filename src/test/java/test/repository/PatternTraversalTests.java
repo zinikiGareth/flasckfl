@@ -1,5 +1,7 @@
 package test.repository;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -23,7 +25,8 @@ import org.junit.Test;
 
 public class PatternTraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
 	final NumericLiteral number = new NumericLiteral(pos, 42);

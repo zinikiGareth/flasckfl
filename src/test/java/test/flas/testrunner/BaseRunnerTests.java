@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.Main;
@@ -36,7 +37,8 @@ public abstract class BaseRunnerTests {
 //	private static final String HELLO_STRING = "hello, world";
 //	private static final String HELLO_CLICKED = "hello clicked";
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	InputPosition loc = new InputPosition("-", 1, 0, null, null);
+	private URI fred = URI.create("file:/fred");
+	InputPosition loc = new InputPosition(fred, 1, 0, null, null);
 	ErrorResult errors = new ErrorResult();
 	// TODO: defining bce here feels out of place and should be in the JVMRunnerTest
 	// But it is "part of" the CompileResult.  Why?

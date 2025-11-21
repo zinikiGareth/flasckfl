@@ -3,6 +3,8 @@ package test.parsing;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorReporter;
@@ -32,7 +34,8 @@ public class TDAUnionParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 
 	@Before
 	public void ignoreParserLogging() {
@@ -146,6 +149,6 @@ public class TDAUnionParsingTests {
 	@Test
 	public void unionFieldParserDoesNothingAtEnd() {
 		TDAUnionFieldParser parser = new TDAUnionFieldParser(errors, pos, null);
-		parser.scopeComplete(new InputPosition("-", 10, 0, null, "hello"));
+		parser.scopeComplete(pos);
 	}
 }

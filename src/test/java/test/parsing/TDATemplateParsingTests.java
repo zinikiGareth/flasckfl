@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -48,7 +50,8 @@ public class TDATemplateParsingTests {
 	private TDATemplateBindingParser parser;
 	private TemplateBindingConsumer consumer = context.mock(TemplateBindingConsumer.class);
 	private PackageName pkg = new PackageName("test.golden");
-	private InputPosition pos = new InputPosition("fred", 10, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private TemplateNamer namer = context.mock(TemplateNamer.class);
 
 	@Before

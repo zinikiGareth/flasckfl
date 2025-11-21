@@ -1,5 +1,6 @@
 package test.parsing;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -30,7 +31,8 @@ public class FunctionAssemblerTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private FunctionScopeUnitConsumer consumer = context.mock(FunctionScopeUnitConsumer.class);
 	private final PackageName pkg = new PackageName("test.pkg");
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	Pattern p = new VarPattern(pos, new VarName(pos, pkg, "x"));
 
 	@Before

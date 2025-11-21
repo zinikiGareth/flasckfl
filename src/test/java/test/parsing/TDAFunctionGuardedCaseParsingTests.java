@@ -1,5 +1,6 @@
 package test.parsing;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -26,7 +27,8 @@ public class TDAFunctionGuardedCaseParsingTests {
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
 	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
 	private FunctionGuardedEquationConsumer consumer = context.mock(FunctionGuardedEquationConsumer.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private TDAFunctionGuardedEquationParser parser;
 	private FunctionIntro intro = new FunctionIntro(FunctionName.function(pos, null, "f"), new ArrayList<>());
 

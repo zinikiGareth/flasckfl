@@ -1,5 +1,6 @@
 package org.flasck.flas.tc3;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.ShouldBeError;
 
 public class Apply implements Type, SignatureNeedsParensType {
-	public final static InputPosition unknown = new InputPosition("unknown", 1, 0, null, "unknown");
+	public final static InputPosition unknown = new InputPosition(URI.create("builtin:/apply"), 1, 0, null, "unknown");
 	public final List<Type> tys;
 	private boolean withHandler;
 

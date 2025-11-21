@@ -1,10 +1,10 @@
 package org.flasck.flas.compiler;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
+import java.net.URI;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
@@ -77,23 +77,23 @@ public class ParsingPhase implements ParserScanner {
 
 	@Override
 	public void process(ContentObject co) {
-		String name = new File(co.key()).getName();
+		URI uri = URI.create(co.url());
 		try (LineNumberReader lnr = new LineNumberReader(new StringReader(co.asString()))) {
 			String s;
 			try {
-				blocker.newFile();
+				blocker.newFile(uri);
 				while ((s = lnr.readLine()) != null) {
-					blocker.present(name, lnr.getLineNumber(), s);
+					blocker.present(lnr.getLineNumber(), s);
 				}
 				blocker.flush();
 			} catch (IOException ex) {
-				errors.message(new InputPosition(name, lnr.getLineNumber(), -1, null, null), ex.toString());
+				errors.message(new InputPosition(uri, lnr.getLineNumber(), -1, null, null), ex.toString());
 				return;
 			}
 		} catch (FileNotFoundException ex) {
-			errors.message(new InputPosition(name, -1, -1, null, null), "file does not exist");
+			errors.message(new InputPosition(uri, -1, -1, null, null), "file does not exist");
 		} catch (IOException ex) {
-			errors.message(new InputPosition(name, -1, -1, null, null), ex.toString());
+			errors.message(new InputPosition(uri, -1, -1, null, null), ex.toString());
 		} catch (Throwable t) {
 			errors.reportException(t);
 		}

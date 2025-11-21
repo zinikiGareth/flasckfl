@@ -31,7 +31,7 @@ public class AssemblyLeaves implements AssemblyVisitor {
 	}
 
 	@Override
-	public void visitCardTemplate(String cardName, InputStream is, long length) throws IOException {
+	public void visitCardTemplate(String cardName, InputStream is) throws IOException {
 	}
 
 	@Override

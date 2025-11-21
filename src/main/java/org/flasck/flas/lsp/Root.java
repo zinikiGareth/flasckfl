@@ -149,6 +149,7 @@ public class Root implements CardDataListener {
 		JsonObject send = new JsonObject();
 		send.addProperty("uri", uri.toString().replaceAll("/*$", ""));
 		send.add("cards", cards);
+		logger.info("sending card info to client: " + send);
 		client.sendCardInfo(send);
 	}
 
@@ -156,6 +157,6 @@ public class Root implements CardDataListener {
 		String path = uri.getPath();
 		path = path.replace(this.uri.getPath(), "");
 		File f = new File(path);
-		return new FileContentObject(uri.getPath(), f.getName(), root.getFileContents(f));
+		return new FileContentObject(uri, f.getName(), root.getFileContents(f));
 	}
 }

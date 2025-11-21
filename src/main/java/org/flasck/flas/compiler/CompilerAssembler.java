@@ -88,8 +88,8 @@ public class CompilerAssembler implements AssemblyVisitor {
 	}
 
 	@Override
-	public void visitCardTemplate(String cardName, InputStream is, long length) throws IOException {
-		String s = FileUtils.readNStream(length, is);
+	public void visitCardTemplate(String cardName, InputStream is) throws IOException {
+		String s = new String(FileUtils.readAllStream(is), "UTF-8");
 		ContentObject co = new ContentObject() {
 			@Override
 			public String key() {

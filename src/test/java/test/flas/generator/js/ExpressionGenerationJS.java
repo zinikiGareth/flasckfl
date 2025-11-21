@@ -1,5 +1,6 @@
 package test.flas.generator.js;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +63,8 @@ public class ExpressionGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private JSMethodCreator meth = context.mock(JSMethodCreator.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private JSFunctionState state = context.mock(JSFunctionState.class);
 	private JSExpr res = context.mock(JSExpr.class, "result");

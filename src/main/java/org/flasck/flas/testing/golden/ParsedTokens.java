@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.testing.golden.ParsedTokens.GrammarStep;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.utils.FileUtils;
 
 public class ParsedTokens implements Iterable<GrammarStep> {
 
@@ -142,6 +144,7 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 	}
 
 	public static ParsedTokens read(File tokens) {
+		URI uri = FileUtils.uriFor(tokens);
 		Set<ReductionRule> starting = new TreeSet<ReductionRule>(
 			new Comparator<ReductionRule>() {
 				public int compare(ReductionRule o1, ReductionRule o2) {
@@ -151,7 +154,6 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 				}
 			}
 		);
-		String inFile = tokens.getName();
 		ParsedTokens ret = new ParsedTokens();
 		
 		// One of the problems is that tokens are logged multiple times.
@@ -164,10 +166,10 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 			GrammarStep pendingRule = null;
 			while ((s = lnr.readLine()) != null) {
 				if (pos == null)
-					pos = readPos(inFile, s);
+					pos = readPos(uri, s);
 				else if (pendingRule != null) {
 					// ignore this
-					readPos(inFile, s);
+					readPos(uri, s);
 					pos = null;
 					pendingRule = null;
 				} else {
@@ -194,9 +196,9 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 			ReductionRule pendingRule = null;
 			while ((s = lnr.readLine()) != null) {
 				if (pos == null)
-					pos = readPos(inFile, s);
+					pos = readPos(uri, s);
 				else if (pendingRule != null) {
-					InputPosition endPos = readPos(inFile, s);
+					InputPosition endPos = readPos(uri, s);
 					pendingRule.range(pos, endPos);
 					starting.add(pendingRule);
 					ret.readingOrder.add(pendingRule);
@@ -235,7 +237,7 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		return ret;
 	}
 
-	private static InputPosition readPos(String file, String s) {
+	private static InputPosition readPos(URI uri, String s) {
 		int idx1 = s.indexOf(":");
 		int idx2 = s.indexOf(".", idx1);
 		int idx3 = s.indexOf(":", idx2);
@@ -243,7 +245,7 @@ public class ParsedTokens implements Iterable<GrammarStep> {
 		int tabs = Integer.parseInt(s.substring(idx1+1, idx2));
 		int spaces = Integer.parseInt(s.substring(idx2+1, idx3));
 		int offset = Integer.parseInt(s.substring(idx3+1));
-		return new InputPosition(file, line, offset, new Indent(tabs, spaces), s);
+		return new InputPosition(uri, line, offset, new Indent(tabs, spaces), s);
 	}
 
 	private static GrammarStep readToken(InputPosition pos, String s) {

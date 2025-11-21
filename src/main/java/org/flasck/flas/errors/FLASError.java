@@ -1,5 +1,6 @@
 package org.flasck.flas.errors;
 
+import java.net.URI;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -13,6 +14,10 @@ public class FLASError implements Comparable<FLASError> {
 	public FLASError(InputPosition loc, String msg) {
 		this.loc = loc;
 		this.msg = msg;
+	}
+
+	public URI getUri() {
+		return loc.getUri();
 	}
 	
 	public void otherLoc(InputPosition pos) {

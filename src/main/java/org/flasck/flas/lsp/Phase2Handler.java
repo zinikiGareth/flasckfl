@@ -1,6 +1,8 @@
 package org.flasck.flas.lsp;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.lsp4j.Diagnostic;
@@ -14,23 +16,17 @@ import org.zinutils.collections.ListMap;
 public class Phase2Handler extends DiagnosticHandler implements LSPErrorHandler {
 	private static final Logger logger = LoggerFactory.getLogger("FLASLSP");
 	private final LanguageClient client;
-	private final URI workspaceUri;
 	private final ListMap<URI, Diagnostic> diagnostics = new ListMap<>();
 
-	public Phase2Handler(LanguageClient client, URI workspace) {
+	public Phase2Handler(LanguageClient client) {
 		this.client = client;
-		this.workspaceUri = workspace;
 	}
 
 	@Override
 	public void handle(FLASError e) {
 		logger.info("handling phase 2 error " + e);
-        Diagnostic diagnostic = makeDiagnostic(workspaceUri, e);
-        URI uri = workspaceUri;
-        if (e.loc != null && e.loc.file != null) {
-        	uri = workspaceUri.resolve(e.loc.file); 
-        }
-        diagnostics.add(uri, diagnostic);
+        Diagnostic diagnostic = makeDiagnostic(e.getUri(), e);
+        diagnostics.add(e.getUri(), diagnostic);
 	}
 
 	@Override
@@ -42,6 +38,16 @@ public class Phase2Handler extends DiagnosticHandler implements LSPErrorHandler 
 				broken.add(uri);
 				synchronized (client) {
 					client.publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), report));
+				}
+			}
+		}
+		Iterator<URI> it = broken.iterator();
+		while (it.hasNext()) {
+			URI uri = it.next();
+			if (!diagnostics.contains(uri)) {
+				it.remove();
+				synchronized (client) {
+					client.publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), new ArrayList<>()));
 				}
 			}
 		}

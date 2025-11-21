@@ -1,5 +1,6 @@
 package test.tc3;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -39,7 +40,8 @@ import org.junit.Test;
 public class ExpressionVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
 	private String fnCxt = "f";

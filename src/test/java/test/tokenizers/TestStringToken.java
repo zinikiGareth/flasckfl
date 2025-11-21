@@ -3,6 +3,8 @@ package test.tokenizers;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.tokenizers.StringToken;
@@ -15,7 +17,8 @@ import org.junit.Test;
 public class TestStringToken {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	ErrorReporter errors = context.mock(ErrorReporter.class);
-	
+	private URI fred = URI.create("file:/fred");
+
 	@Test
 	public void testSimpleString() {
 		String tok = StringToken.from(errors, new Tokenizable("'hello, world'"));
@@ -73,7 +76,7 @@ public class TestStringToken {
 	@Test
 	public void testNoEndQuote() {
 		context.checking(new Expectations() {{
-			oneOf(errors).message(new InputPosition("test", 1, 0, null, ""), "unterminated string");
+			oneOf(errors).message(new InputPosition(fred, 1, 0, null, ""), "unterminated string");
 		}});
 		String tok = StringToken.from(errors, new Tokenizable("'no end quote"));
 		assertNull(tok);

@@ -1,5 +1,7 @@
 package org.flasck.flas.tokenizers;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
@@ -33,7 +35,7 @@ public class Tokenizable {
 		this.input = new StringBuilder(input);
 		this.pos = 0;
 		this.line = new ContinuedLine();
-		this.line.lines.add(new SingleLine("test", 1, new Indent(1, 0), input));
+		this.line.lines.add(new SingleLine(URI.create("file:/fred"), 1, new Indent(1, 0), input));
 	}
 
 	public int at() {

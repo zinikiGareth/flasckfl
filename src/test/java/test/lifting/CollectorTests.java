@@ -1,5 +1,6 @@
 package test.lifting;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -24,7 +25,8 @@ import org.junit.Test;
 
 public class CollectorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	InputPosition pos = new InputPosition("-", 1, 0, null, null);
+	private URI fred = URI.create("file:/fred");
+	InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	PackageName pkg = new PackageName("test.foo");
 	private VarDependencyMapper dependencies = context.mock(VarDependencyMapper.class);
 

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
 import java.util.Arrays;
 
 import org.flasck.flas.Main;
@@ -45,7 +46,8 @@ public class TypeResolution {
 	private final Repository repository = new Repository();
 	private final FunctionGroup grp = context.mock(FunctionGroup.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
-	private final InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final FunctionName nameF = FunctionName.function(pos, pkg, "f");
 	private final FunctionDefinition fnF = new FunctionDefinition(nameF, 1, null);

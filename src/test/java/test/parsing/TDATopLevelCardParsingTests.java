@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -53,7 +54,8 @@ public class TDATopLevelCardParsingTests {
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
 	private TDAParsing cardParser;
 	private CardDefinition card;
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 
 	@Before
 	public void setup() {

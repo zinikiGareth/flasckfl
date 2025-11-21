@@ -1,5 +1,7 @@
 package org.flasck.flas.testsupport.matchers;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
@@ -77,7 +79,7 @@ public abstract class AssignMessageMatcher extends TypeSafeMatcher<AssignMessage
 		return new Builder(vars);
 	}
 
-	public AssignMessageMatcher location(String file, int line, int off, int end) {
+	public AssignMessageMatcher location(URI file, int line, int off, int end) {
 		pos = new InputPosition(file, line, off, null, "");
 		pos.endAt(end);
 		return this;

@@ -3,6 +3,8 @@ package test.parsing;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.commonBase.Locatable;
@@ -53,7 +55,8 @@ public class TDAObjectElementParsingTests {
 	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
 	final SolidName objName = new SolidName(pkg, "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(objName);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private LocationTracker locTracker = null;
 
 	@Before

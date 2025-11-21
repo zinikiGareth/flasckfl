@@ -1,5 +1,7 @@
 package org.flasck.flas.testsupport.matchers;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.hamcrest.Description;
@@ -39,8 +41,8 @@ public abstract class GuardedMessagesMatcher extends TypeSafeMatcher<GuardedMess
 		};
 	}
 
-	public GuardedMessagesMatcher location(String file, int line, int off, int end) {
-		pos = new InputPosition(file, line, off, null, "");
+	public GuardedMessagesMatcher location(URI uri, int line, int off, int end) {
+		pos = new InputPosition(uri, line, off, null, "");
 		pos.endAt(end);
 		return this;
 	}

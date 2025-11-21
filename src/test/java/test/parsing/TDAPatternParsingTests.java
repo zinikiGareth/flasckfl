@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.net.URI;
 import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -37,7 +38,8 @@ import org.zinutils.support.jmock.ReturnInvoker;
 
 public class TDAPatternParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private InputPosition pos = new InputPosition("-", 1, 0, null, "hello");
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
 	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
 	@SuppressWarnings("unchecked")

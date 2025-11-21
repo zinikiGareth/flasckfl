@@ -3,6 +3,8 @@ package test.methods;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.MemberExpr;
@@ -23,7 +25,8 @@ import org.junit.Test;
 public class MessageConversion {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, null, null);
+	private URI fred = URI.create("file:/fred");
+	private InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 //	private final PackageName pkg = new PackageName("test.repo");
 	
 	@Test

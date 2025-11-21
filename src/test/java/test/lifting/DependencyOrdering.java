@@ -1,5 +1,6 @@
 package test.lifting;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeSet;
@@ -28,7 +29,8 @@ import org.junit.Test;
 
 public class DependencyOrdering {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	InputPosition pos = new InputPosition("-", 1, 0, null, null);
+	private URI fred = URI.create("file:/fred");
+	InputPosition pos = new InputPosition(fred, 1, 0, null, null);
 	PackageName pkg = new PackageName("test.foo");
 	RepositoryLifter lifter = new RepositoryLifter();
 

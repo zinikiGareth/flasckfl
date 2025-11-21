@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Reader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -94,33 +95,35 @@ public class FlimReader {
 
 	private FlimTop importFlim(File f, String name) {
 		String fn = f.getName();
+		URI uri = URI.create(fn);
 		try {
 			FileReader r = new FileReader(f);
 			return importFlim(r, name, fn);
 		} catch (FileNotFoundException ex) {
-			errors.message(new InputPosition(fn, -1, -1, null, null), "file does not exist");
+			errors.message(new InputPosition(uri, -1, -1, null, null), "file does not exist");
 			return null;
 		}
 	}
 
 	private FlimTop importFlim(Reader r, String name, String fn) {
+		URI uri = URI.create(fn);
 		FlimTop ret = new FlimTop(errors, repository, name);
 		Blocker blocker = new Blocker(errors, new TDANester(errors, ret));
 		try (LineNumberReader lnr = new LineNumberReader(r)) {
 			String s;
 			try {
-				blocker.newFile();
+				blocker.newFile(uri);
 				while ((s = lnr.readLine()) != null)
-					blocker.present(fn, lnr.getLineNumber(), s);
+					blocker.present(lnr.getLineNumber(), s);
 				blocker.flush();
 				return ret;
 			} catch (IOException ex) {
-				errors.message(new InputPosition(fn, lnr.getLineNumber(), -1, null, null), ex.toString());
+				errors.message(new InputPosition(uri, lnr.getLineNumber(), -1, null, null), ex.toString());
 			}
 		} catch (FileNotFoundException ex) {
-			errors.message(new InputPosition(fn, -1, -1, null, null), "file does not exist");
+			errors.message(new InputPosition(uri, -1, -1, null, null), "file does not exist");
 		} catch (IOException ex) {
-			errors.message(new InputPosition(fn, -1, -1, null, null), ex.toString());
+			errors.message(new InputPosition(uri, -1, -1, null, null), ex.toString());
 		} catch (Throwable t) {
 			errors.reportException(t);
 		}

@@ -43,7 +43,7 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 	@Override
 	public void beginPhase2(URI uri) {
 		logger.info("beginning phase2 processing for " + uri);
-		handler = new Phase2Handler(client, uri.resolve("."));
+		handler = new Phase2Handler(client);
 	}
 
 	@Override
@@ -58,6 +58,7 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 
 	public void doneProcessing(List<URI> broken) {
 		handler.done(broken);
+		logger.info("have broken uris " + broken);
 		handler = null;
 	}
 
@@ -96,8 +97,8 @@ public class LSPErrorForwarder extends FatErrorAPI implements ErrorReporter {
 	}
 
 	@Override
-	public void track(File f) {
-		System.out.println("    " + f.getName());
+	public void track(URI uri) {
+		System.out.println("    " + new File(uri.getPath()).getName());
 	}
 
 	@Override
