@@ -69,6 +69,7 @@ import org.flasck.flas.tc3.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
+import org.ziniki.splitter.ConcreteMetaData;
 import org.ziniki.splitter.NoMetaDataException;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -78,7 +79,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	private static final Logger logger = LoggerFactory.getLogger("Repository");
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
-	private final Map<String, SplitMetaData> webs = new TreeMap<>();
+	private final Map<String, ConcreteMetaData> webs = new TreeMap<>();
 	private final Map<URI, List<String>> uriDefines = new TreeMap<>();
 	private final Map<String, List<String>> flimDefines = new TreeMap<>();
 	private List<String> currentDefines;
@@ -388,10 +389,6 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		dict.put(hl.name().uniqueName(), hl);
 	}
 
-	public void webData(String url, SplitMetaData md) {
-		webs.put(url, md);
-	}
-
 	public void dumpTo(File dumpRepo) throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(dumpRepo);
 		dumpTo(pw);
@@ -403,7 +400,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			pw.print(x.getKey() + " = ");
 			x.getValue().dumpTo(pw);
 		}
-		for (Entry<String, SplitMetaData> e : webs.entrySet()) {
+		for (Entry<String, ConcreteMetaData> e : webs.entrySet()) {
 			pw.println("have webdata " + e.getKey() + ": " + e.getValue());
 		}
 		pw.flush();
@@ -580,6 +577,20 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.traverse(this, asm);
 	}
 
+
+	public void webData(String url, ConcreteMetaData md) {
+		webs.put(url, md);
+	}
+
+	public ConcreteMetaData ensureWebData(URI uri) {
+		ConcreteMetaData ret = webs.get(uri.toString());
+		if (ret == null) {
+			ret = new ConcreteMetaData();
+			webs.put(uri.toString(), ret);
+		}
+		return ret;
+	}
+
 	@Override
 	public CardData findWeb(String baseName) {
 		for (SplitMetaData web : webs.values()) {
@@ -592,8 +603,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		return null;
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public Iterable<SplitMetaData> allWebs() {
-		return webs.values();
+		return (Iterable)webs.values();
 	}
 
 	public void clean() {

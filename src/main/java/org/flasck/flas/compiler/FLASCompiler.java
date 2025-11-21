@@ -209,7 +209,7 @@ public class FLASCompiler implements CompileUnit {
 
 	public void splitWeb(HFSFolder cardsFolder) {
 		try {
-			ConcreteMetaData md = new ConcreteMetaData();
+			ConcreteMetaData md = repository.ensureWebData(cardsFolder.getPath());
 
 			for (HFSFile f : cardsFolder.findFilesUnderMatching("*")) {
 				if (f.getName().endsWith(".html")) {
@@ -222,7 +222,6 @@ public class FLASCompiler implements CompileUnit {
 			if (hfsRoot != null) {
 				hfsRoot.provideWebData(md);
 			}
-			repository.webData(cardsFolder.getPath().toString(), md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + cardsFolder);
 		}
@@ -230,7 +229,7 @@ public class FLASCompiler implements CompileUnit {
 
 	public void splitWeb(ContentObject co) {
 		try {
-			ConcreteMetaData md = new ConcreteMetaData();
+			ConcreteMetaData md = repository.ensureWebData(URI.create(co.url()));
 			ZipInputStream zis = new ZipInputStream(co.asStream());
 			ZipEntry ze;
 			while ((ze = zis.getNextEntry()) != null) {
@@ -238,7 +237,6 @@ public class FLASCompiler implements CompileUnit {
 					splitter.splitStream(md, zis, new File(ze.getName()).getName());
 				}
 			}
-			repository.webData(co.url(), md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + co.key());
 		}
@@ -247,7 +245,7 @@ public class FLASCompiler implements CompileUnit {
 	public void splitWebFile(URI uri, String text) {
 		try {
 			errors.beginSplitterPhase(uri);
-			ConcreteMetaData cmd = new ConcreteMetaData();
+			ConcreteMetaData cmd = repository.ensureWebData(uri);
 			splitter.splitOneFile(cmd, new File(uri.getPath()).getName(), text);
 			errors.doneProcessing(brokenUris);
 		} catch (IOException ex) {
