@@ -10,5 +10,5 @@ public interface CompileUnit {
 	public void taskQueue(TaskQueue taskQ);
 	public void lspLoadFLIM(URI uri);
 	public void splitWeb(HFSFolder cardsFolder);
-	public void splitWebFile(String name, String text);
+	public void splitWebFile(URI name, String text);
 }

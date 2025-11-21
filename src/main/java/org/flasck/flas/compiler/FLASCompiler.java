@@ -230,11 +230,11 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
-	public void splitWebFile(String name, String text) {
+	public void splitWebFile(URI uri, String text) {
 		try {
-			errors.beginSplitterPhase(URI.create("file:/fred/bert/ui/" + name));
+			errors.beginSplitterPhase(uri);
 			ConcreteMetaData cmd = new ConcreteMetaData();
-			splitter.splitOneFile(cmd, name, text);
+			splitter.splitOneFile(cmd, new File(uri.getPath()).getName(), text);
 			errors.doneProcessing(brokenUris);
 //			((ConcreteMetaData) md).stream(tmp);
 //			repository.webData(md);

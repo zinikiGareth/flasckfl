@@ -1,6 +1,5 @@
 package org.flasck.flas.lsp;
 
-import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ public class SplitWebTask implements Runnable {
 	@Override
 	public void run() {
 		if (uri != null) {
-			compiler.splitWebFile(new File(uri.getPath()).getName(), text);
+			compiler.splitWebFile(uri, text);
 		} else {
 			errors.beginPhase2(uifolder.getPath());
 			compiler.splitWeb(uifolder);
