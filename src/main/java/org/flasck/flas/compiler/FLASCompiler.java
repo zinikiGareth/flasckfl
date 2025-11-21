@@ -222,7 +222,7 @@ public class FLASCompiler implements CompileUnit {
 			if (hfsRoot != null) {
 				hfsRoot.provideWebData(md);
 			}
-			repository.webData(md);
+			repository.webData(cardsFolder.getPath().toString(), md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + cardsFolder);
 		}
@@ -238,7 +238,7 @@ public class FLASCompiler implements CompileUnit {
 					splitter.splitStream(md, zis, new File(ze.getName()).getName());
 				}
 			}
-			repository.webData(md);
+			repository.webData(co.url(), md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + co.key());
 		}

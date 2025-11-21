@@ -37,6 +37,7 @@ public class Root implements CardDataListener {
 	private final TreeSet<HFSFolder> flasfolders = new TreeSet<>(new FLASFileNameComparator());
 	private HFSFolder uifolder = null;
 	private CompileUnit compiler;
+	private Repository repository;
 
 	public Root(FLASLanguageClient client, ErrorReporter errors, TaskQueue taskQ, HierarchicalFileSystem hfs, URI uri) {
 		this.client = client;
@@ -46,6 +47,7 @@ public class Root implements CardDataListener {
 		this.root = hfs.root(uri);
 	}
 	
+	// This is only called for tests ...
 	public void useCompiler(CompileUnit c) {
 		this.compiler = c;
 	}
@@ -57,10 +59,7 @@ public class Root implements CardDataListener {
 	public void configure(HierarchicalFileSystem hfs) {
 		logger.info("configuring " + root.getPath() + " with hfs " + hfs.getClass());
 		Configuration config = new Configuration(errors, new String[] {});
-//		config.projectDir = this.root;
-//		config.includeFrom.add(new File(flasHome, "flim"));
-//		config.includeFrom.add(new File(flasHome, "userflim"));
-		Repository repository = new Repository();
+		repository = new Repository();
 		compiler = new FLASCompiler(config, errors, repository, this);
 		compiler.taskQueue(taskQ);
 		taskQ.loadFLIM(uri, compiler);

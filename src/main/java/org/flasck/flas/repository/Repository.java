@@ -78,7 +78,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	private static final Logger logger = LoggerFactory.getLogger("Repository");
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
-	private final List<SplitMetaData> webs = new ArrayList<>();
+	private final Map<String, SplitMetaData> webs = new TreeMap<>();
 	private final Map<URI, List<String>> uriDefines = new TreeMap<>();
 	private final Map<String, List<String>> flimDefines = new TreeMap<>();
 	private List<String> currentDefines;
@@ -388,8 +388,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		dict.put(hl.name().uniqueName(), hl);
 	}
 
-	public void webData(SplitMetaData md) {
-		webs.add(md);
+	public void webData(String url, SplitMetaData md) {
+		webs.put(url, md);
 	}
 
 	public void dumpTo(File dumpRepo) throws FileNotFoundException {
@@ -403,8 +403,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			pw.print(x.getKey() + " = ");
 			x.getValue().dumpTo(pw);
 		}
-		for (SplitMetaData smd : webs) {
-			pw.println("have webdata " + smd);
+		for (Entry<String, SplitMetaData> e : webs.entrySet()) {
+			pw.println("have webdata " + e.getKey() + ": " + e.getValue());
 		}
 		pw.flush();
 	}
@@ -582,7 +582,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public CardData findWeb(String baseName) {
-		for (SplitMetaData web : webs) {
+		for (SplitMetaData web : webs.values()) {
 			try {
 				return web.forCard(baseName);
 			} catch (NoMetaDataException ex) {
@@ -593,7 +593,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	public Iterable<SplitMetaData> allWebs() {
-		return webs;
+		return webs.values();
 	}
 
 	public void clean() {
