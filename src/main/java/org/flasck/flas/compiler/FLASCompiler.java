@@ -216,7 +216,9 @@ public class FLASCompiler implements CompileUnit {
 
 			for (HFSFile f : cardsFolder.findFilesUnderMatching("*")) {
 				if (f.getName().endsWith(".html")) {
+					errors.beginSplitterPhase(f.getPath());
 					splitter.splitOneFile(md, f.getName(), f.getContents());
+					errors.doneProcessing(brokenUris);
 				} else {
 					zos.putNextEntry(new ZipEntry(f.getName()));
 					f.copyToStream(zos);
@@ -349,8 +351,8 @@ public class FLASCompiler implements CompileUnit {
 		errors.beginPhase1(uri);
 		parseOne(uri, text);
 		repository.done();
-		errors.doneProcessing(brokenUris);
 		tasks.readyWhenYouAre(uri, this);
+		errors.doneProcessing(brokenUris);
 	}
 
 	private void parseOne(URI uri, String text) {

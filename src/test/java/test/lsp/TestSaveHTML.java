@@ -46,12 +46,12 @@ public class TestSaveHTML {
 		server.provide(client);
 
 		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
-		PublishDiagnosticsParams pdp1 = new PublishDiagnosticsParams("file:/fred/bert/ui/", new ArrayList<>());
+		PublishDiagnosticsParams pdpih = new PublishDiagnosticsParams("file:/fred/bert/ui/index.html", new ArrayList<>());
 		context.checking(new Expectations() {{
 			allowing(client).logMessage(with(any(MessageParams.class)));
 			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert")));
-			oneOf(client).publishDiagnostics(pdp); 
-			oneOf(client).publishDiagnostics(pdp1); then(finished.is("initialized"));
+			oneOf(client).publishDiagnostics(pdp);
+			oneOf(client).publishDiagnostics(pdpih);then(finished.is("initialized"));
 		}});
 		
 		InitializeParams params = new InitializeParams();
@@ -64,10 +64,10 @@ public class TestSaveHTML {
 
 		synchronizer.waitUntil(finished.is("initialized"), 1000);
 
-		PublishDiagnosticsParams pdpih = new PublishDiagnosticsParams("file:/fred/bert/ui/index.html", new ArrayList<>());
+		PublishDiagnosticsParams pdpih2 = new PublishDiagnosticsParams("file:///fred/bert/ui/index.html", new ArrayList<>());
 		context.checking(new Expectations() {{
 //			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert")));
-			oneOf(client).publishDiagnostics(pdpih);then(finished.is("done"));
+			oneOf(client).publishDiagnostics(pdpih2);then(finished.is("done"));
 //			oneOf(client).publishDiagnostics(pdp1); 
 		}});
 		
