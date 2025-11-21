@@ -1,7 +1,6 @@
 package org.flasck.flas.lsp;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.lsp4j.Diagnostic;
@@ -45,11 +44,6 @@ public class Phase2Handler extends DiagnosticHandler implements LSPErrorHandler 
 					client.publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), report));
 				}
 			}
-		}
-		synchronized (client) {
-			List<Diagnostic> projDiag = new ArrayList<>();
-			logger.info("done processing " + workspaceUri + ": sending " + projDiag.size() + " diagnostics");
-			client.publishDiagnostics(new PublishDiagnosticsParams(workspaceUri.toString(), projDiag));
 		}
 	}
 

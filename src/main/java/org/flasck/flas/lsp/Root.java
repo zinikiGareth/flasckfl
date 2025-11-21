@@ -117,7 +117,7 @@ public class Root implements CardDataListener {
 	
 	public void compileAll() {
 		if (uifolder != null) {
-			taskQ.submit(new SplitWebTask(errors, compiler, uifolder));
+			taskQ.submit(new SplitWebTask(compiler, uifolder));
 		}
 		for (HFSFile f : flasfiles) {
 			taskQ.submit(new CompileTask(errors, compiler, uri.resolve(f.getPath()), null));
@@ -128,7 +128,7 @@ public class Root implements CardDataListener {
 		String ext = FileUtils.extension((uri.getPath()));
 		if (ext.equals(".html")) {
 			logger.info("Submitting file for splitting for " + uri);
-			taskQ.submit(new SplitWebTask(errors, compiler, uifolder, uri, text));
+			taskQ.submit(new SplitWebTask(compiler, uifolder, uri, text));
 		}
 		if (FLASFileNameComparator.isValidExtension(ext)) {
 			logger.info("Submitting file for compilation for " + uri);

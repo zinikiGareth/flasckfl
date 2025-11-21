@@ -87,6 +87,7 @@ import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.NoSuchDirectoryException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
+import org.zinutils.hfs.HFSFile;
 import org.zinutils.hfs.HFSFolder;
 import org.zinutils.utils.FileUtils;
 
@@ -207,11 +208,27 @@ public class FLASCompiler implements CompileUnit {
 
 	public void splitWeb(HFSFolder cardsFolder) {
 		try {
-			SplitMetaData md = splitter.split(cardsFolder);
+			File tmp = File.createTempFile("webdata", ".zip");
+			FileOutputStream baos = new FileOutputStream(tmp);
+			ZipOutputStream zos = new ZipOutputStream(baos);
+
+			ConcreteMetaData md = new ConcreteMetaData();
+
+			for (HFSFile f : cardsFolder.findFilesUnderMatching("*")) {
+				if (f.getName().endsWith(".html")) {
+					splitter.splitOneFile(md, f.getName(), f.getContents());
+				} else {
+					zos.putNextEntry(new ZipEntry(f.getName()));
+					f.copyToStream(zos);
+				}
+				zos.closeEntry();
+			}
+
 			if (hfsRoot != null) {
 				hfsRoot.provideWebData(md);
 			}
 			repository.webData(md);
+			md.stream(tmp);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + cardsFolder);
 		}
@@ -222,7 +239,19 @@ public class FLASCompiler implements CompileUnit {
 			// TODO: We should probably allow users to specify this file
 			File tmp = File.createTempFile("webdata", ".zip");
 			FileOutputStream baos = new FileOutputStream(tmp);
-			SplitMetaData md = splitter.split(baos, co.asStream());
+			ConcreteMetaData md = new ConcreteMetaData();
+			ZipOutputStream zos = new ZipOutputStream(baos);
+			ZipInputStream zis = new ZipInputStream(co.asStream());
+			ZipEntry ze;
+			while ((ze = zis.getNextEntry()) != null) {
+				if (ze.getName().endsWith(".html")) {
+					splitter.splitStream(md, zos, zis, new File(ze.getName()).getName());
+				} else {
+					zos.putNextEntry(new ZipEntry(ze.getName()));
+					FileUtils.copyStreamWithoutClosingEither(zis, zos);
+				}
+			}
+			zos.close();
 			((ConcreteMetaData) md).stream(tmp);
 			repository.webData(md);
 		} catch (IOException ex) {
