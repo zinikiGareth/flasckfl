@@ -12,7 +12,6 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -76,6 +75,7 @@ import org.flasck.jvm.ziniki.MemoryContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.ConcreteMetaData;
 import org.ziniki.splitter.SplitMetaData;
 import org.ziniki.splitter.Splitter;
@@ -101,7 +101,8 @@ public class FLASCompiler implements CompileUnit {
 	private final ServiceLoader<CompilerComplete> completeModules;
 	private final List<URI> brokenUris = new ArrayList<>();
 	private TaskQueue tasks;
-	// TODO: it feels to me that these should be in the REPO, not on the compiler itself
+	// TODO: it feels to me that these should be in the REPO, not on the compiler
+	// itself
 	private DirectedAcyclicGraph<String> pkgs;
 	private JSEnvironment jse;
 	private Map<EventHolder, EventTargetZones> eventMap;
@@ -117,22 +118,22 @@ public class FLASCompiler implements CompileUnit {
 		this.repository = repository;
 		if (this.config.usesplitter) {
 //			this.splitter = new org.ziniki.splitter.jsoup.Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, null, x.text), x.message));
-			this.splitter = new LexerSplitter(
-				file -> errors.processingFile(URI.create("file:/" + file)),
-				x -> errors.message(new InputPosition(x.file, x.lineNo, x.linePosition, null, x.text).copySetEnd(x.endpos), x.message),
-				x -> errors.logMessage(x)
-			);
+			this.splitter = new LexerSplitter(file -> errors.processingFile(URI.create("file:/" + file)),
+					x -> errors.message(
+							new InputPosition(x.file, x.lineNo, x.linePosition, null, x.text).copySetEnd(x.endpos),
+							x.message),
+					x -> errors.logMessage(x));
 		} else
 			this.splitter = null;
 		this.modules = ServiceLoader.load(ParserModule.class);
 		this.completeModules = ServiceLoader.load(CompilerComplete.class);
 		this.hfsRoot = root;
 	}
-	
+
 	public BCEClassLoader classLoader() {
 		return new BCEClassLoader(bce);
 	}
-	
+
 	public void uploader(JSUploader loader) {
 		this.uploader = loader;
 	}
@@ -159,12 +160,12 @@ public class FLASCompiler implements CompileUnit {
 			if (errors.hasErrors())
 				return true;
 		}
-		
+
 		// read from where we write (but beware of recursion)
 		reader.read(pkgs, config.writeFlim, config.inputs);
 		if (errors.hasErrors())
 			return true;
-		
+
 		return false;
 	}
 
@@ -184,7 +185,7 @@ public class FLASCompiler implements CompileUnit {
 		}
 		if (errors.hasErrors())
 			return;
-		
+
 		for (FlimTop ft : importers) {
 			repository.selectPackage(ft.pkgName());
 			ft.resolve();
@@ -208,30 +209,20 @@ public class FLASCompiler implements CompileUnit {
 
 	public void splitWeb(HFSFolder cardsFolder) {
 		try {
-			File tmp = File.createTempFile("webdata", ".zip");
-			FileOutputStream baos = new FileOutputStream(tmp);
-			ZipOutputStream zos = new ZipOutputStream(baos);
-
 			ConcreteMetaData md = new ConcreteMetaData();
 
 			for (HFSFile f : cardsFolder.findFilesUnderMatching("*")) {
 				if (f.getName().endsWith(".html")) {
 					errors.beginSplitterPhase(f.getPath());
-					splitter.splitOneFile(md, f.getName(), f.getContents(), zos);
+					splitter.splitOneFile(md, f.getName(), f.getContents());
 					errors.doneProcessing(brokenUris);
-				} else {
-					zos.putNextEntry(new ZipEntry(f.getName()));
-					f.copyToStream(zos);
 				}
-				zos.closeEntry();
 			}
-			zos.close();
 
 			if (hfsRoot != null) {
 				hfsRoot.provideWebData(md);
 			}
 			repository.webData(md);
-			md.stream(tmp);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + cardsFolder);
 		}
@@ -239,23 +230,14 @@ public class FLASCompiler implements CompileUnit {
 
 	public void splitWeb(ContentObject co) {
 		try {
-			// TODO: We should probably allow users to specify this file
-			File tmp = File.createTempFile("webdata", ".zip");
-			FileOutputStream baos = new FileOutputStream(tmp);
 			ConcreteMetaData md = new ConcreteMetaData();
-			ZipOutputStream zos = new ZipOutputStream(baos);
 			ZipInputStream zis = new ZipInputStream(co.asStream());
 			ZipEntry ze;
 			while ((ze = zis.getNextEntry()) != null) {
 				if (ze.getName().endsWith(".html")) {
-					splitter.splitStream(md, zos, zis, new File(ze.getName()).getName());
-				} else {
-					zos.putNextEntry(new ZipEntry(ze.getName()));
-					FileUtils.copyStreamWithoutClosingEither(zis, zos);
+					splitter.splitStream(md, zis, new File(ze.getName()).getName());
 				}
 			}
-			zos.close();
-			((ConcreteMetaData) md).stream(tmp);
 			repository.webData(md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + co.key());
@@ -266,10 +248,8 @@ public class FLASCompiler implements CompileUnit {
 		try {
 			errors.beginSplitterPhase(uri);
 			ConcreteMetaData cmd = new ConcreteMetaData();
-			splitter.splitOneFile(cmd, new File(uri.getPath()).getName(), text, null);
+			splitter.splitOneFile(cmd, new File(uri.getPath()).getName(), text);
 			errors.doneProcessing(brokenUris);
-//			((ConcreteMetaData) md).stream(tmp);
-//			repository.webData(md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting text file");
 		}
@@ -339,7 +319,7 @@ public class FLASCompiler implements CompileUnit {
 		n = FileUtils.dropExtension(n);
 		if (!Character.isLetter(n.charAt(0)))
 			return false;
-		for (int i=1;i<n.length();i++) {
+		for (int i = 1; i < n.length(); i++) {
 			if (!Character.isLetterOrDigit(n.charAt(i)))
 				return false;
 		}
@@ -423,7 +403,8 @@ public class FLASCompiler implements CompileUnit {
 		// do the rest of the compilation
 		errors.beginPhase2(uri);
 		repository.clean();
-		if (stage2(null)) { // I don't think this should upload, so it won't need the package sources per se ...
+		if (stage2(null)) { // I don't think this should upload, so it won't need the package sources per se
+							// ...
 			// worked
 		}
 		errors.doneProcessing(this.brokenUris);
@@ -448,7 +429,7 @@ public class FLASCompiler implements CompileUnit {
 
 		logger.info("lifting");
 		FunctionGroups ordering = lift();
-		
+
 		logger.info("analyzing patterns");
 		analyzePatterns();
 		if (errors.hasErrors())
@@ -460,11 +441,12 @@ public class FLASCompiler implements CompileUnit {
 		// may "have" state, but do not use it
 		// may be passed contracts, but do not use them
 		// i.e. in reality they have no arguments
-		// Note, however, that this is transitive, since if they have state and reference another function,
-		//   it may depend on the state
+		// Note, however, that this is transitive, since if they have state and
+		// reference another function,
+		// it may depend on the state
 		FigureFunctionConstness ffc = new FigureFunctionConstness();
 		ffc.processAll(ordering);
-		
+
 		if (config.doTypeCheck) {
 			logger.info("typechecking");
 			doTypeChecking(ordering);
@@ -498,16 +480,16 @@ public class FLASCompiler implements CompileUnit {
 				String pn = f.getPackageName();
 				process.add(pn);
 				if (!f.unitTests().isEmpty()) {
-					int x = pn.lastIndexOf(".")+1;
+					int x = pn.lastIndexOf(".") + 1;
 					String pk = pn.substring(x);
-					String up = pn+ "._ut_" + pk;
+					String up = pn + "._ut_" + pk;
 					process.add(up);
 					autolink.add(up, pn);
 				}
 				if (!f.systemTests().isEmpty()) {
-					int x = pn.lastIndexOf(".")+1;
+					int x = pn.lastIndexOf(".") + 1;
 					String pk = pn.substring(x);
-					String sp = pn+ "._st_" + pk;
+					String sp = pn + "._st_" + pk;
 					process.add(sp);
 					autolink.add(sp, pn);
 				}
@@ -561,7 +543,7 @@ public class FLASCompiler implements CompileUnit {
 		} finally {
 			testWriters.values().forEach(w -> w.close());
 		}
-		
+
 		if (config.genapps) {
 			for (Assembly a : repository.getAssemblies()) {
 				if (a instanceof ApplicationAssembly) {
@@ -676,7 +658,7 @@ public class FLASCompiler implements CompileUnit {
 	public boolean runUnitTests(Configuration config, Map<File, TestResultWriter> writers) {
 		if (!(config.generateJVM && config.unitjvm) && !(config.generateJS && config.unitjs))
 			return errors.hasErrors();
-		
+
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
 		ClassLoader cl = this.getClass().getClassLoader();
 		if (config.generateJVM && config.unitjvm) {
@@ -703,7 +685,7 @@ public class FLASCompiler implements CompileUnit {
 	public boolean runSystemTests(Configuration config, Map<File, TestResultWriter> writers) {
 		if (!(config.generateJVM && config.systemjvm) && !(config.generateJS && config.systemjs))
 			return errors.hasErrors();
-		
+
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
 		ClassLoader cl = this.getClass().getClassLoader();
 		if (config.generateJVM && config.systemjvm) {
@@ -752,24 +734,16 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	public void generateHTML(FLASAssembler asm, File todir, Assembly assembly) {
-		repository.traverseAssembly(config, errors, jse, bce, new CompilerAssembler(config, asm, todir), assembly); 
+		repository.traverseAssembly(config, errors, jse, bce, new CompilerAssembler(config, asm, todir), assembly);
 	}
 
 	private Map<String, String> extractTemplatesFromWebs() {
 		Map<String, String> ret = new TreeMap<>();
-		try {
-			for (SplitMetaData smd : repository.allWebs()) {
-				try (ZipInputStream zis = smd.processedZip()) {
-					ZipEntry ze;
-					while ((ze = zis.getNextEntry()) != null) {
-						if (ze.getName().endsWith(".html"))
-							ret.put(ze.getName().replace(".html", ""),
-									new String(FileUtils.readAllStream(zis), Charset.forName("UTF-8")));
-					}
-				}
+		for (SplitMetaData smd : repository.allWebs()) {
+			for (String cn : smd) {
+				CardData cd = smd.forCard(cn);
+				ret.put(cd.id(), cd.template());
 			}
-		} catch (IOException ex) {
-			errors.message(((InputPosition) null), "internal error reading templates from splitter");
 		}
 		return ret;
 	}
@@ -788,7 +762,7 @@ public class FLASCompiler implements CompileUnit {
 //		bce.dumpAll(true);
 		try {
 			if (config.flimdir() != null) {
-				Comparator<String> invertor = (x,y) -> -x.compareTo(y);
+				Comparator<String> invertor = (x, y) -> -x.compareTo(y);
 				Set<String> pkgs = new TreeSet<>(invertor);
 				for (File s : config.inputs) {
 					pkgs.add(s.getName());
@@ -815,7 +789,7 @@ public class FLASCompiler implements CompileUnit {
 //						zos.write(c.generate());
 					}
 				}
-				for (ZipOutputStream zos : streams.values()) 
+				for (ZipOutputStream zos : streams.values())
 					zos.close();
 			}
 		} catch (Exception ex) {
@@ -825,7 +799,8 @@ public class FLASCompiler implements CompileUnit {
 	}
 
 	private boolean isInPackage(String clname, String pkg) {
-		return pkg != null && (clname.startsWith(pkg) || (pkg.equals("root.package") && clname.startsWith("org.flasck.jvm.builtin.")));
+		return pkg != null && (clname.startsWith(pkg)
+				|| (pkg.equals("root.package") && clname.startsWith("org.flasck.jvm.builtin.")));
 	}
 
 	public void saveJSE(File jsDir, JSEnvironment jse, ByteCodeEnvironment bce) {

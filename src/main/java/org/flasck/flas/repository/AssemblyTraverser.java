@@ -1,8 +1,8 @@
 package org.flasck.flas.repository;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -12,9 +12,9 @@ import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.bytecode.ByteCodeEnvironment;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class AssemblyTraverser implements AssemblyVisitor {
 	public static final Logger logger = LoggerFactory.getLogger("assembler");
@@ -52,32 +52,10 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	}
 
 	private void visitWebInfo(SplitMetaData w) {
-		try (ZipInputStream zis = w.processedZip()) {
-			ZipEntry ze;
-			while ((ze = zis.getNextEntry()) != null) {
-				String name = ze.getName();
-				if (name.startsWith("cards/")) {
-					if (name.endsWith(".html")) {
-						// long length = ze.getSize(); // this does not work because of https://bugs.openjdk.java.net/browse/JDK-8080092
-						long length = w.getLength(name);
-						visitCardTemplate(name.replace(".html", ""), zis, length);
-					} else if (name.endsWith(".json"))
-						;
-					else
-						throw new NotImplementedException("cannot handle " + name);
-				} else if (name.startsWith("items/")) {
-					if (name.endsWith(".html")) {
-						// long length = ze.getSize(); // this does not work because of https://bugs.openjdk.java.net/browse/JDK-8080092
-						long length = w.getLength(name);
-						visitCardTemplate(name.replace(".html", ""), zis, length);
-					} else if (name.endsWith(".json"))
-						;
-					else
-						throw new NotImplementedException("cannot handle " + name);
-				} else if (name.endsWith(".css"))
-					visitCSS(name, zis, ze.getSize());
-				else
-					visitResource(name, zis);
+		try {
+			for (String cardName : w) {
+				CardData cd = w.forCard(cardName);
+				visitCardTemplate(cd.id(), new ByteArrayInputStream(cd.template().getBytes()), w.getLength(cd.id() + ".html"));
 			}
 		} catch (Exception ex) {
 			logger.error("Error uploading", ex);
@@ -131,8 +109,8 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	}
 
 	@Override
-	public void visitCardTemplate(String replace, InputStream zis, long length) throws IOException {
-		v.visitCardTemplate(replace, zis, length);
+	public void visitCardTemplate(String name, InputStream zis, long length) throws IOException {
+		v.visitCardTemplate(name, zis, length);
 	}
 
 	public void visitCSS(String name, ZipInputStream zis, long length) throws IOException {
