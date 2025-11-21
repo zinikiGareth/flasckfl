@@ -2,6 +2,7 @@ package org.flasck.flas.lsp;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.lsp4j.DeleteFilesParams;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams;
@@ -21,11 +22,23 @@ public class FLASWorkspaceService implements WorkspaceService {
 	@Override
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
 //		JsonObject settings = (JsonObject) params.getSettings();
+		logger.info("CHANGE CONFIGURATION");
+	}
+
+	@Override
+	public void didChangeWorkspaceFolders(DidChangeWorkspaceFoldersParams params) {
+		logger.info("CHANGE WATCHED FOLDERS");
+		WorkspaceService.super.didChangeWorkspaceFolders(params);
 	}
 
 	@Override
 	public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
 		logger.info("CHANGE WATCHED FILES");
+	}
+	
+	@Override
+	public void didDeleteFiles(DeleteFilesParams params) {
+		logger.info("DELETED FILES");
 	}
 
 	@Override
@@ -41,11 +54,5 @@ public class FLASWorkspaceService implements WorkspaceService {
 			return CompletableFuture.completedFuture(null);
 		}
 		}
-	}
-
-	@Override
-	public void didChangeWorkspaceFolders(DidChangeWorkspaceFoldersParams params) {
-		logger.info("CHANGE WATCHED FOLDERS");
-		WorkspaceService.super.didChangeWorkspaceFolders(params);
 	}
 }
