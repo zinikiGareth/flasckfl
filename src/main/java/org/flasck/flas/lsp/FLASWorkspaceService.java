@@ -21,8 +21,7 @@ public class FLASWorkspaceService implements WorkspaceService {
 
 	@Override
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
-//		JsonObject settings = (JsonObject) params.getSettings();
-		logger.info("CHANGE CONFIGURATION");
+		logger.info("CHANGE CONFIGURATION called");
 	}
 
 	@Override

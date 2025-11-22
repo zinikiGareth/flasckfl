@@ -70,6 +70,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.ConcreteMetaData;
+import org.ziniki.splitter.HTMLData;
 import org.ziniki.splitter.NoMetaDataException;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -79,7 +80,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	private static final Logger logger = LoggerFactory.getLogger("Repository");
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
-	private final Map<URI, ConcreteMetaData> webs = new TreeMap<>();
+	private final ConcreteMetaData webs = new ConcreteMetaData();
 	private final Map<URI, List<String>> uriDefines = new TreeMap<>();
 	private final Map<String, List<String>> flimDefines = new TreeMap<>();
 	private List<String> currentDefines;
@@ -400,8 +401,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			pw.print(x.getKey() + " = ");
 			x.getValue().dumpTo(pw);
 		}
-		for (Entry<URI, ConcreteMetaData> e : webs.entrySet()) {
-			pw.println("have webdata " + e.getKey() + ": " + e.getValue());
+		for (HTMLData e : webs.htmls()) {
+			pw.println("have webdata " + e.uri() + ": " + e.cards());
 		}
 		pw.flush();
 	}
@@ -577,35 +578,27 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.traverse(this, asm);
 	}
 
-	public ConcreteMetaData ensureWebData(URI uri) {
-		ConcreteMetaData ret = webs.get(uri);
-		if (ret == null) {
-			ret = new ConcreteMetaData();
-			webs.put(uri, ret);
-		} else {
-			ret.clear();
-		}
-		return ret;
+	public ConcreteMetaData ensureWebData() {
+		return webs;
 	}
 
 	@Override
 	public CardData findWeb(String baseName) {
-		for (Entry<URI, ConcreteMetaData> web : webs.entrySet()) {
+		for (HTMLData web : webs.htmls()) {
 			try {
-				logger.info("looking for " + baseName + " in " + web.getKey());
-				return web.getValue().forCard(baseName);
+				logger.info("looking for " + baseName + " in " + web.uri());
+				return web.forCard(baseName);
 			} catch (NoMetaDataException ex) {
 				; // it wasn't there ...
 				logger.info("... not there");
 			}
 		}
-		logger.error("could not find " + baseName + " in " + webs.keySet());
+		logger.error("could not find " + baseName + " in " + webs.htmls());
 		return null;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public Iterable<SplitMetaData> allWebs() {
-		return (Iterable)webs.values();
+	public SplitMetaData allWebs() {
+		return webs;
 	}
 
 	public void clean() {

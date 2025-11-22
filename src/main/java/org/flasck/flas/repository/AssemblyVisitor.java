@@ -2,7 +2,6 @@ package org.flasck.flas.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.ZipInputStream;
 
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.jvm.ziniki.ContentObject;
@@ -17,7 +16,7 @@ public interface AssemblyVisitor {
 	void visitPackage(String pkg);
 	void uploadJar(ByteCodeEnvironment bce, String s);
 	void visitCardTemplate(String cardName, InputStream is) throws IOException;
-	void visitCSS(String name, ZipInputStream zis, long length) throws IOException;
-	void visitResource(String name, ZipInputStream zis) throws IOException;
+	void visitCSS(String name, InputStream is) throws IOException;
+	void visitResource(String name, InputStream is) throws IOException;
 	void traversalDone() throws Exception;
 }

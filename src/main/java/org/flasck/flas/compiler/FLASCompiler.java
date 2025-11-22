@@ -77,7 +77,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.ConcreteMetaData;
-import org.ziniki.splitter.SplitMetaData;
+import org.ziniki.splitter.HTMLData;
 import org.ziniki.splitter.Splitter;
 import org.ziniki.splitter.lexer.LexerSplitter;
 import org.zinutils.bytecode.BCEClassLoader;
@@ -209,19 +209,22 @@ public class FLASCompiler implements CompileUnit {
 
 	public void splitWeb(HFSFolder cardsFolder) {
 		try {
-
+			ConcreteMetaData md = repository.ensureWebData();
 			for (HFSFile f : cardsFolder.findFilesUnderMatching("*")) {
 				if (f.getName().endsWith(".html")) {
-					ConcreteMetaData md = repository.ensureWebData(f.getPath());
+					HTMLData hm = md.html(f.getPath());
 					errors.beginSplitterPhase(f.getPath());
-					splitter.splitOneFile(md, f.getPath(), f.getContents());
+					splitter.splitOneFile(hm, f.getPath(), f.getContents());
 					errors.doneProcessing(brokenUris);
-					if (hfsRoot != null) {
-						hfsRoot.provideWebData(md);
-					}
+				} else if (f.getName().endsWith(".css")) {
+					md.addCss(f.getName(), f.getContents());
+				} else {
+					md.addResource(f.getName(), FileUtils.readAllStream(f.getStream()));
 				}
 			}
-
+			if (hfsRoot != null) {
+				hfsRoot.provideWebData(md);
+			}
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + cardsFolder);
 		}
@@ -229,12 +232,15 @@ public class FLASCompiler implements CompileUnit {
 
 	public void splitWeb(ContentObject co) {
 		try {
-			ConcreteMetaData md = repository.ensureWebData(URI.create(co.url()));
+			ConcreteMetaData md = repository.ensureWebData();
+			md.clear();
 			ZipInputStream zis = new ZipInputStream(co.asStream());
 			ZipEntry ze;
 			while ((ze = zis.getNextEntry()) != null) {
 				if (ze.getName().endsWith(".html")) {
-					splitter.splitStream(md, zis, URI.create("file:/" + ze.getName()));
+					URI path = URI.create("file:/" + ze.getName());
+					HTMLData hm = md.html(path);
+					splitter.splitStream(hm, zis, path);
 				}
 			}
 		} catch (IOException ex) {
@@ -245,8 +251,10 @@ public class FLASCompiler implements CompileUnit {
 	public void splitWebFile(URI uri, String text) {
 		try {
 			errors.beginSplitterPhase(uri);
-			ConcreteMetaData cmd = repository.ensureWebData(uri);
-			splitter.splitOneFile(cmd, uri, text);
+			ConcreteMetaData cmd = repository.ensureWebData();
+			HTMLData hm = cmd.html(uri);
+			hm.clear();
+			splitter.splitOneFile(hm, uri, text);
 			if (hfsRoot != null) {
 				hfsRoot.provideWebData(cmd);
 			}
@@ -741,9 +749,9 @@ public class FLASCompiler implements CompileUnit {
 
 	private Map<String, String> extractTemplatesFromWebs() {
 		Map<String, String> ret = new TreeMap<>();
-		for (SplitMetaData smd : repository.allWebs()) {
-			for (String cn : smd) {
-				CardData cd = smd.forCard(cn);
+		for (HTMLData h : repository.allWebs().htmls()) {				
+			for (String cn : h.cards()) {
+				CardData cd = h.forCard(cn);
 				ret.put(cd.id(), cd.template());
 			}
 		}

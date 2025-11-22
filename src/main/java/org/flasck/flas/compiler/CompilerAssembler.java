@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipInputStream;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
@@ -48,7 +47,7 @@ public class CompilerAssembler implements AssemblyVisitor {
 	}
 
 	@Override
-	public void visitResource(String name, ZipInputStream zis) throws IOException {
+	public void visitResource(String name, InputStream is) throws IOException {
 	}
 
 	@Override
@@ -130,9 +129,9 @@ public class CompilerAssembler implements AssemblyVisitor {
 	}
 
 	@Override
-	public void visitCSS(String name, ZipInputStream zis, long length) throws IOException {
+	public void visitCSS(String name, InputStream is) throws IOException {
 		File to = new File(cssdir, name);
-		FileUtils.copyStreamToFileWithoutClosing(zis, to);
+		FileUtils.copyStreamToFileWithoutClosing(is, to);
 		css.add(name);
 	}
 

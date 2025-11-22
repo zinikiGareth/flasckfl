@@ -3,7 +3,6 @@ package org.flasck.flas.repository;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.ZipInputStream;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
@@ -12,7 +11,10 @@ import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.jvm.ziniki.ContentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ziniki.splitter.CSSFile;
 import org.ziniki.splitter.CardData;
+import org.ziniki.splitter.HTMLData;
+import org.ziniki.splitter.Resource;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
@@ -53,9 +55,17 @@ public class AssemblyTraverser implements AssemblyVisitor {
 
 	private void visitWebInfo(SplitMetaData w) {
 		try {
-			for (String cardName : w) {
-				CardData cd = w.forCard(cardName);
-				visitCardTemplate(cd.id(), new ByteArrayInputStream(cd.template().getBytes()));
+			for (HTMLData hm : w.htmls()) {
+				for (String cardName : hm.cards()) {
+					CardData cd = hm.forCard(cardName);
+					visitCardTemplate(cd.id(), new ByteArrayInputStream(cd.template().getBytes()));
+				}
+			}
+			for (CSSFile cssFile : w.cssFiles()) {
+				visitCSS(cssFile.name(), new ByteArrayInputStream(cssFile.text().getBytes()));
+			}
+			for (Resource r : w.resources()) {
+				visitResource(r.name(), r.asStream());
 			}
 		} catch (Exception ex) {
 			logger.error("Error uploading", ex);
@@ -81,9 +91,8 @@ public class AssemblyTraverser implements AssemblyVisitor {
 				visitPackage(s);
 				uploadJar(bce, s);
 			}
-			Iterable<SplitMetaData> allWebs = repository.allWebs();
-			for (SplitMetaData w : allWebs)
-				visitWebInfo(w);
+			SplitMetaData allWebs = repository.allWebs();
+			visitWebInfo(allWebs);
 			leaveAssembly(a);
 		} catch (Exception ex) {
 			logger.error("Error uploading", ex);
@@ -113,12 +122,12 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		v.visitCardTemplate(name, zis);
 	}
 
-	public void visitCSS(String name, ZipInputStream zis, long length) throws IOException {
-		v.visitCSS(name, zis, length);
+	public void visitCSS(String name, InputStream is) throws IOException {
+		v.visitCSS(name, is);
 	}
 
-	public void visitResource(String name, ZipInputStream zis) throws IOException {
-		v.visitResource(name, zis);
+	public void visitResource(String name, InputStream is) throws IOException {
+		v.visitResource(name, is);
 	}
 
 	@Override

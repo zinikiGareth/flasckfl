@@ -16,6 +16,7 @@ import org.flasck.jvm.ziniki.FileContentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
+import org.ziniki.splitter.HTMLData;
 import org.ziniki.splitter.MetaEntry;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.hfs.HFSFile;
@@ -138,13 +139,15 @@ public class Root implements CardDataListener {
 	@Override
 	public void provideWebData(SplitMetaData md) {
 		JsonObject cards = new JsonObject();
-		for (String card : md) {
-			JsonObject fields = new JsonObject();
-			CardData cd = md.forCard(card);
-			for (MetaEntry me : cd) {
-				fields.addProperty(me.key(), me.value().toString());
+		for (HTMLData hm : md.htmls()) {
+			for (String card : hm.cards()) {
+				JsonObject fields = new JsonObject();
+				CardData cd = hm.forCard(card);
+				for (MetaEntry me : cd) {
+					fields.addProperty(me.key(), me.value().toString());
+				}
+				cards.add(card, fields);
 			}
-			cards.add(card, fields);
 		}
 		JsonObject send = new JsonObject();
 		send.addProperty("uri", uri.toString().replaceAll("/*$", ""));
