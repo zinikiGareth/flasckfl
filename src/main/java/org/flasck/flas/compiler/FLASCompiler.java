@@ -356,7 +356,7 @@ public class FLASCompiler implements CompileUnit {
 		ContentObject co;
 		if (text != null) {
 			textCache.put(uri, text);
-			co = new MemoryContentObject(file, text.getBytes());
+			co = new MemoryContentObject(uri, text.getBytes());
 		} else {
 			co = hfsRoot.fileCO(uri);
 		}
