@@ -11,4 +11,5 @@ public interface CompileUnit {
 	public void lspLoadFLIM(URI uri);
 	public void splitWeb(HFSFolder cardsFolder);
 	public void splitWebFile(URI name, String text);
+	public boolean hasBrokenFiles();
 }

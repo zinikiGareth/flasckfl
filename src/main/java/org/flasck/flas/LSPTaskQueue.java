@@ -42,6 +42,10 @@ public class LSPTaskQueue implements TaskQueue {
 
 	@Override
 	public synchronized void readyWhenYouAre(URI uri, CompileUnit stage2) {
+		if (stage2.hasBrokenFiles()) {
+			logger.info("not doing stage2 build because there are broken files");
+			return;
+		}
 		units.add(stage2);
 		if (tasks.isEmpty()) {
 			logger.info("Adding stage2 to workflow for " + uri);

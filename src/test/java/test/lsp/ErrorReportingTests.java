@@ -22,6 +22,8 @@ import org.junit.Test;
 import org.zinutils.hfs.FakeHFSFolder;
 import org.zinutils.hfs.FakeHierarchicalFileSystem;
 
+import com.google.gson.JsonObject;
+
 public class ErrorReportingTests {
 	protected Synchroniser synchronizer = new Synchroniser();
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery() {{
@@ -60,4 +62,33 @@ public class ErrorReportingTests {
 		server.waitForTaskQueueToDrain();
 	}
 
+	@Test
+	public void testInvalidCardContentTypeIsReported() throws URISyntaxException, InterruptedException {
+		States finished = context.states("finished").startsAs("waiting");
+		FakeHFSFolder hff = new FakeHFSFolder(new URI("file:///fred/bert/"));
+		hff.subfolder("ui").provideFile("index.html", new File("src/test/resources/lsp-files/invalidCardContentType.html"));
+		hfs.provideFolder(hff);
+		FLASLanguageServer server = new FLASLanguageServer(hfs);
+		FLASLanguageClient client = context.mock(FLASLanguageClient.class);
+		server.provide(client);
+
+		PublishDiagnosticsParams pdp = new PublishDiagnosticsParams("file:///fred/bert/", new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(client).logMessage(with(any(MessageParams.class)));
+			oneOf(client).publishDiagnostics(pdp);
+			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert").info("main", new JsonObject())));
+			oneOf(client).publishDiagnostics(with(PDPMatcher.uri("file:/fred/bert/ui/index.html").diagnostic(7, 9, 23, "invalid flas- id tag: conte"))); then(finished.is("done"));
+		}});
+		
+		InitializeParams params = new InitializeParams();
+		List<WorkspaceFolder> wfs = new ArrayList<WorkspaceFolder>();
+		wfs.add(new WorkspaceFolder("file:///fred/bert", "bert"));
+		params.setWorkspaceFolders(wfs);
+		server.initialize(params);
+
+		server.getWorkspaceService().executeCommand(new ExecuteCommandParams("flas/readyForNotifications", new ArrayList<>()));
+		
+		synchronizer.waitUntil(finished.is("done"), 1000);
+		server.waitForTaskQueueToDrain();
+	}
 }

@@ -192,6 +192,11 @@ public class FLASCompiler implements CompileUnit {
 		}
 	}
 
+	@Override
+	public boolean hasBrokenFiles() {
+		return !brokenUris.isEmpty();
+	}
+
 	public PackageSources processInputFromDirectory(File input) throws ErrorResultException {
 		if (!input.isDirectory()) {
 			errors.message((InputPosition) null, "there is no input directory " + input);

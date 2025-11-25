@@ -103,8 +103,8 @@ public class TestSaveHTML {
 		context.checking(new Expectations() {{
 			allowing(client).logMessage(with(any(MessageParams.class)));
 			oneOf(client).publishDiagnostics(pdp);
-			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert").info("helloxx", new JsonObject())));
 			oneOf(client).publishDiagnostics(pdpih);
+			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert").info("helloxx", new JsonObject())));
 			oneOf(client).publishDiagnostics(pdpm1);
 			oneOf(client).publishDiagnostics(
 				with(PDPMatcher.uri("file:/fred/bert/com.main.fl/main.fl").diagnostic(1, 11, 16, "there is no web template defined for hello"))
@@ -124,8 +124,7 @@ public class TestSaveHTML {
 		PublishDiagnosticsParams pdpih2 = new PublishDiagnosticsParams("file:///fred/bert/ui/index.html", new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert").info("hello", new JsonObject())));
-			oneOf(client).publishDiagnostics(pdpih2);
-			oneOf(client).publishDiagnostics(pdpm1); then(finished.is("done"));
+			oneOf(client).publishDiagnostics(pdpih2); then(finished.is("done"));
 		}});
 		
 		TextDocumentIdentifier tdi = new TextDocumentIdentifier("file:///fred/bert/ui/index.html");
@@ -197,7 +196,6 @@ public class TestSaveHTML {
 		context.checking(new Expectations() {{
 			oneOf(client).sendCardInfo(with(CardInfoMatcher.ui("file:///fred/bert").info("hello", new JsonObject())));
 			oneOf(client).publishDiagnostics(pdpih2);
-			oneOf(client).publishDiagnostics(pdpm1);
 			then(finished.is("done"));
 		}});
 		
