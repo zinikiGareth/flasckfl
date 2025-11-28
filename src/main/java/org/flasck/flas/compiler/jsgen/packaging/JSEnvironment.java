@@ -389,11 +389,15 @@ public class JSEnvironment implements JSStorage {
 	private void addModule(List<ContentObject> ret, File moduleDir, List<String> inlib, String m, String mockOrLive) {
 		File f = new File(moduleDir, m);
 		if (!f.isDirectory()) {
-			throw new InvalidUsageException("there is no module " + m + " defined in " + moduleDir);
+			errors.message((InputPosition)null, "there is no module " + m + " defined in " + moduleDir);
 		}
 		File mjs = new File(f, "js");
 		addFrom(ret, inlib, new File(mjs, "core"));
-		addFrom(ret, inlib, new File(mjs, mockOrLive));
+		File importer = new File(mjs, mockOrLive);
+		if (!importer.isDirectory()) {
+			errors.message((InputPosition)null, "there is no dir " + mockOrLive + " in module " + m + " defined in " + moduleDir);
+		}
+		addFrom(ret, inlib, importer);
 	}
 	
 	private void addFrom(List<ContentObject> ret, List<String> inlib, File from) {
