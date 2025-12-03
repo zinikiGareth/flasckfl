@@ -37,7 +37,6 @@ import org.flasck.jvm.ziniki.FileContentObject;
 import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.NodeWalker;

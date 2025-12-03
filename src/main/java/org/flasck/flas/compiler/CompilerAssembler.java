@@ -39,7 +39,6 @@ public class CompilerAssembler implements AssemblyVisitor {
 		FileUtils.assertDirectory(jsdir);
 		FileUtils.cleanDirectory(cssdir);
 		FileUtils.assertDirectory(cssdir);
-
 	}
 
 	@Override
@@ -160,7 +159,12 @@ public class CompilerAssembler implements AssemblyVisitor {
 		asm.endJs();
 		asm.endHead();
 		asm.beginInit();
-		asm.initializer(config.modules, new CardInitializer() {
+		asm.beginModule();
+		for (String mod : config.modules) {
+			asm.module(mod);
+		}
+		asm.endModule();
+		asm.initializer(new CardInitializer() {
 			@Override
 			public Iterable<String> packages() {
 				return inits;
