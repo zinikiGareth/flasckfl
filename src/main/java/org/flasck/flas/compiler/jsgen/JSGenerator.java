@@ -957,14 +957,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware,
 		JSMethodCreator ctor = appclz.constructor();
 		JSVar cc = ctor.argument(ClientContext.class.getName(), "_cxt");
 		JSVar div = ctor.argument(J.ELEMENT, "div");
+		JSVar baseUri = ctor.argument(J.STRING, "baseUri");
 		ctor.superArg(cc);
 		ctor.superArg(div);
+		ctor.superArg(baseUri);
 		appclz.inheritsField(false, Access.PROTECTED, new PackageName(J.STRING), "title");
 		ctor.setField(new JSThis(), "title", new JSString(e.getTitle()));
 		ctor.returnVoid();
+		/* removed this when I implemented passing baseUri around
 		JSMethodCreator bu = appclz.createMethod("baseUri", true);
 		bu.returnsType(J.STRING);
 		bu.returnObject(new JSString(e.getBaseUri()));
+		*/
 		if (e.routing() != null)
 			jse.applRouting(appclz, e.name(), e.routing());
 	}
