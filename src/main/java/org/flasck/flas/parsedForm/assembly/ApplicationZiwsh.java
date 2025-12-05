@@ -9,9 +9,9 @@ import org.flasck.flas.parser.assembly.ZiwshConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
+import org.flasck.jvm.assembly.ZiwshInfo;
 
-public class ApplicationZiwsh implements ZiwshConsumer, RepositoryEntry {
-
+public class ApplicationZiwsh implements ZiwshConsumer, RepositoryEntry, ZiwshInfo {
 	private final InputPosition location;
 	private final AssemblyName name;
 	private ExprToken wsuri;
@@ -53,5 +53,25 @@ public class ApplicationZiwsh implements ZiwshConsumer, RepositoryEntry {
 	@Override
 	public void loginflow(ExprToken tok) {
 		this.loginflow = tok;
+	}
+
+	@Override
+	public String getLoginFlow() {
+		return this.loginflow.text;
+	}
+
+	@Override
+	public String getWSUri() {
+		return this.wsuri.text;
+	}
+
+	@Override
+	public String getSecurityModule() {
+		return secureModule.text;
+	}
+
+	@Override
+	public String getSecurityClass() {
+		return secureClz.text;
 	}
 }

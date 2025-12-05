@@ -45,6 +45,10 @@ public class ApplicationElementParser extends BlockLocationTracker implements TD
 			int mark = toks.at();
 			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
+			if (s == null) {
+				errors.message(pos, "title requires string");
+				return new IgnoreNestedParser(errors);
+			}
 			errors.logParsingToken(new ExprToken(pos, ExprToken.STRING, s).original(toks.fromMark(mark)));
 			consumer.title(s);
 			errors.logReduction("assembly-title", kw.location, pos);
@@ -55,6 +59,10 @@ public class ApplicationElementParser extends BlockLocationTracker implements TD
 			int mark = toks.at();
 			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
+			if (s == null) {
+				errors.message(pos, "baseuri requires string");
+				return new IgnoreNestedParser(errors);
+			}
 			errors.logParsingToken(new ExprToken(pos, ExprToken.STRING, s).original(toks.fromMark(mark)));
 			consumer.baseuri(s);
 			errors.logReduction("fa-appl-baseuri", kw.location, pos);

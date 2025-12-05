@@ -166,7 +166,7 @@ public class CompilerAssembler implements AssemblyVisitor {
 			asm.javascript(config.inclPrefix + /* "js" + */j);
 		asm.endJs();
 		asm.endHead();
-		asm.beginInit();
+		asm.beginInit(aa.getBaseUri(), aa.ziwsh());
 		asm.beginModule();
 		for (String mod : config.modules) {
 			asm.module(mod);
@@ -184,7 +184,7 @@ public class CompilerAssembler implements AssemblyVisitor {
 			}
 		});
 		asm.endInit();
-		asm.end();
+		asm.end(aa.ziwsh());
 	}
 
 	@Override
