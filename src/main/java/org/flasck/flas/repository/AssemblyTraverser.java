@@ -4,11 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.jvm.ziniki.ContentObject;
+import org.flasck.jvm.ziniki.PackageSources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CSSFile;
@@ -20,12 +22,14 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class AssemblyTraverser implements AssemblyVisitor {
 	public static final Logger logger = LoggerFactory.getLogger("assembler");
+	private final Configuration config;
 	private final ErrorReporter errors;
 	private final JSEnvironment jse;
 	private final ByteCodeEnvironment bce;
 	private final AssemblyVisitor v;
 
-	public AssemblyTraverser(ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v) {
+	public AssemblyTraverser(Configuration config, ErrorReporter errors, JSEnvironment jse, ByteCodeEnvironment bce, AssemblyVisitor v) {
+		this.config = config;
 		this.errors = errors;
 		this.jse = jse;
 		this.bce = bce;
@@ -81,6 +85,11 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	public void traverseAssemblyWithWebs(Repository repository, Assembly a) {
 		try {
 			visitAssembly(a);
+			if (config.moduleCOs != null) {
+				for (PackageSources m : config.moduleCOs) {
+					visitModule(m);
+				}
+			}
 			for (ContentObject co : jse.jsIncludes("live")) {
 				includePackageFile(co);
 			}
@@ -108,6 +117,10 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		v.visitAssembly(a);
 	}
 
+	public void visitModule(PackageSources m) {
+		v.visitModule(m);
+	}
+	
 	public void includePackageFile(ContentObject co) {
 		v.includePackageFile(co);
 	}

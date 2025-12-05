@@ -5,12 +5,14 @@ import java.io.InputStream;
 
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.jvm.ziniki.ContentObject;
+import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 // At the end of the day, I don't think this is going to just be about assembly objects,
 // but everything that is attached to them: FL code, web bits, etc.
 public interface AssemblyVisitor {
 	void visitAssembly(Assembly a);
+	void visitModule(PackageSources m);
 	void leaveAssembly(Assembly a) throws IOException;
 	void includePackageFile(ContentObject co);
 	void visitPackage(String pkg);

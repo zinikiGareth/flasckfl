@@ -14,6 +14,7 @@ import org.flasck.flas.repository.AssemblyVisitor;
 import org.flasck.jvm.assembly.CardInitializer;
 import org.flasck.jvm.assembly.FLASAssembler;
 import org.flasck.jvm.ziniki.ContentObject;
+import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.utils.FileUtils;
@@ -23,6 +24,7 @@ public class CompilerAssembler implements AssemblyVisitor {
 	private final FLASAssembler asm;
 	private final File jsdir;
 	private final File cssdir;
+	private List<PackageSources> modules = new ArrayList<>();
 	private List<String> inits = new ArrayList<>();
 	private List<String> css = new ArrayList<>();
 	private List<String> js = new ArrayList<>();
@@ -43,6 +45,12 @@ public class CompilerAssembler implements AssemblyVisitor {
 
 	@Override
 	public void visitAssembly(Assembly a) {
+	}
+
+	
+	@Override
+	public void visitModule(PackageSources m) {
+		modules.add(m);
 	}
 
 	@Override

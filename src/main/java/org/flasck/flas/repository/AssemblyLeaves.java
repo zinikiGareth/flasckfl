@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.jvm.ziniki.ContentObject;
+import org.flasck.jvm.ziniki.PackageSources;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class AssemblyLeaves implements AssemblyVisitor {
@@ -15,6 +16,10 @@ public class AssemblyLeaves implements AssemblyVisitor {
 
 	@Override
 	public void leaveAssembly(Assembly a) throws IOException {
+	}
+
+	@Override
+	public void visitModule(PackageSources m) {
 	}
 
 	@Override
