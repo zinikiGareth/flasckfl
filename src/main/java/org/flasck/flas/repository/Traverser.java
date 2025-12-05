@@ -94,6 +94,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.parsedForm.assembly.ApplicationZiwsh;
 import org.flasck.flas.parsedForm.assembly.CardBinding;
 import org.flasck.flas.parsedForm.assembly.LibraryAssembly;
 import org.flasck.flas.parsedForm.assembly.RoutingAction;
@@ -325,7 +326,7 @@ public class Traverser implements RepositoryVisitor {
 			visitAssembly((ApplicationAssembly) e);
 		} else if (e instanceof LibraryAssembly) {
 			;
-		} else if (e instanceof ApplicationRouting) {
+		} else if (e instanceof ApplicationRouting || e instanceof ApplicationZiwsh) {
 			; 
 		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof IntroduceVar || e instanceof HandlerLambda ||
 				   e instanceof PolyType || e instanceof RequiresContract || e instanceof Provides || e instanceof ObjectContract || e instanceof ImplementsContract ||

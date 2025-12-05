@@ -10,6 +10,7 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 	private String title;
 	private ApplicationRouting routing;
 	private AssemblyDefinitionConsumer consumer;
+	private ApplicationZiwsh ziwshModel;
 
 	public ApplicationAssembly(InputPosition loc, AssemblyName assemblyName, AssemblyDefinitionConsumer consumer) {
 		super(loc, assemblyName);
@@ -32,6 +33,12 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 		consumer.routingTable(routing);
 	}
 
+	@Override
+	public void ziwsh(ApplicationZiwsh ziwshModel) {
+		this.ziwshModel = ziwshModel;
+		consumer.ziwshModel(ziwshModel);
+	}
+
 	public String getBaseUri() {
 		return baseuri;
 	}
@@ -42,6 +49,10 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 
 	public ApplicationRouting routing() {
 		return routing;
+	}
+	
+	public ApplicationZiwsh ziwsh() {
+		return ziwshModel;
 	}
 	
 	@Override

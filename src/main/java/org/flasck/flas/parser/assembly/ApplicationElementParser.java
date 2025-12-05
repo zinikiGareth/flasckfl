@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.TDAParsingWithAction;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.assembly.ApplicationRouting;
+import org.flasck.flas.parsedForm.assembly.ApplicationZiwsh;
 import org.flasck.flas.parser.BlockLocationTracker;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LocationTracker;
@@ -20,6 +21,7 @@ public class ApplicationElementParser extends BlockLocationTracker implements TD
 	private final TopLevelNamer namer;
 	private final ApplicationElementConsumer consumer;
 	private ApplicationRouting routing;
+	private ApplicationZiwsh ziwshModel;
 
 	public ApplicationElementParser(ErrorReporter errors, InputPosition startPos, TopLevelNamer namer, ApplicationElementConsumer consumer, LocationTracker parentTracker) {
 		super(errors, parentTracker);
@@ -75,6 +77,24 @@ public class ApplicationElementParser extends BlockLocationTracker implements TD
 			return new TDAParsingWithAction(
 				new TDARoutingParser(errors, routing, this), 
 				reduction(kw.location, "assembly-routes")
+			);
+		}
+		case "ziwsh": {
+			if (toks.hasMoreContent(errors)) {
+				errors.message(toks, "junk at end of line");
+				return new IgnoreNestedParser(errors);
+			}
+			if (this.ziwshModel != null) {
+				errors.message(kw.location, "cannot specify ziwsh model twice");
+				return new IgnoreNestedParser(errors);
+			}
+			ziwshModel = new ApplicationZiwsh(kw.location, namer.assemblyName("ziwsh"));
+			consumer.ziwsh(ziwshModel);
+			errors.logReduction("fa-appl-ziwsh", kw.location, kw.location);
+			super.tellParent(kw.location);
+			return new TDAParsingWithAction(
+				new TDAZiWSHParser(errors, ziwshModel),
+				reduction(kw.location, "assembly-ziwsh")
 			);
 		}
 		default: {
