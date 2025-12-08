@@ -207,6 +207,7 @@ public class FLASCompiler implements CompileUnit {
 			parse(sources);
 			return sources;
 		} catch (Throwable ex) {
+			ex.printStackTrace();
 			reportException(ex);
 			throw new ErrorResultException(errors);
 		}
