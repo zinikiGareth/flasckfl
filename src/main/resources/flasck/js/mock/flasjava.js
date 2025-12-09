@@ -77,20 +77,21 @@ var merge = function(args) {
 };
 WSBridge.prototype.connectModule = function(moduleName, callback) {
   console.log("creating module", moduleName);
-  this.moduleCreators[moduleName] = callback;
-  this.lock("bindModule");
+  var reqId = this.requestId++;
+  this.moduleCreators[moduleName] = { reqId, callback };
+  this.lock(reqId, "bindModule");
   this.send({ action: "module", "name": moduleName });
   return "must-wait";
 };
 WSBridge.handlers["haveModule"] = function(msg) {
   console.log("have module", msg.name);
   var name = msg.name;
-  var cb = this.moduleCreators[name];
-  if (cb) {
-    cb(this.runner, msg.conn);
+  var cbr = this.moduleCreators[name];
+  if (cbr && cbr.callback) {
+    cbr.callback(this.runner, msg.conn);
   }
   delete this.moduleCreators[name];
-  this.unlock("haveModule");
+  this.unlock(cbr.reqId, "haveModule");
 };
 WSBridge.handlers["prepareUnitTest"] = function(msg) {
   console.log("UNIT", msg.wrapper, msg.testname);
@@ -126,7 +127,7 @@ WSBridge.handlers["runStep"] = function(msg) {
     console.log(e);
     this.error(e.toString());
   }
-  this.unlock("runstep");
+  this.unlock(msg.reqId, "runstep");
 };
 WSBridge.handlers["assertSatisfied"] = function(msg) {
   console.log("assert all expectations satisfied", msg);
@@ -137,7 +138,7 @@ WSBridge.handlers["assertSatisfied"] = function(msg) {
     console.log(e);
     this.error(e.toString());
   }
-  this.unlock("assertSatisfied");
+  this.unlock(msg.reqId, "assertSatisfied");
 };
 WSBridge.prototype.send = function(json) {
   var text = JSON.stringify(json);
@@ -160,13 +161,13 @@ WSBridge.prototype.nextRequestId = function(hdlr) {
   this.responders[this.requestId] = hdlr;
   return this.requestId++;
 };
-WSBridge.prototype.lock = function(msg) {
+WSBridge.prototype.lock = function(reqId, msg) {
   console.log("lock", msg);
-  this.send({ action: "lock", msg });
+  this.send({ action: "lock", msg, reqId });
 };
-WSBridge.prototype.unlock = function(msg) {
+WSBridge.prototype.unlock = function(reqId, msg) {
   console.log("unlock", msg);
-  this.send({ action: "unlock", msg });
+  this.send({ action: "unlock", msg, reqId });
 };
 export {
   WSBridge

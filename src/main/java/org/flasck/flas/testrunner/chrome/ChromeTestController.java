@@ -32,8 +32,9 @@ public class ChromeTestController implements JSTestController {
 					while (it.hasNext()) {
 						String s = it.next();
 						counter.waitForZero(10, TimeUnit.MINUTES); // wait a long time because they may be in the debugger
-						counter.start("runstep " + s);
-						bridge.runStep(s);
+						int ri = counter.newRequestId();
+						counter.start(ri, "runstep " + s);
+						bridge.runStep(ri, s);
 					}
 					counter.waitForZero(10, TimeUnit.MINUTES); // wait a long time because they may be in the debugger
 				} catch (Exception ex) {

@@ -3499,7 +3499,7 @@ var CommonEnv = function(bridge, broker) {
   else
     this.locker = { lock: function() {
     }, unlock: function() {
-    } };
+    }, requestId: 0 };
 };
 CommonEnv.prototype.makeReady = function() {
   this.broker.register("Repeater", new ContainerRepeater());
@@ -3514,7 +3514,8 @@ CommonEnv.prototype.clear = function() {
   this.singletons = {};
 };
 CommonEnv.prototype.queueMessages = function(_cxt, msg) {
-  this.locker.lock("queue");
+  var reqId = this.locker.requestId++;
+  this.locker.lock(reqId, "queue");
   this.queue.push(msg);
   var self = this;
   setTimeout(() => {
@@ -3523,7 +3524,7 @@ CommonEnv.prototype.queueMessages = function(_cxt, msg) {
     } catch (e) {
       self.logger.log(e);
     } finally {
-      this.locker.unlock("queue");
+      this.locker.unlock(reqId, "queue");
     }
   }, 0);
 };

@@ -66,8 +66,9 @@ public class SingleJSTest {
 		List<Throwable> excs = new ArrayList<>();
 		logger.info("calling " + desc + " step " + s);
 		try {
-			counter.start("JS runstep");
-			runStep(s);
+			int reqId = counter.newRequestId();
+			counter.start(reqId, "JS runstep");
+			runStep(reqId, s);
 			counter.waitForZero(15000);
 			logger.info("step " + s + " has finished");
 		} catch (JSCaughtException t) {
@@ -81,16 +82,17 @@ public class SingleJSTest {
 		handleExceptions(desc, excs);
 	}
 
-	public void runStep(String step) throws InterruptedException, JSONException, TimeoutException {
+	public void runStep(int reqId, String step) throws InterruptedException, JSONException, TimeoutException {
 		logger.info("running step " + step);
-		bridge.runStep(step);
+		bridge.runStep(reqId, step);
 	}
 
 	public void checkContextSatisfied(String desc) {
 		List<Throwable> excs = new ArrayList<>();
 		try {
-			counter.start("JS assert satisfied");
-			bridge.checkContextSatisfied();
+			int reqId = counter.newRequestId();
+			counter.start(reqId, "JS assert satisfied");
+			bridge.checkContextSatisfied(reqId);
 			counter.waitForZero(15000);
 		} catch (JSCaughtException t) {
 			excs.add(t);

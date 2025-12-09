@@ -128,14 +128,15 @@ public class JVMRunner extends CommonTestRunner<State>  {
 				if (state != null && state.failed > 0)
 					return;
 				pw.begin("JVM", (desc!=null?desc:"configure") + ": " + s);
-				counter.start("JVM run test");
+				int reqId = counter.newRequestId();
+				counter.start(reqId, "JVM run test");
 				Throwable ct = null;
 				try {
 					Reflection.call(test, s, cxt);
 				} catch (Throwable t) {
 					ct = t;
 				}
-				counter.end(s);
+				counter.end(reqId, s);
 				while (true) {
 					counter.waitForZero(5000);
 					if (!cxt.getDispatcher().isDone())

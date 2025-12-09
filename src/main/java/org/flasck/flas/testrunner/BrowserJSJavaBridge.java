@@ -120,11 +120,13 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver, TestModule
 				break;
 			}
 			case "lock": {
-				lock(jo.getString("msg"));
+				int reqId = jo.getInt("reqId");
+				lock(reqId, jo.getString("msg"));
 				break;
 			}
 			case "unlock": {
-				unlock(jo.getString("msg"));
+				int reqId = jo.getInt("reqId");
+				unlock(reqId, jo.getString("msg"));
 				break;
 			}
 			case "module": {
@@ -155,12 +157,12 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver, TestModule
 		sendJson(new JSONObject().put("action", "prepareStage").put("stage", baseName).toString());
 	}
 
-	public void runStep(String step) throws JSONException {
-		sendJson(new JSONObject().put("action", "runStep").put("step", step).toString());
+	public void runStep(int reqId, String step) throws JSONException {
+		sendJson(new JSONObject().put("action", "runStep").put("reqId", reqId).put("step", step).toString());
 	}
 
-	public void checkContextSatisfied() throws JSONException {
-		sendJson(new JSONObject().put("action", "assertSatisfied").toString());
+	public void checkContextSatisfied(int reqId) throws JSONException {
+		sendJson(new JSONObject().put("action", "assertSatisfied").put("reqId", reqId).toString());
 	}
 
 	@Override
@@ -230,13 +232,13 @@ public class BrowserJSJavaBridge implements JSJavaBridge, WSReceiver, TestModule
 		responder.send(json);
 	}
 
-	public void lock(String msg) {
-		counter.lock("lock " + msg);
+	public void lock(int reqId, String msg) {
+		counter.lock(reqId, "lock " + msg);
 		logger.info("lock " + msg + ": counter = " + counter.getCount());
 	}
 	
-	public void unlock(String msg) {
-		counter.release("unlock " + msg);
+	public void unlock(int reqId, String msg) {
+		counter.release(reqId, "unlock " + msg);
 		logger.info("unlock " + msg + ": counter = " + counter.getCount());
 		if (counter.isZero() && readyWhenZero) {
 			controller.ready();
