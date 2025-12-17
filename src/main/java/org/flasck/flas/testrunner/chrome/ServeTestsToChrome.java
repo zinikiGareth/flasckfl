@@ -48,7 +48,7 @@ public class ServeTestsToChrome {
 	private int port = 14040;
 	private String rooturl;
 	private File testdir;
-	private File flasckdir = new File("/Users/gareth/Ziniki/Over/FLAS2/src/main/resources/flasck");
+	private File flasckdir = new File("/Users/gareth/Ziniki/Over/FLAS2/src/main/resources/flascklib");
 	private JSTestServer server;
 
 	private void parse(String[] argv) {

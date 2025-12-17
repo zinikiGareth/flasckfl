@@ -50,7 +50,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	static String buildDroidOpt = System.getProperty("org.flasck.golden.buildDroid");
 	static String maxcnt = System.getProperty("org.flasck.golden.cnt");
 	static String flascklibOption = System.getProperty("org.flasck.golden.flascklib");
-	static String flascklib = flascklibOption != null ? flascklibOption : "src/main/resources/flasck";
+	static String flascklib = flascklibOption != null ? flascklibOption : "src/main/resources/flascklib";
 	private static int MAXCNT = maxcnt == null ? Integer.MAX_VALUE : Integer.parseInt(maxcnt);
 	protected static Interceptor interceptor = null;
 	private static String checkGrammarOption = System.getProperty("checkGrammar");
