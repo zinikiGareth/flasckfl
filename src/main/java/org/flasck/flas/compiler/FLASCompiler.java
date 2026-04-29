@@ -232,7 +232,7 @@ public class FLASCompiler implements CompileUnit {
 				hfsRoot.provideWebData(md);
 			}
 		} catch (IOException ex) {
-			errors.message((InputPosition) null, "error splitting: " + cardsFolder);
+			errors.message((InputPosition) null, "error splitting: " + cardsFolder + ": " + ex);
 		}
 	}
 
