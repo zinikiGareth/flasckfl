@@ -686,6 +686,7 @@ public class FLASCompiler implements CompileUnit {
 
 		if (config.generateJS && config.unitjs) {
 			try {
+				cl = makeBCL(config);
 				JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates, cl);
 				jsRunner.runAllUnitTests(writers);
 				jsRunner.reportErrors(errors);
